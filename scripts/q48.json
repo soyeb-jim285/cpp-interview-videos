@@ -1,0 +1,72 @@
+{
+  "id": "q48", "num": 48, "short": "Inheritance types",
+  "question": "What is inheritance? Explain its different types.",
+  "caps": [["d dot eat", "d.eat"], ["c dot id", "c.id"]],
+  "scenes": [
+    { "type": "title", "sub": "Reuse an existing class to build a new one, with an is-a relationship.",
+      "say": "Inheritance. A new class is built from an existing one, and reuses its members. Then we'll look at the types: by structure, and by access mode." },
+
+    { "type": "code", "head": "The basic idea: Dog is an Animal",
+      "panels": [{ "file": "dog.cpp", "code": "class Animal {\npublic:\n    void eat() { std::cout << \"eating\\n\"; }\nprotected:\n    int age = 0;\n};\n\nclass Dog : public Animal {          // Dog IS-A Animal\npublic:\n    void bark() { std::cout << \"woof at \" << age << '\\n'; }\n};\n\nDog d;\nd.eat();     // inherited from Animal\nd.bark();    // Dog's own" }],
+      "steps": [
+        { "cue": "Animal is the base", "lines": [1, 2, 3, 4, 5, 6] },
+        { "cue": "Dog derives", "lines": [8] },
+        { "cue": "d dot eat", "lines": [14] },
+        { "cue": "protected", "lines": [5, 10] }
+      ],
+      "say": "Animal is the base class. Dog derives from it, so a Dog is an Animal. Dog gets everything Animal has, so d dot eat works without writing it again, and Dog adds its own bark. Notice age is protected: hidden from the outside world, but visible to derived classes like Dog." },
+
+    { "type": "diagram", "head": "Types by structure",
+      "items": [
+        { "id": "g1", "region": true, "x": 120, "y": 230, "w": 380, "h": 660, "label": "Single" },
+        { "id": "s1a", "x": 230, "y": 340, "w": 160, "h": 100, "text": "A", "size": 40, "tone": "blue", "cue": "Single" },
+        { "id": "s1b", "x": 230, "y": 600, "w": 160, "h": 100, "text": "B", "size": 40, "tone": "warn", "cue": "Single" },
+        { "id": "g2", "region": true, "x": 540, "y": 230, "w": 380, "h": 660, "label": "Multilevel" },
+        { "id": "m2a", "x": 650, "y": 310, "w": 160, "h": 100, "text": "A", "size": 40, "tone": "blue", "cue": "Multilevel" },
+        { "id": "m2b", "x": 650, "y": 500, "w": 160, "h": 100, "text": "B", "size": 40, "tone": "blue", "cue": "Multilevel" },
+        { "id": "m2c", "x": 650, "y": 690, "w": 160, "h": 100, "text": "C", "size": 40, "tone": "warn", "cue": "Multilevel" },
+        { "id": "g3", "region": true, "x": 960, "y": 230, "w": 380, "h": 660, "label": "Multiple" },
+        { "id": "u3a", "x": 1000, "y": 340, "w": 140, "h": 100, "text": "A", "size": 40, "tone": "blue", "cue": "Multiple" },
+        { "id": "u3b", "x": 1160, "y": 340, "w": 140, "h": 100, "text": "B", "size": 40, "tone": "blue", "cue": "Multiple" },
+        { "id": "u3c", "x": 1080, "y": 600, "w": 140, "h": 100, "text": "C", "size": 40, "tone": "warn", "cue": "Multiple" },
+        { "id": "g4", "region": true, "x": 1380, "y": 230, "w": 420, "h": 660, "label": "Hierarchical" },
+        { "id": "h4a", "x": 1520, "y": 340, "w": 140, "h": 100, "text": "A", "size": 40, "tone": "blue", "cue": "Hierarchical" },
+        { "id": "h4b", "x": 1420, "y": 600, "w": 140, "h": 100, "text": "B", "size": 40, "tone": "warn", "cue": "Hierarchical" },
+        { "id": "h4c", "x": 1620, "y": 600, "w": 140, "h": 100, "text": "C", "size": 40, "tone": "warn", "cue": "Hierarchical" }
+      ],
+      "arrows": [
+        { "from": "s1b", "to": "s1a", "cue": "Single" },
+        { "from": "m2b", "to": "m2a", "cue": "Multilevel" },
+        { "from": "m2c", "to": "m2b", "cue": "Multilevel" },
+        { "from": "u3c", "to": "u3a", "cue": "Multiple" },
+        { "from": "u3c", "to": "u3b", "cue": "Multiple" },
+        { "from": "h4b", "to": "h4a", "cue": "Hierarchical" },
+        { "from": "h4c", "to": "h4a", "cue": "Hierarchical" }
+      ],
+      "say": "By structure, there are a few shapes. Arrows point from derived to base. Single: one derived class, one base. Multilevel: a chain, where C derives from B, which derives from A. Multiple: one class with two bases at once. C plus plus allows this, unlike Java. Hierarchical: several classes sharing the same base. Mix these together and you get hybrid inheritance, with its famous problem, the diamond." },
+
+    { "type": "code", "head": "Hybrid: the diamond problem",
+      "panels": [{ "file": "diamond.cpp", "code": "struct Device  { int id = 0; };\nstruct Scanner : virtual Device {};\nstruct Printer : virtual Device {};\nstruct Copier  : Scanner, Printer {};\n\nCopier c;\nc.id = 7;    // OK: one shared Device\n\n// without virtual: two Device copies,\n// and c.id would be ambiguous" }],
+      "steps": [
+        { "cue": "A Copier", "lines": [1, 2, 3, 4] },
+        { "cue": "Without the virtual keyword", "lines": [9, 10] },
+        { "cue": "virtual inheritance", "lines": [2, 3, 7] }
+      ],
+      "say": "A Copier is both a Scanner and a Printer, and both are Devices. Without the virtual keyword, a Copier would contain two separate Device parts, and c dot id would be ambiguous: which id? With virtual inheritance, Scanner and Printer share one single Device, so c dot id just works." },
+
+    { "type": "code", "head": "Types by access mode",
+      "panels": [{ "file": "access.cpp", "code": "class Base {\npublic:    int pub;\nprotected: int prot;\nprivate:   int priv;   // never accessible in derived\n};\n\nclass A : public    Base {};  // pub: public,    prot: protected\nclass B : protected Base {};  // pub: protected, prot: protected\nclass C : private   Base {};  // pub: private,   prot: private\n\nstruct D : Base {};  // struct: public by default\nclass  E : Base {};  // class: private by default" }],
+      "steps": [
+        { "cue": "Public inheritance", "lines": [7] },
+        { "cue": "Protected inheritance", "lines": [8] },
+        { "cue": "Private inheritance", "lines": [9] },
+        { "cue": "In every case", "lines": [4] },
+        { "cue": "the default", "lines": [11, 12] }
+      ],
+      "say": "There's also the access mode. Public inheritance keeps public members public. That's the normal is a relationship. Protected inheritance makes them protected. Private inheritance makes everything private, which means implemented in terms of, not is a. In every case, the base's private members stay hidden from the derived class. And watch the default: struct inherits publicly, class inherits privately. Forgetting the word public is a classic bug." },
+
+    { "type": "take", "lines": ["Inheritance: a derived class reuses a base class. Public = is-a.", "Structure: single, multilevel, multiple, hierarchical, hybrid (diamond).", "Access: public, protected, private. Base private members are never accessible."],
+      "cues": ["Inheritance lets", "By structure", "By access"],
+      "say": "Inheritance lets a derived class reuse a base class, and public inheritance means is a. By structure: single, multilevel, multiple, hierarchical, and hybrid, where virtual inheritance solves the diamond. By access: public, protected, or private." }
+  ]
+}

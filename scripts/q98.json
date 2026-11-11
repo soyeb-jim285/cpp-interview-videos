@@ -1,0 +1,60 @@
+{
+  "id": "q98", "num": 98, "short": "Ctor/dtor count",
+  "question": "How many times will the constructor and destructor execute?",
+  "caps": [["Test b equals a", "Test b = a"], ["operator equals", "operator="]],
+  "scenes": [
+    { "type": "title", "sub": "Count the lines of output before you run it.",
+      "say": "A classic counting puzzle. Two objects, one constructor that prints, one destructor that prints. How many lines of output?" },
+
+    { "type": "code", "head": "Pause and guess",
+      "panels": [{ "file": "main.cpp", "size": 36, "code": "class Test {\npublic:\n    Test() { cout << \"Constructor\\n\"; }\n    ~Test() { cout << \"Destructor\\n\"; }\n};\n\nint main() {\n    Test a;\n    Test b = a;\n}" }],
+      "steps": [
+        { "cue": "Test prints", "lines": [3, 4] },
+        { "cue": "main creates a", "lines": [8] },
+        { "cue": "then b from a", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "How many", "line": 9, "inside": true, "text": "how many lines?", "tone": "warn" }
+      ],
+      "say": "Test prints in its constructor and its destructor. main creates a, then b from a. How many times does Constructor print? And Destructor? Pause and count." },
+
+    { "type": "diagram", "head": "What really runs",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "class Test {\npublic:\n    Test() { cout << \"Constructor\\n\"; }\n    ~Test() { cout << \"Destructor\\n\"; }\n    // implicit: Test(const Test&) = copy,\n    //           prints nothing\n};\n\nint main() {\n    Test a;\n    Test b = a;\n}" }],
+      "steps": [
+        { "cue": "Test a runs", "lines": [3, 10] },
+        { "cue": "Test b equals a", "lines": [11] },
+        { "cue": "compiler generated", "lines": [5, 6] },
+        { "cue": "At the closing brace", "lines": [12] },
+        { "cue": "then a", "lines": [4, 12] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1010, "y": 220, "w": 380, "h": 680, "label": "main() stack", "tone": "blue" },
+        { "id": "oa", "x": 1040, "y": 330, "w": 320, "h": 120, "label": "a", "text": "Test", "size": 40, "tone": "blue", "cue": "Test a runs" },
+        { "id": "ob", "x": 1040, "y": 560, "w": 320, "h": 120, "label": "b", "text": "Test", "sub": "copy of a", "size": 40, "tone": "warn", "cue": "Test b equals a" },
+        { "id": "con", "region": true, "x": 1430, "y": 220, "w": 390, "h": 680, "label": "OUTPUT", "tone": "good" },
+        { "id": "o1", "x": 1455, "y": 300, "w": 340, "h": 90, "text": "Constructor", "size": 34, "tone": "good", "cue": "prints Constructor" },
+        { "id": "o2", "x": 1455, "y": 420, "w": 340, "h": 90, "text": "Destructor", "size": 34, "tone": "bad", "cue": "b is destroyed first" },
+        { "id": "o3", "x": 1455, "y": 540, "w": 340, "h": 90, "text": "Destructor", "size": 34, "tone": "bad", "cue": "then a" }
+      ],
+      "arrows": [{ "from": "oa", "to": "ob", "cue": "Test b equals a", "tone": "warn" }],
+      "changes": [
+        { "id": "ob", "kill": true, "cue": "b is destroyed first" },
+        { "id": "oa", "kill": true, "cue": "then a" },
+        { "id": "a0", "fade": true, "cue": "b is destroyed first" }
+      ],
+      "say": "Test a runs the default constructor, and prints Constructor. Now the trick. Test b equals a is not assignment, it's initialization from another Test. That calls the copy constructor, not your constructor. You never wrote one, so the compiler generated one, and it prints nothing. At the closing brace, objects die in reverse order. b is destroyed first, then a. Two objects, two destructors. So: one Constructor, two Destructors." },
+
+    { "type": "code", "head": "Make the copy visible",
+      "panels": [{ "file": "fixed.cpp", "size": 34, "code": "class Test {\npublic:\n    Test() { cout << \"Constructor\\n\"; }\n    Test(const Test&) { cout << \"Copy constructor\\n\"; }\n    ~Test() { cout << \"Destructor\\n\"; }\n};\n\nint main() {\n    Test a;\n    Test b = a;\n}" }],
+      "steps": [
+        { "cue": "write the copy constructor", "lines": [4] },
+        { "cue": "Now the output", "lines": [9, 10] }
+      ],
+      "output": { "cmd": "./fixed", "text": "Constructor\nCopy constructor\nDestructor\nDestructor", "cue": "Now the output", "tone": "good" },
+      "say": "To see it, write the copy constructor yourself. Now the output shows every object's whole life: constructed, copied, and two destructions. The rule to remember: every object that is created is destroyed exactly once, but not every creation goes through the constructor you wrote. Copies use the copy constructor. And operator equals only runs on an object that already exists." },
+
+    { "type": "take", "lines": ["Output: \"Constructor\" once, \"Destructor\" twice.", "`Test b = a;` calls the implicit copy constructor, which prints nothing.", "Every object is destroyed exactly once, in reverse order: b, then a."],
+      "cues": ["The answer", "Test b equals a", "Every object"],
+      "say": "The answer: Constructor once, Destructor twice. Test b equals a calls the implicit copy constructor, which prints nothing. Every object is destroyed exactly once, in reverse order of creation: b, then a." }
+  ]
+}

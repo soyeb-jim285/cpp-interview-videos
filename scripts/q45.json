@@ -1,0 +1,59 @@
+{
+  "id": "q45", "num": 45, "short": "References internally",
+  "question": "How are references implemented internally, and does the C++ standard require a specific representation?",
+  "caps": [["r equals seven", "r = 7"], ["ampersand r", "&r"], ["sizeof r", "sizeof(r)"]],
+  "scenes": [
+    { "type": "title", "sub": "The standard says what a reference does, not how it's stored.",
+      "say": "How are references implemented? The short answer: the standard only says how a reference behaves. How it's stored is up to the compiler. Let's look at what compilers actually do." },
+
+    { "type": "diagram", "head": "What the compiler usually does",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "int x = 5;\nint& r = x;     // alias for x\nr = 7;          // x is now 7\n\n// when stored, compilers\n// typically emit this:\nint* const p = &x;\n*p = 7;" }],
+      "steps": [
+        { "cue": "r is a reference", "lines": [1, 2] },
+        { "cue": "r equals seven", "lines": [3] },
+        { "cue": "constant pointer", "lines": [7, 8] }
+      ],
+      "items": [
+        { "id": "x", "x": 1150, "y": 560, "w": 300, "h": 130, "label": "x @0x100", "text": "5", "size": 48, "tone": "blue", "cue": "r is a reference" },
+        { "id": "r", "x": 1150, "y": 790, "w": 300, "h": 100, "text": "r", "sub": "often no storage at all", "size": 34, "tone": "ghost", "cue": "usually nothing is stored" },
+        { "id": "p", "x": 1150, "y": 270, "w": 300, "h": 120, "label": "hidden pointer", "text": "0x100", "size": 40, "tone": "warn", "cue": "constant pointer" }
+      ],
+      "arrows": [
+        { "from": "r", "to": "x", "tone": "good", "cue": "usually nothing is stored" },
+        { "from": "p", "to": "x", "cue": "constant pointer" }
+      ],
+      "changes": [{ "id": "x", "text": "7", "cue": "r equals seven" }],
+      "say": "Here r is a reference to x, and r equals seven changes x. So how is that done? For a local alias like this, usually nothing is stored at all. The optimizer just uses x directly. When a reference really must be stored, say as a class member, or passed to a function that isn't inlined, compilers implement it as a constant pointer that's automatically dereferenced. The machine code is the same as the pointer version." },
+
+    { "type": "code", "head": "What the standard actually says",
+      "panels": [{ "file": "standard.cpp", "code": "struct Holder { int& r; };\n\nint x = 5;\nint& r = x;\n\nsizeof(r);        // == sizeof(int): the object's size\n&r == &x;         // true: you get x's address\nsizeof(Holder);   // usually 8 on 64-bit, not guaranteed\n\nint&* pr;         // no pointers to references\nint& arr[3];      // no arrays of references" }],
+      "steps": [
+        { "cue": "The standard is deliberately vague", "lines": [] },
+        { "cue": "sizeof r", "lines": [6] },
+        { "cue": "Ampersand r", "lines": [7] },
+        { "cue": "pointers to references", "lines": [10, 11] },
+        { "cue": "In practice", "lines": [1, 8] }
+      ],
+      "notes": [
+        { "cue": "pointers to references", "line": 10, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "or arrays of them", "line": 11, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "The standard is deliberately vague. A reference is not an object, and it's unspecified whether a reference needs any storage. So everything you can observe goes to the referred object. sizeof r gives the size of int. Ampersand r gives x's address. Since you can never reach the reference itself, there are no pointers to references, or arrays of them. In practice, a struct holding a reference is usually pointer sized. But that's the compiler's choice, not a rule." },
+
+    { "type": "code", "head": "Underneath an address, so it can dangle",
+      "panels": [{ "file": "dangle.cpp", "code": "int& bad() {\n    int local = 42;\n    return local;       // reference to a dead local\n}\n\nint& r = bad();         // r refers to freed stack memory\nstd::cout << r;         // undefined behavior" }],
+      "steps": [
+        { "cue": "Return a reference to a local", "lines": [1, 2, 3, 4] },
+        { "cue": "Using it", "lines": [6, 7] }
+      ],
+      "notes": [
+        { "cue": "Compilers warn", "line": 3, "inside": true, "text": "warning", "tone": "warn" },
+        { "cue": "Using it", "line": 7, "inside": true, "text": "UB", "tone": "bad" }
+      ],
+      "say": "Because a stored reference is really an address underneath, it has the same lifetime problems as a pointer. Return a reference to a local, and it refers to stack memory that's already gone. Compilers warn about this simple case, but nothing in general stops a reference from dangling. Using it is undefined behavior. So the interview trap is believing references are always safe." },
+
+    { "type": "take", "lines": ["The standard defines behavior only: a reference is an alias, not an object.", "Unspecified whether it needs storage. Local aliases are often optimized away.", "When stored, compilers use a hidden, auto-dereferenced const pointer."],
+      "cues": ["The standard", "It's unspecified", "When it is stored"],
+      "say": "The standard defines only behavior. A reference is an alias, not an object. It's unspecified whether it needs storage, and local aliases are often optimized away. When it is stored, compilers use a hidden constant pointer that's dereferenced automatically." }
+  ]
+}

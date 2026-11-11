@@ -1,0 +1,67 @@
+{
+  "id": "q76", "num": 76, "short": "map vs unordered_map",
+  "question": "What is the difference between `map` and `unordered_map`?",
+  "caps": [["[Uu]nordered map", "unordered_map"], ["lower bound", "lower_bound"], ["O of one", "O(1)"], ["O of log n", "O(log n)"], ["O of n", "O(n)"]],
+  "scenes": [
+    { "type": "title", "sub": "A sorted tree versus a hash table.",
+      "say": "Map versus unordered map. Same interface, very different machinery underneath. Let's put the same keys into both." },
+
+    { "type": "diagram", "head": "Same four keys, two structures",
+      "items": [
+        { "id": "rm", "region": true, "x": 120, "y": 210, "w": 800, "h": 690, "label": "std::map", "tone": "blue" },
+        { "id": "ru", "region": true, "x": 1000, "y": 210, "w": 820, "h": 690, "label": "std::unordered_map", "tone": "warn" },
+        { "id": "n30", "x": 440, "y": 290, "w": 160, "h": 90, "text": "30", "size": 38, "tone": "blue", "cue": "balanced binary search tree" },
+        { "id": "n10", "x": 240, "y": 470, "w": 160, "h": 90, "text": "10", "size": 38, "tone": "blue", "cue": "balanced binary search tree" },
+        { "id": "n50", "x": 640, "y": 470, "w": 160, "h": 90, "text": "50", "size": 38, "tone": "blue", "cue": "balanced binary search tree" },
+        { "id": "n20", "x": 360, "y": 650, "w": 160, "h": 90, "text": "20", "size": 38, "tone": "blue", "cue": "Smaller keys go left" },
+        { "id": "b0", "x": 1060, "y": 290, "w": 160, "h": 90, "text": "[0]", "size": 32, "tone": "ghost", "cue": "is a hash table" },
+        { "id": "b1", "x": 1060, "y": 420, "w": 160, "h": 90, "text": "[1]", "size": 32, "tone": "ghost", "cue": "is a hash table" },
+        { "id": "b2", "x": 1060, "y": 550, "w": 160, "h": 90, "text": "[2]", "size": 32, "tone": "ghost", "cue": "is a hash table" },
+        { "id": "b3", "x": 1060, "y": 680, "w": 160, "h": 90, "text": "[3]", "size": 32, "tone": "ghost", "cue": "is a hash table" },
+        { "id": "h20", "x": 1350, "y": 290, "w": 160, "h": 90, "text": "20", "size": 38, "tone": "warn", "cue": "pick a bucket" },
+        { "id": "h50", "x": 1350, "y": 420, "w": 160, "h": 90, "text": "50", "size": 38, "tone": "warn", "cue": "pick a bucket" },
+        { "id": "h10", "x": 1350, "y": 550, "w": 160, "h": 90, "text": "10", "size": 38, "tone": "warn", "cue": "pick a bucket" },
+        { "id": "h30", "x": 1600, "y": 550, "w": 160, "h": 90, "text": "30", "size": 38, "tone": "warn", "cue": "collide" }
+      ],
+      "arrows": [
+        { "from": "n30", "to": "n10", "cue": "balanced binary search tree" },
+        { "from": "n30", "to": "n50", "cue": "balanced binary search tree" },
+        { "from": "n10", "to": "n20", "cue": "Smaller keys go left" },
+        { "from": "b0", "to": "h20", "cue": "pick a bucket" },
+        { "from": "b1", "to": "h50", "cue": "pick a bucket" },
+        { "from": "b2", "to": "h10", "cue": "pick a bucket" },
+        { "from": "h10", "to": "h30", "cue": "collide" }
+      ],
+      "notes": [
+        { "cue": "always gives sorted", "x": 240, "y": 800, "text": "in order: 10 20 30 50", "tone": "good" },
+        { "cue": "no meaningful order", "x": 1060, "y": 810, "text": "order: unspecified", "tone": "warn" }
+      ],
+      "say": "A map is a balanced binary search tree, usually a red black tree. Smaller keys go left, bigger keys go right, so walking it in order always gives sorted keys. An unordered map is a hash table. It hashes each key to pick a bucket. Keys that collide share a bucket, chained together. There's no meaningful order at all. That's the core difference. The tree buys you ordering, the hash table buys you speed." },
+
+    { "type": "code", "head": "What you see in code",
+      "panels": [{ "file": "maps.cpp", "size": 32, "code": "std::map<std::string, int> m = {{\"pear\", 3}, {\"apple\", 5}, {\"fig\", 1}};\nfor (auto& [k, v] : m) std::cout << k << ' ';   // apple fig pear\n\nstd::unordered_map<std::string, int> u(m.begin(), m.end());\nfor (auto& [k, v] : u) std::cout << k << ' ';   // some order\n\nauto it = m.lower_bound(\"b\");   // first key >= \"b\": fig" }],
+      "steps": [
+        { "cue": "iterating a map", "lines": [1, 2] },
+        { "cue": "Iterating an unordered map", "lines": [4, 5] },
+        { "cue": "lower bound", "lines": [7] },
+        { "cue": "Requirements differ", "lines": [] }
+      ],
+      "say": "In code, iterating a map gives keys in sorted order: apple, fig, pear. Iterating an unordered map gives some order you must not rely on. It can even change after a rehash. Because a map is sorted, it also supports range queries, like lower bound: the first key not less than b, which is fig. Requirements differ too. Map needs a less than comparison on keys. Unordered map needs a hash function and equality." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["map", "unordered_map"], "rowHeads": ["Structure", "Order", "Lookup", "Key needs", "Extras"],
+      "rows": [
+        ["Balanced BST (red-black tree)", "Hash table with buckets"],
+        ["Sorted by key", "Unspecified, can change"],
+        ["O(log n), guaranteed", "O(1) average, O(n) worst case"],
+        ["`operator<` or a comparator", "`std::hash` and `operator==`"],
+        ["Range queries: `lower_bound`", "Tuning: `reserve`, load factor"]
+      ],
+      "cues": ["Structure", "Order", "Lookup", "Key needs", "Extras"],
+      "say": "Structure: tree versus hash table. Order: sorted versus unspecified. Lookup: O of log n guaranteed, versus O of one on average, but O of n in the worst case, when many keys collide. Key needs: a less than comparison, versus a hash and equality. Extras: ordered range queries, versus tuning the buckets." },
+
+    { "type": "take", "lines": ["map: balanced tree, sorted keys, O(log n) guaranteed, range queries.", "unordered_map: hash table, no order, O(1) average but O(n) worst case.", "Default to unordered_map for lookups. Use map for order or worst-case guarantees."],
+      "cues": ["A map is", "An unordered map", "Reach for"],
+      "say": "A map is a sorted tree with guaranteed O of log n. An unordered map is a hash table, O of one on average, with no order. Reach for unordered map for fast lookups, and map when you need ordering, range queries, or worst case guarantees." }
+  ]
+}

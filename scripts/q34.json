@@ -1,0 +1,53 @@
+{
+  "id": "q34", "num": 34, "short": "Placement new",
+  "question": "What is placement `new`?",
+  "caps": [["C\\+\\+ twenty", "C++20"], ["construct at", "construct_at"]],
+  "scenes": [
+    { "type": "title", "sub": "Construct an object in memory you already have.",
+      "say": "Placement new. Normal new does two jobs: it allocates memory, and it constructs an object there. Placement new does only the second job." },
+
+    { "type": "diagram", "head": "Construct without allocating",
+      "panels": [{ "file": "place.cpp", "size": 34, "code": "#include <new>\nstruct Point { int x, y; };\n\nalignas(Point) unsigned char buf[sizeof(Point)];\n\nPoint* p = new (buf) Point{1, 2};\n\np->~Point();   // destroy explicitly\n// no delete: nothing was allocated" }],
+      "steps": [
+        { "cue": "reserve raw bytes", "lines": [4] },
+        { "cue": "allocates nothing", "lines": [6] },
+        { "cue": "call the destructor", "lines": [8] },
+        { "cue": "never call delete", "lines": [9] }
+      ],
+      "items": [
+        { "id": "buf", "x": 1040, "y": 320, "w": 720, "h": 140, "label": "buf: raw bytes on the stack", "text": "? ? ? ? ? ? ? ?", "size": 36, "tone": "ghost", "cue": "reserve raw bytes" },
+        { "id": "pp", "x": 1040, "y": 680, "w": 300, "h": 120, "label": "p", "text": "&buf[0]", "size": 36, "tone": "warn", "cue": "returns a pointer" }
+      ],
+      "arrows": [{ "from": "pp", "to": "buf", "cue": "returns a pointer" }],
+      "changes": [
+        { "id": "buf", "text": "Point{1, 2}", "cue": "runs the constructor" },
+        { "id": "buf", "tone": "info", "cue": "runs the constructor" },
+        { "id": "buf", "text": "raw bytes again", "cue": "call the destructor" },
+        { "id": "buf", "tone": "dim", "cue": "call the destructor" },
+        { "id": "a0", "fade": true, "cue": "call the destructor" }
+      ],
+      "say": "First we reserve raw bytes, sized and aligned for a Point. No object exists yet. Then new, with buf in parentheses, allocates nothing. It just runs the constructor at that address, and returns a pointer to the new object. When we're done, we call the destructor ourselves, explicitly. And we never call delete on p, because delete would try to free memory that new never allocated." },
+
+    { "type": "code", "head": "The destructor is your job",
+      "panels": [{ "file": "tracer.cpp", "size": 32, "code": "#include <iostream>\n#include <new>\n\nstruct Tracer {\n    Tracer()  { std::cout << \"ctor\\n\"; }\n    ~Tracer() { std::cout << \"dtor\\n\"; }\n};\n\nint main() {\n    alignas(Tracer) unsigned char buf[sizeof(Tracer)];\n    Tracer* t = new (buf) Tracer;\n    t->~Tracer();   // forget this and \"dtor\" never prints\n}" }],
+      "steps": [
+        { "cue": "Placement new prints", "lines": [11] },
+        { "cue": "explicit destructor call", "lines": [12] },
+        { "cue": "correctly aligned", "lines": [10] }
+      ],
+      "output": { "cmd": "./tracer", "cue": "prints dtor", "text": "ctor\ndtor" },
+      "say": "Here's proof that cleanup is your job. Placement new prints ctor. The explicit destructor call prints dtor. Leave that line out, and dtor never prints. The buffer just goes away, and any resource the object held, like a file or heap memory, leaks. Also, the buffer must be big enough and correctly aligned, or you get undefined behavior." },
+
+    { "type": "flow", "head": "Where it's used",
+      "items": [
+        { "label": "std::vector", "text": "capacity", "sub": "elements built in place", "cue": "Vector reserves" },
+        { "label": "std::optional", "text": "inner storage", "sub": "value built on demand", "cue": "Optional keeps" },
+        { "label": "Memory pools", "text": "one big block", "sub": "many objects placed inside", "cue": "memory pools" }
+      ],
+      "say": "Where is it used? Vector reserves raw capacity, then constructs each element in place as you push back. Optional keeps raw storage inside itself, and constructs the value only when you set it. And memory pools grab one big block, then place many objects inside it. Since C plus plus twenty, s t d colon colon construct at does the same job, and also works in constexpr code." },
+
+    { "type": "take", "lines": ["Placement new constructs an object at an address you provide. No allocation.", "You must call the destructor yourself, and never delete it.", "Memory must be big enough and aligned. Used inside vector, optional, pools."],
+      "cues": ["Placement new", "You must", "The memory"],
+      "say": "Placement new constructs an object at an address you provide, with no allocation. You must call the destructor yourself, and never call delete on it. The memory must be big enough and properly aligned. It's what vector, optional and memory pools use under the hood." }
+  ]
+}

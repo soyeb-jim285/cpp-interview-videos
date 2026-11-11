@@ -1,0 +1,68 @@
+{
+  "id": "q67", "num": 67, "short": "lvalues and rvalues",
+  "question": "What are lvalues and rvalues?",
+  "caps": [["x plus one", "x + 1"], ["s t d move", "std::move"], ["int and and", "int&&"], ["int ampersand", "int&"], ["gl value", "glvalue"], ["pr value", "prvalue"], ["x value", "xvalue"]],
+  "scenes": [
+    { "type": "title", "sub": "Every expression has a value category. It decides what you can do with it.",
+      "say": "lvalues and rvalues. Every expression in C plus plus has a category, and it decides what you can do with that expression: take its address, assign to it, or move from it." },
+
+    { "type": "code", "head": "The rule of thumb",
+      "panels": [{ "file": "basics.cpp", "size": 36, "code": "int x = 5;            // x is an lvalue, 5 is an rvalue\nint* p = &x;          // ok: x has an address\nint* q = &5;          // can't take the address of 5\nx + 1 = 7;            // can't assign to a temporary\n\nint& at(int i);       // returns a reference\nat(0) = 3;            // ok: at(0) is an lvalue" }],
+      "steps": [
+        { "cue": "An lvalue", "lines": [1, 2] },
+        { "cue": "An rvalue", "lines": [3, 4] },
+        { "cue": "It's about the expression", "lines": [6, 7] }
+      ],
+      "notes": [
+        { "cue": "lvalue required", "line": 3, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "lvalue required", "line": 4, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "An lvalue names an object that persists, like x. It has an address, and you can assign to it. An rvalue is a temporary value, like five, or x plus one. Taking its address or assigning to it fails, and G C C says lvalue required. It's about the expression, not the type. A function returning a reference gives an lvalue, so you can assign to at of zero." },
+
+    { "type": "code", "head": "What references can bind to",
+      "panels": [{ "file": "refs.cpp", "size": 36, "code": "int x = 5;\nint& a = x;               // ok\nint& b = 5;               // lvalue ref to rvalue\nconst int& c = 5;         // ok: temporary lives on\nint&& d = 5;              // ok\nint&& e = x;              // rvalue ref to lvalue\nint&& g = std::move(x);   // ok: now an rvalue" }],
+      "steps": [
+        { "cue": "int ampersand binds", "lines": [2, 3] },
+        { "cue": "const reference", "lines": [4] },
+        { "cue": "int and and", "lines": [5, 6] },
+        { "cue": "s t d move", "lines": [7] }
+      ],
+      "notes": [
+        { "cue": "int ampersand binds", "line": 3, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "only to rvalues", "line": 6, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "This is why it matters. int ampersand binds only to lvalues. A const reference is the exception: it binds to anything, and extends a temporary's lifetime. int and and, an rvalue reference, binds only to rvalues. That's the trick behind move semantics: an rvalue is a temporary nobody else can see, or something you marked on purpose, so it's safe to steal from. And s t d move turns x into an rvalue, so it binds." },
+
+    { "type": "diagram", "head": "The full picture (C++11)",
+      "items": [
+        { "id": "gl", "x": 420, "y": 270, "w": 460, "h": 150, "text": "glvalue", "sub": "has identity", "size": 44, "tone": "blue", "cue": "gl value" },
+        { "id": "rv", "x": 1040, "y": 270, "w": 460, "h": 150, "text": "rvalue", "sub": "can be moved from", "size": 44, "tone": "warn", "cue": "rvalue is the other" },
+        { "id": "lv", "x": 160, "y": 650, "w": 460, "h": 160, "text": "lvalue", "sub": "x, *p, v[0], at(0)", "size": 44, "tone": "blue", "cue": "an lvalue" },
+        { "id": "xv", "x": 730, "y": 650, "w": 460, "h": 160, "text": "xvalue", "sub": "std::move(x)", "size": 44, "tone": "good", "cue": "x value" },
+        { "id": "pv", "x": 1300, "y": 650, "w": 460, "h": 160, "text": "prvalue", "sub": "5, x + 1, std::string()", "size": 44, "tone": "warn", "cue": "pr value" }
+      ],
+      "arrows": [
+        { "from": "gl", "to": "lv", "cue": "an lvalue" },
+        { "from": "gl", "to": "xv", "cue": "x value" },
+        { "from": "rv", "to": "xv", "cue": "x value" },
+        { "from": "rv", "to": "pv", "cue": "pr value" }
+      ],
+      "say": "Since C plus plus eleven there are actually three categories. A gl value has identity. An rvalue is the other half: something you can move from. Where they overlap: an lvalue has identity but can't be moved from implicitly. An x value, like s t d move of x, has identity and can be moved from. And a pr value is a pure temporary, like five, with no identity." },
+
+    { "type": "code", "head": "Trap: a named rvalue reference is an lvalue",
+      "panels": [{ "file": "trap.cpp", "size": 36, "code": "void take(std::string&& s) {\n    std::string a = s;              // s has a name: copies!\n    std::string b = std::move(s);   // now it moves\n}" }],
+      "steps": [
+        { "cue": "Inside take", "lines": [1] },
+        { "cue": "has a name", "lines": [2] },
+        { "cue": "move it again", "lines": [3] }
+      ],
+      "notes": [
+        { "cue": "has a name", "line": 2, "inside": true, "text": "lvalue", "tone": "warn" }
+      ],
+      "say": "The favorite interview trap. Inside take, the parameter's type is an rvalue reference. But the expression s has a name, so it's an lvalue. Using it copies. To move from it, you have to s t d move it again. Type and value category are two different things." },
+
+    { "type": "take", "lines": ["lvalue: has identity and a name; you can take its address.", "rvalue: a temporary or something cast with std::move; safe to move from.", "A named rvalue reference is itself an lvalue."],
+      "cues": ["An lvalue", "An rvalue", "And a named"],
+      "say": "An lvalue has identity, you can take its address. An rvalue is a temporary, or something marked with s t d move, so it's safe to move from. And a named rvalue reference is itself an lvalue." }
+  ]
+}

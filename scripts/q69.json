@@ -1,0 +1,71 @@
+{
+  "id": "q69", "num": 69, "short": "Copy elision & NRVO",
+  "question": "What is copy elision, and what is NRVO?",
+  "caps": [["N R V O", "NRVO"], ["R V O", "RVO"], ["s t d move", "std::move"], ["dash f no elide constructors", "-fno-elide-constructors"]],
+  "scenes": [
+    { "type": "title", "sub": "The fastest copy is the one that never happens.",
+      "say": "Copy elision and N R V O. When a function returns an object by value, the compiler can often skip the copy, and the move, entirely. Let's count constructor calls." },
+
+    { "type": "code", "head": "Count the constructor calls",
+      "panels": [{ "file": "elide.cpp", "size": 32, "code": "struct T {\n    T()         { std::cout << \"ctor\\n\"; }\n    T(const T&) { std::cout << \"copy\\n\"; }\n    T(T&&)      { std::cout << \"move\\n\"; }\n};\nT make()      { return T(); }      // returns a temporary\nT makeNamed() { T t; return t; }   // returns a named local\n\nint main() {\n    T a = make();\n    T b = makeNamed();\n}" }],
+      "steps": [
+        { "cue": "T announces", "lines": [2, 3, 4] },
+        { "cue": "make returns", "lines": [6, 10] },
+        { "cue": "makeNamed returns", "lines": [7, 11] },
+        { "cue": "just ctor, ctor", "lines": [10, 11] }
+      ],
+      "output": { "cmd": "g++ -std=c++17 elide.cpp && ./a.out", "text": "ctor\nctor", "cue": "just ctor, ctor", "tone": "good" },
+      "say": "T announces every constructor. make returns a temporary. makeNamed returns a named local variable. Naively, each call could construct an object, then copy or move it out to the caller. But the output is just ctor, ctor. No copies, no moves. Both were elided." },
+
+    { "type": "diagram", "head": "NRVO: build it where it will end up",
+      "panels": [{ "file": "nrvo.cpp", "size": 34, "code": "T makeNamed() {\n    T t;\n    return t;\n}\n\nT b = makeNamed();" }],
+      "steps": [
+        { "cue": "Naively", "lines": [2, 3] },
+        { "cue": "With N R V O", "lines": [2, 6] }
+      ],
+      "items": [
+        { "id": "fm", "region": true, "x": 1010, "y": 220, "w": 800, "h": 280, "label": "makeNamed's frame", "cue": "Naively" },
+        { "id": "tt", "x": 1080, "y": 320, "w": 320, "h": 120, "label": "t", "text": "T", "size": 40, "tone": "warn", "cue": "Naively" },
+        { "id": "mm", "region": true, "x": 1010, "y": 580, "w": 800, "h": 300, "label": "main's frame" },
+        { "id": "bb", "x": 1080, "y": 700, "w": 320, "h": 120, "label": "b", "text": "T", "size": 40, "tone": "blue" }
+      ],
+      "arrows": [{ "from": "tt", "to": "bb", "label": "move", "tone": "bad", "cue": "moved into b" }],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "With N R V O" },
+        { "id": "tt", "fade": true, "cue": "With N R V O" },
+        { "id": "fm", "fade": true, "cue": "With N R V O" },
+        { "id": "bb", "text": "t lives here", "cue": "same object" },
+        { "id": "bb", "tone": "good", "cue": "same object" }
+      ],
+      "say": "Naively, t is built in makeNamed's frame, then moved into b, then destroyed. With N R V O, named return value optimization, the caller passes the address of b's storage, and t is constructed right there. t and b are the same object, so there's nothing to move. Returning a temporary, like make does, is plain R V O." },
+
+    { "type": "code", "head": "Guaranteed (C++17) vs allowed",
+      "panels": [{ "file": "nomove.cpp", "size": 36, "code": "struct NoMove {\n    NoMove() = default;\n    NoMove(const NoMove&) = delete;\n    NoMove(NoMove&&) = delete;\n};\n\nNoMove f() { return NoMove(); }       // RVO: guaranteed\nNoMove g() { NoMove n; return n; }    // NRVO: optional" }],
+      "steps": [
+        { "cue": "can't be copied or moved", "lines": [3, 4] },
+        { "cue": "Returning a temporary", "lines": [7] },
+        { "cue": "N R V O is only allowed", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "Returning a temporary", "line": 7, "inside": true, "text": "compiles", "tone": "good" },
+        { "cue": "still needs", "line": 8, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Here's the difference interviewers want. This type can't be copied or moved. Returning a temporary still compiles, because since C plus plus seventeen, that elision is guaranteed: no copy or move is even considered. N R V O is only allowed, not required, so g still needs an accessible move or copy constructor, and fails. Build with dash f no elide constructors, and our earlier makeNamed really does print move." },
+
+    { "type": "code", "head": "When NRVO can't happen",
+      "panels": [{ "file": "nonrvo.cpp", "size": 36, "code": "T pick(bool c) {\n    T x, y;\n    if (c) return x;      // two different objects:\n    return y;             // usually no NRVO\n}\n\nT bad() {\n    T t;\n    return std::move(t);  // blocks NRVO\n}" }],
+      "steps": [
+        { "cue": "different objects", "lines": [2, 3, 4] },
+        { "cue": "return s t d move", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "still moved", "line": 4, "inside": true, "text": "moved, not copied", "tone": "warn" },
+        { "cue": "return s t d move", "line": 9, "inside": true, "text": "forces a move", "tone": "bad" }
+      ],
+      "say": "N R V O usually fails when different paths return different objects, since x and y can't both live in the caller's slot. Even then, returning a local is still moved, not copied. And writing return s t d move of t makes the expression no longer a plain name, which blocks N R V O. So just return the local by name." },
+
+    { "type": "take", "lines": ["Copy elision: the compiler constructs the result directly in its final place.", "Returning a temporary (RVO) is guaranteed elided since C++17.", "NRVO (named local) is optional but common. Return by name, never std::move(local)."],
+      "cues": ["Copy elision", "Returning a temporary", "N R V O"],
+      "say": "Copy elision means the compiler constructs the result directly in its final place, skipping copies and moves. Returning a temporary is guaranteed elided since C plus plus seventeen. N R V O, for named locals, is optional but very common. Return by name, and never return s t d move of a local." }
+  ]
+}

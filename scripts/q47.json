@@ -1,0 +1,47 @@
+{
+  "id": "q47", "num": 47, "short": "Encapsulation vs abstraction",
+  "question": "What is the difference between encapsulation and abstraction?",
+  "caps": [["acc dot balance", "acc.balance"], ["push back", "push_back"]],
+  "scenes": [
+    { "type": "title", "sub": "One protects the data. The other hides the complexity.",
+      "say": "Encapsulation versus abstraction. They're related, and people mix them up all the time. One is about protecting data. The other is about hiding complexity." },
+
+    { "type": "code", "head": "Encapsulation: the object guards its data",
+      "panels": [{ "file": "account.cpp", "code": "class Account {\n    double balance = 0;               // hidden data\npublic:\n    void deposit(double amt) {\n        if (amt <= 0) throw std::invalid_argument(\"amt\");\n        balance += amt;\n    }\n    double getBalance() const { return balance; }\n};\n\nAccount acc;\nacc.deposit(50);                      // the only way in\nacc.balance = -1000;                  // private!" }],
+      "steps": [
+        { "cue": "Account bundles", "lines": [1, 2] },
+        { "cue": "The only way in", "lines": [4, 5, 6, 7] },
+        { "cue": "acc dot balance", "lines": [13] }
+      ],
+      "notes": [
+        { "cue": "doesn't compile", "line": 13, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Encapsulation is about protecting data. Account bundles the balance together with the functions that change it, and makes the balance private. The only way in is deposit, which rejects bad amounts. So acc dot balance equals minus a thousand doesn't compile. The object guards its own rules. Nobody outside can corrupt it." },
+
+    { "type": "code", "head": "Abstraction: show what, hide how",
+      "panels": [{ "file": "storage.cpp", "code": "class Storage {                       // WHAT you can do\npublic:\n    virtual void save(const std::string& data) = 0;\n    virtual ~Storage() = default;\n};\n\nclass DiskStorage : public Storage {  // one HOW\npublic:\n    void save(const std::string& data) override {\n        // open file, buffer, write, flush...\n    }\n};\n\nvoid backup(Storage& s) { s.save(\"report\"); }" }],
+      "steps": [
+        { "cue": "Storage says", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "backup only knows", "lines": [14] },
+        { "cue": "implementation detail", "lines": [7, 8, 9, 10, 11, 12] }
+      ],
+      "say": "Abstraction is about hiding complexity. Storage says what you can do: save some data. backup only knows that interface. Whether the data goes to a disk, a database, or the cloud is an implementation detail it never sees. You use abstraction every day: you call push back on a vector, and never think about how it reallocates." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Encapsulation", "Abstraction"], "rowHeads": ["Goal", "Hides", "Question", "Level", "Tools", "Example"],
+      "rows": [
+        ["Protect data and invariants", "Reduce complexity for the user"],
+        ["Internal state", "Implementation details"],
+        ["Who may touch this data?", "What does this do?"],
+        ["Inside a class", "Design and interfaces"],
+        ["`private`, `protected`, methods", "Abstract classes, clear APIs"],
+        ["Private `balance`", "`Storage::save()`"]
+      ],
+      "cues": ["Encapsulation's goal", "It hides", "It answers", "It works", "Its tools", "In our examples"],
+      "say": "Encapsulation's goal is protecting data, while abstraction's goal is reducing complexity. It hides internal state, versus implementation details. It answers who may touch this data, versus what does this do. It works inside a class, versus at the design level. Its tools are access specifiers, versus abstract classes and clean interfaces. In our examples, the private balance, versus Storage save. They work together: encapsulation is one way to achieve abstraction." },
+
+    { "type": "take", "lines": ["Encapsulation: bundle data with methods, restrict access. Protects state.", "Abstraction: expose only what matters, hide how. Reduces complexity.", "Encapsulation is about the class's insides; abstraction is about its outside view."],
+      "cues": ["Encapsulation bundles", "Abstraction shows", "One sentence"],
+      "say": "Encapsulation bundles data with methods and restricts access, to protect state. Abstraction shows only what matters, and hides how. One sentence for the interview: encapsulation guards the inside, abstraction simplifies the outside view." }
+  ]
+}

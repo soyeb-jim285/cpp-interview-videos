@@ -1,0 +1,67 @@
+{
+  "id": "q43", "num": 43, "short": "Array vs pointer",
+  "question": "What is the difference between an array and a pointer?",
+  "caps": [["size of arr", "sizeof(arr)"], ["size of p\\b", "sizeof(p)"], ["size of a\\b", "sizeof(a)"], ["p plus one", "p + 1"], ["int a of five", "int a[5]"], ["size of operator", "sizeof operator"], ["size of,", "sizeof,"]],
+  "scenes": [
+    { "type": "title", "sub": "Arrays decay into pointers. They are not pointers.",
+      "say": "Array versus pointer. People often say an array is just a pointer. It isn't. It decays into one, and that difference shows up in interviews all the time." },
+
+    { "type": "diagram", "head": "Storage vs. an address",
+      "panels": [{ "file": "decay.cpp", "size": 34, "code": "int arr[5] = {1, 2, 3, 4, 5};\nint* p = arr;        // decay: &arr[0]\n\nstd::cout << sizeof(arr);  // 20\nstd::cout << sizeof(p);    // 8\n\np = p + 1;           // OK: p is a variable\n// arr = p;          // error: not assignable" }],
+      "steps": [
+        { "cue": "An array is the elements", "lines": [1] },
+        { "cue": "A pointer is a separate", "lines": [2] },
+        { "cue": "decays", "lines": [2] },
+        { "cue": "size of arr", "lines": [4, 5] },
+        { "cue": "p plus one", "lines": [7] },
+        { "cue": "never be reassigned", "lines": [8] }
+      ],
+      "items": [
+        { "id": "ar", "region": true, "x": 1020, "y": 250, "w": 790, "h": 240, "label": "arr: the 5 ints themselves (20 bytes)", "tone": "blue", "cue": "An array is the elements" },
+        { "id": "e0", "x": 1045, "y": 330, "w": 140, "h": 120, "text": "1", "size": 44, "tone": "blue", "cue": "An array is the elements" },
+        { "id": "e1", "x": 1195, "y": 330, "w": 140, "h": 120, "text": "2", "size": 44, "tone": "blue", "cue": "An array is the elements" },
+        { "id": "e2", "x": 1345, "y": 330, "w": 140, "h": 120, "text": "3", "size": 44, "tone": "blue", "cue": "An array is the elements" },
+        { "id": "e3", "x": 1495, "y": 330, "w": 140, "h": 120, "text": "4", "size": 44, "tone": "blue", "cue": "An array is the elements" },
+        { "id": "e4", "x": 1645, "y": 330, "w": 140, "h": 120, "text": "5", "size": 44, "tone": "blue", "cue": "An array is the elements" },
+        { "id": "pv", "x": 1045, "y": 690, "w": 380, "h": 120, "label": "p: separate variable (8 bytes)", "text": "&arr[0]", "size": 36, "tone": "warn", "cue": "A pointer is a separate" }
+      ],
+      "arrows": [
+        { "from": "pv", "to": "e0", "cue": "decays" },
+        { "from": "pv", "to": "e1", "cue": "p plus one" }
+      ],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "p plus one" },
+        { "id": "pv", "text": "&arr[1]", "cue": "p plus one" }
+      ],
+      "say": "An array is the elements themselves: five ints, side by side, twenty bytes. No address is stored anywhere. A pointer is a separate variable that holds an address, eight bytes on a sixty four bit system. When you use arr in an expression, it decays to a pointer to its first element. But size of arr is twenty, while size of p is eight. And p can move, p plus one points to the next element, while arr itself can never be reassigned." },
+
+    { "type": "code", "head": "The classic trap: arrays as parameters",
+      "panels": [{ "file": "param.cpp", "size": 34, "code": "void f(int a[5]) {            // really: void f(int* a)\n    std::cout << sizeof(a);   // 8, not 20!\n}\n\ntemplate <std::size_t N>\nvoid g(int (&a)[N]) {         // reference to array\n    std::cout << N;           // 5: size kept\n}\n\nint arr[5];\nf(arr);\ng(arr);" }],
+      "steps": [
+        { "cue": "Passing an array", "lines": [10, 11] },
+        { "cue": "int a of five", "lines": [1] },
+        { "cue": "size of a inside", "lines": [2] },
+        { "cue": "by reference", "lines": [5, 6, 7, 12] }
+      ],
+      "notes": [
+        { "cue": "The size is lost", "line": 2, "inside": true, "text": "g++ warns here", "tone": "warn" }
+      ],
+      "say": "The classic trap. Passing an array to a function decays it too. Even if you write int a of five, the parameter is really an int pointer. So size of a inside the function gives eight, not twenty. The size is lost. To keep it, pass the length separately, take the array by reference with a template, or better, use s t d colon colon array or s t d colon colon span." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Array", "Pointer"], "rowHeads": ["What it is", "sizeof", "Assign / re-point", "& gives", "Knows its size?"],
+      "rows": [
+        ["The elements themselves", "A variable holding an address"],
+        ["All elements: 5 × 4 = 20", "Pointer size: 8 on 64-bit"],
+        ["Not assignable", "Yes, any time"],
+        ["`int(*)[5]`: pointer to whole array", "`int**`: address of the pointer"],
+        ["Yes, it's in the type `int[5]`", "No, just a start address"]
+      ],
+      "cues": ["An array is storage", "size of operator", "can't be assigned", "ampersand", "knows its size"],
+      "say": "An array is storage. A pointer is an address. The size of operator on an array gives all its bytes, on a pointer just eight. Arrays can't be assigned, pointers can be re-pointed. Taking the ampersand of an array gives a pointer to the whole array, a different type. And an array knows its size, because it's part of its type. A pointer doesn't." },
+
+    { "type": "take", "lines": ["An array IS the elements; a pointer just holds an address.", "Arrays decay to &arr[0] in most expressions, and as function parameters.", "So sizeof, & and assignment differ. Prefer std::array or std::span."],
+      "cues": ["An array is", "Arrays decay", "That's why"],
+      "say": "An array is the elements themselves. A pointer just holds an address. Arrays decay to a pointer to their first element in most expressions, including when passed to functions. That's why size of, ampersand, and assignment behave differently. In modern code, prefer s t d colon colon array or span." }
+  ]
+}

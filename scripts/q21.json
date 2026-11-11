@@ -1,0 +1,53 @@
+{
+  "id": "q21", "num": 21, "short": "new[] and delete[]",
+  "question": "Why must `new[]` be paired with `delete[]`?",
+  "caps": [["new square brackets", "new[]"], ["delete square brackets", "delete[]"]],
+  "scenes": [
+    { "type": "title", "sub": "Only delete[] knows how many objects to destroy.",
+      "say": "Why must new square brackets be paired with delete square brackets? Because a pointer to an array doesn't know how long the array is. Let's see where that count hides." },
+
+    { "type": "diagram", "head": "Where the count hides",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct T {\n    ~T() { std::cout << \"~T \"; }\n};\n\nint main() {\n    T* arr = new T[3];\n    delete[] arr;   // prints: ~T ~T ~T\n}" }],
+      "steps": [
+        { "cue": "constructs three objects", "lines": [6] },
+        { "cue": "stores the count", "lines": [2, 6] },
+        { "cue": "delete square brackets reads", "lines": [7] }
+      ],
+      "items": [
+        { "id": "pa", "x": 1300, "y": 270, "w": 280, "h": 110, "label": "arr", "text": "points to [0]", "size": 30, "tone": "blue", "cue": "only points at the first" },
+        { "id": "ck", "x": 1000, "y": 600, "w": 170, "h": 120, "label": "hidden", "text": "3", "size": 44, "tone": "ghost", "cue": "stores the count" },
+        { "id": "e0", "x": 1190, "y": 600, "w": 190, "h": 120, "label": "arr[0]", "text": "T", "size": 40, "tone": "warn", "cue": "constructs three objects" },
+        { "id": "e1", "x": 1400, "y": 600, "w": 190, "h": 120, "label": "arr[1]", "text": "T", "size": 40, "tone": "warn", "cue": "constructs three objects" },
+        { "id": "e2", "x": 1610, "y": 600, "w": 190, "h": 120, "label": "arr[2]", "text": "T", "size": 40, "tone": "warn", "cue": "constructs three objects" }
+      ],
+      "arrows": [{ "from": "pa", "to": "e0", "cue": "only points at the first" }],
+      "changes": [
+        { "id": "ck", "tone": "warn", "cue": "reads that count" },
+        { "id": "e2", "kill": true, "cue": "last to first" },
+        { "id": "e1", "kill": true, "cue": "last to first" },
+        { "id": "e0", "kill": true, "cue": "last to first" },
+        { "id": "ck", "fade": true, "cue": "then frees the whole block" }
+      ],
+      "say": "new T square brackets three constructs three objects. But arr only points at the first one. So how does delete know there are three? On GCC and Clang, for a type with a destructor, new stores the count in a hidden slot just before the elements. delete square brackets reads that count, runs three destructors, last to first, then frees the whole block, starting at the hidden slot." },
+
+    { "type": "code", "head": "Mismatch it, and anything can happen",
+      "panels": [{ "file": "mismatch.cpp", "size": 34, "code": "T* arr = new T[3];\ndelete arr;          // wrong form\n\nT* one = new T;\ndelete[] one;        // wrong the other way\n\nint* nums = new int[3];\ndelete nums;         // still wrong, even if it \"works\"\n\nstd::vector<T> v(3); // best: no delete at all" }],
+      "steps": [
+        { "cue": "plain delete instead", "lines": [1, 2] },
+        { "cue": "The reverse mismatch", "lines": [4, 5] },
+        { "cue": "Even for int", "lines": [7, 8] },
+        { "cue": "use a vector", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "plain delete instead", "line": 2, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "The reverse mismatch", "line": 5, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "Even for int", "line": 8, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "use a vector", "line": 10, "inside": true, "text": "no mismatch possible", "tone": "good" }
+      ],
+      "say": "Now use plain delete instead. That's undefined behavior. In practice, it assumes a single object, so it may run just one destructor, then hand the allocator the wrong address. That often crashes, or corrupts the heap. The reverse mismatch is undefined too. Even for int, where there's no hidden count and it may seem to work, the standard still calls it undefined. The real fix: use a vector, and never write delete square brackets at all." },
+
+    { "type": "take", "lines": ["new[] may store the element count; only delete[] reads it and runs every destructor.", "delete on new[] memory (or delete[] on new) is undefined behavior, even for int.", "Avoid the issue entirely: std::vector or std::unique_ptr<T[]>."],
+      "cues": ["new square brackets may", "Mixing the forms", "Better yet"],
+      "say": "new square brackets may store the element count, and only delete square brackets reads it and runs every destructor. Mixing the forms is undefined behavior, even for plain ints. Better yet, avoid the problem: use a vector, or a unique pointer to an array." }
+  ]
+}

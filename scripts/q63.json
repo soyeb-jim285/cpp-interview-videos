@@ -1,0 +1,58 @@
+{
+  "id": "q63", "num": 63, "short": "Virtual constructors",
+  "question": "Can a constructor be virtual? Why not?",
+  "caps": [["v pointer", "vptr"], ["v table", "vtable"], ["s dot clone", "s.clone()"]],
+  "scenes": [
+    { "type": "title", "sub": "No. Virtual dispatch needs an object, and the constructor is what makes one.",
+      "say": "Can a constructor be virtual? No. And the reason is a nice chicken and egg problem. Let's see it." },
+
+    { "type": "code", "head": "The compiler says no",
+      "panels": [{ "file": "base.cpp", "size": 40, "code": "struct Base {\n    virtual Base();     // not allowed\n    virtual ~Base();    // fine, and often required\n};" }],
+      "steps": [
+        { "cue": "Mark a constructor", "lines": [2] },
+        { "cue": "Two reasons", "lines": [2] },
+        { "cue": "destructor", "lines": [3] }
+      ],
+      "notes": [
+        { "cue": "Mark a constructor", "line": 2, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "destructor", "line": 3, "inside": true, "text": "ok", "tone": "good" }
+      ],
+      "say": "Mark a constructor virtual, and G C C says constructors cannot be declared virtual. Two reasons. First, a virtual call looks up the function through the object's v pointer, but before the constructor runs, there is no object and no v pointer yet. Second, virtual means pick the function by the real type at run time. When you construct, you always name the exact type, so there's nothing to choose. The destructor is different: the object exists, so it can be, and should be, virtual." },
+
+    { "type": "diagram", "head": "The vptr is set by the constructors",
+      "panels": [{ "file": "ctor.cpp", "size": 32, "code": "struct Base {\n    Base() { hello(); }\n    virtual void hello()\n        { std::cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n    void hello() override\n        { std::cout << \"Derived\\n\"; }\n};\n\nint main() {\n    Derived d;   // prints Base\n}" }],
+      "steps": [
+        { "cue": "Constructing d", "lines": [12] },
+        { "cue": "Base constructor runs", "lines": [2] },
+        { "cue": "Derived constructor", "lines": [6] }
+      ],
+      "notes": [
+        { "cue": "prints Base", "line": 12, "inside": true, "text": "not Derived!", "tone": "warn" }
+      ],
+      "items": [
+        { "id": "obj", "region": true, "x": 1010, "y": 260, "w": 360, "h": 330, "label": "Derived d", "cue": "Constructing d" },
+        { "id": "vp", "x": 1040, "y": 360, "w": 300, "h": 110, "text": "vptr", "size": 38, "tone": "warn", "cue": "Constructing d" },
+        { "id": "bt", "x": 1470, "y": 300, "w": 330, "h": 110, "text": "Base vtable", "size": 34, "tone": "blue", "cue": "Base constructor runs" },
+        { "id": "dt", "x": 1470, "y": 620, "w": 330, "h": 110, "text": "Derived vtable", "size": 34, "tone": "good", "cue": "Derived constructor" }
+      ],
+      "arrows": [
+        { "from": "vp", "to": "bt", "cue": "Base constructor runs" },
+        { "from": "vp", "to": "dt", "cue": "Derived constructor" }
+      ],
+      "changes": [{ "id": "a0", "fade": true, "cue": "Derived constructor" }],
+      "say": "You can see this in action. Constructing d builds it in layers, base first. While the Base constructor runs, the v pointer points to Base's table, because the Derived part doesn't exist yet. So the virtual call to hello prints Base. Only when the Derived constructor starts does the v pointer switch to Derived's table. That's a classic follow up: never rely on virtual calls inside a constructor." },
+
+    { "type": "code", "head": "Need one anyway? The virtual clone idiom",
+      "panels": [{ "file": "clone.cpp", "size": 32, "code": "struct Shape {\n    virtual ~Shape() = default;\n    virtual std::unique_ptr<Shape> clone() const = 0;\n};\nstruct Circle : Shape {\n    std::unique_ptr<Shape> clone() const override {\n        return std::make_unique<Circle>(*this);\n    }\n};\n\nvoid copyAny(const Shape& s) {\n    std::unique_ptr<Shape> copy = s.clone();   // right type\n}" }],
+      "steps": [
+        { "cue": "virtual function", "lines": [3] },
+        { "cue": "Each class", "lines": [6, 7] },
+        { "cue": "s dot clone", "lines": [12] }
+      ],
+      "say": "When you really want a virtual constructor, for example copying a shape without knowing its type, use an ordinary virtual function that constructs for you. Each class overrides clone, and calls its own copy constructor. Now s dot clone creates the right type, through a base reference. The same idea gives virtual factory functions." },
+
+    { "type": "take", "lines": ["Constructors can't be virtual: there's no object or vptr yet to dispatch on.", "You always name the exact type when constructing; nothing to choose.", "Want the effect? Virtual clone() or a factory. Destructors: do make them virtual."],
+      "cues": ["No.", "And when you construct", "If you need"],
+      "say": "No. Virtual dispatch needs the object's v pointer, and the constructor is what sets it up. And when you construct, you name the exact type anyway. If you need the effect, use a virtual clone or factory function. Destructors, on the other hand, should be virtual in a polymorphic base." }
+  ]
+}

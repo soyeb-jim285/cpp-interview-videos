@@ -1,0 +1,74 @@
+{
+  "id": "q82", "num": 82, "short": "priority_queue internals",
+  "question": "How does `priority_queue` work internally?",
+  "caps": [["[Pp]riority queue", "priority_queue"], ["make heap", "make_heap"], ["O of one", "O(1)"], ["O of log n", "O(log n)"], ["O of n", "O(n)"], ["two i plus one", "2i + 1"], ["two i plus two", "2i + 2"]],
+  "scenes": [
+    { "type": "title", "sub": "A binary heap, living inside a plain vector.",
+      "say": "How does a priority queue work? It's not a tree of nodes, and it's not sorted. It's a binary heap, stored in a vector." },
+
+    { "type": "diagram", "head": "A max-heap, as a tree and as an array",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "std::priority_queue<int> pq;\npq.push(5);\npq.push(3);\npq.push(8);   // bubbles up\npq.push(1);\npq.top();     // 8, O(1)\npq.pop();     // O(log n)" }],
+      "steps": [
+        { "cue": "binary heap", "lines": [1] },
+        { "cue": "Push five", "lines": [2] },
+        { "cue": "Three goes", "lines": [3] },
+        { "cue": "Push eight", "lines": [4] },
+        { "cue": "One goes", "lines": [5] },
+        { "cue": "top is O of one", "lines": [6] },
+        { "cue": "Pop moves", "lines": [7] }
+      ],
+      "items": [
+        { "id": "t0", "x": 1330, "y": 230, "w": 140, "h": 90, "text": "5", "size": 40, "tone": "warn", "cue": "Push five" },
+        { "id": "t1", "x": 1130, "y": 390, "w": 140, "h": 90, "text": "3", "size": 40, "tone": "warn", "cue": "Three goes" },
+        { "id": "t2", "x": 1530, "y": 390, "w": 140, "h": 90, "text": "8", "size": 40, "tone": "warn", "cue": "Push eight" },
+        { "id": "t3", "x": 1030, "y": 550, "w": 140, "h": 90, "text": "1", "size": 40, "tone": "warn", "cue": "One goes" },
+        { "id": "r0", "x": 1040, "y": 780, "w": 160, "h": 90, "label": "[0]", "text": "5", "size": 38, "tone": "blue", "cue": "Push five" },
+        { "id": "r1", "x": 1220, "y": 780, "w": 160, "h": 90, "label": "[1]", "text": "3", "size": 38, "tone": "blue", "cue": "Three goes" },
+        { "id": "r2", "x": 1400, "y": 780, "w": 160, "h": 90, "label": "[2]", "text": "8", "size": 38, "tone": "blue", "cue": "Push eight" },
+        { "id": "r3", "x": 1580, "y": 780, "w": 160, "h": 90, "label": "[3]", "text": "1", "size": 38, "tone": "blue", "cue": "One goes" }
+      ],
+      "arrows": [
+        { "from": "t0", "to": "t1", "cue": "Three goes" },
+        { "from": "t0", "to": "t2", "cue": "Push eight" },
+        { "from": "t1", "to": "t3", "cue": "One goes" }
+      ],
+      "changes": [
+        { "id": "t0", "text": "8", "cue": "swaps upward" },
+        { "id": "t2", "text": "5", "cue": "swaps upward" },
+        { "id": "r0", "text": "8", "cue": "swaps upward" },
+        { "id": "r2", "text": "5", "cue": "swaps upward" },
+        { "id": "t0", "tone": "good", "cue": "top is O of one" },
+        { "id": "t3", "fade": true, "cue": "Pop moves" },
+        { "id": "a2", "fade": true, "cue": "Pop moves" },
+        { "id": "r3", "fade": true, "cue": "Pop moves" },
+        { "id": "t0", "text": "5", "cue": "sifts it down" },
+        { "id": "t2", "text": "1", "cue": "sifts it down" },
+        { "id": "r0", "text": "5", "cue": "sifts it down" },
+        { "id": "r2", "text": "1", "cue": "sifts it down" }
+      ],
+      "say": "It's a binary heap: every parent is at least as big as its children. Push five, and it's the root. Three goes below it. Push eight. It lands at the end, but it's bigger than its parent, so it swaps upward. That's O of log n. One goes under three. The largest is always at index zero, so top is O of one. Pop moves the last element to the root and sifts it down, so five is back on top. No node pointers, just index math. Children of i sit at two i plus one and two i plus two." },
+
+    { "type": "code", "head": "Max-heap by default, and the comparator twist",
+      "panels": [{ "file": "order.cpp", "size": 30, "code": "// default: std::less gives a max-heap, top() is the largest\nstd::priority_queue<int> maxq;\n\n// min-heap: spell out the container AND std::greater\nstd::priority_queue<int, std::vector<int>,\n                    std::greater<int>> minq;\n\n// custom: cmp(a, b) == true means a has LOWER priority\nstruct Task { int prio; std::string name; };\nauto cmp = [](const Task& a, const Task& b) {\n    return a.prio < b.prio;          // highest prio on top\n};\nstd::priority_queue<Task, std::vector<Task>,\n                    decltype(cmp)> tasks(cmp);" }],
+      "steps": [
+        { "cue": "The default comparator", "lines": [1, 2] },
+        { "cue": "For a min heap", "lines": [4, 5, 6] },
+        { "cue": "custom comparator", "lines": [8, 9, 10, 11, 12, 13, 14] }
+      ],
+      "say": "The default comparator is less, and that gives a max heap. For a min heap, pass greater, and you have to spell out the underlying container too. With a custom comparator, read it as: returns true if a has lower priority than b. So less than on priority puts the highest priority on top. Interviewers love this twist. The same comparator that sorts ascending gives you the largest element first." },
+
+    { "type": "code", "head": "Building fast, and what you can't do",
+      "panels": [{ "file": "limits.cpp", "size": 32, "code": "std::vector<int> data = {4, 9, 2, 7};\nstd::priority_queue<int> pq(data.begin(), data.end());  // O(n)\n\n// it is an adaptor over a container, using\n// std::make_heap, std::push_heap, std::pop_heap\n\n// no iteration, no find, no changing priorities\nif (!pq.empty()) pq.pop();   // top()/pop() on empty: UB" }],
+      "steps": [
+        { "cue": "Building from a range", "lines": [1, 2] },
+        { "cue": "adaptor", "lines": [4, 5] },
+        { "cue": "Limitations", "lines": [7] },
+        { "cue": "on an empty queue", "lines": [8] }
+      ],
+      "say": "Building from a range uses make heap, which is O of n, faster than n separate pushes. It's an adaptor: underneath, it just runs the standard heap algorithms on a vector. Limitations interviewers ask about: you can't iterate it, can't search it, and can't change an element's priority. And top or pop on an empty queue is undefined behavior, so check empty first." },
+
+    { "type": "take", "lines": ["priority_queue = binary heap stored in a vector (an adaptor).", "top() O(1). push() and pop() O(log n): sift up / sift down. Build from range O(n).", "Default is a max-heap. Min-heap: std::greater. Comparator = “lower priority”."],
+      "cues": ["A priority queue", "Top is", "It's a max heap"],
+      "say": "A priority queue is a binary heap stored in a vector. Top is O of one. Push and pop are O of log n, sifting up and down. It's a max heap by default. Use greater for a min heap." }
+  ]
+}

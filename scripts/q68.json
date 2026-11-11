@@ -1,0 +1,62 @@
+{
+  "id": "q68", "num": 68, "short": "Perfect forwarding",
+  "question": "What is perfect forwarding?",
+  "caps": [["s t d forward", "std::forward"], ["T and and", "T&&"], ["s t d move", "std::move"], ["make unique", "make_unique"], ["emplace back", "emplace_back"], ["string ampersand", "string&"], ["string and and", "string&&"]],
+  "scenes": [
+    { "type": "title", "sub": "Pass an argument through a template exactly as it came in.",
+      "say": "Perfect forwarding. A template takes an argument and passes it on to another function, keeping it an lvalue if it was an lvalue, and an rvalue if it was an rvalue. First, the problem." },
+
+    { "type": "code", "head": "The problem: the rvalue gets lost",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "void take(const std::string&) { std::cout << \"copy\\n\"; }\nvoid take(std::string&&)      { std::cout << \"move\\n\"; }\n\ntemplate <class T>\nvoid wrapper(T&& arg) {\n    take(arg);                  // arg has a name: lvalue\n}\n\nstd::string s = \"hi\";\nwrapper(s);                     // fine: copy\nwrapper(std::string(\"hi\"));     // a temporary... still copies" }],
+      "steps": [
+        { "cue": "Two overloads", "lines": [1, 2] },
+        { "cue": "A wrapper", "lines": [4, 5, 6] },
+        { "cue": "Pass s", "lines": [10] },
+        { "cue": "Pass a temporary", "lines": [11] }
+      ],
+      "output": { "cmd": "./main", "text": "copy\ncopy", "cue": "prints copy twice", "tone": "bad" },
+      "say": "Two overloads of take: one copies, one moves. A wrapper template passes its argument along. Pass s, and it copies, which is right. Pass a temporary, and it should move. But it prints copy twice. Inside the wrapper, arg has a name, so it's an lvalue, and the rvalue-ness is lost." },
+
+    { "type": "code", "head": "The fix: std::forward",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "template <class T>\nvoid wrapper(T&& arg) {\n    take(std::forward<T>(arg));\n}\n\nstd::string s = \"hi\";\nwrapper(s);                     // copy\nwrapper(std::string(\"hi\"));     // move" }],
+      "steps": [
+        { "cue": "Two ingredients", "lines": [2] },
+        { "cue": "s t d forward of T", "lines": [3] },
+        { "cue": "Now it prints", "lines": [7, 8] }
+      ],
+      "output": { "cmd": "./main", "text": "copy\nmove", "cue": "Now it prints", "tone": "good" },
+      "say": "Two ingredients. First, a parameter of type T and and, where T is deduced. That's a forwarding reference, and it accepts anything. Second, s t d forward of T, which casts arg back to an rvalue only if an rvalue was passed in. Now it prints copy, then move. Exactly what the caller meant." },
+
+    { "type": "diagram", "head": "How T remembers: deduction + reference collapsing",
+      "items": [
+        { "id": "i1", "x": 160, "y": 290, "w": 440, "h": 150, "text": "wrapper(s)", "sub": "an lvalue", "size": 36, "tone": "blue", "cue": "Pass the lvalue s" },
+        { "id": "t1", "x": 740, "y": 290, "w": 440, "h": 150, "text": "T = string&", "sub": "string& && → string&", "size": 36, "tone": "warn", "cue": "T is deduced as string ampersand" },
+        { "id": "o1", "x": 1320, "y": 290, "w": 440, "h": 150, "text": "forward → lvalue", "sub": "copy", "size": 36, "cue": "forward returns an lvalue" },
+        { "id": "i2", "x": 160, "y": 640, "w": 440, "h": 150, "text": "wrapper(temp)", "sub": "an rvalue", "size": 36, "tone": "blue", "cue": "Pass a temporary" },
+        { "id": "t2", "x": 740, "y": 640, "w": 440, "h": 150, "text": "T = string", "sub": "arg is string&&", "size": 36, "tone": "warn", "cue": "T is just string" },
+        { "id": "o2", "x": 1320, "y": 640, "w": 440, "h": 150, "text": "forward → rvalue", "sub": "move", "size": 36, "tone": "good", "cue": "casts to an rvalue" }
+      ],
+      "arrows": [
+        { "from": "i1", "to": "t1", "cue": "T is deduced as string ampersand" },
+        { "from": "t1", "to": "o1", "cue": "forward returns an lvalue" },
+        { "from": "i2", "to": "t2", "cue": "T is just string" },
+        { "from": "t2", "to": "o2", "cue": "casts to an rvalue" }
+      ],
+      "say": "How does T remember? Pass the lvalue s, and T is deduced as string ampersand. Reference collapsing turns ampersand plus and and into a plain lvalue reference, and forward returns an lvalue. Pass a temporary, and T is just string, so arg is string and and, and forward casts to an rvalue. The category is encoded in T." },
+
+    { "type": "code", "head": "Where you see it, and the traps",
+      "panels": [{ "file": "fwd.cpp", "size": 32, "code": "template <class T, class... Args>\nstd::unique_ptr<T> my_make_unique(Args&&... args) {\n    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));\n}\n\nvoid f(std::vector<int>&& v);              // NOT forwarding\ntemplate <class T> void g(const T&& x);    // NOT forwarding" }],
+      "steps": [
+        { "cue": "make unique", "lines": [1, 2, 3] },
+        { "cue": "only T and and", "lines": [6, 7] }
+      ],
+      "notes": [
+        { "cue": "only T and and", "line": 6, "inside": true, "text": "plain rvalue ref", "tone": "warn" }
+      ],
+      "say": "This is how make unique and emplace back pass your constructor arguments through without extra copies. Traps: only T and and, with T deduced right there, is a forwarding reference. A vector of int and and, or const T and and, is just an rvalue reference. And forward an argument only once, since forwarding an rvalue twice can move from it twice." },
+
+    { "type": "take", "lines": ["Perfect forwarding: pass arguments on with their value category intact.", "Needs a forwarding reference T&& (T deduced) plus std::forward<T>.", "Used by make_unique, emplace_back, and other wrappers."],
+      "cues": ["Perfect forwarding", "It needs", "It's how"],
+      "say": "Perfect forwarding passes arguments on with their lvalue or rvalue category intact. It needs a forwarding reference, T and and with T deduced, plus s t d forward of T. It's how make unique and emplace back avoid needless copies." }
+  ]
+}

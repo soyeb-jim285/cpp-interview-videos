@@ -1,0 +1,58 @@
+{
+  "id": "q56", "num": 56, "short": "Constructor exceptions",
+  "question": "What happens when a constructor throws an exception?",
+  "caps": [["new expression", "new-expression"]],
+  "scenes": [
+    { "type": "title", "sub": "The object never comes to life, but whatever was already built gets cleaned up.",
+      "say": "What happens when a constructor throws? The object never comes to life. But the parts that were already built do get cleaned up. Let's watch it step by step." },
+
+    { "type": "diagram", "head": "Watch construction fail",
+      "panels": [{ "file": "car.cpp", "size": 32, "code": "struct Car {\n    Part engine{\"engine\"};\n    Part wheels{\"wheels\"};\n    Car() {\n        throw std::runtime_error(\"no fuel\");\n    }\n    ~Car() { std::cout << \"~Car\\n\"; }\n};\n\ntry { Car c; }\ncatch (const std::exception& e) { }" }],
+      "steps": [
+        { "cue": "Constructing c", "lines": [10] },
+        { "cue": "first builds engine", "lines": [2, 3] },
+        { "cue": "the constructor body throws", "lines": [4, 5, 6] },
+        { "cue": "destroyed in reverse order", "lines": [2, 3] },
+        { "cue": "own destructor never runs", "lines": [7] }
+      ],
+      "items": [
+        { "id": "car", "region": true, "x": 1010, "y": 230, "w": 800, "h": 480, "label": "Car c", "cue": "Constructing c" },
+        { "id": "eng", "x": 1050, "y": 330, "w": 340, "h": 120, "label": "engine", "text": "built", "size": 38, "tone": "good", "cue": "first builds engine" },
+        { "id": "whl", "x": 1430, "y": 330, "w": 340, "h": 120, "label": "wheels", "text": "built", "size": 38, "tone": "good", "cue": "then wheels" },
+        { "id": "body", "x": 1050, "y": 560, "w": 720, "h": 120, "label": "Car() body", "text": "throw!", "size": 38, "tone": "bad", "cue": "the constructor body throws" },
+        { "id": "dtor", "x": 1050, "y": 790, "w": 720, "h": 100, "text": "~Car()", "sub": "never called", "size": 34, "tone": "ghost", "cue": "own destructor never runs" }
+      ],
+      "changes": [
+        { "id": "whl", "text": "destroyed", "cue": "wheels first" },
+        { "id": "whl", "tone": "dim", "cue": "wheels first" },
+        { "id": "eng", "text": "destroyed", "cue": "then engine" },
+        { "id": "eng", "tone": "dim", "cue": "then engine" },
+        { "id": "dtor", "kill": true, "cue": "own destructor never runs" }
+      ],
+      "say": "Constructing c first builds engine, then wheels. Then the constructor body throws. Now C plus plus unwinds. Members that were fully built are destroyed in reverse order: wheels first, then engine. But Car's own destructor never runs. The object never finished construction, so its lifetime never began. There's nothing to destroy." },
+
+    { "type": "code", "head": "The trap: raw resources leak",
+      "panels": [
+        { "file": "leak.cpp", "label": "leaks", "tone": "bad", "code": "class Widget {\n    int* buf;\npublic:\n    Widget() : buf(new int[1000]) {\n        connect();   // throws...\n    }                // ...buf leaks\n    ~Widget() { delete[] buf; }\n};" },
+        { "file": "raii.cpp", "label": "safe", "tone": "good", "code": "class Widget {\n    std::vector<int> buf;\npublic:\n    Widget() : buf(1000) {\n        connect();   // throws...\n    }                // ...buf freed\n};" }
+      ],
+      "steps": [
+        { "cue": "Widget allocates", "panel": 0, "lines": [4, 5] },
+        { "cue": "never runs", "panel": 0, "lines": [7] },
+        { "cue": "The fix is", "panel": 1, "lines": [2, 4, 5, 6] }
+      ],
+      "say": "That's exactly why raw resources in constructors are dangerous. Widget allocates a buffer with new, then connect throws. The destructor that would delete the buffer never runs, so the buffer leaks. The fix is R A I I. Hold the buffer in a member that cleans up after itself, like a vector or a unique pointer. Fully built members are always destroyed, so nothing leaks." },
+
+    { "type": "code", "head": "Two more facts interviewers like",
+      "panels": [{ "file": "facts.cpp", "code": "Widget* w = new Widget;   // ctor throws: the memory is\n                          // freed, w is never assigned\n\nstruct Car {\n    Part engine;\n    Car() try : engine(\"v8\") {\n        // ...\n    } catch (...) {\n        // log it; then it's rethrown automatically\n    }\n};" }],
+      "steps": [
+        { "cue": "inside a new expression", "lines": [1, 2] },
+        { "cue": "function try block", "lines": [6, 8, 9, 10] }
+      ],
+      "say": "Two more facts. If the constructor throws inside a new expression, the allocated memory is freed automatically, and the pointer is never assigned. And a function try block can catch exceptions from the member initializer list, but it can't swallow them. At the end of the handler, the exception is rethrown automatically. Throwing is the right way for a constructor to report failure, since it has no return value." },
+
+    { "type": "take", "lines": ["The object is never created: its destructor does not run.", "Fully built members and base classes are destroyed, in reverse order.", "Raw resources leak. Use RAII members. Memory from new is freed for you."],
+      "cues": ["The object is never", "Members and bases", "So use R A I I"],
+      "say": "The object is never created, so its destructor doesn't run. Members and bases that were already built are destroyed in reverse order. So use R A I I members, or raw resources will leak." }
+  ]
+}

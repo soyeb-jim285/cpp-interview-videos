@@ -1,0 +1,69 @@
+{
+  "id": "q80", "num": 80, "short": "vector, deque, list",
+  "question": "What is the difference between `vector`, `deque`, and `list`?",
+  "caps": [["O of one", "O(1)"], ["O of n", "O(n)"]],
+  "scenes": [
+    { "type": "title", "sub": "One block, a set of chunks, or a chain of nodes.",
+      "say": "Vector, deque, and list. Three sequence containers. The difference comes down to how they lay out memory." },
+
+    { "type": "diagram", "head": "Same six numbers, three layouts",
+      "items": [
+        { "id": "lv", "x": 120, "y": 250, "w": 260, "h": 90, "text": "vector", "size": 34, "tone": "ghost", "cue": "A vector keeps" },
+        { "id": "v0", "x": 440, "y": 250, "w": 100, "h": 90, "text": "1", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "v1", "x": 550, "y": 250, "w": 100, "h": 90, "text": "2", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "v2", "x": 660, "y": 250, "w": 100, "h": 90, "text": "3", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "v3", "x": 770, "y": 250, "w": 100, "h": 90, "text": "4", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "v4", "x": 880, "y": 250, "w": 100, "h": 90, "text": "5", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "v5", "x": 990, "y": 250, "w": 100, "h": 90, "text": "6", "size": 34, "tone": "blue", "cue": "A vector keeps" },
+        { "id": "ld", "x": 120, "y": 470, "w": 260, "h": 90, "text": "deque", "size": 34, "tone": "ghost", "cue": "A deque keeps" },
+        { "id": "m0", "x": 440, "y": 430, "w": 120, "h": 80, "text": "ptr", "size": 32, "tone": "ghost", "cue": "small index of pointers" },
+        { "id": "m1", "x": 440, "y": 540, "w": 120, "h": 80, "text": "ptr", "size": 32, "tone": "ghost", "cue": "small index of pointers" },
+        { "id": "c0", "x": 700, "y": 430, "w": 440, "h": 80, "text": "1 2 3 4", "size": 32, "tone": "warn", "cue": "fixed size chunks" },
+        { "id": "c1", "x": 700, "y": 540, "w": 440, "h": 80, "text": "5 6 · ·", "size": 32, "tone": "warn", "cue": "fixed size chunks" },
+        { "id": "ll", "x": 120, "y": 760, "w": 260, "h": 90, "text": "list", "size": 34, "tone": "ghost", "cue": "A list gives" },
+        { "id": "l0", "x": 440, "y": 730, "w": 240, "h": 90, "text": "1", "sub": "prev · next", "size": 34, "tone": "good", "cue": "its own node" },
+        { "id": "l1", "x": 860, "y": 800, "w": 240, "h": 90, "text": "2", "sub": "prev · next", "size": 34, "tone": "good", "cue": "its own node" },
+        { "id": "l2", "x": 1280, "y": 740, "w": 240, "h": 90, "text": "3", "sub": "prev · next", "size": 34, "tone": "good", "cue": "its own node" }
+      ],
+      "arrows": [
+        { "from": "m0", "to": "c0", "cue": "small index of pointers" },
+        { "from": "m1", "to": "c1", "cue": "small index of pointers" },
+        { "from": "l0", "to": "l1", "bend": 25, "cue": "linked to its neighbors" },
+        { "from": "l1", "to": "l0", "bend": 25, "cue": "linked to its neighbors" },
+        { "from": "l1", "to": "l2", "bend": 25, "cue": "linked to its neighbors" },
+        { "from": "l2", "to": "l1", "bend": 25, "cue": "linked to its neighbors" }
+      ],
+      "notes": [
+        { "cue": "A vector keeps", "x": 1140, "y": 275, "text": "one contiguous block", "tone": "info" },
+        { "cue": "Nothing shifts", "x": 1200, "y": 500, "text": "grows at both ends", "tone": "info" }
+      ],
+      "say": "A vector keeps them in one contiguous block. A deque keeps fixed size chunks, plus a small index of pointers to them. Adding at either end just fills a chunk, or adds a new one. Nothing shifts. A list gives every element its own node, somewhere on the heap, linked to its neighbors by previous and next pointers. Inserting in the middle just relinks pointers. But walking a list means jumping all over memory." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["vector", "deque", "list"], "rowHeads": ["Random access", "Back push/pop", "Front push/pop", "Middle insert", "Memory", "Cache use"],
+      "rows": [
+        ["O(1)", "O(1)", "No: O(n) walk"],
+        ["Amortized O(1)", "O(1)", "O(1)"],
+        ["O(n)", "O(1)", "O(1)"],
+        ["O(n)", "O(n)", "O(1) at an iterator"],
+        ["One block", "Chunks + index", "Node per element, +2 pointers"],
+        ["Excellent", "Good", "Poor"]
+      ],
+      "cues": ["Random access", "Back operations", "Front:", "Middle inserts", "Memory:", "cache use"],
+      "say": "Random access: vector and deque are O of one, a list has to walk. Back operations: fast for all three. Front: vector has to shift everything, deque and list don't. Middle inserts: only list is O of one, if you already have an iterator there. Memory: vector is the tightest, list pays two extra pointers per element. And cache use: vector is the best by far, which is why it often beats list in practice, even for middle inserts." },
+
+    { "type": "code", "head": "So which one?",
+      "panels": [{ "file": "pick.cpp", "size": 34, "code": "std::vector<int> v;  // default choice\nstd::deque<int>  q;  // fast at both ends: queues, sliding windows\nstd::list<int>   l;  // stable iterators, O(1) splice and insert\n\nstd::list<int> other = {7, 8};\nl.splice(l.begin(), other);  // moves nodes, copies nothing" }],
+      "steps": [
+        { "cue": "Vector by default", "lines": [1] },
+        { "cue": "Deque when", "lines": [2] },
+        { "cue": "List when", "lines": [3] },
+        { "cue": "splice", "lines": [5, 6] }
+      ],
+      "say": "So which one? Vector by default. It's the fastest in practice, and what the C plus plus Core Guidelines recommend. Deque when you push and pop at both ends, like a queue or a sliding window. It's also the default container behind the queue and stack adaptors. List when you need iterators that stay valid while other elements come and go, or splice: moving nodes between lists without copying a single element." },
+
+    { "type": "take", "lines": ["vector: one contiguous block. Fast access, fast at the back, cache-friendly.", "deque: chunks. O(1) at both ends, still random access. list: nodes, O(1) splice.", "Default to vector. Measure before picking list."],
+      "cues": ["Vector is", "Deque is", "Default to vector"],
+      "say": "Vector is one contiguous block, fast and cache friendly. Deque is chunks, fast at both ends. List is linked nodes, with cheap inserts and splices, but slow to walk. Default to vector, and measure before you pick a list." }
+  ]
+}

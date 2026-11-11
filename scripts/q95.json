@@ -1,0 +1,50 @@
+{
+  "id": "q95", "num": 95, "short": "atomic vs mutex",
+  "question": "What is the difference between `std::atomic` and a mutex?",
+  "caps": [["plus plus counter", "++counter"], ["lock guard", "lock_guard"], ["compare exchange", "compare_exchange"], ["is lock free", "is_lock_free"]],
+  "scenes": [
+    { "type": "title", "sub": "One indivisible operation, or a whole protected region.",
+      "say": "atomic versus mutex. Both stop data races. An atomic makes a single operation indivisible. A mutex protects a whole block of code." },
+
+    { "type": "code", "head": "Same counter, two fixes",
+      "panels": [
+        { "file": "atomic.cpp", "label": "atomic", "tone": "good", "code": "std::atomic<int> counter{0};\n\nvoid work() {\n  for (int i = 0; i < N; ++i)\n    ++counter;  // one atomic RMW\n}" },
+        { "file": "mutex.cpp", "label": "mutex", "tone": "warn", "code": "std::mutex m;\nint counter = 0;\n\nvoid work() {\n  for (int i = 0; i < N; ++i) {\n    std::lock_guard<std::mutex> g(m);\n    ++counter;\n  }\n}" }
+      ],
+      "steps": [
+        { "cue": "With atomic", "panel": 0, "lines": [1, 5] },
+        { "cue": "With a mutex", "panel": 1, "lines": [1, 6, 7] }
+      ],
+      "say": "Here's the same counter fixed both ways. With atomic, plus plus counter becomes a single read modify write instruction that no other thread can interrupt. Usually there's no lock and no sleeping thread, the hardware does it. With a mutex, the thread takes a lock, increments a plain int, and releases it. If another thread holds the lock, it waits, and may be put to sleep by the operating system." },
+
+    { "type": "code", "head": "Where atomics are not enough",
+      "panels": [{ "file": "transfer.cpp", "size": 34, "code": "std::atomic<int> a{100}, b{0};\n\nvoid transfer() {\n    a -= 10;   // atomic\n    b += 10;   // atomic\n}              // but the PAIR is not\n\n// another thread here can see a + b == 90\n\nstd::mutex m;\nvoid transferSafe() {\n    std::lock_guard<std::mutex> g(m);\n    a -= 10;\n    b += 10;   // readers must lock m too\n}" }],
+      "steps": [
+        { "cue": "move money", "lines": [1, 3, 4, 5, 6] },
+        { "cue": "in between", "lines": [8] },
+        { "cue": "A mutex makes", "lines": [10, 11, 12, 13, 14, 15] }
+      ],
+      "notes": [
+        { "cue": "in between", "line": 6, "inside": true, "text": "invariant broken", "tone": "bad" }
+      ],
+      "say": "Here's the limit. We move money from a to b. Each operation is atomic on its own, but the pair is not. A thread that looks in between sees ten units missing. Atomics protect one variable, one operation at a time. A mutex makes the whole group of steps one unit, as long as every reader takes the same lock. Atomics can do more with compare exchange loops, but that's expert territory." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["std::atomic", "std::mutex"],
+      "rowHeads": ["Protects", "How", "Waiting", "Cost", "Works with", "Use for"],
+      "rows": [
+        ["One variable, one operation", "Any block of code, many variables"],
+        ["CPU atomic instructions", "Lock / unlock (via RAII)"],
+        ["Usually lock-free, no blocking", "Others block; may sleep"],
+        ["Cheap for small, simple updates", "Higher, especially under contention"],
+        ["Trivially copyable types (int, ptr, flag)", "Anything"],
+        ["Counters, flags, simple stats", "Invariants across several values"]
+      ],
+      "cues": ["An atomic protects", "How", "Waiting", "Cost", "types", "Use atomics"],
+      "say": "An atomic protects one variable, one operation at a time. A mutex protects any block of code. How: atomics use special C P U instructions, mutexes lock and unlock. Waiting: atomics are usually lock free, while mutexes can block and sleep. Cost: atomics are cheaper for simple updates. Atomic works with trivially copyable types, you can check is lock free. Use atomics for counters and flags, and a mutex when several values must change together." },
+
+    { "type": "take", "lines": ["`std::atomic`: makes single operations on one variable indivisible; usually lock-free.", "Mutex: makes a whole region exclusive; threads block while it's held.", "Counter or flag: atomic. Several values that must stay consistent: mutex."],
+      "cues": ["An atomic", "A mutex", "A counter or a flag"],
+      "say": "An atomic makes single operations on one variable indivisible, usually without any lock. A mutex makes a whole region exclusive, and other threads block while it's held. A counter or a flag: atomic. Several values that must stay consistent: mutex." }
+  ]
+}

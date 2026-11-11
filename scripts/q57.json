@@ -1,0 +1,65 @@
+{
+  "id": "q57", "num": 57, "short": "Copy ctor vs assignment",
+  "question": "What is the difference between a copy constructor and copy assignment operator?",
+  "caps": [["T b equals a", "T b = a"], ["c of a", "c(a)"], ["c equals b", "c = b"], ["b equals b", "b = b"], ["b equals a", "b = a"], ["star this", "*this"]],
+  "scenes": [
+    { "type": "title", "sub": "One builds a brand-new object. The other overwrites one that already exists.",
+      "say": "Copy constructor versus copy assignment. Both copy one object into another. The difference is whether the target already exists." },
+
+    { "type": "code", "head": "Which one runs?",
+      "panels": [{ "file": "main.cpp", "code": "struct T {\n    T() {}\n    T(const T&)            { std::cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { std::cout << \"copy assign\\n\"; return *this; }\n};\n\nT a;\nT b = a;   // new object\nT c(a);    // new object\nc = b;     // c already exists" }],
+      "steps": [
+        { "cue": "T b equals a", "lines": [8] },
+        { "cue": "Same with c of a", "lines": [9] },
+        { "cue": "Only c equals b", "lines": [10] }
+      ],
+      "output": { "cmd": "./main", "text": "copy ctor\ncopy ctor\ncopy assign", "cue": "Only c equals b", "tone": "good" },
+      "say": "Ask one question: does the object on the left already exist? T b equals a looks like assignment, but b is being created right here, so it's the copy constructor. Same with c of a. Only c equals b, where c already exists, calls copy assignment. That equals sign trap is a classic interview question. Passing or returning by value also uses the copy constructor." },
+
+    { "type": "diagram", "head": "Why assignment has more work",
+      "panels": [{ "file": "buffer.cpp", "size": 30, "code": "Buffer& operator=(const Buffer& o) {\n    if (this == &o) return *this;\n    int* fresh = new int[o.n];\n    std::copy(o.data, o.data + o.n, fresh);\n    delete[] data;      // free OLD memory\n    data = fresh;\n    n = o.n;\n    return *this;\n}" }],
+      "steps": [
+        { "cue": "b already owns", "lines": [] },
+        { "cue": "fresh copy", "lines": [3, 4] },
+        { "cue": "delete the old block", "lines": [5] },
+        { "cue": "point b at", "lines": [6, 7] },
+        { "cue": "self assignment", "lines": [2] },
+        { "cue": "returns a reference", "lines": [8] }
+      ],
+      "items": [
+        { "id": "ad", "x": 1010, "y": 260, "w": 260, "h": 110, "label": "a.data", "text": "0x300", "size": 36, "tone": "blue", "cue": "b already owns" },
+        { "id": "ablk", "x": 1400, "y": 260, "w": 400, "h": 110, "label": "@0x300", "text": "7 8 9", "size": 40, "tone": "blue", "cue": "b already owns" },
+        { "id": "bd", "x": 1010, "y": 500, "w": 260, "h": 110, "label": "b.data", "text": "0x100", "size": 36, "tone": "blue", "cue": "b already owns" },
+        { "id": "old", "x": 1400, "y": 500, "w": 400, "h": 110, "label": "@0x100", "text": "1 2", "size": 40, "tone": "warn", "cue": "b already owns" },
+        { "id": "fresh", "x": 1400, "y": 740, "w": 400, "h": 110, "label": "@0x500 (fresh)", "text": "7 8 9", "size": 40, "tone": "good", "cue": "fresh copy" }
+      ],
+      "arrows": [
+        { "from": "ad", "to": "ablk", "cue": "b already owns" },
+        { "from": "bd", "to": "old", "cue": "b already owns" },
+        { "from": "bd", "to": "fresh", "cue": "point b at" }
+      ],
+      "changes": [
+        { "id": "old", "kill": true, "cue": "delete the old block" },
+        { "id": "a1", "fade": true, "cue": "delete the old block" },
+        { "id": "bd", "text": "0x500", "cue": "point b at" }
+      ],
+      "say": "Here's why assignment is harder. b already owns memory, holding one, two. Assigning a to b first makes a fresh copy of a's data. Then we delete the old block, or it leaks. Then point b at the fresh copy. A copy constructor never does this cleanup, since a new object owns nothing yet. Assignment must also survive self assignment, b equals b, and it returns a reference to star this, so assignments can chain." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Copy constructor", "Copy assignment"], "rowHeads": ["Signature", "Called when", "Example", "Old resources", "Self-copy", "Returns"],
+      "rows": [
+        ["`T(const T&)`", "`T& operator=(const T&)`"],
+        ["A new object is created from another", "An existing object gets another's value"],
+        ["`T b = a;`  `T b(a);`  pass by value", "`b = a;`"],
+        ["None: the object is brand new", "Must release or reuse them"],
+        ["Impossible", "Must handle `b = b`"],
+        ["Nothing (constructor)", "`*this` by reference, for chaining"]
+      ],
+      "cues": ["The signatures", "The copy constructor runs", "Like T b equals a", "Old resources", "Self copy", "And the return"],
+      "say": "The signatures differ: a constructor, versus an operator. The copy constructor runs when a new object is created, assignment when an existing one gets a new value. Like T b equals a, versus b equals a. Old resources: the constructor has none, assignment must release them. Self copy: impossible for the constructor, a real case for assignment. And the return: nothing, versus a reference to star this. If you write one, you probably need both, plus a destructor. That's the rule of three." },
+
+    { "type": "take", "lines": ["Copy constructor: creates a new object from an existing one.", "Copy assignment: overwrites an existing object; release old state, handle self-assignment.", "T b = a; is construction, not assignment. Rule of three: write both + destructor."],
+      "cues": ["The copy constructor creates", "Copy assignment overwrites", "And remember"],
+      "say": "The copy constructor creates a new object from an existing one. Copy assignment overwrites an existing object, so it must release old state and handle self assignment. And remember, T b equals a is construction, not assignment." }
+  ]
+}

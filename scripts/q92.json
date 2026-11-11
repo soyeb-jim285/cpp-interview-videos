@@ -1,0 +1,50 @@
+{
+  "id": "q92", "num": 92, "short": "thread vs async",
+  "question": "What is the difference between `std::thread` and `std::async`?",
+  "caps": [["s t d colon colon thread", "std::thread"], ["s t d colon colon async", "std::async"], ["launch colon colon async", "launch::async"], ["f dot get", "f.get()"]],
+  "scenes": [
+    { "type": "title", "sub": "A raw thread you manage, or a task that hands you back a result.",
+      "say": "s t d colon colon thread versus s t d colon colon async. Both run code concurrently. The difference is how much work you do, and how you get the result back." },
+
+    { "type": "code", "head": "std::thread: you manage everything",
+      "panels": [{ "file": "thread.cpp", "size": 36, "code": "int compute();\n\nint result = 0;\nstd::thread t([&result] { result = compute(); });\n\n// ... main keeps working ...\n\nt.join();              // wait for it to finish\nstd::cout << result;" }],
+      "steps": [
+        { "cue": "starts a new thread", "lines": [4] },
+        { "cue": "no return value", "lines": [3, 4] },
+        { "cue": "must join", "lines": [8] },
+        { "cue": "If an exception", "lines": [4] }
+      ],
+      "notes": [
+        { "cue": "must join", "line": 8, "inside": true, "text": "or detach, or terminate!", "tone": "warn" }
+      ],
+      "say": "s t d colon colon thread starts a new thread immediately. It has no return value, so to get the result out, we write into a shared variable. You must join or detach it before the thread object is destroyed. Forget, and the program calls terminate. If an exception escapes the thread function, that's terminate too. It's a low level tool." },
+
+    { "type": "code", "head": "std::async: a task with a future",
+      "panels": [{ "file": "async.cpp", "size": 36, "code": "int compute();\n\nstd::future<int> f = std::async(std::launch::async, compute);\n\n// ... main keeps working ...\n\nint result = f.get();   // waits, then returns the value\n                        // or rethrows compute's exception" }],
+      "steps": [
+        { "cue": "async runs", "lines": [3] },
+        { "cue": "f dot get", "lines": [7] },
+        { "cue": "rethrown", "lines": [8] },
+        { "cue": "launch colon colon async", "lines": [3] }
+      ],
+      "say": "async runs a function and hands you a future. f dot get waits for it and returns the actual value. If compute threw an exception, it's rethrown right here, in your thread. Note the policy. With launch colon colon async it runs on a new thread. With the default policy, the library may defer it and run it lazily, inside get. And the future from async waits for the task in its destructor." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["std::thread", "std::async"],
+      "rowHeads": ["Level", "Result", "Exceptions", "Cleanup", "Runs", "Use for"],
+      "rows": [
+        ["Low-level: a thread of execution", "High-level: a task"],
+        ["None: use shared state", "`std::future<T>`, read with `get()`"],
+        ["Escaping one calls `terminate`", "Stored, rethrown by `get()`"],
+        ["You must `join()` or `detach()`", "Future waits for the task"],
+        ["Immediately, on a new thread", "New thread, or deferred (policy)"],
+        ["Long-lived workers, full control", "\"Compute this and give me the answer\""]
+      ],
+      "cues": ["A thread is", "Results", "Exceptions", "Cleanup", "When it runs", "So use"],
+      "say": "A thread is a low level thread of execution. async is a higher level task. Results: threads have none, async gives you a future. Exceptions: from a thread they terminate the program, from async they're carried to get. Cleanup: threads need join or detach. When it runs: a thread starts immediately, async depends on its launch policy. So use thread for long lived workers, and async when you just want a result." },
+
+    { "type": "take", "lines": ["`std::thread`: starts a thread now. No return value. You must join or detach.", "`std::async`: runs a task, returns a `std::future`; `get()` gives the value or exception.", "Pass `std::launch::async` if it must run on a separate thread."],
+      "cues": ["s t d colon colon thread starts", "s t d colon colon async runs", "Pass"],
+      "say": "s t d colon colon thread starts a thread immediately, with no return value, and you must join or detach it. s t d colon colon async runs a task and returns a future, whose get gives you the value or the exception. Pass launch async if it really must run on a separate thread." }
+  ]
+}

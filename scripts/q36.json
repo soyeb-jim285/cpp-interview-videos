@@ -1,0 +1,63 @@
+{
+  "id": "q36", "num": 36, "short": "Pointer arithmetic",
+  "question": "What is pointer arithmetic?",
+  "caps": [["p plus two", "p + 2"], ["q minus p", "q - p"], ["a of two", "a[2]"], ["star of a plus two", "*(a + 2)"], ["a of i", "a[i]"], ["star of a plus i", "*(a + i)"]],
+  "scenes": [
+    { "type": "title", "sub": "Moving through memory one element at a time.",
+      "say": "Pointer arithmetic. Adding to a pointer doesn't add bytes. It moves by whole elements. Let's walk through an array." },
+
+    { "type": "diagram", "head": "p + 2 means two ints, not two bytes",
+      "panels": [{ "file": "walk.cpp", "size": 34, "code": "int arr[4] = {10, 20, 30, 40};\nint* p = arr;        // &arr[0]\nint* q = p + 2;      // &arr[2]\n\nstd::cout << *q;     // 30\nstd::cout << q - p;  // 2\n\np++;                 // now &arr[1]" }],
+      "steps": [
+        { "cue": "p starts", "lines": [1, 2] },
+        { "cue": "p plus two", "lines": [3] },
+        { "cue": "Dereferencing q", "lines": [5] },
+        { "cue": "Subtracting pointers", "lines": [6] },
+        { "cue": "p plus plus", "lines": [8] }
+      ],
+      "items": [
+        { "id": "e0", "x": 1010, "y": 580, "w": 180, "h": 120, "label": "0x100", "text": "10", "size": 44, "tone": "blue", "cue": "p starts" },
+        { "id": "e1", "x": 1200, "y": 580, "w": 180, "h": 120, "label": "0x104", "text": "20", "size": 44, "tone": "blue", "cue": "p starts" },
+        { "id": "e2", "x": 1390, "y": 580, "w": 180, "h": 120, "label": "0x108", "text": "30", "size": 44, "tone": "blue", "cue": "p starts" },
+        { "id": "e3", "x": 1580, "y": 580, "w": 180, "h": 120, "label": "0x10c", "text": "40", "size": 44, "tone": "blue", "cue": "p starts" },
+        { "id": "pv", "x": 1010, "y": 270, "w": 220, "h": 110, "label": "p", "text": "0x100", "size": 36, "tone": "warn", "cue": "p starts" },
+        { "id": "qv", "x": 1390, "y": 270, "w": 220, "h": 110, "label": "q", "text": "0x108", "size": 36, "tone": "warn", "cue": "p plus two" }
+      ],
+      "arrows": [
+        { "from": "pv", "to": "e0", "cue": "p starts" },
+        { "from": "qv", "to": "e2", "cue": "so q points" },
+        { "from": "pv", "to": "e1", "cue": "p plus plus" }
+      ],
+      "changes": [
+        { "id": "e2", "tone": "good", "cue": "Dereferencing q" },
+        { "id": "a0", "fade": true, "cue": "p plus plus" },
+        { "id": "pv", "text": "0x104", "cue": "p plus plus" }
+      ],
+      "say": "p starts at the first element, address hex one hundred. p plus two doesn't add two bytes. It adds two times the size of an int, eight bytes, so q points at the third element. Dereferencing q gives thirty. Subtracting pointers gives the distance in elements, so q minus p is two, not eight. And p plus plus steps to the next int, four bytes along." },
+
+    { "type": "code", "head": "The step size comes from the type",
+      "panels": [{ "file": "types.cpp", "size": 34, "code": "int    a[4];\ndouble d[4];\nint*    pi = a;\ndouble* pd = d;\n\n// pi + 1  ->  4 bytes further  (sizeof(int))\n// pd + 1  ->  8 bytes further  (sizeof(double))\n\na[2] = 7;        // exactly the same as:\n*(a + 2) = 7;    // subscripting IS pointer arithmetic" }],
+      "steps": [
+        { "cue": "comes from the pointer's type", "lines": [3, 4, 6, 7] },
+        { "cue": "void pointer", "lines": [] },
+        { "cue": "a of two", "lines": [9, 10] }
+      ],
+      "say": "The step size comes from the pointer's type. An int pointer moves four bytes per step, a double pointer moves eight, on typical platforms. That's also why standard C plus plus forbids arithmetic on a void pointer: there's no size to step by. And here's the secret: a of two is defined as star of a plus two. Array subscripting is pointer arithmetic." },
+
+    { "type": "code", "head": "Where it's legal",
+      "panels": [{ "file": "rules.cpp", "size": 34, "code": "int arr[4] = {10, 20, 30, 40};\nint* end = arr + 4;   // OK: one past the end\n*end = 5;             // UB: never dereference it\nint* bad = arr + 5;   // UB: even just forming it\n\nint x = 1, y = 2;\nauto d = &y - &x;     // UB: different objects\n\nfor (int* it = arr; it != end; ++it)\n    std::cout << *it << ' ';" }],
+      "steps": [
+        { "cue": "inside the array", "lines": [1] },
+        { "cue": "one past the end", "lines": [2] },
+        { "cue": "never to dereference", "lines": [3] },
+        { "cue": "any further", "lines": [4] },
+        { "cue": "different objects", "lines": [6, 7] },
+        { "cue": "loop from the start", "lines": [9, 10] }
+      ],
+      "say": "The rules. You may point anywhere inside the array, or exactly one past the end. One past the end is legal to hold and compare, but never to dereference. Going any further, even without dereferencing, is undefined behavior. Subtracting pointers into different objects is also undefined. Used correctly, this is exactly how iterators work: loop from the start until you reach end." },
+
+    { "type": "take", "lines": ["p + n moves n elements, i.e. n × sizeof(T) bytes.", "q − p is the distance in elements; a[i] is *(a + i).", "Valid only inside one array, or one past its end. Anything else: UB."],
+      "cues": ["Adding n", "Subtracting", "only valid"],
+      "say": "Adding n to a pointer moves n elements, which is n times the size of the type in bytes. Subtracting two pointers gives the distance in elements, and a of i is just star of a plus i. It's only valid inside one array, or one past its end. Anything else is undefined behavior." }
+  ]
+}

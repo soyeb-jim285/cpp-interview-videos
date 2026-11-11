@@ -1,0 +1,58 @@
+{
+  "id": "q50", "num": 50, "short": "Static vs dynamic polymorphism",
+  "question": "What is the difference between compile-time and runtime polymorphism?",
+  "caps": [["v table", "vtable"]],
+  "scenes": [
+    { "type": "title", "sub": "Same goal, different moment: the compiler decides, or the running program does.",
+      "say": "Compile time versus runtime polymorphism. Both let one piece of code work with many types. The difference is when the decision is made." },
+
+    { "type": "code", "head": "The same idea, written both ways",
+      "panels": [
+        { "file": "static.cpp", "label": "compile time", "code": "struct Dog { void speak() const; };\nstruct Cat { void speak() const; };\n\ntemplate <typename T>\nvoid talk(const T& a) {\n    a.speak();   // fixed per T\n}\n\ntalk(Dog{});     // talk<Dog>\ntalk(Cat{});     // talk<Cat>" },
+        { "file": "dynamic.cpp", "label": "runtime", "code": "struct Animal {\n    virtual void speak() const = 0;\n    virtual ~Animal() = default;\n};\n\nvoid talk(const Animal& a) {\n    a.speak();   // looked up at runtime\n}" }
+      ],
+      "steps": [
+        { "cue": "On the left", "panel": 0, "lines": [4, 5, 6, 7] },
+        { "cue": "separate talk", "panel": 0, "lines": [9, 10] },
+        { "cue": "On the right", "panel": 1, "lines": [6, 7, 8] },
+        { "cue": "through the virtual function", "panel": 1, "lines": [2] }
+      ],
+      "say": "On the left, a template. Dog and Cat don't share any base class. The compiler generates a separate talk for Dog and for Cat, and each call is wired directly to the right speak. On the right, a single talk function takes any Animal by reference. Which speak runs is decided while the program is running, through the virtual function." },
+
+    { "type": "diagram", "head": "When the type is only known at runtime",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "std::unique_ptr<Animal> pet;\nif (input == \"dog\")\n    pet = std::make_unique<Dog>();\nelse\n    pet = std::make_unique<Cat>();\n\npet->speak();   // Dog or Cat?" }],
+      "steps": [
+        { "cue": "depends on user input", "lines": [2, 3, 4, 5] },
+        { "cue": "The call follows", "lines": [7] }
+      ],
+      "items": [
+        { "id": "pet", "x": 1010, "y": 260, "w": 300, "h": 110, "label": "pet", "text": "0x500", "size": 36, "tone": "blue", "cue": "depends on user input" },
+        { "id": "obj", "x": 1420, "y": 260, "w": 380, "h": 110, "label": "Dog object", "text": "vptr", "size": 36, "tone": "blue", "cue": "hidden pointer" },
+        { "id": "vt", "x": 1420, "y": 480, "w": 380, "h": 120, "label": "Dog's vtable", "text": "speak slot", "size": 36, "tone": "warn", "cue": "virtual table" },
+        { "id": "fn", "x": 1420, "y": 720, "w": 380, "h": 110, "text": "Dog::speak()", "size": 36, "tone": "good", "cue": "then to Dog's speak" }
+      ],
+      "arrows": [
+        { "from": "pet", "to": "obj", "cue": "The call follows" },
+        { "from": "obj", "to": "vt", "cue": "then to its table" },
+        { "from": "vt", "to": "fn", "cue": "then to Dog's speak" }
+      ],
+      "say": "Here runtime polymorphism is essential. The type depends on user input, so the compiler can't know it. In practice, each object carries a hidden pointer to its class's virtual table. The call follows pet to the object, then to its table, then to Dog's speak. That's an extra indirection, and it usually prevents inlining. A template can't do this, because templates need the type at compile time." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Compile-time", "Runtime"], "rowHeads": ["Decided", "Mechanism", "Also called", "Call cost", "Flexibility", "Downsides"],
+      "rows": [
+        ["When compiling", "While the program runs"],
+        ["Overloading, templates, operators", "Virtual functions + base pointer / reference"],
+        ["Static / early binding", "Dynamic / late binding"],
+        ["Direct call, can be inlined", "Indirect call through the vtable"],
+        ["Types must be known at compile time", "Type can be chosen at runtime"],
+        ["Code bloat, slower builds", "Small overhead, needs pointers or references"]
+      ],
+      "cues": ["Compile time is decided", "The mechanism", "also called", "Call cost", "Flexibility", "Downsides"],
+      "say": "Compile time is decided by the compiler, runtime while the program runs. The mechanism: overloading and templates, versus virtual functions through a base pointer or reference. They're also called static and dynamic binding. Call cost: a direct call that can be inlined, versus an indirect call. Flexibility: types fixed at compile time, versus chosen at runtime. Downsides: code bloat and slower builds, versus a small runtime overhead." },
+
+    { "type": "take", "lines": ["Compile-time: overloads and templates, resolved by the compiler. Fast.", "Runtime: virtual functions via base pointer/reference, resolved via vtable.", "Use runtime when the type is only known while running; else templates."],
+      "cues": ["Compile time polymorphism", "Runtime polymorphism", "Pick runtime"],
+      "say": "Compile time polymorphism is overloads and templates, resolved by the compiler, with no runtime cost. Runtime polymorphism is virtual functions, resolved through the v table. Pick runtime when the type is only known while running." }
+  ]
+}

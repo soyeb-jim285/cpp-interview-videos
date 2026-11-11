@@ -1,0 +1,44 @@
+{
+  "id": "q53", "num": 53, "short": "Abstract classes",
+  "question": "What is an abstract class?",
+  "caps": [["printSlip", "printSlip()"]],
+  "scenes": [
+    { "type": "title", "sub": "A class with at least one pure virtual function. A blueprint you can't instantiate.",
+      "say": "An abstract class is a class with at least one pure virtual function. You can't create objects of it directly. But as we'll see, it's far from empty." },
+
+    { "type": "code", "head": "An abstract class with real content",
+      "panels": [{ "file": "employee.cpp", "code": "class Employee {                       // abstract\npublic:\n    explicit Employee(std::string n) : name(std::move(n)) {}\n    virtual ~Employee() = default;\n\n    virtual double pay() const = 0;     // the missing piece\n    void printSlip() const {            // shared, concrete\n        std::cout << name << \": \" << pay() << '\\n';\n    }\nprotected:\n    std::string name;                   // real data\n};" }],
+      "steps": [
+        { "cue": "a constructor", "lines": [3] },
+        { "cue": "a real data member", "lines": [11] },
+        { "cue": "a normal function", "lines": [7, 8, 9] },
+        { "cue": "Only pay is missing", "lines": [6] }
+      ],
+      "say": "Employee has a constructor, a real data member, and a normal function, printSlip. Only pay is missing, because the base class can't know how each kind of employee is paid. That single pure virtual function is enough to make the whole class abstract." },
+
+    { "type": "code", "head": "Concrete classes fill the gap",
+      "panels": [{ "file": "main.cpp", "code": "class Manager : public Employee {\npublic:\n    using Employee::Employee;\n    double pay() const override { return 9000; }\n};\nclass Intern : public Employee {\npublic:\n    using Employee::Employee;\n    double pay() const override { return 1500; }\n};\n\nEmployee e(\"Ann\");   // error: abstract type\nManager m(\"Bo\");\nIntern  i(\"Cy\");\nm.printSlip();\ni.printSlip();" }],
+      "steps": [
+        { "cue": "You can't create an Employee", "lines": [12] },
+        { "cue": "Manager and Intern", "lines": [4, 9] },
+        { "cue": "Calling printSlip", "lines": [13, 14, 15, 16] }
+      ],
+      "notes": [
+        { "cue": "The compiler rejects it", "line": 12, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "output": { "cmd": "./main", "text": "Bo: 9000\nCy: 1500", "cue": "the derived pay", "tone": "good" },
+      "say": "You can't create an Employee directly. The compiler rejects it, because the object would have a hole where pay should be. Manager and Intern fill in that hole, so they're concrete. Calling printSlip on each uses the shared code from the base, plus the derived pay. Shared logic with one missing step is the template method pattern." },
+
+    { "type": "code", "head": "Interfaces, and how you use them",
+      "panels": [{ "file": "draw.cpp", "code": "struct Drawable {                   // a pure interface\n    virtual void draw() const = 0;\n    virtual ~Drawable() = default;\n};\n\nvoid render(const std::vector<const Drawable*>& items) {\n    for (const Drawable* d : items) d->draw();\n}" }],
+      "steps": [
+        { "cue": "only pure virtual functions", "lines": [1, 2, 3, 4] },
+        { "cue": "like render does", "lines": [6, 7, 8] }
+      ],
+      "say": "When a class has only pure virtual functions and no data, it's an interface. C plus plus has no interface keyword, an abstract class plays that role. You use abstract types through pointers or references, like render does. Common follow up: can an abstract class have a constructor? Yes. It runs whenever a derived object is built." },
+
+    { "type": "take", "lines": ["Abstract class: has at least one pure virtual function. Can't be instantiated.", "Can still have data, constructors, and normal member functions.", "Used through pointers/references; derived classes override to become concrete."],
+      "cues": ["An abstract class has", "It can still", "You use it"],
+      "say": "An abstract class has at least one pure virtual function, so it can't be instantiated. It can still have data, constructors, and normal functions. You use it through pointers or references, and derived classes override to become concrete." }
+  ]
+}

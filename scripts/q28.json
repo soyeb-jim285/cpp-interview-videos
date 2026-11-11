@@ -1,0 +1,66 @@
+{
+  "id": "q28", "num": 28, "short": "RAII",
+  "question": "What is RAII (Resource Acquisition Is Initialization)?",
+  "caps": [["lock guard", "lock_guard"], ["unique pointer", "unique_ptr"], ["j thread", "jthread"]],
+  "scenes": [
+    { "type": "title", "sub": "Tie every resource to an object's lifetime.",
+      "say": "R A I I. Resource acquisition is initialization. A clumsy name for the most important idea in C plus plus: tie every resource to an object's lifetime." },
+
+    { "type": "code", "head": "The problem: manual cleanup",
+      "panels": [{ "file": "manual.cpp", "size": 36, "code": "void work() {\n    std::FILE* f = std::fopen(\"log.txt\", \"w\");\n    risky();               // throws? f never closed\n    if (bad()) return;     // returns? f never closed\n    std::fclose(f);\n}" }],
+      "steps": [
+        { "cue": "We open a file", "lines": [2, 5] },
+        { "cue": "If risky throws", "lines": [3] },
+        { "cue": "an early return", "lines": [4] }
+      ],
+      "notes": [
+        { "cue": "If risky throws", "line": 3, "inside": true, "text": "leak", "tone": "bad" },
+        { "cue": "an early return", "line": 4, "inside": true, "text": "leak", "tone": "bad" }
+      ],
+      "say": "Here's the problem. We open a file, and promise to close it at the end. If risky throws, we never get there. Same with an early return. Every exit path needs its own cleanup, and someone will forget one. Memory, files, locks, sockets: every resource has this problem." },
+
+    { "type": "code", "head": "The fix: a class that owns the resource",
+      "panels": [{ "file": "file.cpp", "size": 30, "code": "class File {\n    std::FILE* f;\npublic:\n    explicit File(const char* name)\n        : f(std::fopen(name, \"w\")) {           // acquire\n        if (!f) throw std::runtime_error(\"open failed\");\n    }\n    ~File() { std::fclose(f); }               // release\n    File(const File&) = delete;               // no copies\n    File& operator=(const File&) = delete;\n};\n\nvoid work() {\n    File log(\"log.txt\");\n    risky();                                  // may throw\n}                                             // ~File() runs" }],
+      "steps": [
+        { "cue": "The constructor acquires", "lines": [4, 5, 6] },
+        { "cue": "The destructor releases", "lines": [8] },
+        { "cue": "Copying is deleted", "lines": [9, 10] },
+        { "cue": "Now work", "lines": [13, 14, 15, 16] }
+      ],
+      "say": "R A I I fixes it with a class. The constructor acquires the resource, and throws if it can't, so a File object always holds an open file. The destructor releases it. Copying is deleted, so two objects never close the same file. Now work just creates a File. No close call anywhere." },
+
+    { "type": "diagram", "head": "Why it works: destructors always run",
+      "panels": [{ "file": "work.cpp", "size": 34, "code": "void work() {\n    File log(\"log.txt\");\n    std::lock_guard lk(m);\n    risky();       // throws!\n}" }],
+      "steps": [
+        { "cue": "log opens the file", "lines": [2] },
+        { "cue": "lk locks a mutex", "lines": [3] },
+        { "cue": "Then risky throws", "lines": [4] }
+      ],
+      "items": [
+        { "id": "frm", "region": true, "x": 1010, "y": 230, "w": 420, "h": 560, "label": "work() frame", "tone": "blue" },
+        { "id": "olog", "x": 1050, "y": 600, "w": 340, "h": 110, "label": "log", "text": "file open", "size": 34, "tone": "good", "cue": "log opens the file" },
+        { "id": "olk", "x": 1050, "y": 380, "w": 340, "h": 110, "label": "lk", "text": "mutex locked", "size": 34, "tone": "good", "cue": "lk locks a mutex" },
+        { "id": "ex", "x": 1500, "y": 380, "w": 300, "h": 110, "text": "exception", "sub": "unwinding…", "size": 34, "tone": "bad", "cue": "Then risky throws" }
+      ],
+      "changes": [
+        { "id": "olk", "text": "unlocked", "cue": "lk unlocks" },
+        { "id": "olk", "fade": true, "cue": "then log closes" },
+        { "id": "olog", "text": "closed", "cue": "then log closes" },
+        { "id": "olog", "fade": true, "cue": "No try" }
+      ],
+      "say": "log opens the file, then lk locks a mutex. Then risky throws. As the exception leaves the function, the stack unwinds, and every fully built local is destroyed, in reverse order. lk unlocks first, then log closes the file. No try, no catch, no cleanup code. One fine print: this needs the exception to be caught somewhere. If it's never caught, unwinding isn't guaranteed." },
+
+    { "type": "flow", "head": "You already use RAII everywhere", "y": 400, "h": 260,
+      "items": [
+        { "label": "heap memory", "text": "unique_ptr", "sub": "or vector, string", "size": 32, "tone": "good", "cue": "unique pointer" },
+        { "label": "files", "text": "fstream", "sub": "closes in destructor", "size": 32, "tone": "good", "cue": "fstream" },
+        { "label": "mutexes", "text": "lock_guard", "sub": "unlocks in destructor", "size": 32, "tone": "good", "cue": "lock guard" },
+        { "label": "threads", "text": "jthread", "sub": "joins in destructor", "size": 32, "tone": "good", "cue": "j thread" }
+      ],
+      "say": "The standard library is built on this. Heap memory: unique pointer, vector, string. Files: fstream. Mutexes: lock guard. Threads: in C plus plus twenty, j thread joins automatically. In an interview, say it this way: acquire in the constructor, release in the destructor, and let scope do the rest." },
+
+    { "type": "take", "lines": ["RAII: acquire a resource in a constructor, release it in the destructor.", "Destructors run on every exit: return, end of scope, or exception unwinding.", "Result: no leaks, exception safety, no manual cleanup (unique_ptr, lock_guard, fstream)."],
+      "cues": ["R A I I means", "Destructors run", "So you get"],
+      "say": "R A I I means acquire a resource in a constructor, and release it in the destructor. Destructors run on every exit: a return, the end of a scope, or an exception. So you get no leaks, exception safety, and no manual cleanup code." }
+  ]
+}

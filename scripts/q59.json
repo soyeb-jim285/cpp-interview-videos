@@ -1,0 +1,95 @@
+{
+  "id": "q59", "num": 59, "short": "Diamond problem",
+  "question": "What is the diamond problem in multiple inheritance?",
+  "caps": [["c dot Scanner double colon id", "c.Scanner::id"], ["c dot id", "c.id"]],
+  "scenes": [
+    { "type": "title", "sub": "Two paths to the same base class, and two copies of it.",
+      "say": "The diamond problem. It happens when a class inherits the same base class through two different paths. Let's build one." },
+
+    { "type": "diagram", "head": "The shape that gives it its name",
+      "panels": [{ "file": "copier.cpp", "size": 34, "code": "struct Device { int id = 0; };\n\nstruct Scanner : Device {};\nstruct Printer : Device {};\n\nstruct Copier : Scanner, Printer {};" }],
+      "steps": [
+        { "cue": "A Device", "lines": [1] },
+        { "cue": "Scanner and Printer", "lines": [3, 4] },
+        { "cue": "A Copier", "lines": [6] }
+      ],
+      "items": [
+        { "id": "dv", "x": 1250, "y": 250, "w": 320, "h": 110, "text": "Device", "sub": "int id", "size": 36, "tone": "warn", "cue": "A Device" },
+        { "id": "sc", "x": 1030, "y": 500, "w": 320, "h": 110, "text": "Scanner", "size": 36, "tone": "blue", "cue": "Scanner and Printer" },
+        { "id": "pr", "x": 1470, "y": 500, "w": 320, "h": 110, "text": "Printer", "size": 36, "tone": "blue", "cue": "Scanner and Printer" },
+        { "id": "cp", "x": 1250, "y": 750, "w": 320, "h": 110, "text": "Copier", "size": 36, "tone": "good", "cue": "A Copier" }
+      ],
+      "arrows": [
+        { "from": "sc", "to": "dv", "cue": "Scanner and Printer" },
+        { "from": "pr", "to": "dv", "cue": "Scanner and Printer" },
+        { "from": "cp", "to": "sc", "cue": "A Copier" },
+        { "from": "cp", "to": "pr", "cue": "A Copier" }
+      ],
+      "say": "A Device has an id. Scanner and Printer both inherit from Device. A Copier is both a scanner and a printer, so it inherits from both. Draw the hierarchy, and you get a diamond." },
+
+    { "type": "diagram", "head": "Inside a Copier: two Devices",
+      "panels": [{ "file": "copier.cpp", "size": 34, "code": "struct Device { int id = 0; };\nstruct Scanner : Device {};\nstruct Printer : Device {};\nstruct Copier : Scanner, Printer {};\n\nCopier c;\nc.id = 5;           // which id?\nc.Scanner::id = 5;  // ok, but 2 copies" }],
+      "steps": [
+        { "cue": "With ordinary inheritance", "lines": [6] },
+        { "cue": "c dot id", "lines": [7] },
+        { "cue": "c dot Scanner double colon id", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "is ambiguous", "line": 7, "inside": true, "text": "error: ambiguous", "tone": "bad" }
+      ],
+      "items": [
+        { "id": "obj", "region": true, "x": 1010, "y": 230, "w": 800, "h": 560, "label": "Copier c" },
+        { "id": "sp", "region": true, "x": 1040, "y": 330, "w": 350, "h": 400, "label": "Scanner part", "cue": "With ordinary inheritance" },
+        { "id": "pp", "region": true, "x": 1430, "y": 330, "w": 350, "h": 400, "label": "Printer part", "cue": "With ordinary inheritance" },
+        { "id": "d1", "x": 1070, "y": 500, "w": 290, "h": 120, "label": "Device::id", "text": "0", "size": 44, "tone": "warn", "cue": "two separate Device" },
+        { "id": "d2", "x": 1460, "y": 500, "w": 290, "h": 120, "label": "Device::id", "text": "0", "size": 44, "tone": "warn", "cue": "two separate Device" }
+      ],
+      "changes": [
+        { "id": "d1", "tone": "bad", "cue": "is ambiguous" },
+        { "id": "d2", "tone": "bad", "cue": "is ambiguous" },
+        { "id": "d1", "text": "5", "cue": "c dot Scanner double colon id" },
+        { "id": "d1", "tone": "good", "cue": "c dot Scanner double colon id" },
+        { "id": "d2", "tone": "warn", "cue": "c dot Scanner double colon id" }
+      ],
+      "say": "With ordinary inheritance, each path brings its own base. So one Copier object contains two separate Device sub objects, each with its own id. Now c dot id is ambiguous. The compiler can't know which id you mean, so it's a compile error. You can name the path, c dot Scanner double colon id, but you still have two ids that can drift apart. Converting a Copier pointer to a Device pointer is ambiguous too." },
+
+    { "type": "diagram", "head": "The fix: virtual inheritance",
+      "panels": [{ "file": "copier.cpp", "size": 34, "code": "struct Device { int id = 0; };\nstruct Scanner : virtual Device {};\nstruct Printer : virtual Device {};\nstruct Copier : Scanner, Printer {};\n\nCopier c;\nc.id = 5;   // ok: one shared Device" }],
+      "steps": [
+        { "cue": "virtual inheritance", "lines": [2, 3] },
+        { "cue": "c dot id just works", "lines": [7] }
+      ],
+      "items": [
+        { "id": "obj", "region": true, "x": 1010, "y": 230, "w": 800, "h": 660, "label": "Copier c" },
+        { "id": "sp", "region": true, "x": 1040, "y": 330, "w": 350, "h": 160, "label": "Scanner part" },
+        { "id": "pp", "region": true, "x": 1430, "y": 330, "w": 350, "h": 160, "label": "Printer part" },
+        { "id": "dv", "x": 1250, "y": 680, "w": 320, "h": 120, "label": "Device::id (shared)", "text": "0", "size": 44, "tone": "warn", "cue": "exactly one" }
+      ],
+      "arrows": [
+        { "from": "sp", "to": "dv", "cue": "both parts point" },
+        { "from": "pp", "to": "dv", "cue": "both parts point" }
+      ],
+      "changes": [
+        { "id": "dv", "text": "5", "cue": "c dot id just works" },
+        { "id": "dv", "tone": "good", "cue": "c dot id just works" }
+      ],
+      "say": "The fix is virtual inheritance. Scanner and Printer inherit virtually from Device, so the final object holds exactly one Device, and both parts point to that shared copy. Now c dot id just works. The cost is a little extra indirection, because the shared base's position is found at run time." },
+
+    { "type": "code", "head": "Follow-up: who constructs the shared base?",
+      "panels": [{ "file": "ctor.cpp", "size": 32, "code": "struct Device {\n    int id;\n    Device(int i) : id(i) {}\n};\nstruct Scanner : virtual Device {\n    Scanner() : Device(1) {}\n};\nstruct Printer : virtual Device {\n    Printer() : Device(2) {}\n};\nstruct Copier : Scanner, Printer {\n    Copier() : Device(3) {}   // most-derived class builds it\n};\n\nCopier c;   // c.id == 3" }],
+      "steps": [
+        { "cue": "Scanner and Printer each", "lines": [6, 9] },
+        { "cue": "the most derived class", "lines": [12] },
+        { "cue": "So c dot id", "lines": [15] }
+      ],
+      "notes": [
+        { "cue": "are ignored", "line": 6, "inside": true, "text": "ignored for Copier", "tone": "warn" },
+        { "cue": "are ignored", "line": 9, "inside": true, "text": "ignored for Copier", "tone": "warn" }
+      ],
+      "say": "A classic follow up: who constructs the shared base? Scanner and Printer each try to pass an id to Device. But with a virtual base, the most derived class constructs it directly, here Copier, and the middle classes' calls are ignored. So c dot id is three. If Copier didn't call a Device constructor, it would need a default one." },
+
+    { "type": "take", "lines": ["Diamond: a class inherits one base through two paths.", "Normal inheritance gives two base copies: ambiguous names and conversions.", "virtual inheritance shares one copy; the most-derived class constructs it."],
+      "cues": ["The diamond problem", "With normal inheritance", "Virtual inheritance"],
+      "say": "The diamond problem: a class inherits the same base through two paths. With normal inheritance you get two copies of the base, and names become ambiguous. Virtual inheritance shares a single copy, which the most derived class constructs." }
+  ]
+}

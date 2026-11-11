@@ -1,0 +1,63 @@
+{
+  "id": "q58", "num": 58, "short": "Rule of 3/5/0",
+  "question": "What is the Rule of Three, Five, and Zero?",
+  "caps": [["delete brackets", "delete[]"]],
+  "scenes": [
+    { "type": "title", "sub": "Which special member functions you must write together, and when to write none.",
+      "say": "The Rule of Three, Five, and Zero. They're all about one question: if your class owns a resource, which special functions do you have to write? Let's see what goes wrong first." },
+
+    { "type": "diagram", "head": "The bug: a destructor without a copy constructor",
+      "panels": [{ "file": "buffer.cpp", "size": 32, "code": "class Buffer {\n    int* data;\npublic:\n    Buffer(int n) : data(new int[n]) {}\n    ~Buffer() { delete[] data; }\n    // no copy constructor written\n};\n\nint main() {\n    Buffer a(3);\n    Buffer b = a;   // copies the pointer\n}                   // ~b, then ~a" }],
+      "steps": [
+        { "cue": "This buffer owns", "lines": [2, 4, 5] },
+        { "cue": "Buffer a of three", "lines": [10] },
+        { "cue": "Now copy it", "lines": [11] },
+        { "cue": "At the end of main", "lines": [12] }
+      ],
+      "items": [
+        { "id": "oa", "x": 1040, "y": 300, "w": 300, "h": 120, "label": "a.data", "text": "0x7a0", "size": 38, "tone": "blue", "cue": "Buffer a of three" },
+        { "id": "ob", "x": 1460, "y": 300, "w": 300, "h": 120, "label": "b.data", "text": "0x7a0", "size": 38, "tone": "blue", "cue": "Now copy it" },
+        { "id": "hp", "x": 1200, "y": 640, "w": 400, "h": 130, "label": "heap @0x7a0", "text": "int[3]", "size": 40, "tone": "warn", "cue": "Buffer a of three" }
+      ],
+      "arrows": [
+        { "from": "oa", "to": "hp", "cue": "Buffer a of three" },
+        { "from": "ob", "to": "hp", "cue": "copies the pointer" }
+      ],
+      "changes": [
+        { "id": "ob", "fade": true, "cue": "b is destroyed" },
+        { "id": "a1", "fade": true, "cue": "b is destroyed" },
+        { "id": "hp", "kill": true, "cue": "b is destroyed" },
+        { "id": "oa", "tone": "bad", "cue": "same memory again" }
+      ],
+      "say": "This buffer owns heap memory, and frees it in its destructor. Buffer a of three allocates an array. Now copy it. The compiler's default copy constructor copies member by member, so it just copies the pointer. Two objects, one array. At the end of main, b is destroyed first and frees the array. Then a's destructor deletes the same memory again. That's a double delete, which is undefined behavior." },
+
+    { "type": "code", "head": "Rule of Three, then Five",
+      "panels": [{ "file": "buffer.h", "size": 34, "code": "class Buffer {\n    int* data;\n    int n;\npublic:\n    Buffer(int n) : data(new int[n]), n(n) {}\n\n    ~Buffer();                              // 1 destructor\n    Buffer(const Buffer&);                  // 2 copy constructor\n    Buffer& operator=(const Buffer&);       // 3 copy assignment\n\n    Buffer(Buffer&&) noexcept;              // 4 move constructor\n    Buffer& operator=(Buffer&&) noexcept;   // 5 move assignment\n};" }],
+      "steps": [
+        { "cue": "Rule of Three", "lines": [7, 8, 9] },
+        { "cue": "Rule of Five", "lines": [11, 12] },
+        { "cue": "silently become copies", "lines": [7, 8, 9] }
+      ],
+      "notes": [
+        { "cue": "deep copy", "line": 8, "inside": true, "text": "allocate + copy", "tone": "good" },
+        { "cue": "steal the pointer", "line": 11, "inside": true, "text": "steal, don't copy", "tone": "good" }
+      ],
+      "say": "The Rule of Three: if you need to write one of the destructor, copy constructor, or copy assignment, you almost certainly need all three. The copies must do a deep copy, with their own new array. C plus plus eleven added moves, giving the Rule of Five: also write the move constructor and move assignment, which simply steal the pointer. Here's the trap. Once you declare a destructor or a copy operation, the compiler stops generating moves, so your moves silently become copies." },
+
+    { "type": "code", "head": "Rule of Zero: let members do it",
+      "panels": [{ "file": "buffer.cpp", "size": 36, "code": "class Buffer {\n    std::vector<int> data;\npublic:\n    Buffer(int n) : data(n) {}\n    // no destructor, no copy, no move written\n};\n\nBuffer a(3);\nBuffer b = a;              // deep copy, done by vector\nBuffer c = std::move(a);   // cheap move, done by vector" }],
+      "steps": [
+        { "cue": "Even better", "lines": [2] },
+        { "cue": "write none", "lines": [5] },
+        { "cue": "Copies and moves", "lines": [9, 10] }
+      ],
+      "notes": [
+        { "cue": "Copies and moves", "line": 5, "inside": true, "text": "compiler-generated", "tone": "good" }
+      ],
+      "say": "Even better is the Rule of Zero. Don't manage the raw resource yourself. Hold it in a member that already manages it, like a vector, or a unique pointer. Then write none of the five. Copies and moves generated by the compiler just call the vector's own, which are already correct. In an interview, say: prefer Rule of Zero, and use Rule of Five only for a class whose job is to own a resource." },
+
+    { "type": "take", "lines": ["Three: destructor, copy constructor, copy assignment. Write one, write all.", "Five: add move constructor and move assignment (C++11).", "Zero: hold resources in vector / unique_ptr and write none of them."],
+      "cues": ["Rule of Three", "Rule of Five", "Rule of Zero"],
+      "say": "Rule of Three: destructor, copy constructor, copy assignment. If you write one, write all three. Rule of Five adds the two move operations. Rule of Zero: let members like vector and unique pointer own resources, and write none of them." }
+  ]
+}

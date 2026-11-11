@@ -1,0 +1,77 @@
+{
+  "id": "q100", "num": 100, "short": "Shallow copy, double delete",
+  "question": "Find the memory-management problem.",
+  "caps": [["User b equals a", "User b = a"], ["a dot data", "a.data"], ["b dot data", "b.data"], ["operator equals", "operator="], ["unique pointer", "unique_ptr"]],
+  "scenes": [
+    { "type": "title", "sub": "A class that owns a raw pointer, and gets copied.",
+      "say": "Last one, and it's an interview favorite. A class that owns heap memory through a raw pointer. Find the bug." },
+
+    { "type": "code", "head": "Pause and guess",
+      "panels": [{ "file": "user.cpp", "size": 36, "code": "class User {\npublic:\n    int* data;\n    User() { data = new int(10); }\n    ~User() { delete data; }\n};\n\nint main() {\n    User a;\n    User b = a;\n}" }],
+      "steps": [
+        { "cue": "allocates an int", "lines": [4] },
+        { "cue": "deletes it", "lines": [5] },
+        { "cue": "main makes a", "lines": [9, 10] }
+      ],
+      "notes": [
+        { "cue": "What goes wrong", "line": 10, "inside": true, "text": "bug?", "tone": "warn" }
+      ],
+      "say": "The constructor allocates an int on the heap, and the destructor deletes it. Looks responsible. Then main makes a, and copies it into b. What goes wrong? Pause and think about how many deletes run." },
+
+    { "type": "diagram", "head": "What really happens in memory",
+      "panels": [{ "file": "user.cpp", "size": 32, "code": "class User {\npublic:\n    int* data;\n    User() { data = new int(10); }\n    ~User() { delete data; }\n    // implicit copy: data = other.data\n};\n\nint main() {\n    User a;\n    User b = a;\n}   // ~b, then ~a" }],
+      "steps": [
+        { "cue": "User a allocates", "lines": [4, 10] },
+        { "cue": "User b equals a", "lines": [6, 11] },
+        { "cue": "b is destroyed first", "lines": [5, 12] },
+        { "cue": "Then a's destructor", "lines": [5, 12] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1010, "y": 220, "w": 400, "h": 680, "label": "STACK", "tone": "blue" },
+        { "id": "hp", "region": true, "x": 1450, "y": 220, "w": 370, "h": 680, "label": "HEAP", "tone": "warn" },
+        { "id": "oa", "x": 1040, "y": 330, "w": 340, "h": 120, "label": "a.data", "text": "0x5f20", "size": 38, "tone": "blue", "cue": "User a allocates" },
+        { "id": "hv", "x": 1480, "y": 470, "w": 310, "h": 120, "label": "@0x5f20", "text": "10", "size": 44, "tone": "warn", "cue": "User a allocates" },
+        { "id": "ob", "x": 1040, "y": 620, "w": 340, "h": 120, "label": "b.data", "text": "0x5f20", "size": 38, "tone": "warn", "cue": "User b equals a" }
+      ],
+      "arrows": [
+        { "from": "oa", "to": "hv", "cue": "User a allocates" },
+        { "from": "ob", "to": "hv", "cue": "copies the pointer", "tone": "warn" }
+      ],
+      "changes": [
+        { "id": "hv", "kill": true, "cue": "b is destroyed first" },
+        { "id": "ob", "fade": true, "cue": "b is destroyed first" },
+        { "id": "a1", "fade": true, "cue": "b is destroyed first" },
+        { "id": "a0", "tone": "bad", "cue": "Then a's destructor" },
+        { "id": "oa", "tone": "bad", "cue": "Then a's destructor" }
+      ],
+      "notes": [
+        { "cue": "glibc", "x": 1060, "y": 800, "text": "free(): double free detected", "tone": "bad" }
+      ],
+      "say": "User a allocates ten on the heap. Now User b equals a. We never wrote a copy constructor, so the compiler's version copies each member. It copies the pointer, not the int. Two objects now own one int. That's a shallow copy. At the end of main, b is destroyed first, and deletes the int. Then a's destructor deletes the same address again. A double delete is undefined behavior. With glibc it usually aborts with a double free error." },
+
+    { "type": "code", "head": "Fix 1: Rule of Three, deep copy",
+      "panels": [{ "file": "user_fixed.cpp", "size": 32, "code": "class User {\npublic:\n    int* data;\n    User() : data(new int(10)) {}\n    User(const User& o) : data(new int(*o.data)) {}  // own int\n    User& operator=(const User& o) {\n        *data = *o.data;     // copy the value, keep our int\n        return *this;\n    }\n    ~User() { delete data; }\n};" }],
+      "steps": [
+        { "cue": "If a class needs", "lines": [10] },
+        { "cue": "copy constructor", "lines": [5] },
+        { "cue": "copy assignment", "lines": [6, 7, 8, 9] }
+      ],
+      "say": "The classic fix is the Rule of Three. If a class needs a custom destructor, it almost certainly needs a custom copy constructor and copy assignment too. The copy constructor allocates its own int and copies the value, a deep copy. The copy assignment, operator equals, copies the value into the int this object already owns. Now a and b each delete their own memory." },
+
+    { "type": "code", "head": "Fix 2: don't own a raw pointer at all",
+      "panels": [
+        { "file": "plain.cpp", "label": "Rule of Zero", "tone": "good", "code": "class User {\npublic:\n    int data = 10;\n};\n\nUser a;\nUser b = a;   // copies the int" },
+        { "file": "unique.cpp", "label": "unique_ptr", "tone": "warn", "code": "class User {\npublic:\n    std::unique_ptr<int> data =\n        std::make_unique<int>(10);\n};\n\nUser a;\nUser b = a;   // compile error" }
+      ],
+      "steps": [
+        { "cue": "store a plain int", "panel": 0, "lines": [3, 7] },
+        { "cue": "unique pointer", "panel": 1, "lines": [3, 4] },
+        { "cue": "won't compile", "panel": 1, "lines": [8] }
+      ],
+      "say": "Even better: avoid the problem. Here there's no reason for a pointer, so store a plain int. The compiler generated copy is now correct. That's the Rule of Zero. If you truly need heap ownership, use unique pointer. Then the accidental copy simply won't compile, while moving still works. A bug at compile time beats a crash at runtime." },
+
+    { "type": "take", "lines": ["The implicit copy copies the pointer: a and b share one int (shallow copy).", "Both destructors delete it: double delete, undefined behavior.", "Fix: Rule of Three (deep copy), or Rule of Zero: plain members / `unique_ptr`."],
+      "cues": ["The implicit copy", "Both destructors", "Fix it"],
+      "say": "The implicit copy copies the pointer, so a and b share one int. That's a shallow copy. Both destructors delete it, a double delete, which is undefined behavior. Fix it with the Rule of Three and a deep copy, or better, the Rule of Zero: plain members, or unique pointer." }
+  ]
+}

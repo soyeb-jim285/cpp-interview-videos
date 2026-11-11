@@ -1,0 +1,52 @@
+{
+  "id": "q60", "num": 60, "short": "vtables and vptrs",
+  "question": "What are vtables and vptrs, and how are they typically used to implement virtual dispatch?",
+  "caps": [["s arrow area", "s->area()"], ["v table", "vtable"], ["v pointer", "vptr"]],
+  "scenes": [
+    { "type": "title", "sub": "A table per class, a hidden pointer per object.",
+      "say": "v tables and v pointers. The standard never mentions them, but it's how virtually every compiler implements virtual functions. Let's look inside an object." },
+
+    { "type": "diagram", "head": "One hidden pointer, one table per class",
+      "panels": [{ "file": "shape.cpp", "size": 30, "code": "struct Shape {\n    virtual double area() const { return 0; }\n    virtual void draw() const {}\n    virtual ~Shape() = default;\n};\nstruct Circle : Shape {\n    double r = 1;\n    double area() const override\n        { return 3.14 * r * r; }\n};\n\nShape* s = new Circle;\ns->area();   // calls Circle::area" }],
+      "steps": [
+        { "cue": "has virtual functions", "lines": [2, 3, 4] },
+        { "cue": "Circle overrides", "lines": [8, 9] },
+        { "cue": "new Circle", "lines": [12] }
+      ],
+      "items": [
+        { "id": "obj", "region": true, "x": 1010, "y": 240, "w": 340, "h": 340, "label": "Circle object", "cue": "new Circle" },
+        { "id": "vp", "x": 1040, "y": 320, "w": 280, "h": 100, "text": "vptr", "size": 36, "tone": "warn", "cue": "hidden pointer" },
+        { "id": "rr", "x": 1040, "y": 450, "w": 280, "h": 100, "text": "r = 1", "size": 36, "tone": "blue", "cue": "new Circle" },
+        { "id": "vt", "region": true, "x": 1430, "y": 240, "w": 380, "h": 420, "label": "Circle's vtable", "cue": "builds one v table" },
+        { "id": "s0", "x": 1455, "y": 320, "w": 330, "h": 90, "text": "Circle::area", "size": 30, "tone": "good", "cue": "builds one v table" },
+        { "id": "s1", "x": 1455, "y": 430, "w": 330, "h": 90, "text": "Shape::draw", "size": 30, "cue": "builds one v table" },
+        { "id": "s2", "x": 1455, "y": 540, "w": 330, "h": 90, "text": "Circle::~Circle", "size": 30, "cue": "builds one v table" }
+      ],
+      "arrows": [{ "from": "vp", "to": "vt", "cue": "points to Circle's" }],
+      "changes": [
+        { "id": "s1", "tone": "info", "cue": "draw isn't overridden" }
+      ],
+      "say": "Shape has virtual functions, so the compiler builds one v table for each class: an array of function pointers, one slot per virtual function. Circle overrides area, so Circle's table holds Circle's area. draw isn't overridden, so that slot still points to Shape's version. When you write new Circle, the object gets a hidden pointer, the v pointer, set by the constructor. It points to Circle's table. Real tables hold a bit more, like type info, but this is the idea." },
+
+    { "type": "flow", "head": "What s->area() compiles to",
+      "items": [
+        { "label": "1", "text": "Load vptr", "sub": "from the object *s", "cue": "first, load" },
+        { "label": "2", "text": "Pick slot 0", "sub": "fixed index for area()", "cue": "Second" },
+        { "label": "3", "text": "Indirect call", "sub": "lands in Circle::area", "tone": "good", "cue": "Third" }
+      ],
+      "say": "So what does s arrow area compile to? The compiler doesn't know the real type, but it knows area is always slot zero. So first, load the v pointer out of the object. Second, read the function pointer in slot zero of that table. Third, call through it. Whatever the object really is, its own table sends the call to the right override." },
+
+    { "type": "code", "head": "The costs",
+      "panels": [{ "file": "size.cpp", "size": 36, "code": "struct Plain   { int x; };\nstruct Virtual { int x; virtual void f() {} };\n\nstd::cout << sizeof(Plain) << ' ' << sizeof(Virtual);" }],
+      "steps": [
+        { "cue": "every object", "lines": [2] },
+        { "cue": "prints four", "lines": [4] }
+      ],
+      "output": { "cmd": "./size   # x86-64 GCC", "text": "4 16", "cue": "prints four", "tone": "good" },
+      "say": "The costs. Tables are shared, one per class, but every object carries a v pointer. On a typical sixty four bit build this prints four and sixteen: eight bytes of pointer, plus padding. Each call is an extra indirection, and usually can't be inlined unless the compiler can prove the exact type. Classic follow up: inside a base constructor, the v pointer still points to the base table, so virtual calls there don't reach the derived class." },
+
+    { "type": "take", "lines": ["vtable: one per class, an array of pointers to its virtual functions.", "vptr: hidden in each object, set by the constructor, points to its class's vtable.", "A virtual call loads the vptr, picks a fixed slot, and calls indirectly."],
+      "cues": ["A v table", "The v pointer", "A virtual call"],
+      "say": "A v table is one per class, an array of pointers to its virtual functions. The v pointer is hidden in each object, set by the constructor. A virtual call loads the v pointer, picks a fixed slot, and calls through it. And it's an implementation detail, not part of the standard." }
+  ]
+}

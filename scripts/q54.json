@@ -1,0 +1,59 @@
+{
+  "id": "q54", "num": 54, "short": "Overriding vs overloading",
+  "question": "What is the difference between overriding and overloading?",
+  "caps": [["d dot f of two point five", "d.f(2.5)"], ["using Base double colon f", "using Base::f"], ["three point one four", "3.14"]],
+  "scenes": [
+    { "type": "title", "sub": "Same name, different parameters. Versus same signature, replaced in a derived class.",
+      "say": "Overriding versus overloading. The names sound alike, but they solve different problems, and they're resolved at different times." },
+
+    { "type": "code", "head": "Overloading: same name, different parameters",
+      "panels": [{ "file": "overload.cpp", "code": "void print(int x)                { std::cout << \"int \" << x; }\nvoid print(double x)             { std::cout << \"double \" << x; }\nvoid print(const std::string& s) { std::cout << \"string \" << s; }\n\nprint(42);                  // int version\nprint(3.14);                // double version\nprint(std::string(\"hi\"));   // string version\n\nint    parse(const std::string& s);\ndouble parse(const std::string& s);   // differs only in return type" }],
+      "steps": [
+        { "cue": "several functions with the same name", "lines": [1, 2, 3] },
+        { "cue": "Forty two picks", "lines": [5, 6, 7] },
+        { "cue": "return type alone", "lines": [9, 10] }
+      ],
+      "notes": [
+        { "cue": "return type alone", "line": 10, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Overloading is several functions with the same name in the same scope, but with different parameter lists. The compiler picks one at compile time, by matching the argument types. Forty two picks the int version, three point one four the double. But you can't overload on return type alone. The calls would look identical, so that's a compile error." },
+
+    { "type": "code", "head": "Overriding: a derived class replaces a virtual",
+      "panels": [{ "file": "override.cpp", "code": "struct Base {\n    virtual void draw() const { std::cout << \"Base\\n\"; }\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void draw() const override { std::cout << \"Derived\\n\"; }\n};\n\nDerived d;\nBase& b = d;\nb.draw();       // chosen at runtime" }],
+      "steps": [
+        { "cue": "replacing a base class's virtual function", "lines": [2, 6] },
+        { "cue": "Here b is a Base reference", "lines": [9, 10, 11] },
+        { "cue": "override keyword", "lines": [6] }
+      ],
+      "output": { "cmd": "./override", "text": "Derived", "cue": "runs Derived's draw", "tone": "good" },
+      "say": "Overriding is a derived class replacing a base class's virtual function, with the same signature. Here b is a Base reference, but the object is a Derived, so the call runs Derived's draw. That decision happens at runtime. Always write the override keyword, so the compiler checks that the signature really matches." },
+
+    { "type": "code", "head": "The trap: a derived name hides base overloads",
+      "panels": [{ "file": "hiding.cpp", "code": "struct Base {\n    void f(int)    { std::cout << \"Base::f(int)\\n\"; }\n    void f(double) { std::cout << \"Base::f(double)\\n\"; }\n};\nstruct Derived : Base {\n    // using Base::f;   <- the fix\n    void f(int) { std::cout << \"Derived::f(int)\\n\"; }\n};\n\nDerived d;\nd.f(2.5);" }],
+      "steps": [
+        { "cue": "Derived declares f", "lines": [7] },
+        { "cue": "That hides", "lines": [2, 3] },
+        { "cue": "d dot f of two point five", "lines": [11] },
+        { "cue": "The fix", "lines": [6] }
+      ],
+      "output": { "cmd": "./hiding", "text": "Derived::f(int)", "cue": "quietly converts", "tone": "bad" },
+      "say": "Here's a trap that mixes both. Derived declares f taking int. That hides every f from Base, including the double overload. So d dot f of two point five quietly converts to int, and calls Derived's version. The fix is a using declaration, using Base double colon f, which brings the base overloads back into scope." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Overloading", "Overriding"], "rowHeads": ["Where", "Signature", "Needs virtual", "Resolved", "Kind", "Keyword"],
+      "rows": [
+        ["Same scope", "Base and derived class"],
+        ["Parameters must differ", "Must match the base"],
+        ["No", "Yes, in the base"],
+        ["Compile time", "Runtime (via base ptr / ref)"],
+        ["Compile-time polymorphism", "Runtime polymorphism"],
+        ["None", "`override` (recommended)"]
+      ],
+      "cues": ["Overloading lives", "The signature", "Only overriding needs", "Overloading is resolved", "So overloading is", "And only overriding"],
+      "say": "Overloading lives in one scope, overriding spans base and derived. The signature must differ for overloading, and must match for overriding. Only overriding needs virtual. Overloading is resolved at compile time, overriding at runtime. So overloading is compile time polymorphism, overriding is runtime polymorphism. And only overriding has a keyword to check it: override." },
+
+    { "type": "take", "lines": ["Overloading: same name, different parameters, same scope. Compile time.", "Overriding: derived redefines a base virtual, same signature. Runtime.", "Write override. A derived name hides base overloads: add using Base::f."],
+      "cues": ["Overloading is", "Overriding is", "Write override"],
+      "say": "Overloading is the same name with different parameters, chosen at compile time. Overriding is a derived class redefining a base virtual function with the same signature, chosen at runtime. Write override, and watch out for name hiding." }
+  ]
+}

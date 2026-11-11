@@ -1,0 +1,67 @@
+{
+  "id": "q19", "num": 19, "short": "free vs delete",
+  "question": "What is the difference between `free()` and `delete`?",
+  "scenes": [
+    { "type": "title", "sub": "delete destroys the object first. free only returns bytes.",
+      "say": "free versus delete. Both give memory back to the heap. But only delete knows there was an object living in it." },
+
+    { "type": "diagram", "head": "delete = destructor + deallocation",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct Doc {\n    std::string text;  // owns its own buffer\n};\n\nDoc* d = new Doc{std::string(100, 'x')};\n\ndelete d;\n// 1. ~Doc() runs: text frees its buffer\n// 2. Doc's own memory is released" }],
+      "steps": [
+        { "cue": "A Doc holds", "lines": [1, 2, 3] },
+        { "cue": "new builds", "lines": [5] },
+        { "cue": "delete d", "lines": [7] },
+        { "cue": "First it runs", "lines": [8] },
+        { "cue": "Then it releases", "lines": [9] }
+      ],
+      "items": [
+        { "id": "pd", "x": 1010, "y": 270, "w": 240, "h": 110, "label": "d", "text": "0x4c00", "size": 34, "tone": "blue", "cue": "new builds" },
+        { "id": "obj", "x": 1400, "y": 270, "w": 400, "h": 110, "label": "Doc @0x4c00", "text": "text", "sub": "points to its buffer", "size": 34, "tone": "warn", "cue": "new builds" },
+        { "id": "buf", "x": 1400, "y": 620, "w": 400, "h": 110, "label": "string buffer", "text": "xxxx…x (100)", "size": 34, "tone": "warn", "cue": "a separate heap buffer" }
+      ],
+      "arrows": [
+        { "from": "pd", "to": "obj", "cue": "new builds" },
+        { "from": "obj", "to": "buf", "cue": "a separate heap buffer" }
+      ],
+      "changes": [
+        { "id": "buf", "kill": true, "cue": "First it runs" },
+        { "id": "a1", "fade": true, "cue": "First it runs" },
+        { "id": "obj", "kill": true, "cue": "Then it releases" },
+        { "id": "a0", "fade": true, "cue": "Then it releases" }
+      ],
+      "say": "A Doc holds a string. new builds the Doc, and its string allocates a separate heap buffer, for a hundred characters. Now delete d. First it runs the destructor, so the string frees its buffer. Then it releases the Doc's own memory. free would skip step one entirely. It's a plain C function that knows nothing about destructors. And calling free on memory from new isn't just a leak. It's undefined behavior." },
+
+    { "type": "code", "head": "Mixing them up",
+      "panels": [{ "file": "pairs.cpp", "size": 32, "code": "int* a = new int(1);\nstd::free(a);                 // new + free\n\nint* b = (int*)std::malloc(sizeof(int));\ndelete b;                     // malloc + delete\n\nint* c = new int[4];\ndelete c;                     // new[] needs delete[]\n\nint* n = nullptr;\ndelete n;                     // no-op\nstd::free(nullptr);           // no-op" }],
+      "steps": [
+        { "cue": "new with free", "lines": [1, 2] },
+        { "cue": "malloc with delete", "lines": [4, 5] },
+        { "cue": "new square brackets", "lines": [7, 8] },
+        { "cue": "One thing they share", "lines": [10, 11, 12] }
+      ],
+      "notes": [
+        { "cue": "new with free", "line": 2, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "malloc with delete", "line": 5, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "new square brackets", "line": 8, "inside": true, "text": "UB", "tone": "bad" },
+        { "cue": "safely does nothing", "line": 11, "inside": true, "text": "fine", "tone": "good" }
+      ],
+      "say": "All of these are undefined behavior. new with free. malloc with delete. And new square brackets with plain delete. They might seem to work for an int, but the standard makes no promise, and with real classes they break. One thing they share: deleting null p t r, or freeing a null pointer, safely does nothing. So you never need an if check before delete." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["free()", "delete"], "rowHeads": ["What it is", "Destructor", "Releases memory from", "Arrays", "Null pointer", "Customizable"],
+      "rows": [
+        ["C library function", "C++ operator"],
+        ["Never called", "Called first"],
+        ["`malloc` / `calloc` / `realloc`", "`new` (`delete[]` for `new[]`)"],
+        ["Same call", "Must use `delete[]`"],
+        ["No-op", "No-op"],
+        ["No", "Yes: overload `operator delete`"]
+      ],
+      "cues": ["free is a C", "Destructor", "Memory source", "Arrays", "Null", "And only delete"],
+      "say": "free is a C library function, delete is an operator. Destructor: free never calls it, delete calls it first. Memory source: free only takes memory from malloc, calloc or realloc. delete only takes memory from new. Arrays: free doesn't care, but delete needs the square bracket form for arrays. Null: both are safe no ops. And only delete can be customized, by overloading operator delete." },
+
+    { "type": "take", "lines": ["delete runs the destructor, then releases memory. free only releases bytes.", "Pair them: malloc → free, new → delete, new[] → delete[]. Mixing is UB.", "Both are no-ops on a null pointer. Best of all: let smart pointers delete."],
+      "cues": ["delete runs", "Always pair", "Both are safe"],
+      "say": "delete runs the destructor, then releases the memory. free only releases bytes. Always pair them: malloc with free, new with delete, new square brackets with delete square brackets. Both are safe on a null pointer. And best of all, let a smart pointer call delete for you." }
+  ]
+}

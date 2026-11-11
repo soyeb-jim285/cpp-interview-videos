@@ -1,0 +1,57 @@
+{
+  "id": "q51", "num": 51, "short": "Virtual functions",
+  "question": "What is a virtual function?",
+  "caps": [["v pointer", "vptr"], ["v table", "vtable"]],
+  "scenes": [
+    { "type": "title", "sub": "A member function whose call is chosen by the object's real type, at runtime.",
+      "say": "A virtual function is a member function where the version that runs depends on the object's real type, not the type of the pointer you call it through. One experiment shows the difference." },
+
+    { "type": "code", "head": "Virtual vs non-virtual, same pointer",
+      "panels": [{ "file": "main.cpp", "code": "struct Base {\n    void hello()         { std::cout << \"Base hello\\n\"; }\n    virtual void greet() { std::cout << \"Base greet\\n\"; }\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void hello()          { std::cout << \"Derived hello\\n\"; }\n    void greet() override { std::cout << \"Derived greet\\n\"; }\n};\n\nint main() {\n    Derived d;\n    Base* p = &d;\n    p->hello();   // non-virtual: pointer's type decides\n    p->greet();   // virtual: object's real type decides\n}" }],
+      "steps": [
+        { "cue": "Base has two functions", "lines": [2, 3] },
+        { "cue": "Derived redefines both", "lines": [7, 8] },
+        { "cue": "a Base pointer", "lines": [12, 13] },
+        { "cue": "hello isn't virtual", "lines": [14] },
+        { "cue": "greet is virtual", "lines": [15] }
+      ],
+      "output": { "cmd": "./main", "text": "Base hello\nDerived greet", "cue": "prints Derived greet", "tone": "good" },
+      "say": "Base has two functions, hello and greet, but only greet is virtual. Derived redefines both. Now we point a Base pointer at a Derived object. hello isn't virtual, so the compiler goes by the pointer's type, and prints Base hello. greet is virtual, so the call is decided at runtime by the real object, and prints Derived greet." },
+
+    { "type": "diagram", "head": "How it works: the vtable",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "Derived d;\nBase* p = &d;\np->greet();\n\n// roughly:\n// load p->vptr\n// call the greet slot" }],
+      "steps": [
+        { "cue": "one table", "lines": [] },
+        { "cue": "Each object", "lines": [1] },
+        { "cue": "A virtual call", "lines": [3, 6, 7] }
+      ],
+      "items": [
+        { "id": "p", "x": 1010, "y": 260, "w": 280, "h": 110, "label": "p (Base*)", "text": "&d", "size": 38, "tone": "blue", "cue": "A virtual call" },
+        { "id": "obj", "x": 1420, "y": 260, "w": 380, "h": 110, "label": "d (Derived)", "text": "vptr", "size": 38, "tone": "blue", "cue": "Each object" },
+        { "id": "vt", "x": 1420, "y": 480, "w": 380, "h": 150, "label": "Derived's vtable", "text": "greet | ~Derived", "size": 32, "tone": "warn", "cue": "one table" },
+        { "id": "fn", "x": 1420, "y": 760, "w": 380, "h": 110, "text": "Derived::greet()", "size": 32, "tone": "good", "cue": "whatever is in that slot" }
+      ],
+      "arrows": [
+        { "from": "p", "to": "obj", "cue": "A virtual call" },
+        { "from": "obj", "to": "vt", "cue": "loads the v pointer" },
+        { "from": "vt", "to": "fn", "cue": "whatever is in that slot" }
+      ],
+      "say": "How does it work? The standard doesn't say, but every major compiler uses virtual tables. Each class with virtual functions gets one table of function pointers. Each object stores a hidden pointer to its class's table, called the v pointer. A virtual call follows p to the object, loads the v pointer, finds the greet slot, and calls whatever is in that slot. For a Derived object, that's Derived's greet." },
+
+    { "type": "code", "head": "Two classic traps",
+      "panels": [{ "file": "traps.cpp", "code": "struct Base {\n    Base() { init(); }           // runs Base::init\n    virtual void init() {}\n    virtual void run(int) {}\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void init() override {}      // not called from Base()\n    void run(long) override {}   // doesn't override!\n};" }],
+      "steps": [
+        { "cue": "calling a virtual function from a constructor", "lines": [2, 8] },
+        { "cue": "a signature mismatch", "lines": [4, 9] }
+      ],
+      "notes": [
+        { "cue": "goes to Base's version", "line": 2, "inside": true, "text": "Base::init", "tone": "warn" },
+        { "cue": "into a compile error", "line": 9, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Two classic traps. First, calling a virtual function from a constructor. While Base's constructor runs, the Derived part doesn't exist yet, so the call goes to Base's version. Second, a signature mismatch. run taking long doesn't override run taking int. Without override, that silently creates a new function. With override, it turns into a compile error. So always write override." },
+
+    { "type": "take", "lines": ["Virtual: the call is chosen at runtime by the object's real type.", "Works through base pointers or references. Typically via vptr + vtable.", "Use override. No virtual dispatch to Derived during construction."],
+      "cues": ["A virtual function", "It works through", "Always write override"],
+      "say": "A virtual function is chosen at runtime by the object's real type. It works through base pointers or references, typically using a v pointer and v table. Always write override, and remember: in a constructor, virtual calls don't reach the derived class." }
+  ]
+}

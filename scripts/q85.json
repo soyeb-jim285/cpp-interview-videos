@@ -1,0 +1,67 @@
+{
+  "id": "q85", "num": 85, "short": "reserve vs resize",
+  "question": "What is the difference between `reserve()` and `resize()`?",
+  "caps": [["[Pp]ush backs?", "push_back"], ["[Rr]eserve four", "reserve(4)"], ["[Rr]esize four", "resize(4)"], ["v of zero", "v[0]"]],
+  "scenes": [
+    { "type": "title", "sub": "One reserves memory. The other creates elements.",
+      "say": "Reserve versus resize. They sound alike, and mixing them up is one of the most common vector bugs." },
+
+    { "type": "diagram", "head": "Same number, very different result",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "std::vector<int> a, b;\n\na.reserve(4);   // size 0, capacity 4\nb.resize(4);    // size 4: {0, 0, 0, 0}\n\na.push_back(7); // a: {7}\nb.push_back(7); // b: {0, 0, 0, 0, 7}" }],
+      "steps": [
+        { "cue": "Reserve four", "lines": [3] },
+        { "cue": "Resize four", "lines": [4] },
+        { "cue": "push back seven", "lines": [6, 7] },
+        { "cue": "a gets seven", "lines": [6] },
+        { "cue": "b gets seven", "lines": [7] }
+      ],
+      "items": [
+        { "id": "x0", "x": 1020, "y": 300, "w": 140, "h": 110, "label": "a", "text": "?", "size": 38, "tone": "ghost", "cue": "room for four" },
+        { "id": "x1", "x": 1175, "y": 300, "w": 140, "h": 110, "text": "?", "size": 38, "tone": "ghost", "cue": "room for four" },
+        { "id": "x2", "x": 1330, "y": 300, "w": 140, "h": 110, "text": "?", "size": 38, "tone": "ghost", "cue": "room for four" },
+        { "id": "x3", "x": 1485, "y": 300, "w": 140, "h": 110, "text": "?", "size": 38, "tone": "ghost", "cue": "room for four" },
+        { "id": "y0", "x": 1020, "y": 620, "w": 140, "h": 110, "label": "b", "text": "0", "size": 38, "tone": "blue", "cue": "creates four elements" },
+        { "id": "y1", "x": 1175, "y": 620, "w": 140, "h": 110, "text": "0", "size": 38, "tone": "blue", "cue": "creates four elements" },
+        { "id": "y2", "x": 1330, "y": 620, "w": 140, "h": 110, "text": "0", "size": 38, "tone": "blue", "cue": "creates four elements" },
+        { "id": "y3", "x": 1485, "y": 620, "w": 140, "h": 110, "text": "0", "size": 38, "tone": "blue", "cue": "creates four elements" },
+        { "id": "y4", "x": 1640, "y": 620, "w": 140, "h": 110, "text": "7", "size": 38, "tone": "bad", "cue": "b gets seven" }
+      ],
+      "notes": [
+        { "cue": "size is still zero", "x": 1020, "y": 440, "text": "size 0, capacity 4", "tone": "info" },
+        { "cue": "b gets seven", "x": 1020, "y": 760, "text": "size 5: probably not intended", "tone": "bad" }
+      ],
+      "changes": [
+        { "id": "x0", "text": "7", "cue": "a gets seven" },
+        { "id": "x0", "tone": "good", "cue": "a gets seven" }
+      ],
+      "say": "Reserve four only allocates. a has room for four ints, but its size is still zero. No elements exist. Resize four actually creates four elements, value initialized to zero, so b has size four. Now push back seven on both. a gets seven at index zero, exactly as you'd expect. b gets seven after the zeros, at index four, usually reallocating along the way. That's the classic bug: calling resize when you meant reserve, then pushing back, and ending up with twice as many elements." },
+
+    { "type": "code", "head": "Indexing, filling, shrinking",
+      "panels": [{ "file": "more.cpp", "size": 34, "code": "std::vector<int> v;\nv.reserve(3);\nv[0] = 1;            // UB: size is 0\n\nstd::vector<int> w;\nw.resize(3);\nw[0] = 1;            // fine: element exists\n\nw.resize(5, -1);     // {1, 0, 0, -1, -1}\nw.resize(2);         // {1, 0}: size shrinks\nv.reserve(1);        // less than capacity: no-op" }],
+      "steps": [
+        { "cue": "indexing after reserve", "lines": [1, 2, 3] },
+        { "cue": "After resize", "lines": [5, 6, 7] },
+        { "cue": "fill value", "lines": [9] },
+        { "cue": "it can shrink", "lines": [10] },
+        { "cue": "Reserve never shrinks", "lines": [11] }
+      ],
+      "notes": [{ "cue": "undefined behavior", "line": 3, "inside": true, "text": "memory yes, element no", "tone": "bad" }],
+      "say": "Second trap: indexing after reserve. v of zero is undefined behavior, because no element exists yet, even though the memory does. After resize, indexing is fine. Resize also takes a fill value, and it can shrink: elements past the new size are destroyed, but the capacity stays. Reserve never shrinks. Asking for less than the current capacity does nothing." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["reserve(n)", "resize(n)"], "rowHeads": ["Size", "Capacity", "Creates elements", "Shrinking", "Use when"],
+      "rows": [
+        ["Unchanged", "Becomes n"],
+        ["At least n", "Grows only if needed"],
+        ["No", "Yes: value-initialized, or copies of a fill value"],
+        ["Never shrinks", "Size can shrink, capacity stays"],
+        ["You'll push_back about n items", "You want n elements to index now"]
+      ],
+      "cues": ["Size: reserve", "Capacity:", "Elements:", "Shrinking", "So use"],
+      "say": "Size: reserve leaves it alone, resize sets it to n. Capacity: reserve raises it to at least n, resize grows it only if needed. Elements: only resize creates them. Shrinking: reserve never shrinks, resize can shrink the size, but not the capacity. So use reserve before a loop of push backs, and resize when you want n elements you can index right away." },
+
+    { "type": "take", "lines": ["reserve(n): allocates memory only. Size unchanged, no elements created.", "resize(n): changes the size, creating (or destroying) elements.", "reserve + push_back, or resize + index. Never resize + push_back by accident."],
+      "cues": ["Reserve allocates", "Resize changes", "Pair reserve"],
+      "say": "Reserve allocates memory, but creates no elements. Resize changes the size, creating or destroying elements. Pair reserve with push back, and resize with indexing." }
+  ]
+}

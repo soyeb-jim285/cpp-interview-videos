@@ -1,0 +1,49 @@
+{
+  "id": "q52", "num": 52, "short": "Pure virtual functions",
+  "question": "What is a pure virtual function?",
+  "caps": [["equals zero", "= 0"]],
+  "scenes": [
+    { "type": "title", "sub": "A virtual function that says: every derived class must provide this.",
+      "say": "A pure virtual function. It's a virtual function declared with equals zero, and it means: every concrete derived class must provide this." },
+
+    { "type": "code", "head": "Declaring one",
+      "panels": [{ "file": "shape.cpp", "code": "class Shape {\npublic:\n    virtual double area() const = 0;   // pure virtual\n    virtual ~Shape() = default;\n};\n\nclass Circle : public Shape {\n    double r;\npublic:\n    explicit Circle(double r) : r(r) {}\n    double area() const override { return 3.14159 * r * r; }\n};\n\nShape s;          // can't create a Shape\nCircle c(2.0);    // fine: area is implemented" }],
+      "steps": [
+        { "cue": "equals zero at the end", "lines": [3] },
+        { "cue": "You can't create", "lines": [14] },
+        { "cue": "Circle overrides", "lines": [7, 11, 15] }
+      ],
+      "notes": [
+        { "cue": "You can't create", "line": 14, "inside": true, "text": "error: abstract type", "tone": "bad" }
+      ],
+      "say": "Here area has equals zero at the end. It says: every shape has an area, but Shape itself has no sensible way to compute one. Having a pure virtual function makes Shape an abstract class. You can't create a Shape object. Circle overrides area, so Circle is concrete, and you can create it." },
+
+    { "type": "code", "head": "The obligation passes down",
+      "panels": [{ "file": "polygon.cpp", "code": "class Polygon : public Shape {\npublic:\n    int sides() const { return n; }\nprotected:\n    int n = 0;\n};                  // no area(): still abstract\n\nPolygon p;          // error: still abstract\n\nShape* ptr = new Circle(1.0);   // OK\nptr->area();                    // runs Circle::area\ndelete ptr;" }],
+      "steps": [
+        { "cue": "Polygon inherits", "lines": [1, 6] },
+        { "cue": "still can't be created", "lines": [8] },
+        { "cue": "pointers and references", "lines": [10, 11, 12] }
+      ],
+      "notes": [
+        { "cue": "still can't be created", "line": 8, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "The obligation passes down. Polygon inherits from Shape but doesn't override area, so Polygon is still abstract, and still can't be created. But you can always use pointers and references to an abstract type. That's the whole point: code talks to Shape, and the real object supplies the implementation." },
+
+    { "type": "code", "head": "Surprise: a pure virtual can have a body",
+      "panels": [{ "file": "logger.cpp", "code": "class Logger {\npublic:\n    virtual void log(const std::string& m) = 0;\n    virtual ~Logger() = 0;               // pure virtual dtor\n};\nvoid Logger::log(const std::string& m) { std::cout << m; }\nLogger::~Logger() {}                     // body REQUIRED\n\nclass FileLogger : public Logger {\npublic:\n    void log(const std::string& m) override {\n        Logger::log(m);                  // reuse the default\n    }\n};" }],
+      "steps": [
+        { "cue": "can still have a body", "lines": [3, 6] },
+        { "cue": "call it explicitly", "lines": [12] },
+        { "cue": "A pure virtual destructor", "lines": [4, 7] }
+      ],
+      "notes": [
+        { "cue": "linker error", "line": 7, "inside": true, "text": "omit it: link error", "tone": "bad" }
+      ],
+      "say": "Interview surprise: a pure virtual function can still have a body. You define it outside the class, and derived classes can call it explicitly, as a default. It's still pure, so Logger stays abstract. A pure virtual destructor is the special case. It must have a body, because every derived destructor calls it. Forget the body and you get a linker error." },
+
+    { "type": "take", "lines": ["Pure virtual: virtual ... = 0. No required implementation in the base.", "It makes the class abstract; derived classes must override to be concrete.", "It may still have a body. A pure virtual destructor must have one."],
+      "cues": ["A pure virtual function", "It makes the class abstract", "It can still"],
+      "say": "A pure virtual function is declared with equals zero. It makes the class abstract, and derived classes must override it to become concrete. It can still have a body, and a pure virtual destructor must have one." }
+  ]
+}

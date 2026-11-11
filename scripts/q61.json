@@ -1,0 +1,66 @@
+{
+  "id": "q61", "num": 61, "short": "Constructor kinds",
+  "question": "What is the difference between default, parameterized, and copy constructors?",
+  "caps": [["c equals a", "c = a"], ["equals default", "= default"]],
+  "scenes": [
+    { "type": "title", "sub": "Three ways to bring an object to life.",
+      "say": "Default, parameterized, and copy constructors. They differ only in what you hand the new object. One small Point class shows all three." },
+
+    { "type": "diagram", "head": "One class, three constructors",
+      "panels": [{ "file": "point.cpp", "size": 32, "code": "struct Point {\n    int x, y;\n    Point() : x(0), y(0) {}\n    Point(int x, int y) : x(x), y(y) {}\n    Point(const Point& o)\n        : x(o.x), y(o.y) {}\n};\n\nPoint a;          // default\nPoint b(3, 4);    // parameterized\nPoint c = b;      // copy\nPoint d(b);       // copy" }],
+      "steps": [
+        { "cue": "The default constructor", "lines": [3, 9] },
+        { "cue": "The parameterized", "lines": [4, 10] },
+        { "cue": "The copy constructor", "lines": [5, 6, 11, 12] }
+      ],
+      "items": [
+        { "id": "pa", "x": 1040, "y": 270, "w": 320, "h": 120, "label": "a", "text": "(0, 0)", "size": 40, "tone": "blue", "cue": "The default constructor" },
+        { "id": "pb", "x": 1460, "y": 270, "w": 320, "h": 120, "label": "b", "text": "(3, 4)", "size": 40, "tone": "blue", "cue": "The parameterized" },
+        { "id": "pc", "x": 1240, "y": 560, "w": 320, "h": 120, "label": "c", "text": "(3, 4)", "size": 40, "tone": "good", "cue": "The copy constructor" },
+        { "id": "pd", "x": 1460, "y": 790, "w": 320, "h": 120, "label": "d", "text": "(3, 4)", "size": 40, "tone": "good", "cue": "Both spellings" }
+      ],
+      "arrows": [
+        { "from": "pb", "to": "pc", "label": "copy", "cue": "The copy constructor" },
+        { "from": "pb", "to": "pd", "label": "copy", "cue": "Both spellings" }
+      ],
+      "say": "The default constructor takes no arguments. Point a gets zero, zero. The parameterized constructor takes the values you choose, so b is three, four. The copy constructor builds a new Point from an existing one. It takes a const reference to another Point, and copies each member. Both spellings, equals b and parentheses b, call it." },
+
+    { "type": "code", "head": "Trap: copy constructor or copy assignment?",
+      "panels": [{ "file": "calls.cpp", "size": 38, "code": "void show(Point p);   // takes a Point by value\n\nPoint c = b;          // copy constructor\nshow(b);              // copy constructor (into p)\nc = a;                // copy ASSIGNMENT" }],
+      "steps": [
+        { "cue": "Initializing", "lines": [3] },
+        { "cue": "Passing by value", "lines": [1, 4] },
+        { "cue": "c equals a", "lines": [5] }
+      ],
+      "notes": [
+        { "cue": "already exists", "line": 5, "inside": true, "text": "c already exists", "tone": "warn" }
+      ],
+      "say": "When is the copy constructor called? Initializing a new object from another one. Passing by value, which copies into the parameter. And returning by value, unless the copy is elided. But c equals a is not a constructor call at all. c already exists, so this is copy assignment, operator equals. Interviewers love that one: the equals sign alone doesn't tell you, whether a new object is being created does." },
+
+    { "type": "code", "head": "Two more traps",
+      "panels": [{ "file": "traps.cpp", "size": 36, "code": "struct Point {\n    int x, y;\n    Point(int x, int y) : x(x), y(y) {}\n};\n\nPoint p;          // no default constructor anymore\nPoint q(1, 2);    // fine\n\n// Point(Point o);   by value: not allowed" }],
+      "steps": [
+        { "cue": "write any constructor", "lines": [3, 6] },
+        { "cue": "Second", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "stops generating", "line": 6, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "Second", "line": 9, "inside": true, "text": "ill-formed: by reference only", "tone": "bad" }
+      ],
+      "say": "Two more traps. First: once you write any constructor yourself, the compiler stops generating the default one, so Point p no longer compiles. Add Point equals default, or write one, to get it back. Second: the copy constructor must take its argument by reference. Taking it by value would need a copy, which calls the copy constructor, forever. So the language forbids it." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Default", "Parameterized", "Copy"], "rowHeads": ["Takes", "Example", "Auto-generated?"],
+      "rows": [
+        ["Nothing", "Your values", "`const Point&`"],
+        ["`Point a;`", "`Point b(3, 4);`", "`Point c = b;`"],
+        ["Only if you declare no constructors", "Never", "Yes, unless you declare a move"]
+      ],
+      "cues": ["Default takes", "Examples", "And generation"],
+      "say": "Default takes nothing, parameterized takes your values, copy takes a const reference to the same type. Examples on screen. And generation: you get a default constructor only if you declare no constructors at all. A copy constructor is generated automatically, unless you declare a move operation, which deletes it." },
+
+    { "type": "take", "lines": ["Default: no arguments. Lost as soon as you declare any constructor.", "Parameterized: builds the object from values you pass.", "Copy: from another object of the same type, taken by const reference."],
+      "cues": ["Default", "Parameterized", "Copy"],
+      "say": "Default: no arguments, and lost as soon as you declare any other constructor. Parameterized: built from the values you pass. Copy: a new object from an existing one, taken by const reference. And remember, assigning to an existing object is copy assignment, not the copy constructor." }
+  ]
+}

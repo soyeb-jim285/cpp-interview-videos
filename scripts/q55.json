@@ -1,0 +1,59 @@
+{
+  "id": "q55", "num": 55, "short": "Virtual destructor",
+  "question": "Why do we need a virtual destructor?",
+  "caps": [["make shared", "make_shared"]],
+  "scenes": [
+    { "type": "title", "sub": "Deleting a derived object through a base pointer must reach the derived destructor.",
+      "say": "Why do we need a virtual destructor? Because deleting a derived object through a base pointer has to run the derived destructor too. Let's watch what happens when it doesn't." },
+
+    { "type": "diagram", "head": "Delete through a base pointer",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct Base {\n    ~Base() { std::cout << \"~Base\\n\"; }\n};\nstruct Derived : Base {\n    int* data = new int[1000];\n    ~Derived() { delete[] data; }\n};\n\nBase* p = new Derived;\ndelete p;    // not virtual!" }],
+      "steps": [
+        { "cue": "Derived owns", "lines": [4, 5, 6] },
+        { "cue": "p is a Base pointer", "lines": [9] },
+        { "cue": "When we delete p", "lines": [10, 2] },
+        { "cue": "never runs", "lines": [6] }
+      ],
+      "items": [
+        { "id": "p", "x": 1010, "y": 290, "w": 260, "h": 110, "label": "p (Base*)", "text": "0x200", "size": 38, "tone": "blue", "cue": "p is a Base pointer" },
+        { "id": "obj", "region": true, "x": 1340, "y": 220, "w": 460, "h": 440, "label": "Derived object", "cue": "Derived owns" },
+        { "id": "bpart", "x": 1370, "y": 290, "w": 400, "h": 110, "text": "Base part", "size": 34, "tone": "blue", "cue": "Derived owns" },
+        { "id": "dpart", "x": 1370, "y": 460, "w": 400, "h": 150, "text": "Derived part", "sub": "data = 0x900", "size": 34, "tone": "blue", "cue": "Derived owns" },
+        { "id": "heap", "x": 1370, "y": 770, "w": 400, "h": 110, "label": "heap @0x900", "text": "int[1000]", "size": 36, "tone": "warn", "cue": "a heap buffer" }
+      ],
+      "arrows": [
+        { "from": "p", "to": "obj", "cue": "p is a Base pointer" },
+        { "from": "dpart", "to": "heap", "cue": "a heap buffer" }
+      ],
+      "changes": [
+        { "id": "bpart", "tone": "good", "cue": "only Base's destructor runs" },
+        { "id": "dpart", "tone": "bad", "cue": "never runs" },
+        { "id": "heap", "kill": true, "cue": "its buffer leaks" },
+        { "id": "heap", "tone": "bad", "cue": "its buffer leaks" }
+      ],
+      "say": "Derived owns a heap buffer. p is a Base pointer to a Derived object. When we delete p, the destructor isn't virtual, so the compiler only knows the static type, Base. Formally, that's undefined behavior. In practice, only Base's destructor runs. Derived's destructor never runs, so its buffer leaks. And any other cleanup Derived does is skipped too." },
+
+    { "type": "code", "head": "The fix: one keyword",
+      "panels": [{ "file": "fixed.cpp", "code": "struct Base {\n    virtual ~Base() { std::cout << \"~Base\\n\"; }\n};\nstruct Derived : Base {\n    ~Derived() override { std::cout << \"~Derived\\n\"; }\n};\n\nint main() {\n    Base* p = new Derived;\n    delete p;\n}" }],
+      "steps": [
+        { "cue": "make the destructor virtual", "lines": [2] },
+        { "cue": "Now delete looks up", "lines": [9, 10] },
+        { "cue": "The same problem", "lines": [] }
+      ],
+      "output": { "cmd": "./fixed", "text": "~Derived\n~Base", "cue": "Derived's destructor runs first", "tone": "good" },
+      "say": "The fix is one keyword: make the destructor virtual. Now delete looks up the real type at runtime. Derived's destructor runs first, then Base's, the reverse of construction. Everything is cleaned up. The same problem hits a unique pointer of Base, because it simply calls delete on a Base pointer." },
+
+    { "type": "code", "head": "The rule, and two follow-ups",
+      "panels": [{ "file": "rules.cpp", "code": "// polymorphic base => public virtual destructor\nstruct Shape {\n    virtual void draw() const = 0;\n    virtual ~Shape() = default;\n};\n\n// or: forbid deleting through the base\nstruct Mixin {\nprotected:\n    ~Mixin() = default;\n};\n\n// trivia: shared_ptr remembers the real type\nstd::shared_ptr<Base> sp = std::make_shared<Derived>();" }],
+      "steps": [
+        { "cue": "The rule", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "protected and non virtual", "lines": [7, 8, 9, 10, 11] },
+        { "cue": "Trivia", "lines": [13, 14] }
+      ],
+      "say": "The rule: if a class has virtual functions, or will be deleted through a base pointer, give it a public virtual destructor. Or make the base destructor protected and non virtual, so deleting through the base won't even compile. Trivia: a shared pointer from make shared of Derived calls the right destructor even without virtual, because it remembers the real type. Don't rely on that. And classes never used as bases don't need one." },
+
+    { "type": "take", "lines": ["Deleting a Derived via Base* with a non-virtual destructor is UB.", "In practice ~Derived is skipped: leaks and missed cleanup.", "Polymorphic base: public virtual destructor (or protected non-virtual)."],
+      "cues": ["Deleting a derived object", "In practice", "Any polymorphic base"],
+      "say": "Deleting a derived object through a base pointer without a virtual destructor is undefined behavior. In practice, the derived destructor is skipped, and resources leak. Any polymorphic base class needs a public virtual destructor, or a protected non virtual one." }
+  ]
+}

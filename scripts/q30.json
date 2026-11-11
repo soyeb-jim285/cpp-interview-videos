@@ -1,0 +1,94 @@
+{
+  "id": "q30", "num": 30, "short": "Smart pointers",
+  "question": "What is the difference between `unique_ptr`, `shared_ptr`, and `weak_ptr`?",
+  "caps": [["[Uu]nique pointer", "unique_ptr"], ["[Ss]hared pointer", "shared_ptr"], ["[Ww]eak pointer", "weak_ptr"]],
+  "scenes": [
+    { "type": "title", "sub": "Three smart pointers, three answers to “who owns this?”",
+      "say": "Unique pointer, shared pointer, and weak pointer. They're the three smart pointers in modern C plus plus, and the whole difference is about who owns the object." },
+
+    { "type": "diagram", "head": "unique_ptr: exactly one owner",
+      "panels": [{ "file": "unique.cpp", "size": 34, "code": "auto a = std::make_unique<int>(42);\nauto b = std::move(a);  // ownership moves\n// auto c = b;          // error: no copy\n\n// end of scope: b deletes the int" }],
+      "steps": [
+        { "cue": "sole owner", "lines": [1] },
+        { "cue": "can't copy", "lines": [3] },
+        { "cue": "moves ownership", "lines": [2] },
+        { "cue": "goes out of scope", "lines": [5] }
+      ],
+      "items": [
+        { "id": "ua", "x": 1020, "y": 280, "w": 300, "h": 120, "label": "a (unique_ptr)", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "a owns" },
+        { "id": "obj", "x": 1460, "y": 420, "w": 300, "h": 120, "label": "heap int", "text": "42", "size": 44, "tone": "warn", "cue": "a owns" },
+        { "id": "ub", "x": 1020, "y": 600, "w": 300, "h": 120, "label": "b (unique_ptr)", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "moves ownership" }
+      ],
+      "arrows": [
+        { "from": "ua", "to": "obj", "cue": "a owns" },
+        { "from": "ub", "to": "obj", "cue": "moves ownership" }
+      ],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "moves ownership" },
+        { "id": "ua", "text": "nullptr", "cue": "a is left" },
+        { "id": "obj", "kill": true, "cue": "goes out of scope" }
+      ],
+      "say": "A unique pointer is the sole owner of its object. Here, a owns a heap int holding forty two. You can't copy a unique pointer, because then two owners would both try to delete it. You can only move it. s t d colon colon move moves ownership to b, and a is left holding null p t r. When b goes out of scope, it deletes the int. No count, and usually no overhead over a raw pointer." },
+
+    { "type": "diagram", "head": "shared_ptr counts owners, weak_ptr just watches",
+      "panels": [{ "file": "shared.cpp", "size": 34, "code": "auto s1 = std::make_shared<int>(42);\nauto s2 = s1;               // share\nstd::weak_ptr<int> w = s1;  // observe\n\ns1.reset();\ns2.reset();                 // int destroyed\nbool gone = w.expired();    // true" }],
+      "steps": [
+        { "cue": "s1 creates", "lines": [1] },
+        { "cue": "Copying into s2", "lines": [2] },
+        { "cue": "A weak pointer", "lines": [3] },
+        { "cue": "reset s1", "lines": [5] },
+        { "cue": "the last owner", "lines": [6] },
+        { "cue": "expired returns true", "lines": [7] }
+      ],
+      "items": [
+        { "id": "s1", "x": 1010, "y": 250, "w": 260, "h": 100, "label": "s1", "text": "shared", "size": 34, "tone": "blue", "cue": "s1 creates" },
+        { "id": "s2", "x": 1010, "y": 450, "w": 260, "h": 100, "label": "s2", "text": "shared", "size": 34, "tone": "blue", "cue": "Copying into s2" },
+        { "id": "w", "x": 1010, "y": 650, "w": 260, "h": 100, "label": "w", "text": "weak", "size": 34, "tone": "ghost", "cue": "A weak pointer" },
+        { "id": "cb", "x": 1400, "y": 250, "w": 400, "h": 120, "label": "control block", "text": "strong 1 · weak 0", "size": 32, "tone": "warn", "cue": "control block" },
+        { "id": "obj", "x": 1400, "y": 560, "w": 400, "h": 120, "label": "heap int", "text": "42", "size": 44, "tone": "warn", "cue": "s1 creates" }
+      ],
+      "arrows": [
+        { "from": "s1", "to": "obj", "cue": "s1 creates" },
+        { "from": "s2", "to": "obj", "cue": "Copying into s2" },
+        { "from": "w", "to": "cb", "cue": "A weak pointer" }
+      ],
+      "changes": [
+        { "id": "cb", "text": "strong 2 · weak 0", "cue": "Copying into s2" },
+        { "id": "cb", "text": "strong 2 · weak 1", "cue": "only the weak count" },
+        { "id": "a0", "fade": true, "cue": "reset s1" },
+        { "id": "cb", "text": "strong 1 · weak 1", "cue": "reset s1" },
+        { "id": "a1", "fade": true, "cue": "the last owner" },
+        { "id": "cb", "text": "strong 0 · weak 1", "cue": "the last owner" },
+        { "id": "obj", "kill": true, "cue": "the int is destroyed" },
+        { "id": "w", "text": "expired", "cue": "expired returns true" },
+        { "id": "w", "tone": "bad", "cue": "expired returns true" }
+      ],
+      "say": "A shared pointer allows many owners. s1 creates the int, plus a control block that holds the counts. Copying into s2 bumps the strong count to two. A weak pointer observes without owning, so only the weak count goes up. When we reset s1, the strong count drops to one. When the last owner lets go, the count hits zero and the int is destroyed. The weak pointer survives, and expired returns true." },
+
+    { "type": "code", "head": "Using a weak_ptr: lock() it first",
+      "panels": [{ "file": "weak.cpp", "size": 34, "code": "std::weak_ptr<int> w;\n{\n    auto s = std::make_shared<int>(42);\n    w = s;\n    if (auto p = w.lock()) std::cout << *p << '\\n';\n}\nif (auto p = w.lock()) std::cout << *p << '\\n';\nelse                   std::cout << \"expired\\n\";" }],
+      "steps": [
+        { "cue": "You call lock", "lines": [5] },
+        { "cue": "Inside the block", "lines": [3, 4, 5] },
+        { "cue": "After the block", "lines": [7, 8] }
+      ],
+      "output": { "cmd": "./weak", "cue": "prints forty two", "text": "42\nexpired" },
+      "say": "You can't use a weak pointer directly. You call lock, which gives you a shared pointer if the object is still alive, or an empty one if it's gone. Inside the block, lock succeeds and prints forty two. After the block, the last owner died, so lock fails and we print expired. That's how caches and observers check safely, and how you break shared pointer cycles." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["unique_ptr", "shared_ptr", "weak_ptr"], "rowHeads": ["Ownership", "Copying", "Cost", "Object freed", "Use for"],
+      "rows": [
+        ["Sole owner", "Shared owners", "Not an owner"],
+        ["Move only", "Copy adds an owner", "Copy adds an observer"],
+        ["Usually same as raw pointer", "Control block + atomic counts", "Uses the shared control block"],
+        ["When its owner dies", "When the last owner dies", "Never frees it"],
+        ["The default choice", "Truly shared lifetime", "Caches, observers, breaking cycles"]
+      ],
+      "cues": ["Ownership", "Copying", "Cost", "freed", "And use unique"],
+      "say": "Ownership: unique pointer is the sole owner, shared pointer has many, and weak pointer owns nothing. Copying: unique pointer can only be moved, while copying a shared pointer adds an owner. Cost: unique pointer is usually as cheap as a raw pointer, shared pointer needs a control block with atomic counters. The object is freed when its unique owner dies, or when the last shared owner dies. And use unique pointer by default." },
+
+    { "type": "take", "lines": ["unique_ptr: one owner, move-only, near-zero cost. Your default.", "shared_ptr: reference-counted shared ownership. Freed when the last owner goes.", "weak_ptr: non-owning observer. lock() to use it. Breaks cycles."],
+      "cues": ["Unique pointer", "Shared pointer", "Weak pointer"],
+      "say": "Unique pointer: one owner, move only, practically free. Make it your default. Shared pointer: reference counted shared ownership, freed when the last owner goes. Weak pointer: a non owning observer. You lock it to use it, and it breaks shared pointer cycles." }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "q66", "num": 66, "short": "What std::move does",
+  "question": "What does `std::move()` actually do?",
+  "caps": [["s t d move", "std::move"], ["static cast", "static_cast"], ["remove reference", "remove_reference"], ["string and and", "string&&"], ["dash W all", "-Wall"]],
+  "scenes": [
+    { "type": "title", "sub": "Nothing moves. It's a cast.",
+      "say": "What does s t d move actually do? Surprisingly little. It doesn't move anything. Let's read it." },
+
+    { "type": "code", "head": "The whole implementation (simplified)",
+      "panels": [{ "file": "utility", "size": 36, "code": "template <class T>\nconstexpr std::remove_reference_t<T>&& move(T&& t) noexcept {\n    return static_cast<std::remove_reference_t<T>&&>(t);\n}" }],
+      "steps": [
+        { "cue": "one line", "lines": [3] },
+        { "cue": "remove reference", "lines": [2] },
+        { "cue": "No memory", "lines": [1, 2, 3, 4] }
+      ],
+      "notes": [
+        { "cue": "one line", "line": 3, "inside": true, "text": "just a cast", "tone": "good" }
+      ],
+      "say": "This is essentially the whole function. Its body is one line: a static cast to an rvalue reference. The remove reference part just makes sure the result is a plain T and and, even when T was deduced as a reference. No memory is touched. No code runs at run time. It only changes how the compiler sees the expression: from something you're still using, to something that may be stolen from." },
+
+    { "type": "code", "head": "Proof: the cast alone does nothing",
+      "panels": [{ "file": "main.cpp", "size": 36, "code": "std::string a = \"hello\";\nstd::string&& r = std::move(a);   // just a cast\nstd::cout << a << '\\n';           // still hello\n\nstd::string b = std::move(a);     // move ctor steals\nstd::cout << b << ' ' << a.size();" }],
+      "steps": [
+        { "cue": "Cast a", "lines": [2] },
+        { "cue": "still prints hello", "lines": [3] },
+        { "cue": "The steal happens", "lines": [5] },
+        { "cue": "a is now empty", "lines": [6] }
+      ],
+      "output": { "cmd": "./main", "text": "hello\nhello 0", "cue": "a is now empty", "tone": "good" },
+      "notes": [
+        { "cue": "not guaranteed", "line": 6, "inside": true, "text": "unspecified value", "tone": "warn" }
+      ],
+      "say": "Proof. Cast a with s t d move and bind it to a reference. Nothing happened. a still prints hello. The steal happens only when that rvalue reaches something that takes an rvalue, here the string's move constructor. With G C C, a is now empty, size zero, but that's not guaranteed: it's valid but unspecified." },
+
+    { "type": "flow", "head": "So the move constructor does the moving",
+      "items": [
+        { "text": "std::move(a)", "sub": "cast, no code", "cue": "First the cast" },
+        { "text": "string&&", "sub": "an xvalue", "cue": "an x value" },
+        { "text": "string(string&&)", "sub": "overload chosen", "size": 28, "cue": "picks the move" },
+        { "text": "Buffer stolen", "sub": "the real work", "tone": "good", "cue": "steals the buffer" }
+      ],
+      "say": "So the chain is: first the cast. The expression becomes string and and, an x value, a kind of rvalue. Overload resolution now picks the move constructor over the copy constructor. And the move constructor steals the buffer. s t d move just enables that choice." },
+
+    { "type": "code", "head": "Three traps",
+      "panels": [{ "file": "traps.cpp", "size": 34, "code": "std::string make() {\n    std::string s = \"result\";\n    return std::move(s);           // blocks NRVO\n}\n\nconst std::string k = \"text\";\nstd::string t = std::move(k);      // const: copies\n\nstd::cout << a;                    // a was moved from" }],
+      "steps": [
+        { "cue": "return s t d move", "lines": [3] },
+        { "cue": "on a const", "lines": [6, 7] },
+        { "cue": "after a move", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "return s t d move", "line": 3, "inside": true, "text": "-Wpessimizing-move", "tone": "bad" },
+        { "cue": "on a const", "line": 7, "inside": true, "text": "silent copy", "tone": "bad" },
+        { "cue": "after a move", "line": 9, "inside": true, "text": "don't rely on it", "tone": "warn" }
+      ],
+      "say": "Three traps. Writing return s t d move of a local stops the compiler from constructing it in place, and G C C with dash W all flags it as a pessimizing move. Just return s. Using s t d move on a const object gives a const rvalue, which can't bind to the move constructor, so it silently copies. And after a move, don't rely on the object's value. Assign it a new one, or let it be destroyed." },
+
+    { "type": "take", "lines": ["std::move is just a cast to an rvalue reference. No code runs.", "The move constructor or move assignment does the actual moving.", "Don't move const objects, and don't return std::move(local)."],
+      "cues": ["s t d move is", "The move constructor", "Don't"],
+      "say": "s t d move is just a static cast to an rvalue reference. Nothing runs. The move constructor or move assignment does the actual work. Don't move const objects, and don't write return s t d move of a local." }
+  ]
+}

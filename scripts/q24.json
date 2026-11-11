@@ -1,0 +1,39 @@
+{
+  "id": "q24", "num": 24, "short": "Wild pointer",
+  "question": "What is a wild or uninitialized pointer?",
+  "caps": [["star p", "*p"], ["dash Wall", "-Wall"]],
+  "scenes": [
+    { "type": "title", "sub": "A pointer that never pointed anywhere valid.",
+      "say": "Wild pointers. A pointer that was never given a value, so nobody knows where it points." },
+
+    { "type": "diagram", "head": "Garbage in, garbage address",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "void f() {\n    int* p;            // never initialized\n    *p = 5;            // writes... somewhere\n}\n\nint* g;                // global: null\n\nvoid h() {\n    int* q = nullptr;  // known: no object\n    if (q) *q = 5;     // check before use\n}" }],
+      "steps": [
+        { "cue": "p is a local", "lines": [2] },
+        { "cue": "Writing star p", "lines": [3] },
+        { "cue": "a global pointer like g", "lines": [6] },
+        { "cue": "The fix", "lines": [9, 10] }
+      ],
+      "items": [
+        { "id": "pp", "x": 1010, "y": 280, "w": 300, "h": 110, "label": "p (local)", "text": "0x????", "size": 36, "tone": "bad", "cue": "p is a local" },
+        { "id": "mys", "x": 1470, "y": 280, "w": 330, "h": 110, "label": "unknown address", "text": "???", "sub": "other data? unmapped?", "size": 40, "tone": "ghost", "cue": "Writing star p" },
+        { "id": "pg", "x": 1010, "y": 640, "w": 300, "h": 110, "label": "g (global)", "text": "nullptr", "size": 34, "tone": "good", "cue": "a global pointer like g" },
+        { "id": "pq", "x": 1470, "y": 640, "w": 330, "h": 110, "label": "q", "text": "nullptr", "size": 34, "tone": "good", "cue": "The fix" }
+      ],
+      "arrows": [{ "from": "pp", "to": "mys", "tone": "bad", "cue": "Writing star p" }],
+      "say": "p is a local, so it holds whatever bits were left in that stack slot. Writing star p stores five at some unknown address. It may crash, or silently overwrite another variable. Even reading p's value is undefined behavior. Compare a global pointer like g. Globals are zero initialized, so g starts as null. Only locals, and uninitialized heap memory, start with garbage. The fix is simple: always initialize, to a real address or to null p t r, and check before use." },
+
+    { "type": "code", "head": "Wild versus dangling, and how to catch it",
+      "panels": [{ "file": "wild.cpp", "size": 36, "code": "int main() {\n    int* p;\n    *p = 5;\n}" }],
+      "steps": [
+        { "cue": "wild pointer never", "lines": [2] },
+        { "cue": "Turn on warnings", "lines": [3] }
+      ],
+      "output": { "cmd": "clang++ -Wall wild.cpp", "tone": "warn", "cue": "Turn on warnings", "text": "warning: variable 'p' is uninitialized when used here [-Wuninitialized]" },
+      "say": "Interviewers often ask how this differs from a dangling pointer. A wild pointer never pointed at anything valid. A dangling pointer did, but its object has died. Both are undefined behavior to dereference. Wild pointers are the easy ones to catch. Turn on warnings with dash Wall, and the compiler flags simple cases like this one. Memory Sanitizer and Valgrind catch the rest at runtime." },
+
+    { "type": "take", "lines": ["Wild pointer: never initialized, holds a garbage address. Using it is UB.", "Wild = never valid. Dangling = was valid, object has died.", "Always initialize: a real address or nullptr. Enable -Wall."],
+      "cues": ["A wild pointer", "Wild means", "Always initialize"],
+      "say": "A wild pointer was never initialized, so it holds a garbage address, and using it is undefined behavior. Wild means never valid. Dangling means it was valid, but the object died. Always initialize your pointers, and turn on compiler warnings." }
+  ]
+}

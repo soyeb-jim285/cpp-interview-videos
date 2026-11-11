@@ -1,0 +1,80 @@
+{
+  "id": "q89", "num": 89, "short": "Lambda captures",
+  "question": "What is the difference between capture by value and capture by reference in lambdas?",
+  "caps": [["ampersand n", "&n"], ["n equals ten", "n = 10"], ["s t d colon colon function", "std::function"]],
+  "scenes": [
+    { "type": "title", "sub": "A snapshot of the value, or a link to the variable.",
+      "say": "Capture by value versus capture by reference. One takes a snapshot, the other keeps a link. One small program shows the whole difference." },
+
+    { "type": "diagram", "head": "Same variable, two captures",
+      "panels": [{ "file": "capture.cpp", "size": 34, "code": "int n = 1;\n\nauto byVal = [n]  { return n; };\nauto byRef = [&n] { return n; };\n\nn = 10;\n\nstd::cout << byVal() << ' ' << byRef();" }],
+      "steps": [
+        { "cue": "We start", "lines": [1] },
+        { "cue": "byVal captures n by value", "lines": [3] },
+        { "cue": "byRef captures ampersand n", "lines": [4] },
+        { "cue": "n equals ten", "lines": [6] },
+        { "cue": "So we print", "lines": [8] }
+      ],
+      "items": [
+        { "id": "n", "x": 1280, "y": 250, "w": 300, "h": 120, "label": "n", "text": "1", "size": 46, "tone": "blue", "cue": "We start" },
+        { "id": "rv", "region": true, "x": 1020, "y": 480, "w": 380, "h": 280, "label": "byVal", "tone": "warn", "cue": "byVal captures n by value" },
+        { "id": "cv", "x": 1060, "y": 590, "w": 300, "h": 120, "label": "copy of n", "text": "1", "size": 46, "tone": "warn", "cue": "byVal captures n by value" },
+        { "id": "rr", "region": true, "x": 1440, "y": 480, "w": 380, "h": 280, "label": "byRef", "tone": "good", "cue": "byRef captures ampersand n" },
+        { "id": "cr", "x": 1480, "y": 590, "w": 300, "h": 120, "label": "ref to n", "text": "&n", "size": 40, "tone": "good", "cue": "byRef captures ampersand n" }
+      ],
+      "arrows": [
+        { "from": "n", "to": "cv", "cue": "copies the value", "tone": "warn" },
+        { "from": "cr", "to": "n", "cue": "refers back", "tone": "good" }
+      ],
+      "changes": [
+        { "id": "n", "text": "10", "cue": "n equals ten" },
+        { "id": "a0", "fade": true, "cue": "n equals ten" }
+      ],
+      "notes": [
+        { "cue": "one, then ten", "x": 1200, "y": 820, "text": "output: 1 10", "tone": "good" }
+      ],
+      "say": "We start with n equal to one. byVal captures n by value: the closure copies the value into its own member, right now. byRef captures ampersand n: it only stores a reference that refers back to the real n. Now n equals ten. The copy inside byVal doesn't care, it's still one. byRef reads through the reference and sees ten. So we print one, then ten." },
+
+    { "type": "code", "head": "Changing a captured copy needs mutable",
+      "panels": [{ "file": "mutable.cpp", "size": 36, "code": "int c = 0;\n\nauto bad = [c] { return ++c; };          // error\nauto inc = [c]() mutable { return ++c; };\n\ninc();\ninc();\nstd::cout << inc() << '\\n';   // 3\nstd::cout << c;               // 0" }],
+      "steps": [
+        { "cue": "read only", "lines": [3] },
+        { "cue": "mutable", "lines": [4] },
+        { "cue": "three calls", "lines": [6, 7, 8] },
+        { "cue": "the original c", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "read only", "line": 3, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "By default, a by value capture is read only inside the lambda, because the call operator is const. So incrementing c is a compile error. Add mutable, and the lambda may change its own copy. It remembers that copy between calls, so three calls return three. But the original c is still zero. By reference, you'd change the real variable instead." },
+
+    { "type": "code", "head": "The classic trap: a dangling reference",
+      "panels": [{ "file": "dangle.cpp", "size": 34, "code": "std::function<int()> make() {\n    int local = 42;\n    return [&local] { return local; };  // dangling!\n}\n\nauto f = make();\nf();   // undefined behavior: local is gone\n\n// fix: capture by value\nreturn [local] { return local; };" }],
+      "steps": [
+        { "cue": "captures a local", "lines": [2, 3] },
+        { "cue": "When make returns", "lines": [6, 7] },
+        { "cue": "The fix", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "When make returns", "line": 7, "inside": true, "text": "UB", "tone": "bad" }
+      ],
+      "say": "Here's the trap interviewers ask about. This lambda captures a local by reference and is returned out of the function. When make returns, local is destroyed, and the lambda holds a dangling reference. Calling it is undefined behavior. The fix is to capture by value. Rule of thumb: if the lambda outlives the scope, like a stored callback or a thread, capture by value." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["By value  [x]  [=]", "By reference  [&x]  [&]"],
+      "rowHeads": ["Stores", "Sees later changes", "Modify inside", "Cost", "Danger"],
+      "rows": [
+        ["A copy, taken at creation", "A reference to the original"],
+        ["No", "Yes"],
+        ["Only the copy, with `mutable`", "Yes, changes the original"],
+        ["Copies (can be costly)", "No copy"],
+        ["Stale values", "Dangling if it outlives the variable"]
+      ],
+      "cues": ["By value stores", "Later changes", "Modifying", "Cost", "And the danger"],
+      "say": "By value stores a copy taken when the lambda is created. By reference stores a link to the original. Later changes: only the reference sees them. Modifying: by value needs mutable and only changes the copy. Cost: copies can be expensive for big objects. And the danger: by value can be stale, by reference can dangle." },
+
+    { "type": "take", "lines": ["`[x]` copies x when the lambda is created; `[&x]` refers to the live variable.", "By-value captures are const unless the lambda is `mutable`.", "If the lambda can outlive the scope, capture by value."],
+      "cues": ["Capture by value", "By value captures", "If the lambda"],
+      "say": "Capture by value copies the variable when the lambda is created. Capture by reference refers to the live variable. By value captures are read only unless the lambda is mutable. And if the lambda can outlive the scope, capture by value, or you'll get a dangling reference." }
+  ]
+}

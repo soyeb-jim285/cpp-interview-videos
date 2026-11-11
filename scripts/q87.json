@@ -1,0 +1,49 @@
+{
+  "id": "q87", "num": 87, "short": "auto",
+  "question": "What is the purpose of `auto`?",
+  "caps": [["const auto ampersand", "const auto&"], ["auto ampersand", "auto&"]],
+  "scenes": [
+    { "type": "title", "sub": "Let the compiler write the type it already knows.",
+      "say": "What does auto do? It tells the compiler: deduce this variable's type from its initializer. It's still static typing, just less typing for you." },
+
+    { "type": "code", "head": "The type comes from the initializer",
+      "panels": [{ "file": "auto.cpp", "size": 34, "code": "auto i = 42;          // int\nauto d = 3.14;        // double\nauto s = \"hi\";        // const char*, not std::string\n\nstd::map<std::string, int> m;\n// before: std::map<std::string, int>::iterator it\nauto it = m.begin();  // same type, one word\n\nauto x;               // no initializer: nothing to deduce" }],
+      "steps": [
+        { "cue": "forty two is an int", "lines": [1, 2] },
+        { "cue": "A string literal", "lines": [3] },
+        { "cue": "The real win", "lines": [5, 6, 7] },
+        { "cue": "no initializer", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "no initializer", "line": 9, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "forty two is an int, so i is an int. three point one four makes a double. Careful: a string literal gives const char pointer, not s t d colon colon string. The real win is long types like map iterators. auto writes them for you, and the type is fixed at compile time, exactly as if you'd spelled it out. And auto with no initializer is an error, there's nothing to deduce from." },
+
+    { "type": "code", "head": "The trap: auto copies",
+      "panels": [{ "file": "copies.cpp", "size": 34, "code": "int x = 1;\nconst int& r = x;\nauto a = r;          // int: const and & dropped\nauto& b = r;         // const int&\nconst auto& c = r;   // const int&\n\nstd::vector<int> v{1, 2, 3};\nfor (auto e : v) e *= 2;    // doubles copies only\nfor (auto& e : v) e *= 2;   // doubles the elements" }],
+      "steps": [
+        { "cue": "Plain auto", "lines": [2, 3] },
+        { "cue": "If you want a reference", "lines": [4, 5] },
+        { "cue": "classic bug", "lines": [8] },
+        { "cue": "auto ampersand fixes", "lines": [9] }
+      ],
+      "notes": [
+        { "cue": "classic bug", "line": 8, "inside": true, "text": "v unchanged", "tone": "bad" },
+        { "cue": "auto ampersand fixes", "line": 9, "inside": true, "text": "v = 2 4 6", "tone": "good" }
+      ],
+      "say": "Here's the follow up interviewers love. Plain auto drops references and top level const, so a is a fresh int copy. If you want a reference, say so: auto ampersand, or const auto ampersand. This causes a classic bug in loops. auto e gives you a copy of each element, so doubling it changes nothing in v. auto ampersand fixes it." },
+
+    { "type": "code", "head": "Braces and return types",
+      "panels": [{ "file": "more.cpp", "size": 34, "code": "auto x{5};       // int (since C++17)\nauto y = {5};    // std::initializer_list<int>\n\nauto add(int a, int b) {   // C++14: return type deduced\n    return a + b;          // int\n}" }],
+      "steps": [
+        { "cue": "auto x with braces", "lines": [1] },
+        { "cue": "equals sign", "lines": [2] },
+        { "cue": "Since C plus plus fourteen", "lines": [4, 5, 6] }
+      ],
+      "say": "One more trap. auto x with braces around five is an int in modern C plus plus. But add an equals sign, and y becomes an initializer list. Since C plus plus fourteen, functions can use auto as the return type too, deduced from the return statement. Use auto when the type is obvious or noisy, and write the type when it documents intent." },
+
+    { "type": "take", "lines": ["`auto` deduces a variable's type from its initializer, at compile time.", "It drops `&` and top-level `const`: use `auto&` / `const auto&` to avoid copies.", "Great for iterators, lambdas and long types. Needs an initializer."],
+      "cues": ["auto deduces", "It drops", "Great for"],
+      "say": "auto deduces a variable's type from its initializer, at compile time, with no runtime cost. It drops references and top level const, so use auto ampersand or const auto ampersand to avoid copies. It's great for iterators, lambdas and long type names." }
+  ]
+}

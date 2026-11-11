@@ -1,0 +1,57 @@
+{
+  "id": "q79", "num": 79, "short": "push_back vs emplace_back",
+  "question": "What is the difference between `push_back()` and `emplace_back()`?",
+  "caps": [["[Pp]ush back", "push_back"], ["[Ee]mplace back", "emplace_back"], ["P of one, two", "P(1, 2)"], ["make unique", "make_unique"]],
+  "scenes": [
+    { "type": "title", "sub": "Hand over an object, or hand over the ingredients.",
+      "say": "Push back versus emplace back. One takes a finished object. The other takes constructor arguments and builds the element in place." },
+
+    { "type": "code", "head": "Count the constructor calls",
+      "panels": [{ "file": "emplace.cpp", "size": 32, "code": "struct P {\n    P(int x, int y) { std::cout << \"ctor\\n\"; }\n    P(const P&)     { std::cout << \"copy\\n\"; }\n    P(P&&) noexcept { std::cout << \"move\\n\"; }\n};\n\nstd::vector<P> v;\nv.reserve(2);            // no reallocation noise\nv.push_back(P(1, 2));    // ctor, move\nv.emplace_back(1, 2);    // ctor" }],
+      "steps": [
+        { "cue": "The struct prints", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "Push back takes", "lines": [9] },
+        { "cue": "Emplace back takes", "lines": [10] },
+        { "cue": "We reserved", "lines": [8] }
+      ],
+      "output": { "cmd": "./a.out", "cue": "Two operations", "text": "ctor\nmove\nctor" },
+      "say": "Let's count constructor calls. The struct prints which constructor runs. Push back takes an object. So P of one, two is built as a temporary, then moved into the vector's memory. Two operations. Emplace back takes the constructor arguments instead, and forwards them, so the element is constructed directly in place. One operation. We reserved first, so a reallocation doesn't add extra moves to the output." },
+
+    { "type": "diagram", "head": "Two paths into the vector",
+      "items": [
+        { "id": "r1", "x": 140, "y": 300, "w": 330, "h": 130, "text": "push_back", "size": 36, "tone": "blue", "cue": "Push back:" },
+        { "id": "t1", "x": 560, "y": 300, "w": 330, "h": 130, "text": "temporary P", "sub": "constructed", "size": 34, "cue": "build a temporary" },
+        { "id": "t2", "x": 980, "y": 300, "w": 330, "h": 130, "text": "move", "sub": "into the vector", "size": 34, "cue": "move it in" },
+        { "id": "t3", "x": 1400, "y": 300, "w": 330, "h": 130, "text": "destroy", "sub": "the temporary", "size": 34, "tone": "ghost", "cue": "destroy the temporary" },
+        { "id": "r2", "x": 140, "y": 620, "w": 330, "h": 130, "text": "emplace_back", "size": 36, "tone": "good", "cue": "Emplace back:" },
+        { "id": "e1", "x": 560, "y": 620, "w": 330, "h": 130, "text": "args (1, 2)", "sub": "forwarded", "size": 34, "cue": "forward the arguments" },
+        { "id": "e2", "x": 980, "y": 620, "w": 330, "h": 130, "text": "construct", "sub": "right in the slot", "size": 34, "tone": "good", "cue": "construct right in the slot" }
+      ],
+      "arrows": [
+        { "from": "r1", "to": "t1", "cue": "build a temporary" },
+        { "from": "t1", "to": "t2", "cue": "move it in" },
+        { "from": "t2", "to": "t3", "cue": "destroy the temporary" },
+        { "from": "r2", "to": "e1", "cue": "forward the arguments" },
+        { "from": "e1", "to": "e2", "cue": "construct right in the slot" }
+      ],
+      "say": "Side by side. Push back: build a temporary, move it in, then destroy the temporary. Emplace back: forward the arguments, and construct right in the slot. For types that are cheap to move, like ints or small strings, the difference is negligible. It matters for types that are expensive to move or copy." },
+
+    { "type": "code", "head": "Two traps",
+      "panels": [{ "file": "traps.cpp", "size": 32, "code": "std::vector<std::string> v;\nstd::string s = \"hi\";\nv.push_back(s);              // copy\nv.emplace_back(s);           // also a copy: same thing\nv.push_back(\"hi\");           // temporary string, then move\nv.emplace_back(\"hi\");        // constructed in place\n\nstd::vector<std::unique_ptr<int>> w;\nw.push_back(new int(1));     // error: explicit constructor\nw.emplace_back(new int(1));  // compiles, but can leak" }],
+      "steps": [
+        { "cue": "passing an existing object", "lines": [3, 4] },
+        { "cue": "string literal", "lines": [5, 6] },
+        { "cue": "explicit constructors", "lines": [8, 9] },
+        { "cue": "Emplace back compiles", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "won't compile", "line": 9, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "pointer leaks", "line": 10, "inside": true, "text": "use std::make_unique", "tone": "warn" }
+      ],
+      "say": "Two traps. First, passing an existing object: both copy it. Emplace back isn't magic. With a string literal, emplace back does win, because push back builds a temporary string first. Second, emplace back can call explicit constructors. Push back of a raw new pointer won't compile, which is a good thing. Emplace back compiles, and if growing the vector throws, that pointer leaks. Use make unique there." },
+
+    { "type": "take", "lines": ["push_back(obj): copies or moves an existing object into the vector.", "emplace_back(args...): forwards arguments, constructs the element in place.", "Emplace for constructor arguments, push for existing objects. Beware explicit ctors."],
+      "cues": ["Push back copies", "Emplace back forwards", "Rule of thumb"],
+      "say": "Push back copies or moves an object you already have. Emplace back forwards arguments and constructs in place. Rule of thumb: emplace back for constructor arguments, push back for existing objects, and watch out for explicit constructors." }
+  ]
+}

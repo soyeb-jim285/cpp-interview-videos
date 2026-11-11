@@ -1,0 +1,47 @@
+{
+  "id": "q17", "num": 17, "short": "Memory segments",
+  "question": "What are the differences between stack, heap, data, and text segments?",
+  "scenes": [
+    { "type": "title", "sub": "One running program, split into regions with different jobs.",
+      "say": "Stack, heap, data, and text. A running program's memory is split into regions, each with its own job. Let's place every variable of one small program." },
+
+    { "type": "diagram", "head": "Where each piece of the program lives",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "int g = 5;            // initialized global\nint z;                // global, no initializer\n\nint square(int x) {   // machine code\n    return x * x;\n}\n\nint main() {\n    static int n = 3;     // static local\n    int local = 1;\n    int* p = new int(2);\n    delete p;\n}" }],
+      "steps": [
+        { "cue": "The text segment", "lines": [4, 5, 6, 8] },
+        { "cue": "The data segment", "lines": [1, 9] },
+        { "cue": "Globals without one", "lines": [2] },
+        { "cue": "The heap holds", "lines": [11] },
+        { "cue": "The stack holds", "lines": [10, 11] }
+      ],
+      "items": [
+        { "id": "stk", "x": 1020, "y": 200, "w": 520, "h": 100, "text": "Stack", "sub": "local, p · grows down", "size": 36, "tone": "blue", "cue": "The stack holds" },
+        { "id": "gap", "x": 1020, "y": 320, "w": 520, "h": 80, "text": "unused gap", "size": 28, "tone": "ghost", "cue": "grows upward" },
+        { "id": "hp", "x": 1020, "y": 420, "w": 520, "h": 100, "text": "Heap", "sub": "the int from new · grows up", "size": 36, "tone": "warn", "cue": "The heap holds" },
+        { "id": "bss", "x": 1020, "y": 540, "w": 520, "h": 100, "text": "BSS", "sub": "z: zero-filled at startup", "size": 36, "cue": "Globals without one" },
+        { "id": "dat", "x": 1020, "y": 660, "w": 520, "h": 100, "text": "Data", "sub": "g, n: initialized globals/statics", "size": 36, "tone": "good", "cue": "The data segment" },
+        { "id": "txt", "x": 1020, "y": 780, "w": 520, "h": 110, "text": "Text", "sub": "square, main · read-only code", "size": 36, "tone": "bad", "cue": "The text segment" }
+      ],
+      "notes": [
+        { "cue": "low addresses at the bottom", "x": 1570, "y": 820, "text": "low addresses", "tone": "info" },
+        { "cue": "high at the top", "x": 1570, "y": 230, "text": "high addresses", "tone": "info" }
+      ],
+      "say": "Here's the classic layout on Linux, low addresses at the bottom, high at the top. The text segment holds machine code, like square and main. It's read only. The data segment holds globals and statics that have an initial value, like g and n. Globals without one, like z, go in B S S, which is zero filled at startup. The heap holds what new allocates, and typically grows upward. The stack holds local and p, and grows down toward it." },
+
+    { "type": "compare", "head": "The four regions side by side",
+      "heads": ["Text", "Data / BSS", "Heap", "Stack"], "rowHeads": ["Holds", "Lifetime", "Size", "Access", "Managed by"],
+      "rows": [
+        ["Machine code", "Globals, statics", "new / malloc blocks", "Locals, call frames"],
+        ["Whole program", "Whole program", "Until delete / free", "Until scope ends"],
+        ["Fixed at load", "Fixed at load", "Grows at runtime", "Small, often 1–8 MB"],
+        ["Read + execute", "Read + write", "Read + write", "Read + write"],
+        ["Loader", "Loader", "You / allocator", "Compiler, automatically"]
+      ],
+      "cues": ["Text holds code", "Lifetime", "Size", "Access", "And who manages"],
+      "say": "Text holds code, data and B S S hold globals, the heap holds dynamic objects, and the stack holds locals. Lifetime: the first two last the whole program, heap blocks until freed, stack variables until their scope ends. Size: text and data are fixed when the program loads. The heap and stack change at runtime, and the stack is small. Access: text is read and execute only. And who manages it: the loader, you, or the compiler. One extra: string literals usually go in a separate read only data section." },
+
+    { "type": "take", "lines": ["Text: code, read-only. Data: initialized globals/statics. BSS: zero-filled ones.", "Heap: dynamic memory, lives until freed. Stack: locals, freed when scope ends.", "Text/data/BSS are sized at load; heap and stack change at runtime."],
+      "cues": ["Text is", "The heap is", "Text, data"],
+      "say": "Text is read only code. Data holds initialized globals and statics, B S S the zero filled ones. The heap is dynamic memory you free yourself, the stack holds locals freed automatically. Text, data and B S S are sized at load time. Heap and stack change while the program runs." }
+  ]
+}

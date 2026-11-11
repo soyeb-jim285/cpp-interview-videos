@@ -1,0 +1,63 @@
+{
+  "id": "q29", "num": 29, "short": "Smart pointers",
+  "question": "What are smart pointers, and why are they useful?",
+  "caps": [["unique pointer", "unique_ptr"], ["shared pointer", "shared_ptr"], ["weak pointer", "weak_ptr"], ["make unique", "make_unique"], ["make shared", "make_shared"], ["std move", "std::move"]],
+  "scenes": [
+    { "type": "title", "sub": "Pointers that delete for you, with clear ownership.",
+      "say": "Smart pointers. Objects that act like pointers, but delete what they own automatically. There are three, and each one says something about ownership." },
+
+    { "type": "code", "head": "unique_ptr: exactly one owner",
+      "panels": [{ "file": "unique.cpp", "size": 34, "code": "void demo() {\n    auto p = std::make_unique<Widget>(3);\n    p->draw();               // use it like a pointer\n\n    auto q = p;              // copy: not allowed\n    auto r = std::move(p);   // transfer ownership\n    // now p is null, r owns the Widget\n}                            // r's destructor deletes it" }],
+      "steps": [
+        { "cue": "make unique creates", "lines": [2, 3] },
+        { "cue": "You can't copy it", "lines": [5] },
+        { "cue": "move it", "lines": [6, 7] },
+        { "cue": "When r goes out of scope", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "You can't copy it", "line": 5, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "make unique creates a Widget, owned by p. You use it like a normal pointer. You can't copy it, because there can only be one owner. But you can move it, with s t d move. Ownership transfers to r, and p becomes null. When r goes out of scope, the Widget is deleted. No delete in sight. A unique pointer is the same size as a raw pointer, so use it by default." },
+
+    { "type": "diagram", "head": "shared_ptr: counting owners",
+      "panels": [{ "file": "shared.cpp", "size": 34, "code": "auto a = std::make_shared<Widget>();\n{\n    auto b = a;     // count: 2\n}                   // b gone, count: 1\na.reset();          // count: 0, deleted" }],
+      "steps": [
+        { "cue": "make shared creates", "lines": [1] },
+        { "cue": "Copying a into b", "lines": [3] },
+        { "cue": "b goes out of scope", "lines": [4] },
+        { "cue": "a lets go", "lines": [5] }
+      ],
+      "items": [
+        { "id": "sa", "x": 1010, "y": 280, "w": 280, "h": 110, "label": "a", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "make shared creates" },
+        { "id": "sb", "x": 1010, "y": 650, "w": 280, "h": 110, "label": "b", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "Copying a into b" },
+        { "id": "blk", "x": 1440, "y": 450, "w": 360, "h": 130, "label": "one heap block", "text": "count: 1", "sub": "+ the Widget", "size": 38, "tone": "warn", "cue": "make shared creates" }
+      ],
+      "arrows": [
+        { "from": "sa", "to": "blk", "cue": "make shared creates" },
+        { "from": "sb", "to": "blk", "cue": "Copying a into b" }
+      ],
+      "changes": [
+        { "id": "blk", "text": "count: 2", "cue": "Copying a into b" },
+        { "id": "sb", "fade": true, "cue": "b goes out of scope" },
+        { "id": "a1", "fade": true, "cue": "b goes out of scope" },
+        { "id": "blk", "text": "count: 1", "cue": "b goes out of scope" },
+        { "id": "blk", "text": "count: 0", "cue": "a lets go" },
+        { "id": "a0", "fade": true, "cue": "a lets go" },
+        { "id": "blk", "kill": true, "cue": "the last owner" }
+      ],
+      "say": "make shared creates the Widget together with a reference count, in one allocation. Copying a into b bumps the count to two. When b goes out of scope, it drops to one. When a lets go too, it hits zero, and the last owner deletes the Widget. Use shared pointer only when ownership is truly shared. The count is updated atomically, so copies aren't free." },
+
+    { "type": "code", "head": "weak_ptr: breaking cycles",
+      "panels": [{ "file": "cycle.cpp", "size": 32, "code": "struct Node {\n    std::shared_ptr<Node> next;\n    std::weak_ptr<Node> prev;   // observes, doesn't own\n};\n\nauto a = std::make_shared<Node>();\nauto b = std::make_shared<Node>();\na->next = b;\nb->prev = a;                    // no cycle of owners\n\nif (auto p = b->prev.lock()) {  // shared_ptr, or null\n    // a is still alive here\n}" }],
+      "steps": [
+        { "cue": "point at each other", "lines": [2, 8, 9] },
+        { "cue": "A weak pointer", "lines": [3, 9] },
+        { "cue": "lock", "lines": [11, 12, 13] }
+      ],
+      "say": "The classic trap: if two nodes hold shared pointers that point at each other, the counts never reach zero, and both leak. A weak pointer breaks the cycle. It observes an object without owning it. To use it, call lock, which gives you a shared pointer if the object is still alive, or null if it's gone." },
+
+    { "type": "take", "lines": ["Smart pointers own heap objects and delete them automatically (RAII).", "unique_ptr: single owner, no overhead, move-only. Your default choice.", "shared_ptr: reference-counted shared ownership. weak_ptr: observes, breaks cycles."],
+      "cues": ["Smart pointers own", "Reach for unique", "Use shared"],
+      "say": "Smart pointers own heap objects and delete them automatically. That's R A I I for memory: no leaks, no double frees. Reach for unique pointer first. Use shared pointer only for real shared ownership, and weak pointer to observe it, and to break cycles." }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "q25", "num": 25, "short": "Use after delete",
+  "question": "What happens when you access memory after calling `delete`?",
+  "caps": [["star p", "*p"], ["star q", "*q"], ["dash f sanitize", "-fsanitize"]],
+  "scenes": [
+    { "type": "title", "sub": "Undefined behavior, and often no crash at all.",
+      "say": "What happens if you use memory after delete? Officially, anything. In practice, something sneakier than a crash." },
+
+    { "type": "diagram", "head": "The freed block gets a new owner",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "int* p = new int(42);\ndelete p;              // block returned\n\nint* q = new int(99);  // may reuse it\n\n*p = 7;                // use after free\nstd::cout << *q;       // might print 7" }],
+      "steps": [
+        { "cue": "p points to forty two", "lines": [1] },
+        { "cue": "delete p gives", "lines": [2] },
+        { "cue": "Now new int", "lines": [4] },
+        { "cue": "Then star p equals seven", "lines": [6] },
+        { "cue": "Printing star q", "lines": [7] }
+      ],
+      "items": [
+        { "id": "pp", "x": 1010, "y": 270, "w": 290, "h": 110, "label": "p", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "p points to forty two" },
+        { "id": "pq", "x": 1010, "y": 650, "w": 290, "h": 110, "label": "q", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "Now new int" },
+        { "id": "blk", "x": 1470, "y": 460, "w": 320, "h": 110, "label": "@0x5f20", "text": "42", "size": 44, "tone": "warn", "cue": "p points to forty two" }
+      ],
+      "arrows": [
+        { "from": "pp", "to": "blk", "cue": "p points to forty two" },
+        { "from": "pq", "to": "blk", "cue": "the very same address" }
+      ],
+      "changes": [
+        { "id": "blk", "text": "free", "cue": "delete p gives" },
+        { "id": "blk", "tone": "dim", "cue": "delete p gives" },
+        { "id": "blk", "text": "99", "cue": "the very same address" },
+        { "id": "blk", "tone": "warn", "cue": "the very same address" },
+        { "id": "blk", "text": "7", "cue": "Then star p equals seven" },
+        { "id": "blk", "tone": "bad", "cue": "Then star p equals seven" },
+        { "id": "a0", "tone": "bad", "cue": "Then star p equals seven" }
+      ],
+      "say": "p points to forty two. delete p gives the block back to the allocator, but p still holds the address. Now new int of ninety nine. Allocators like to reuse a just freed block of the same size, so q may get the very same address. Then star p equals seven, a use after free, silently writes into q's int. Printing star q might show seven. No crash. Just a wrong value, far away from the real bug." },
+
+    { "type": "code", "head": "What can happen, and how to catch it",
+      "panels": [{ "file": "uaf.cpp", "size": 36, "code": "int main() {\n    int* p = new int(42);\n    delete p;\n    return *p;     // read after delete\n}" }],
+      "steps": [
+        { "cue": "it's undefined behavior", "lines": [4] },
+        { "cue": "Address sanitizer", "lines": [3, 4] }
+      ],
+      "output": { "cmd": "g++ -g -fsanitize=address uaf.cpp && ./a.out", "tone": "bad", "cue": "Address sanitizer", "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 4 ..." },
+      "say": "Formally, it's undefined behavior, so the standard promises nothing. You might read the old value, read garbage, corrupt the allocator's own bookkeeping, or crash, maybe much later. Because it often seems to work, use after free is a classic security hole. Address sanitizer catches it at the exact line, and also shows where the memory was freed. Compile with dash f sanitize equals address." },
+
+    { "type": "take", "lines": ["Accessing memory after delete is undefined behavior: no guaranteed crash.", "Freed blocks get reused, so the write can corrupt an unrelated object.", "Prevent with smart pointers; detect with AddressSanitizer."],
+      "cues": ["Using memory", "The block", "Prevent it"],
+      "say": "Using memory after delete is undefined behavior, with no guaranteed crash. The block may be reused, so your write can corrupt a completely unrelated object. Prevent it with smart pointers, and detect it with address sanitizer." }
+  ]
+}

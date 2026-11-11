@@ -1,0 +1,250 @@
+{
+ "id": "q93",
+ "num": 93,
+ "short": "Race condition",
+ "question": "What is a race condition?",
+ "caps": [
+  [
+   "plus plus counter",
+   "++counter"
+  ],
+  [
+   "two hundred thousand",
+   "200000"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "When the result depends on who gets there first.",
+   "say": "What is a race condition? It's a bug where the result depends on the timing of threads. Two threads, one counter. Let's watch it go wrong."
+  },
+  {
+   "type": "diagram",
+   "head": "Two threads, one counter",
+   "panels": [
+    {
+     "file": "race.cpp",
+     "size": 32,
+     "code": "int counter = 0;\n\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;            // not atomic!\n}\n\nint main() {\n    std::thread a(work), b(work);\n    a.join(); b.join();\n    std::cout << counter;     // expect 200000\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Two threads",
+     "lines": [
+      9
+     ]
+    },
+    {
+     "cue": "looks like one step",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "Thread A reads",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "One increment is lost",
+     "lines": [
+      11
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "ctr",
+     "x": 1250,
+     "y": 250,
+     "w": 340,
+     "h": 130,
+     "label": "counter (shared)",
+     "text": "5",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Two threads"
+    },
+    {
+     "id": "ta",
+     "x": 1030,
+     "y": 600,
+     "w": 340,
+     "h": 140,
+     "label": "thread A register",
+     "text": "-",
+     "size": 46,
+     "tone": "warn",
+     "cue": "Two threads"
+    },
+    {
+     "id": "tb",
+     "x": 1470,
+     "y": 600,
+     "w": 340,
+     "h": 140,
+     "label": "thread B register",
+     "text": "-",
+     "size": 46,
+     "tone": "good",
+     "cue": "Two threads"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "ctr",
+     "to": "ta",
+     "cue": "Thread A reads",
+     "tone": "warn"
+    },
+    {
+     "from": "ctr",
+     "to": "tb",
+     "cue": "thread B reads",
+     "tone": "good"
+    }
+   ],
+   "changes": [
+    {
+     "id": "ta",
+     "text": "5",
+     "cue": "Thread A reads"
+    },
+    {
+     "id": "tb",
+     "text": "5",
+     "cue": "thread B reads"
+    },
+    {
+     "id": "ta",
+     "text": "6",
+     "cue": "Both add one"
+    },
+    {
+     "id": "tb",
+     "text": "6",
+     "cue": "Both add one"
+    },
+    {
+     "id": "ctr",
+     "text": "6",
+     "cue": "A writes six"
+    },
+    {
+     "id": "ctr",
+     "text": "6",
+     "cue": "B writes six"
+    },
+    {
+     "id": "ctr",
+     "tone": "bad",
+     "cue": "One increment is lost"
+    }
+   ],
+   "notes": [
+    {
+     "cue": "One increment is lost",
+     "x": 1180,
+     "y": 820,
+     "text": "two ++, but only +1",
+     "tone": "bad"
+    }
+   ],
+   "say": "Two threads each add one to counter a hundred thousand times. plus plus counter looks like one step, but it's really three: read, add, write. Say counter is five. Thread A reads five. Before it writes, thread B reads five too. Both add one. A writes six. B writes six. One increment is lost. Run it, and you'll usually get less than two hundred thousand, and a different number each time."
+  },
+  {
+   "type": "code",
+   "head": "Data race vs race condition",
+   "panels": [
+    {
+     "file": "check_then_act.cpp",
+     "size": 34,
+     "code": "std::atomic<int> tickets{1};\n\nvoid buy() {\n    if (tickets > 0) {   // both threads see 1...\n        --tickets;       // ...both decrement: -1\n    }\n}\n\n// fix: check and act under one lock\nstd::mutex m;\nvoid buySafe() {\n    std::lock_guard<std::mutex> lk(m);\n    if (tickets > 0) --tickets;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Interviewers like",
+     "lines": []
+    },
+    {
+     "cue": "even with atomics",
+     "lines": [
+      1,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "check and the act",
+     "lines": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+     ]
+    }
+   ],
+   "say": "Interviewers like this distinction. The counter bug is a data race: two threads touch the same memory, one writes, with no synchronization. In C plus plus that's undefined behavior. A race condition is broader: a logic bug where timing changes the result. It can happen even with atomics. Both threads see one ticket, both buy it. The fix is to make the check and the act a single atomic step, or guard them with a lock."
+  },
+  {
+   "type": "code",
+   "head": "Fixing the counter",
+   "panels": [
+    {
+     "file": "atomic.cpp",
+     "code": "std::atomic<int> counter{0};\n\nvoid work() {\n  for (int i = 0; i < 100000; ++i)\n    ++counter;  // one indivisible step\n}"
+    },
+    {
+     "file": "mutex.cpp",
+     "code": "std::mutex m;\nint counter = 0;\n\nvoid work() {\n  for (int i = 0; i < 100000; ++i) {\n    std::lock_guard<std::mutex> lk(m);\n    ++counter;\n  }\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "make the counter atomic",
+     "panel": 0,
+     "lines": [
+      1,
+      5
+     ]
+    },
+    {
+     "cue": "lock a mutex",
+     "panel": 1,
+     "lines": [
+      1,
+      6,
+      7
+     ]
+    }
+   ],
+   "output": {
+    "cmd": "./fixed",
+    "text": "200000",
+    "cue": "every time",
+    "tone": "good"
+   },
+   "say": "To fix the counter, either make the counter atomic, so the read, add and write happen as one indivisible step, or lock a mutex around the increment, so only one thread is inside at a time. Either way, you get two hundred thousand, every time. Sanitizers like thread sanitizer can catch data races while testing."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Race condition: the result depends on thread timing.",
+    "Data race: unsynchronized access to shared memory, one writer. That's UB.",
+    "Fix with mutexes or atomics; make check-then-act a single step."
+   ],
+   "cues": [
+    "A race condition",
+    "A data race",
+    "Fix them"
+   ],
+   "say": "A race condition is when the result depends on the timing of threads. A data race is unsynchronized access to the same memory, with at least one write, and that's undefined behavior. Fix them with mutexes or atomics, and make check then act a single step."
+  }
+ ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "q46", "num": 46, "short": "Four pillars of OOP",
+  "question": "What are the four pillars of OOP?",
+  "caps": [["O O P", "OOP"], ["s dot area", "s.area()"]],
+  "scenes": [
+    { "type": "title", "sub": "Encapsulation, abstraction, inheritance, polymorphism. One example shows all four.",
+      "say": "The four pillars of O O P: encapsulation, abstraction, inheritance, and polymorphism. Instead of memorizing definitions, let's see all four in one small example." },
+
+    { "type": "code", "head": "Abstraction and encapsulation",
+      "panels": [{ "file": "shape.cpp", "code": "class Shape {\npublic:\n    virtual double area() const = 0;   // WHAT, not HOW\n    virtual ~Shape() = default;\n};\n\nclass Circle : public Shape {\n    double r;                          // private: hidden\npublic:\n    explicit Circle(double r) : r(r > 0 ? r : 0) {}\n    double area() const override { return 3.14159 * r * r; }\n};" }],
+      "steps": [
+        { "cue": "Abstraction", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "Encapsulation", "lines": [8] },
+        { "cue": "The constructor guards it", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "can't set it", "line": 8, "inside": true, "text": "no outside access", "tone": "good" }
+      ],
+      "say": "Abstraction: Shape says what every shape can do, compute its area, without saying how. Callers only need that. Encapsulation: Circle bundles its radius with the code that uses it, and keeps the radius private. Outside code can't set it to minus five. The constructor guards it, so a Circle is always valid." },
+
+    { "type": "code", "head": "Inheritance and polymorphism",
+      "panels": [{ "file": "main.cpp", "code": "class Square : public Shape {\n    double side;\npublic:\n    explicit Square(double s) : side(s) {}\n    double area() const override { return side * side; }\n};\n\nvoid report(const Shape& s) {\n    std::cout << s.area() << '\\n';\n}\n\nint main() {\n    report(Circle(1));\n    report(Square(2));\n}" }],
+      "steps": [
+        { "cue": "Inheritance", "lines": [1] },
+        { "cue": "Polymorphism", "lines": [8, 9, 10] },
+        { "cue": "The same call", "lines": [13, 14] }
+      ],
+      "output": { "cmd": "./main", "text": "3.14159\n4", "cue": "the circle formula", "tone": "good" },
+      "say": "Inheritance: Square and Circle both derive from Shape. Each one is a Shape, and can be used anywhere a Shape is expected. Polymorphism: report takes any Shape by reference. The same call, s dot area, runs the circle formula for the circle, and the square formula for the square. Add a triangle tomorrow, and report never changes." },
+
+    { "type": "diagram", "head": "How the pillars fit together",
+      "items": [
+        { "id": "enc", "x": 160, "y": 260, "w": 760, "h": 180, "label": "Encapsulation", "text": "private radius", "sub": "protects the object's data", "size": 38, "tone": "blue", "cue": "Encapsulation protects" },
+        { "id": "abs", "x": 1000, "y": 260, "w": 760, "h": 180, "label": "Abstraction", "text": "Shape::area()", "sub": "shows what, hides how", "size": 38, "tone": "blue", "cue": "abstraction hides" },
+        { "id": "inh", "x": 160, "y": 600, "w": 760, "h": 180, "label": "Inheritance", "text": "Circle is a Shape", "sub": "is-a relationship, reuse", "size": 38, "tone": "warn", "cue": "Inheritance builds" },
+        { "id": "pol", "x": 1000, "y": 600, "w": 760, "h": 180, "label": "Polymorphism", "text": "s.area()", "sub": "one call, many behaviors", "size": 38, "tone": "good", "cue": "polymorphism lets" }
+      ],
+      "arrows": [{ "from": "inh", "to": "pol", "cue": "polymorphism lets" }],
+      "say": "So, encapsulation protects data inside the object. abstraction hides complexity behind a simple interface. Inheritance builds is a relationships, and polymorphism lets one call behave differently per type. In C plus plus, runtime polymorphism needs inheritance and virtual functions. A common follow up: what's the difference between encapsulation and abstraction?" },
+
+    { "type": "take", "lines": ["Encapsulation: bundle data with methods, hide it with private.", "Abstraction: expose what an object does, hide how it does it.", "Inheritance: is-a reuse. Polymorphism: one interface, many behaviors."],
+      "cues": ["Encapsulation bundles", "Abstraction exposes", "Inheritance models"],
+      "say": "Encapsulation bundles data with its methods and hides it. Abstraction exposes what an object does, not how. Inheritance models is a relationships, and polymorphism gives one interface many behaviors." }
+  ]
+}

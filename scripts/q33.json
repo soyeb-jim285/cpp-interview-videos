@@ -1,0 +1,66 @@
+{
+  "id": "q33", "num": 33, "short": "Alignment & padding",
+  "question": "What is memory alignment and padding?",
+  "caps": [["align of", "alignof"], ["align as", "alignas"], ["pragma pack", "#pragma pack"]],
+  "scenes": [
+    { "type": "title", "sub": "Why sizeof is often bigger than the members add up to.",
+      "say": "Memory alignment and padding. Ever noticed a struct is bigger than its members add up to? Let's lay out the bytes and see why." },
+
+    { "type": "diagram", "head": "struct A: 6 bytes of data, 12 bytes of struct",
+      "area": { "w": 760 },
+      "panels": [{ "file": "a.cpp", "size": 36, "code": "struct A {\n    char c;   // 1 byte\n    int  i;   // 4 bytes\n    char d;   // 1 byte\n};\n// sizeof(A) == 12, not 6" }],
+      "steps": [
+        { "cue": "a char, an int", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "sizeof says twelve", "lines": [6] },
+        { "cue": "c sits", "lines": [2] },
+        { "cue": "i starts", "lines": [3] },
+        { "cue": "d lands", "lines": [4] },
+        { "cue": "three more padding", "lines": [5] }
+      ],
+      "items": [
+        { "id": "ac", "x": 940, "y": 420, "w": 70, "h": 120, "label": "0", "text": "c", "size": 36, "tone": "blue", "cue": "c sits" },
+        { "id": "ap1", "x": 1010, "y": 420, "w": 210, "h": 120, "label": "1–3", "text": "pad", "size": 32, "tone": "ghost", "cue": "three bytes of padding" },
+        { "id": "ai", "x": 1220, "y": 420, "w": 280, "h": 120, "label": "4–7", "text": "i", "size": 36, "tone": "blue", "cue": "i starts" },
+        { "id": "ad", "x": 1500, "y": 420, "w": 70, "h": 120, "label": "8", "text": "d", "size": 36, "tone": "blue", "cue": "d lands" },
+        { "id": "ap2", "x": 1570, "y": 420, "w": 210, "h": 120, "label": "9–11", "text": "pad", "size": 32, "tone": "ghost", "cue": "three more padding" }
+      ],
+      "notes": [
+        { "cue": "every element's int", "x": 1060, "y": 640, "text": "12 bytes, 6 of them padding", "tone": "bad" }
+      ],
+      "say": "Here's struct A: a char, an int, another char. Six bytes of data, but sizeof says twelve. On a typical platform, an int must start at an address that's a multiple of four. That's its alignment. c sits at offset zero, so the compiler inserts three bytes of padding, and i starts at offset four. d lands at eight. Then three more padding bytes at the end, so that in an array of A, every element's int stays aligned." },
+
+    { "type": "diagram", "head": "Same members, better order",
+      "area": { "w": 760 },
+      "panels": [{ "file": "b.cpp", "size": 36, "code": "struct B {\n    int  i;   // 4 bytes\n    char c;   // 1 byte\n    char d;   // 1 byte\n};\n// sizeof(B) == 8" }],
+      "steps": [
+        { "cue": "reorder the members", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "The int takes", "lines": [2] },
+        { "cue": "two chars", "lines": [3, 4] },
+        { "cue": "two bytes of padding", "lines": [5] },
+        { "cue": "sizeof drops", "lines": [6] }
+      ],
+      "items": [
+        { "id": "bi", "x": 940, "y": 420, "w": 280, "h": 120, "label": "0–3", "text": "i", "size": 36, "tone": "blue", "cue": "The int takes" },
+        { "id": "bc", "x": 1220, "y": 420, "w": 70, "h": 120, "label": "4", "text": "c", "size": 36, "tone": "blue", "cue": "two chars" },
+        { "id": "bd", "x": 1290, "y": 420, "w": 70, "h": 120, "label": "5", "text": "d", "size": 36, "tone": "blue", "cue": "two chars" },
+        { "id": "bp", "x": 1360, "y": 420, "w": 140, "h": 120, "label": "6–7", "text": "pad", "size": 32, "tone": "ghost", "cue": "two bytes of padding" }
+      ],
+      "notes": [
+        { "cue": "sizeof drops", "x": 1060, "y": 640, "text": "8 bytes, only 2 padding", "tone": "good" }
+      ],
+      "say": "Now reorder the members, largest first. The int takes offsets zero to three. The two chars fit right after it, at four and five. Only two bytes of padding are needed at the end, to round the size up to a multiple of four. Same data, but sizeof drops from twelve to eight. That's the classic interview trick: order members from largest alignment to smallest to shrink a struct." },
+
+    { "type": "code", "head": "Why it exists, and how to control it",
+      "panels": [{ "file": "align.cpp", "size": 34, "code": "struct A { char c; int i; char d; };\nstruct B { int i; char c; char d; };\n\nstd::cout << sizeof(A) << ' ' << alignof(A) << '\\n';\nstd::cout << sizeof(B) << ' ' << alignof(B) << '\\n';\n\nstruct alignas(64) Counter { int n; };  // own cache line\nstatic_assert(sizeof(Counter) == 64);" }],
+      "steps": [
+        { "cue": "query alignment", "lines": [4, 5] },
+        { "cue": "align as sixty four", "lines": [7, 8] }
+      ],
+      "output": { "cmd": "./align", "cue": "query alignment", "text": "12 4\n8 4" },
+      "say": "Why does the hardware care? Processors load data fastest from aligned addresses. Some architectures even fault on misaligned loads, and in C plus plus, accessing a misaligned object is undefined behavior. You can query alignment with align of, and raise it with align as. Here, align as sixty four gives each counter its own cache line, which avoids false sharing between threads. Pragma pack can remove padding, but it trades speed and safety for size." },
+
+    { "type": "take", "lines": ["Alignment: a type must start at an address that's a multiple of alignof(T).", "Padding: unused bytes the compiler inserts between and after members to keep that rule.", "Order members largest → smallest to cut padding. Inspect with alignof, raise with alignas."],
+      "cues": ["Alignment means", "Padding is", "To shrink"],
+      "say": "Alignment means each type must start at an address that's a multiple of its align of. Padding is the unused bytes the compiler inserts to keep that rule, including at the end of the struct. To shrink a struct, order members from largest to smallest alignment." }
+  ]
+}

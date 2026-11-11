@@ -1,0 +1,70 @@
+{
+  "id": "q27", "num": 27, "short": "Shallow vs deep copy",
+  "question": "What is the difference between shallow copy and deep copy?",
+  "caps": [["star b dot data", "*b.data"]],
+  "scenes": [
+    { "type": "title", "sub": "Copy the pointer, or copy what it points to?",
+      "say": "Shallow copy versus deep copy. When an object holds a pointer, copying it raises one question: do you copy the pointer, or what it points to?" },
+
+    { "type": "diagram", "head": "Shallow: copy the pointer",
+      "panels": [{ "file": "shallow.cpp", "size": 34, "code": "struct Shallow {\n    int* data;\n};\n\nShallow a{new int(5)};\nShallow b = a;      // copies the address\n\n*b.data = 9;        // a sees 9 too!" }],
+      "steps": [
+        { "cue": "a holds a pointer", "lines": [5] },
+        { "cue": "The default copy", "lines": [6] },
+        { "cue": "Change it through b", "lines": [8] }
+      ],
+      "items": [
+        { "id": "oa", "x": 1010, "y": 280, "w": 320, "h": 110, "label": "a", "text": "data: 0x6c00", "size": 32, "tone": "blue", "cue": "a holds a pointer" },
+        { "id": "ob", "x": 1010, "y": 650, "w": 320, "h": 110, "label": "b", "text": "data: 0x6c00", "size": 32, "tone": "blue", "cue": "The default copy" },
+        { "id": "v", "x": 1480, "y": 465, "w": 320, "h": 110, "label": "@0x6c00", "text": "5", "size": 44, "tone": "warn", "cue": "a holds a pointer" }
+      ],
+      "arrows": [
+        { "from": "oa", "to": "v", "cue": "a holds a pointer" },
+        { "from": "ob", "to": "v", "cue": "same int" }
+      ],
+      "changes": [
+        { "id": "v", "text": "9", "cue": "Change it through b" },
+        { "id": "v", "tone": "bad", "cue": "a sees it too" }
+      ],
+      "say": "a holds a pointer to an int on the heap. The default copy copies each member, so b gets the same address. Both point at the same int. Change it through b, and a sees it too. And if Shallow had a destructor that deleted data, both objects would delete the same block. That's a double free." },
+
+    { "type": "diagram", "head": "Deep: copy what it points to",
+      "panels": [{ "file": "deep.cpp", "size": 32, "code": "struct Deep {\n    int* data;\n    Deep(int v) : data(new int(v)) {}\n    Deep(const Deep& o)\n        : data(new int(*o.data)) {}  // new block\n    ~Deep() { delete data; }\n};\n\nDeep a(5);\nDeep b = a;         // copies the value\n\n*b.data = 9;        // a is still 5" }],
+      "steps": [
+        { "cue": "A deep copy", "lines": [4, 5] },
+        { "cue": "Now b equals a", "lines": [10] },
+        { "cue": "Changing b", "lines": [12] }
+      ],
+      "items": [
+        { "id": "oa", "x": 1010, "y": 280, "w": 320, "h": 110, "label": "a", "text": "data: 0x6c00", "size": 32, "tone": "blue", "cue": "A deep copy" },
+        { "id": "va", "x": 1480, "y": 280, "w": 320, "h": 110, "label": "@0x6c00", "text": "5", "size": 44, "tone": "warn", "cue": "A deep copy" },
+        { "id": "ob", "x": 1010, "y": 650, "w": 320, "h": 110, "label": "b", "text": "data: 0x7d40", "size": 32, "tone": "blue", "cue": "Now b equals a" },
+        { "id": "vb", "x": 1480, "y": 650, "w": 320, "h": 110, "label": "@0x7d40", "text": "5", "size": 44, "tone": "good", "cue": "its own new int" }
+      ],
+      "arrows": [
+        { "from": "oa", "to": "va", "cue": "A deep copy" },
+        { "from": "ob", "to": "vb", "cue": "its own new int" }
+      ],
+      "changes": [
+        { "id": "vb", "text": "9", "cue": "Changing b" }
+      ],
+      "say": "A deep copy writes its own copy constructor, and allocates a fresh block for the copy. Now b equals a gives b its own new int, holding the same value, five. Changing b leaves a untouched, and each destructor deletes its own block. In real code you'd also write the copy assignment operator. That's the rule of three." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Shallow copy", "Deep copy"], "rowHeads": ["Copies", "Afterwards", "Changes", "Destruction", "Cost", "You get it"],
+      "rows": [
+        ["The pointer (address)", "The data it points to"],
+        ["Two objects share one block", "Each owns its own block"],
+        ["Visible through both", "Independent"],
+        ["Double-free risk", "Safe"],
+        ["Cheap", "Allocation + copy"],
+        ["By default, for raw pointer members", "By writing it, or using vector / string"]
+      ],
+      "cues": ["A shallow copy copies", "Afterwards", "Changes", "Destruction", "Cost", "And how you get"],
+      "say": "A shallow copy copies the address. A deep copy copies the data. Afterwards: one shared block, versus one block each. Changes show through both, versus stay independent. Destruction risks a double free, versus being safe. Cost: shallow is cheap, deep allocates and copies. And how you get each: the compiler gives you shallow for raw pointers. Deep, you write yourself, or get free by using vector and string." },
+
+    { "type": "take", "lines": ["Shallow copy: copies pointers, so objects share data (and risk double free).", "Deep copy: allocates and copies the pointed-to data. Independent objects.", "Best: rule of zero. Hold vector / string / values, and copies are deep for free."],
+      "cues": ["A shallow copy", "A deep copy", "Best of all"],
+      "say": "A shallow copy copies pointers, so objects end up sharing data. A deep copy duplicates the data, so they're independent. Best of all is the rule of zero: hold vectors, strings, and values, and the default copy is already deep." }
+  ]
+}

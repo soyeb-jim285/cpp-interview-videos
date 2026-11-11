@@ -1,0 +1,64 @@
+{
+  "id": "q70", "num": 70, "short": "explicit constructors",
+  "question": "What is the difference between `explicit` and implicit constructors?",
+  "caps": [["print of ten", "print(10)"], ["Array a equals five", "Array a = 5"], ["unique p t r", "unique_ptr"]],
+  "scenes": [
+    { "type": "title", "sub": "Should your constructor double as a silent type conversion?",
+      "say": "explicit versus implicit constructors. A constructor that takes one argument is secretly also a type conversion, unless you say otherwise. Let's see the surprise." },
+
+    { "type": "code", "head": "Implicit: a silent conversion",
+      "panels": [{ "file": "array.cpp", "size": 36, "code": "class Array {\npublic:\n    Array(int size);          // implicit converting constructor\n};\nvoid print(const Array& a);\n\nprint(10);      // compiles: builds a temporary Array(10)\nArray a = 5;    // compiles too" }],
+      "steps": [
+        { "cue": "Array has", "lines": [3] },
+        { "cue": "print of ten", "lines": [5, 7] },
+        { "cue": "Array a equals five", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "print of ten", "line": 7, "inside": true, "text": "probably a bug", "tone": "warn" }
+      ],
+      "say": "Array has a constructor taking an int size. Without the keyword explicit, the compiler may use it to convert an int into an Array whenever it needs one. So print of ten compiles. The compiler quietly builds a temporary array of size ten and prints that, which is almost certainly not what the caller meant. Array a equals five compiles too." },
+
+    { "type": "code", "head": "explicit: conversions must be spelled out",
+      "panels": [{ "file": "array.cpp", "size": 36, "code": "class Array {\npublic:\n    explicit Array(int size);\n};\n\nprint(10);          // no implicit conversion\nArray a = 5;        // copy-init needs implicit\nArray b(5);         // ok: direct initialization\nprint(Array(10));   // ok: you asked for it" }],
+      "steps": [
+        { "cue": "Mark it explicit", "lines": [3] },
+        { "cue": "both lines fail", "lines": [6, 7] },
+        { "cue": "still works", "lines": [8, 9] }
+      ],
+      "notes": [
+        { "cue": "both lines fail", "line": 6, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "both lines fail", "line": 7, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Mark it explicit, and both lines fail to compile. explicit means this constructor can only be called when you name the type yourself. Direct initialization, with parentheses or braces, still works, and so does writing Array of ten on purpose. The conversion is still available. It just has to be visible in the code." },
+
+    { "type": "code", "head": "You already use both",
+      "panels": [{ "file": "std.cpp", "size": 34, "code": "std::string s = \"hi\";              // implicit: from const char*\nstd::vector<int> v = 10;           // explicit vector(size)\nstd::unique_ptr<int> p = new int;  // explicit: ownership\n\nstruct Point { explicit Point(int, int); };\nPoint q = {1, 2};                  // explicit blocks this too" }],
+      "steps": [
+        { "cue": "string from a literal", "lines": [1] },
+        { "cue": "A vector", "lines": [2] },
+        { "cue": "unique p t r", "lines": [3] },
+        { "cue": "several arguments", "lines": [5, 6] }
+      ],
+      "notes": [
+        { "cue": "A vector", "line": 2, "inside": true, "text": "error", "tone": "bad" },
+        { "cue": "unique p t r", "line": 3, "inside": true, "text": "error", "tone": "bad" },
+        { "cue": "several arguments", "line": 6, "inside": true, "text": "error", "tone": "bad" }
+      ],
+      "say": "The standard library uses both. A string from a literal is implicit, because that conversion is natural. A vector from an int is explicit, so a size is never mistaken for a value. unique p t r from a raw pointer is explicit, so taking ownership is always visible. And explicit matters with several arguments too: it blocks copy list initialization with equals braces. Conversion operators can be explicit as well, like explicit operator bool." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Implicit", "explicit"], "rowHeads": ["Array a = 5;", "Array a(5);", "print(10)", "Use for"],
+      "rows": [
+        ["Compiles", "Error"],
+        ["Compiles", "Compiles"],
+        ["Silent conversion", "Error: write print(Array(10))"],
+        ["Natural, lossless conversions", "Everything else: the default choice"]
+      ],
+      "cues": ["Copy initialization", "Direct initialization", "Passing an int", "Use implicit"],
+      "say": "Copy initialization with equals: only implicit compiles. Direct initialization: both work. Passing an int where an Array is expected: implicit converts silently, explicit refuses. Use implicit only when the conversion is natural and lossless, like string from a literal. Otherwise, make single argument constructors explicit by default." },
+
+    { "type": "take", "lines": ["Implicit constructors double as silent type conversions.", "explicit: only called when you name the type, e.g. Array(10).", "Make single-argument constructors explicit unless the conversion is natural."],
+      "cues": ["An implicit", "An explicit", "Rule of thumb"],
+      "say": "An implicit constructor doubles as a silent type conversion. An explicit one is only called when you name the type. Rule of thumb: make single argument constructors explicit, unless the conversion is truly natural." }
+  ]
+}

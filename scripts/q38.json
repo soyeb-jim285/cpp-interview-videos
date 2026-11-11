@@ -1,0 +1,57 @@
+{
+  "id": "q38", "num": 38, "short": "Void pointer",
+  "question": "What is a void pointer?",
+  "caps": [["static cast", "static_cast"], ["star p", "*p"]],
+  "scenes": [
+    { "type": "title", "sub": "A pointer to something. It just doesn't know what.",
+      "say": "A void pointer. It holds an address, like any pointer, but it has no idea what type lives there." },
+
+    { "type": "diagram", "head": "An address with the type erased",
+      "panels": [{ "file": "void.cpp", "size": 34, "code": "int x = 42;\nvoid* v = &x;     // any object pointer converts\n\n// *v;            error: can't dereference void*\n// v + 1;         error: no size to step by\n\nint* p = static_cast<int*>(v);  // cast back\nstd::cout << *p;  // 42" }],
+      "steps": [
+        { "cue": "Any object pointer", "lines": [1, 2] },
+        { "cue": "can't dereference", "lines": [4] },
+        { "cue": "arithmetic", "lines": [5] },
+        { "cue": "cast it back", "lines": [7] },
+        { "cue": "Now star p", "lines": [8] }
+      ],
+      "items": [
+        { "id": "xv", "x": 1460, "y": 300, "w": 300, "h": 130, "label": "x @0x100", "text": "42", "size": 48, "tone": "blue", "cue": "Any object pointer" },
+        { "id": "vv", "x": 1040, "y": 300, "w": 280, "h": 120, "label": "v (void*)", "text": "0x100", "size": 36, "tone": "warn", "cue": "v now holds" },
+        { "id": "pv", "x": 1040, "y": 660, "w": 280, "h": 120, "label": "p (int*)", "text": "0x100", "size": 36, "tone": "blue", "cue": "cast it back" }
+      ],
+      "arrows": [
+        { "from": "vv", "to": "xv", "cue": "v now holds" },
+        { "from": "pv", "to": "xv", "tone": "good", "cue": "cast it back" }
+      ],
+      "changes": [
+        { "id": "xv", "text": "?", "cue": "the type is unknown" },
+        { "id": "xv", "text": "42", "cue": "Now star p" },
+        { "id": "xv", "tone": "good", "cue": "Now star p" }
+      ],
+      "say": "Any object pointer converts to a void pointer automatically. v now holds x's address. But from v's point of view, the type is unknown. So you can't dereference it, and you can't do arithmetic on it, because there's no size to step by. To use the data, you cast it back with static cast, to the type that's really there. Now star p gives forty two." },
+
+    { "type": "code", "head": "Two classic interview points",
+      "panels": [{ "file": "cast.cpp", "size": 34, "code": "void* raw = std::malloc(sizeof(int));\n// int* a = raw;                     error in C++, OK in C\nint* a = static_cast<int*>(raw);     // explicit cast needed\n\ndouble* d = static_cast<double*>(raw);  // compiles...\n*d = 3.14;                              // ...but UB\n\nstd::free(raw);" }],
+      "steps": [
+        { "cue": "needs an explicit cast", "lines": [1, 2, 3] },
+        { "cue": "the compiler trusts you", "lines": [5, 6] }
+      ],
+      "notes": [
+        { "cue": "undefined behavior", "line": 6, "inside": true, "text": "wrong type, too small", "tone": "bad" }
+      ],
+      "say": "Two classic interview points. First, in C plus plus, going from a void pointer to an int pointer needs an explicit cast. C allows it implicitly, C plus plus does not. That's why malloc's result must be cast. Second, the compiler trusts you. Cast to the wrong type, like double here, and it compiles fine, but using it is undefined behavior. No type checking is left. That's the danger of void pointers." },
+
+    { "type": "flow", "head": "Where you meet it, and what to use instead",
+      "items": [
+        { "label": "C libraries", "text": "malloc · memcpy", "sub": "qsort comparators", "cue": "C libraries" },
+        { "label": "Callbacks", "text": "void* user data", "sub": "pass any context", "cue": "callback" },
+        { "label": "Modern C++", "text": "templates", "sub": "std::any · std::variant", "tone": "good", "cue": "prefer templates" }
+      ],
+      "say": "Where do you meet void pointers? C libraries, like malloc, memcpy and qsort. And C style callback APIs, which hand you a void pointer of user data, so you can pass any context. In modern C plus plus, prefer templates, or s t d colon colon any and s t d colon colon variant, which keep the type safety that void pointers throw away." },
+
+    { "type": "take", "lines": ["void*: holds any object's address, but carries no type.", "Can't dereference or do arithmetic. static_cast back to the real type.", "Wrong cast = UB. In C++ prefer templates, std::any, std::variant."],
+      "cues": ["A void pointer", "You can't", "Casting"],
+      "say": "A void pointer holds any object's address, but carries no type. You can't dereference it or do arithmetic on it, so you static cast it back to the real type. Casting to the wrong type is undefined behavior, so in modern C plus plus, prefer templates or type safe alternatives." }
+  ]
+}

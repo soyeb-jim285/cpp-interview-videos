@@ -1,0 +1,60 @@
+{
+  "id": "q97", "num": 97, "short": "Use after delete",
+  "question": "What happens here? `int* p = new int(5); delete p; cout << *p;`",
+  "caps": [["star p", "*p"], ["new int of five", "new int(5)"], ["delete p", "delete p"], ["make unique", "make_unique"]],
+  "scenes": [
+    { "type": "title", "sub": "Three lines. One of the most common bugs in C++.",
+      "say": "Three short lines, and one of the most common bugs in C plus plus. Guess what it prints." },
+
+    { "type": "code", "head": "Pause and guess",
+      "panels": [{ "file": "main.cpp", "size": 40, "code": "int* p = new int(5);\ndelete p;\ncout << *p;" }],
+      "steps": [
+        { "cue": "We allocate", "lines": [1] },
+        { "cue": "then delete it", "lines": [2] },
+        { "cue": "then print star p", "lines": [3] }
+      ],
+      "notes": [
+        { "cue": "Five? Zero?", "line": 3, "inside": true, "text": "5? 0? crash?", "tone": "warn" }
+      ],
+      "say": "We allocate an int holding five, then delete it, then print star p. Five? Zero? A crash? Pause and decide before we look at memory." },
+
+    { "type": "diagram", "head": "What really happens in memory",
+      "panels": [{ "file": "main.cpp", "size": 38, "code": "int* p = new int(5);\ndelete p;\ncout << *p;   // use after free" }],
+      "steps": [
+        { "cue": "new int of five", "lines": [1] },
+        { "cue": "delete p", "lines": [2] },
+        { "cue": "Reading star p", "lines": [3] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1010, "y": 230, "w": 360, "h": 660, "label": "STACK", "tone": "blue" },
+        { "id": "hp", "region": true, "x": 1430, "y": 230, "w": 380, "h": 660, "label": "HEAP", "tone": "warn" },
+        { "id": "p", "x": 1035, "y": 500, "w": 310, "h": 110, "label": "p", "text": "0x5f20", "size": 38, "tone": "blue", "cue": "new int of five" },
+        { "id": "hv", "x": 1460, "y": 500, "w": 320, "h": 110, "label": "@0x5f20", "text": "5", "size": 44, "tone": "warn", "cue": "new int of five" }
+      ],
+      "arrows": [{ "from": "p", "to": "hv", "cue": "new int of five" }],
+      "changes": [
+        { "id": "hv", "kill": true, "cue": "delete p" },
+        { "id": "p", "tone": "warn", "cue": "p itself is unchanged" },
+        { "id": "a0", "tone": "bad", "cue": "dangling" },
+        { "id": "hv", "text": "???", "cue": "may reuse" }
+      ],
+      "notes": [
+        { "cue": "Reading star p", "x": 1080, "y": 700, "text": "undefined behavior", "tone": "bad" }
+      ],
+      "say": "new int of five puts a five on the heap, and p holds its address. delete p hands that memory back to the allocator. But notice: p itself is unchanged. It still holds the same address. Now it's dangling. The allocator may reuse that block, or write its own bookkeeping into it. Reading star p is a use after free: undefined behavior. It may print five, print garbage, or crash. Printing five proves nothing." },
+
+    { "type": "code", "head": "Catch it, then make it impossible",
+      "panels": [{ "file": "fixed.cpp", "size": 34, "code": "// band-aid: null the pointer after delete\ndelete p;\np = nullptr;          // a later *p fails fast\n\n// real fix: let ownership manage it\nauto q = std::make_unique<int>(5);\nstd::cout << *q;      // fine\n// freed automatically at end of scope" }],
+      "steps": [
+        { "cue": "AddressSanitizer", "lines": [] },
+        { "cue": "set the pointer to null", "lines": [2, 3] },
+        { "cue": "The real fix", "lines": [6, 7, 8] }
+      ],
+      "output": { "cmd": "g++ -fsanitize=address main.cpp && ./a.out", "tone": "bad", "cue": "AddressSanitizer", "text": "ERROR: AddressSanitizer: heap-use-after-free" },
+      "say": "AddressSanitizer catches this instantly, and names it: heap use after free. A band aid is to set the pointer to null after delete. Then a later dereference usually crashes right away, instead of silently reading junk, and you can test for null. But other copies of the pointer can still dangle. The real fix is make unique: no manual delete, and no way to touch the memory after it's freed." },
+
+    { "type": "take", "lines": ["`delete` frees the memory but does not change `p`.", "`*p` afterwards is use-after-free: undefined behavior, even if it prints 5.", "Use `unique_ptr`; catch it with `-fsanitize=address`."],
+      "cues": ["delete frees", "Reading star p", "Use unique"],
+      "say": "delete frees the memory, but doesn't change p. Reading star p afterwards is use after free, undefined behavior, even if it happens to print five. Use unique pointer, and catch these bugs with AddressSanitizer." }
+  ]
+}

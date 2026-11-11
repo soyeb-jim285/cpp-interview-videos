@@ -1,0 +1,57 @@
+{
+  "id": "q83", "num": 83, "short": "sort vs stable_sort",
+  "question": "What is the difference between `std::sort()` and `std::stable_sort()`?",
+  "caps": [["[Ss]table sort", "stable_sort"], ["n log squared n", "n log² n"], ["O of n log n", "O(n log n)"]],
+  "scenes": [
+    { "type": "title", "sub": "Both sort. Only one promises what happens to ties.",
+      "say": "Sort versus stable sort. Both put your data in order. The difference is what happens to elements that compare equal." },
+
+    { "type": "diagram", "head": "Sort by grade, highest first",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct S { std::string name; int grade; };\nstd::vector<S> v = {{\"Ann\", 90}, {\"Bob\", 85},\n                    {\"Cid\", 90}, {\"Dan\", 85}};\n\nauto byGrade = [](const S& a, const S& b) {\n    return a.grade > b.grade;\n};\nstd::stable_sort(v.begin(), v.end(), byGrade);\n// or: std::sort(v.begin(), v.end(), byGrade);" }],
+      "steps": [
+        { "cue": "Four students", "lines": [1, 2, 3, 5, 6, 7] },
+        { "cue": "Stable sort guarantees", "lines": [8] },
+        { "cue": "Plain sort", "lines": [9] }
+      ],
+      "items": [
+        { "id": "i0", "x": 1020, "y": 260, "w": 180, "h": 110, "label": "input", "text": "Ann", "sub": "90", "size": 34, "tone": "blue", "cue": "Four students" },
+        { "id": "i1", "x": 1220, "y": 260, "w": 180, "h": 110, "text": "Bob", "sub": "85", "size": 34, "tone": "blue", "cue": "Four students" },
+        { "id": "i2", "x": 1420, "y": 260, "w": 180, "h": 110, "text": "Cid", "sub": "90", "size": 34, "tone": "blue", "cue": "Four students" },
+        { "id": "i3", "x": 1620, "y": 260, "w": 180, "h": 110, "text": "Dan", "sub": "85", "size": 34, "tone": "blue", "cue": "Four students" },
+        { "id": "s0", "x": 1020, "y": 480, "w": 180, "h": 110, "label": "stable_sort", "text": "Ann", "sub": "90", "size": 34, "tone": "good", "cue": "Stable sort guarantees" },
+        { "id": "s1", "x": 1220, "y": 480, "w": 180, "h": 110, "text": "Cid", "sub": "90", "size": 34, "tone": "good", "cue": "Stable sort guarantees" },
+        { "id": "s2", "x": 1420, "y": 480, "w": 180, "h": 110, "text": "Bob", "sub": "85", "size": 34, "tone": "good", "cue": "Stable sort guarantees" },
+        { "id": "s3", "x": 1620, "y": 480, "w": 180, "h": 110, "text": "Dan", "sub": "85", "size": 34, "tone": "good", "cue": "Stable sort guarantees" },
+        { "id": "u0", "x": 1020, "y": 700, "w": 180, "h": 110, "label": "sort (one possibility)", "text": "Cid", "sub": "90", "size": 34, "tone": "warn", "cue": "like Cid before Ann" },
+        { "id": "u1", "x": 1220, "y": 700, "w": 180, "h": 110, "text": "Ann", "sub": "90", "size": 34, "tone": "warn", "cue": "like Cid before Ann" },
+        { "id": "u2", "x": 1420, "y": 700, "w": 180, "h": 110, "text": "Dan", "sub": "85", "size": 34, "tone": "warn", "cue": "like Cid before Ann" },
+        { "id": "u3", "x": 1620, "y": 700, "w": 180, "h": 110, "text": "Bob", "sub": "85", "size": 34, "tone": "warn", "cue": "like Cid before Ann" }
+      ],
+      "say": "Four students, sorted by grade, highest first. Ann and Cid tie at ninety, Bob and Dan at eighty five. Stable sort guarantees that equal elements keep their original order. Ann was before Cid, so Ann stays before Cid, every time. Plain sort only promises the grades end up in order. Ties can come out in any order, like Cid before Ann. On tiny inputs you may not see it, because short ranges often use insertion sort, which happens to be stable. Don't rely on that." },
+
+    { "type": "code", "head": "Where stability pays off: sorting in passes",
+      "panels": [{ "file": "passes.cpp", "size": 30, "code": "// goal: by grade (high first), ties by name\nstd::sort(v.begin(), v.end(), byName);          // 1st: secondary key\nstd::stable_sort(v.begin(), v.end(), byGrade);  // 2nd: primary key\n\n// or one pass with a combined comparator\nstd::sort(v.begin(), v.end(), [](const S& a, const S& b) {\n    if (a.grade != b.grade) return a.grade > b.grade;\n    return a.name < b.name;\n});" }],
+      "steps": [
+        { "cue": "Sort by name first", "lines": [2] },
+        { "cue": "then stable sort by grade", "lines": [3] },
+        { "cue": "one combined comparator", "lines": [5, 6, 7, 8, 9] }
+      ],
+      "say": "Where stability matters: sorting by several keys in passes, like clicking column headers in a spreadsheet. Sort by name first, then stable sort by grade. Within each grade, the names stay alphabetical, because the second pass never scrambles ties. If you can write one combined comparator instead, a single plain sort does the same job." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["std::sort", "std::stable_sort"], "rowHeads": ["Equal elements", "Typical algorithm", "Time", "Extra memory", "In practice"],
+      "rows": [
+        ["Order not preserved", "Original order kept"],
+        ["Introsort (quick + heap + insertion)", "Merge sort"],
+        ["O(n log n)", "O(n log n), O(n log² n) without spare memory"],
+        ["None: in place", "Tries to allocate a buffer"],
+        ["Usually faster", "Use when ties must keep their order"]
+      ],
+      "cues": ["Equal elements", "Algorithms", "Time:", "Memory: sort", "in practice"],
+      "say": "Equal elements: sort may reorder them, stable sort keeps them. Algorithms: sort is typically introsort, a quicksort that falls back to heapsort, and stable sort is typically merge sort. Time: both O of n log n, but stable sort drops to n log squared n when it can't get extra memory. Memory: sort works in place, stable sort tries to allocate a buffer. So in practice, sort is usually faster." },
+
+    { "type": "take", "lines": ["stable_sort keeps equal elements in their original relative order. sort doesn't.", "Both O(n log n). stable_sort needs a buffer, or degrades to O(n log² n).", "Use stable_sort for multi-pass or multi-key sorting where ties matter."],
+      "cues": ["Stable sort keeps", "Both are", "Use stable sort"],
+      "say": "Stable sort keeps equal elements in their original order. Sort makes no such promise. Both are O of n log n, but stable sort needs extra memory to get there. Use stable sort when the order of ties matters." }
+  ]
+}

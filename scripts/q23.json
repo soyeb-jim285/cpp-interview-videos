@@ -1,0 +1,55 @@
+{
+  "id": "q23", "num": 23, "short": "Dangling pointer",
+  "question": "What is a dangling pointer?",
+  "caps": [["star q", "*q"], ["push back", "push_back"], ["string view", "string_view"]],
+  "scenes": [
+    { "type": "title", "sub": "A pointer that outlived the object it points to.",
+      "say": "Dangling pointers. The address is still there. The object isn't." },
+
+    { "type": "diagram", "head": "Two pointers, one delete",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "int* p = new int(5);\nint* q = p;      // same address\n\ndelete p;\np = nullptr;     // p is safe now\n\n*q = 9;          // q still dangles" }],
+      "steps": [
+        { "cue": "p points to an int", "lines": [1] },
+        { "cue": "q is a copy", "lines": [2] },
+        { "cue": "Now delete p", "lines": [4] },
+        { "cue": "Setting p", "lines": [5] },
+        { "cue": "Writing star q", "lines": [7] }
+      ],
+      "items": [
+        { "id": "pp", "x": 1010, "y": 270, "w": 290, "h": 110, "label": "p", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "p points to an int" },
+        { "id": "pq", "x": 1010, "y": 650, "w": 290, "h": 110, "label": "q", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "q is a copy" },
+        { "id": "obj", "x": 1470, "y": 460, "w": 320, "h": 110, "label": "@0x5f20", "text": "5", "size": 44, "tone": "warn", "cue": "p points to an int" }
+      ],
+      "arrows": [
+        { "from": "pp", "to": "obj", "cue": "p points to an int" },
+        { "from": "pq", "to": "obj", "cue": "q is a copy" }
+      ],
+      "changes": [
+        { "id": "obj", "kill": true, "cue": "Now delete p" },
+        { "id": "pp", "text": "nullptr", "cue": "Setting p" },
+        { "id": "a0", "fade": true, "cue": "Setting p" },
+        { "id": "pp", "tone": "good", "cue": "fixes p" },
+        { "id": "pq", "tone": "bad", "cue": "But q still" },
+        { "id": "a1", "tone": "bad", "cue": "But q still" }
+      ],
+      "say": "p points to an int on the heap, and q is a copy of that address. Now delete p. The int is gone, but both pointers still hold its old address. Setting p to null p t r fixes p. But q still points to freed memory. That's a dangling pointer: it points to an object whose lifetime has ended. Writing star q is undefined behavior. The classic trap: nulling one pointer does nothing for its copies." },
+
+    { "type": "code", "head": "Other ways to dangle",
+      "panels": [{ "file": "dangle.cpp", "size": 32, "code": "int* local() {\n    int x = 1;\n    return &x;                 // x dies at return\n}\n\nstd::vector<int> v{1, 2, 3};\nint* first = &v[0];\nv.push_back(4);                // may reallocate\nstd::cout << *first;           // may be dangling\n\nstd::string_view sv = std::string(\"temp\");\nstd::cout << sv;               // temp already gone" }],
+      "steps": [
+        { "cue": "Returning the address", "lines": [1, 2, 3] },
+        { "cue": "Pointers into a vector", "lines": [6, 7, 8, 9] },
+        { "cue": "a string view", "lines": [11, 12] }
+      ],
+      "notes": [
+        { "cue": "Compilers warn", "line": 3, "inside": true, "text": "compiler warns", "tone": "warn" },
+        { "cue": "moving every element", "line": 9, "inside": true, "text": "UB if it reallocated", "tone": "bad" },
+        { "cue": "as soon as that line ends", "line": 12, "inside": true, "text": "UB", "tone": "bad" }
+      ],
+      "say": "Delete isn't the only way. Returning the address of a local: x dies when the function returns. Compilers warn about this one. Pointers into a vector: push back may reallocate, moving every element, so first can be left pointing at freed memory. References and iterators dangle the same way. And a string view of a temporary string dangles as soon as that line ends." },
+
+    { "type": "take", "lines": ["Dangling pointer: holds the address of an object whose lifetime has ended.", "Causes: delete with copies around, returning locals, container reallocation.", "Dereferencing it is UB. Fix ownership: smart pointers, values, sanitizers."],
+      "cues": ["A dangling pointer", "Common causes", "Using it"],
+      "say": "A dangling pointer holds the address of an object that's already dead. Common causes: delete while copies exist, returning locals, and container reallocation. Using it is undefined behavior. Fix the ownership with smart pointers and values, and catch the rest with address sanitizer." }
+  ]
+}

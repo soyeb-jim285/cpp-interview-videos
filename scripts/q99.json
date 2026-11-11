@@ -1,0 +1,72 @@
+{
+  "id": "q99", "num": 99, "short": "Vector reallocation",
+  "question": "What happens to pointers and references when a vector reallocates?",
+  "caps": [["push back", "push_back"], ["v dot reserve", "v.reserve"], ["ampersand v of zero", "&v[0]"], ["G C C", "GCC"]],
+  "scenes": [
+    { "type": "title", "sub": "When a vector grows, its elements move. Your pointers don't.",
+      "say": "A vector keeps its elements in one block of heap memory. So what happens to a pointer into that block when the vector has to grow? Let's test it." },
+
+    { "type": "code", "head": "Pause and guess: is p still valid?",
+      "panels": [{ "file": "main.cpp", "size": 38, "code": "vector<int> v;\nv.reserve(2);\nv.push_back(10);\nv.push_back(20);\nint* p = &v[0];\nv.push_back(30);" }],
+      "steps": [
+        { "cue": "room for two", "lines": [1, 2] },
+        { "cue": "fill both slots", "lines": [3, 4] },
+        { "cue": "p points", "lines": [5] },
+        { "cue": "a third element", "lines": [6] }
+      ],
+      "notes": [
+        { "cue": "still valid", "line": 6, "inside": true, "text": "p valid?", "tone": "warn" }
+      ],
+      "say": "We reserve room for two ints, then fill both slots with ten and twenty. p points at the first element. Then we push back a third element. Is p still valid? Pause and decide." },
+
+    { "type": "diagram", "head": "What really happens in memory",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "vector<int> v;\nv.reserve(2);\nv.push_back(10);\nv.push_back(20);\nint* p = &v[0];\nv.push_back(30);   // size 2 == capacity 2\n\n*p;   // undefined behavior" }],
+      "steps": [
+        { "cue": "The vector object", "lines": [1, 2, 3, 4] },
+        { "cue": "p points", "lines": [5] },
+        { "cue": "The buffer is full", "lines": [6] },
+        { "cue": "frees the old one", "lines": [6] },
+        { "cue": "Using p", "lines": [8] }
+      ],
+      "items": [
+        { "id": "v", "x": 1020, "y": 250, "w": 380, "h": 110, "label": "v (stack)", "text": "size 2, cap 2", "size": 32, "tone": "blue", "cue": "The vector object" },
+        { "id": "p", "x": 1460, "y": 250, "w": 340, "h": 110, "label": "p", "text": "0x1000", "size": 36, "tone": "warn", "cue": "p points" },
+        { "id": "old", "region": true, "x": 1020, "y": 450, "w": 780, "h": 180, "label": "heap: old buffer @0x1000", "tone": "warn", "cue": "The vector object" },
+        { "id": "e0", "x": 1050, "y": 510, "w": 150, "h": 90, "text": "10", "size": 36, "cue": "The vector object" },
+        { "id": "e1", "x": 1220, "y": 510, "w": 150, "h": 90, "text": "20", "size": 36, "cue": "The vector object" },
+        { "id": "nw", "region": true, "x": 1020, "y": 700, "w": 780, "h": 200, "label": "heap: new buffer @0x2000", "tone": "good", "cue": "allocates a bigger buffer" },
+        { "id": "n0", "x": 1050, "y": 770, "w": 150, "h": 90, "text": "10", "size": 36, "tone": "good", "cue": "moves ten and twenty" },
+        { "id": "n1", "x": 1220, "y": 770, "w": 150, "h": 90, "text": "20", "size": 36, "tone": "good", "cue": "moves ten and twenty" },
+        { "id": "n2", "x": 1390, "y": 770, "w": 150, "h": 90, "text": "30", "size": 36, "tone": "good", "cue": "adds thirty" },
+        { "id": "n3", "x": 1560, "y": 770, "w": 150, "h": 90, "text": "", "size": 36, "tone": "ghost", "cue": "adds thirty" }
+      ],
+      "arrows": [
+        { "from": "v", "to": "e0", "cue": "The vector object" },
+        { "from": "p", "to": "e0", "cue": "p points", "tone": "warn" },
+        { "from": "v", "to": "n0", "cue": "frees the old one", "tone": "good", "bend": -60 }
+      ],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "frees the old one" },
+        { "id": "v", "text": "size 3, cap 4", "cue": "frees the old one" },
+        { "id": "e0", "kill": true, "cue": "frees the old one" },
+        { "id": "e1", "kill": true, "cue": "frees the old one" },
+        { "id": "a1", "tone": "bad", "cue": "still holds" },
+        { "id": "p", "tone": "bad", "cue": "still holds" }
+      ],
+      "say": "The vector object lives on the stack and points to a heap buffer holding ten and twenty. p points at the first slot. The buffer is full, so push back reallocates. It allocates a bigger buffer, usually double, so four with G C C or Clang. It moves ten and twenty across, adds thirty, then frees the old one. But p still holds the old address. It now dangles. Using p is undefined behavior." },
+
+    { "type": "code", "head": "The rule, and three fixes",
+      "panels": [{ "file": "fixed.cpp", "size": 34, "code": "// fix 1: reserve enough before taking pointers\nv.reserve(3);\n\n// fix 2: remember an index, not an address\nsize_t i = 0;          // v[i] survives growth\n\n// fix 3: take the pointer after the last push_back\nv.push_back(30);\nint* p = &v[0];" }],
+      "steps": [
+        { "cue": "The rule", "lines": [] },
+        { "cue": "Reserve enough", "lines": [1, 2] },
+        { "cue": "store an index", "lines": [4, 5] },
+        { "cue": "after you're done", "lines": [7, 8, 9] }
+      ],
+      "say": "The rule: if push back makes the size exceed the capacity, every pointer, reference and iterator into the vector is invalidated. If there's spare capacity, only the end iterator is. Insert and erase have similar rules. Fixes: reserve enough before taking pointers. Or store an index, which stays correct after growth. Or take the pointer after you're done adding." },
+
+    { "type": "take", "lines": ["No: p dangles. The 3rd push_back exceeds capacity, so the vector reallocates.", "Reallocation moves elements to a new buffer and frees the old one.", "All pointers, references and iterators are invalidated. Reserve or use indices."],
+      "cues": ["No.", "Reallocation", "Every pointer"],
+      "say": "No. The third push back exceeds the capacity, so the vector reallocates, and p dangles. Reallocation moves the elements to a new buffer and frees the old one. Every pointer, reference and iterator into it is invalidated, so reserve enough, or use indices." }
+  ]
+}

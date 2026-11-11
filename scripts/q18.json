@@ -1,0 +1,62 @@
+{
+  "id": "q18", "num": 18, "short": "malloc vs new",
+  "question": "What is the difference between `malloc()` and `new`?",
+  "caps": [["bad alloc", "bad_alloc"], ["no throw", "nothrow"], ["void star", "void*"]],
+  "scenes": [
+    { "type": "title", "sub": "One hands you bytes. The other hands you an object.",
+      "say": "malloc versus new. Both get memory from the heap. But only one of them gives you a real object." },
+
+    { "type": "diagram", "head": "Bytes versus a constructed object",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct Player {\n    std::string name;\n    Player() : name(\"hero\") {}\n};\n\n// C style: raw bytes only\nPlayer* a = (Player*)std::malloc(sizeof(Player));\n\n// C++: memory, then constructor\nPlayer* b = new Player;" }],
+      "steps": [
+        { "cue": "malloc is a C function", "lines": [6, 7] },
+        { "cue": "No constructor runs", "lines": [2, 3] },
+        { "cue": "new does two things", "lines": [9, 10] },
+        { "cue": "fully built Player", "lines": [3, 10] }
+      ],
+      "items": [
+        { "id": "pa", "x": 1010, "y": 300, "w": 260, "h": 110, "label": "a", "text": "0x3a00", "size": 34, "tone": "blue", "cue": "malloc is a C function" },
+        { "id": "ba", "x": 1420, "y": 300, "w": 380, "h": 110, "label": "malloc'd bytes", "text": "? ? ? ?", "sub": "no string was built", "size": 36, "tone": "bad", "cue": "only hands you raw bytes" },
+        { "id": "pb", "x": 1010, "y": 640, "w": 260, "h": 110, "label": "b", "text": "0x3b40", "size": 34, "tone": "blue", "cue": "new does two things" },
+        { "id": "bb", "x": 1420, "y": 640, "w": 380, "h": 110, "label": "Player object", "text": "name: \"hero\"", "size": 34, "tone": "good", "cue": "runs the constructor" }
+      ],
+      "arrows": [
+        { "from": "pa", "to": "ba", "cue": "only hands you raw bytes" },
+        { "from": "pb", "to": "bb", "cue": "It allocates memory" }
+      ],
+      "notes": [
+        { "cue": "undefined behavior", "x": 1420, "y": 450, "text": "a->name = ... is UB", "tone": "bad" }
+      ],
+      "say": "malloc is a C function. It only hands you raw bytes of the size you ask for. No constructor runs, so the string inside a was never built. Using a arrow name is undefined behavior. new does two things. It allocates memory, and then it runs the constructor. So b points to a fully built Player, with its name set to hero." },
+
+    { "type": "code", "head": "Size, type, and failure",
+      "panels": [{ "file": "alloc.cpp", "size": 32, "code": "int* p = (int*)std::malloc(10 * sizeof(int)); // you count bytes\nif (p == nullptr) { /* out of memory */ }\nstd::free(p);\n\nint* q = new int[10];   // size from type; throws bad_alloc\ndelete[] q;\n\nint* r = new (std::nothrow) int[10];   // nullptr on failure\ndelete[] r;" }],
+      "steps": [
+        { "cue": "malloc returns void star", "lines": [1] },
+        { "cue": "new knows the type", "lines": [5] },
+        { "cue": "On failure, malloc", "lines": [2] },
+        { "cue": "new throws", "lines": [5] },
+        { "cue": "no throw version", "lines": [8] },
+        { "cue": "each has its own partner", "lines": [3, 6, 9] }
+      ],
+      "say": "More differences. malloc returns void star, so C plus plus needs a cast, and you count the bytes yourself. new knows the type, so it computes the size and returns the right pointer type. On failure, malloc returns null. new throws s t d colon colon bad alloc instead, unless you ask for the no throw version. And each has its own partner: malloc with free, new with delete. Never mix them." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["malloc()", "new"], "rowHeads": ["What it is", "Constructor", "Size", "Returns", "On failure", "Release with", "Resize"],
+      "rows": [
+        ["C library function", "C++ operator"],
+        ["No: raw bytes", "Yes: memory, then constructor"],
+        ["You pass bytes", "Computed from the type"],
+        ["`void*`, needs a cast", "`T*`, already typed"],
+        ["Returns `NULL`", "Throws `std::bad_alloc`"],
+        ["`free()`", "`delete` / `delete[]`"],
+        ["`realloc()`", "No: allocate new and move"]
+      ],
+      "cues": ["malloc is a library", "Constructor", "Size", "Return type", "On failure", "Release", "And resizing"],
+      "say": "malloc is a library function, new is an operator, which a class can even overload. Constructor: only new runs it. Size: bytes versus the type. Return type: void star versus a typed pointer. On failure: null versus an exception. Release: free versus delete. And resizing: malloc has realloc. With new, you allocate a new block and move the elements, which is exactly what vector does for you." },
+
+    { "type": "take", "lines": ["malloc: raw bytes, no constructor, returns void*, NULL on failure.", "new: allocates and constructs, typed pointer, throws std::bad_alloc.", "Pair malloc/free and new/delete. In C++, prefer new (or better, make_unique)."],
+      "cues": ["malloc gives", "new allocates", "Never mix"],
+      "say": "malloc gives raw bytes, with no constructor, and returns null on failure. new allocates and constructs, returns a typed pointer, and throws on failure. Never mix the pairs. And in modern C plus plus, prefer make unique over either one." }
+  ]
+}

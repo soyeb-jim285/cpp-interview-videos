@@ -1,0 +1,53 @@
+{
+  "id": "q88", "num": 88, "short": "Lambdas",
+  "question": "What is a lambda expression?",
+  "caps": [["count if", "count_if"], ["operator parentheses", "operator()"]],
+  "scenes": [
+    { "type": "title", "sub": "A small unnamed function you write right where you need it.",
+      "say": "What is a lambda? It's an unnamed function object you can write inline, right where you use it. Let's take one apart, then see what the compiler turns it into." },
+
+    { "type": "code", "head": "Anatomy of a lambda",
+      "panels": [{ "file": "lambda.cpp", "size": 36, "code": "int limit = 3;\n\nauto isBig = [limit](int x) -> bool {\n    return x > limit;\n};\n\nisBig(5);   // true\nisBig(2);   // false" }],
+      "steps": [
+        { "cue": "square brackets", "lines": [3] },
+        { "cue": "the parameters", "lines": [3] },
+        { "cue": "return type", "lines": [3] },
+        { "cue": "the body", "lines": [4] },
+        { "cue": "call it", "lines": [7, 8] }
+      ],
+      "notes": [
+        { "cue": "square brackets", "line": 3, "inside": true, "text": "[capture](params) -> ret", "tone": "warn" }
+      ],
+      "say": "The square brackets are the capture list: which outside variables the lambda can use. Here it captures limit. Then come the parameters, like a normal function. The arrow and return type are optional, the compiler usually deduces it. Then the body. We store it in a variable with auto, and call it just like a function." },
+
+    { "type": "diagram", "head": "What the compiler actually generates",
+      "panels": [{ "file": "what_compiler_writes.cpp", "size": 32, "code": "// roughly equivalent:\nclass Closure {\n    int limit;          // captured copy\npublic:\n    Closure(int l) : limit(l) {}\n    bool operator()(int x) const {\n        return x > limit;\n    }\n};\n\nauto isBig = Closure(limit);" }],
+      "steps": [
+        { "cue": "a hidden class", "lines": [2] },
+        { "cue": "becomes a data member", "lines": [3, 5] },
+        { "cue": "body becomes", "lines": [6, 7, 8] },
+        { "cue": "an object", "lines": [11] }
+      ],
+      "items": [
+        { "id": "lim", "x": 1060, "y": 300, "w": 300, "h": 120, "label": "limit", "text": "3", "size": 44, "tone": "blue", "cue": "a hidden class" },
+        { "id": "clo", "region": true, "x": 1040, "y": 560, "w": 700, "h": 300, "label": "isBig (closure object)", "tone": "warn", "cue": "an object" },
+        { "id": "mem", "x": 1080, "y": 660, "w": 280, "h": 120, "label": "limit", "text": "3", "size": 44, "tone": "warn", "cue": "an object" },
+        { "id": "op", "x": 1420, "y": 660, "w": 280, "h": 120, "text": "operator()", "sub": "the body", "size": 34, "tone": "ghost", "cue": "an object" }
+      ],
+      "arrows": [{ "from": "lim", "to": "mem", "cue": "copied in" }],
+      "say": "Under the hood, every lambda is a hidden class the compiler writes for you. Each captured variable becomes a data member. The lambda body becomes operator parentheses, which is const by default. Writing the lambda creates an object of that class, called a closure, with limit copied in. That's why you can store lambdas, pass them around, and call them later." },
+
+    { "type": "code", "head": "Where you'll use them most",
+      "panels": [{ "file": "algo.cpp", "size": 36, "code": "std::vector<int> v{1, 2, 3, 4, 5, 6};\n\nauto evens = std::count_if(v.begin(), v.end(),\n    [](int x) { return x % 2 == 0; });\n\nstd::cout << evens;" }],
+      "steps": [
+        { "cue": "algorithms", "lines": [3, 4] },
+        { "cue": "empty capture", "lines": [4] }
+      ],
+      "output": { "cmd": "./algo", "text": "3", "cue": "three even numbers", "tone": "good" },
+      "say": "Lambdas shine with s t d algorithms. count if needs a test for each element, so we write it inline. The empty capture list means it uses nothing from outside. It finds three even numbers. Lambdas are also used for callbacks, thread functions, and custom sort orders." },
+
+    { "type": "take", "lines": ["Lambda: an unnamed function object, written inline. `[capture](params) { body }`", "The compiler turns it into a class with `operator()`; captures become members.", "Use for algorithms, callbacks, threads. Store with `auto` or `std::function`."],
+      "cues": ["A lambda is", "The compiler", "Use them"],
+      "say": "A lambda is an unnamed function object written inline. The compiler turns it into a class with a call operator, and captured variables become its members. Use them for algorithms, callbacks and threads, and store them with auto or s t d colon colon function." }
+  ]
+}

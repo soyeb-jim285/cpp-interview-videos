@@ -1,0 +1,40 @@
+{
+  "id": "q49", "num": 49, "short": "Polymorphism",
+  "question": "What is polymorphism?",
+  "scenes": [
+    { "type": "title", "sub": "One interface, many forms. The behavior depends on the actual type.",
+      "say": "Polymorphism means many forms. One interface, but the behavior depends on the actual type of the object. C plus plus gives you two kinds. Let's start with the runtime one." },
+
+    { "type": "code", "head": "Runtime polymorphism: virtual functions",
+      "panels": [{ "file": "zoo.cpp", "code": "struct Animal {\n    virtual void speak() const { std::cout << \"...\\n\"; }\n    virtual ~Animal() = default;\n};\nstruct Dog : Animal {\n    void speak() const override { std::cout << \"Woof\\n\"; }\n};\nstruct Cat : Animal {\n    void speak() const override { std::cout << \"Meow\\n\"; }\n};\nint main() {\n    std::vector<std::unique_ptr<Animal>> zoo;\n    zoo.push_back(std::make_unique<Dog>());\n    zoo.push_back(std::make_unique<Cat>());\n    for (const auto& a : zoo) a->speak();\n}" }],
+      "steps": [
+        { "cue": "Animal declares", "lines": [1, 2, 3, 4] },
+        { "cue": "Dog and Cat", "lines": [5, 6, 7, 8, 9, 10] },
+        { "cue": "The zoo holds", "lines": [12, 13, 14] },
+        { "cue": "when the loop calls", "lines": [15] }
+      ],
+      "output": { "cmd": "./zoo", "text": "Woof\nMeow", "cue": "Woof, then meow", "tone": "good" },
+      "say": "Animal declares speak as virtual. Dog and Cat each override it. The zoo holds pointers to Animal, but when the loop calls speak, each object runs its own version. Woof, then meow. The loop doesn't know or care which animals are inside. Add a Cow later, and this loop works unchanged." },
+
+    { "type": "code", "head": "Compile-time polymorphism: overloads and templates",
+      "panels": [{ "file": "static.cpp", "code": "int    add(int a, int b)       { return a + b; }\ndouble add(double a, double b) { return a + b; }\n\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\n\nadd(1, 2);          // picks the int version\nadd(1.5, 2.5);      // picks the double version\nbiggest(3, 7);      // stamps out biggest<int>\nbiggest('a', 'z');  // stamps out biggest<char>" }],
+      "steps": [
+        { "cue": "Function overloading", "lines": [1, 2, 7, 8] },
+        { "cue": "Templates", "lines": [4, 5, 9, 10] }
+      ],
+      "say": "C plus plus also has compile time polymorphism. Function overloading: same name, different parameters, and the compiler picks the right one from the argument types. Templates: one piece of code that the compiler stamps out for each type you use. Operator overloading is the same idea. All of this is decided before the program ever runs." },
+
+    { "type": "code", "head": "The trap: slicing",
+      "panels": [{ "file": "slice.cpp", "code": "void byValue(Animal a)      { a.speak(); }  // copies Animal part\nvoid byRef(const Animal& a) { a.speak(); }  // keeps real type\n\nDog d;\nbyValue(d);\nbyRef(d);" }],
+      "steps": [
+        { "cue": "Pass a Dog by value", "lines": [1, 5] },
+        { "cue": "Through a reference", "lines": [2, 6] }
+      ],
+      "output": { "cmd": "./slice", "text": "...\nWoof", "cue": "you get the base version", "tone": "bad" },
+      "say": "The classic trap. Runtime polymorphism needs three things: a virtual function, an override, and a call through a pointer or reference. Pass a Dog by value as an Animal, and it gets sliced. Only the Animal part is copied, so you get the base version. Through a reference, the real type survives, and you get woof." },
+
+    { "type": "take", "lines": ["Polymorphism: one interface, behavior chosen by the actual type.", "Runtime: virtual functions called through a base pointer or reference.", "Compile-time: function overloading, operator overloading, templates."],
+      "cues": ["Polymorphism means", "Runtime polymorphism", "Compile time polymorphism"],
+      "say": "Polymorphism means one interface, with behavior chosen by the actual type. Runtime polymorphism uses virtual functions through a base pointer or reference. Compile time polymorphism uses overloading and templates." }
+  ]
+}

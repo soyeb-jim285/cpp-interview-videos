@@ -1,0 +1,57 @@
+{
+  "id": "q71", "num": 71, "short": "vector vs array",
+  "question": "What is the difference between `vector` and `array`?",
+  "caps": [["s t d array", "std::array"], ["s t d vector", "std::vector"], ["push back", "push_back"], ["size of", "sizeof"], ["O of n", "O(n)"], ["O of one", "O(1)"]],
+  "scenes": [
+    { "type": "title", "sub": "Fixed size inside the object, or growable on the heap.",
+      "say": "s t d vector versus s t d array. Both are contiguous sequences of elements with the same familiar interface. The difference is where the elements live, and whether the size can change." },
+
+    { "type": "diagram", "head": "Same three ints, different homes",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "void f() {\n    std::array<int, 3> a = {1, 2, 3};\n    std::vector<int>   v = {1, 2, 3};\n\n    sizeof(a);   // 12: the elements\n    sizeof(v);   // 24: three pointers\n}" }],
+      "steps": [
+        { "cue": "The array", "lines": [2] },
+        { "cue": "The vector object", "lines": [3] },
+        { "cue": "size of", "lines": [5, 6] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1010, "y": 220, "w": 380, "h": 680, "label": "STACK", "tone": "blue" },
+        { "id": "hp", "region": true, "x": 1440, "y": 220, "w": 380, "h": 680, "label": "HEAP", "tone": "warn" },
+        { "id": "va", "x": 1035, "y": 340, "w": 330, "h": 110, "label": "a", "text": "1 | 2 | 3", "size": 38, "tone": "blue", "cue": "The array" },
+        { "id": "vv", "x": 1035, "y": 590, "w": 330, "h": 130, "label": "v", "text": "begin end cap", "sub": "3 pointers", "size": 30, "tone": "blue", "cue": "The vector object" },
+        { "id": "buf", "x": 1465, "y": 590, "w": 330, "h": 130, "label": "buffer", "text": "1 | 2 | 3", "size": 38, "tone": "warn", "cue": "its elements" }
+      ],
+      "arrows": [{ "from": "vv", "to": "buf", "cue": "its elements" }],
+      "say": "The array holds its three ints directly inside the object. Here, that's on the stack, with no allocation at all. The vector object is small: typically three pointers, to the start, the end, and the end of its capacity. Its elements live in a separate heap buffer. On a typical sixty four bit build, size of a is twelve bytes, the ints themselves. size of v is twenty four, whatever the vector holds." },
+
+    { "type": "code", "head": "Size: fixed at compile time vs dynamic",
+      "panels": [{ "file": "size.cpp", "size": 34, "code": "std::array<int, 3> a = {1, 2, 3};\na.push_back(4);             // no such member: size is fixed\n\nint n;\nstd::cin >> n;\nstd::array<int, n> b;       // n must be a constant\nstd::vector<int> v(n);      // fine: chosen at run time\n\nint* p = &v[0];\nv.push_back(5);             // may reallocate: p may dangle" }],
+      "steps": [
+        { "cue": "part of its type", "lines": [1, 2] },
+        { "cue": "from user input", "lines": [4, 5, 6] },
+        { "cue": "A vector can", "lines": [7] },
+        { "cue": "The trap", "lines": [9, 10] }
+      ],
+      "notes": [
+        { "cue": "part of its type", "line": 2, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "from user input", "line": 6, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "The trap", "line": 10, "inside": true, "text": "invalidated", "tone": "warn" }
+      ],
+      "say": "An array's size is part of its type, fixed at compile time. There's no push back, and you can't size it from user input. A vector can be sized at run time, and grow with push back. The trap: when a vector outgrows its capacity, it allocates a bigger buffer and moves the elements over. Any pointer, reference, or iterator into the old buffer now dangles." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["std::array<T, N>", "std::vector<T>"], "rowHeads": ["Size", "Elements live", "Allocation", "Move cost", "Use when"],
+      "rows": [
+        ["Fixed, part of the type", "Dynamic, can grow"],
+        ["Inside the object", "Separate heap buffer"],
+        ["None", "On creation and growth"],
+        ["O(n): element by element", "O(1): steal the buffer"],
+        ["Small, size known at compile time", "Size unknown or changing: the default"]
+      ],
+      "cues": ["Size:", "Elements:", "Allocation:", "Moving", "Use array"],
+      "say": "Size: fixed for array, dynamic for vector. Elements: inside the array object, but in a separate heap buffer for vector. Allocation: none for array. Moving is the surprise: a vector move just steals the buffer, O of one, but an array has to move every element, O of n. Use array for small collections whose size is known at compile time, and vector for everything else. And prefer s t d array over a raw C style array: same layout, but it knows its size and copies like a value." },
+
+    { "type": "take", "lines": ["std::array: fixed compile-time size, elements stored inline, no allocation.", "std::vector: dynamic size, elements on the heap; growth can invalidate pointers.", "Default to vector. Use array for small, fixed-size data."],
+      "cues": ["s t d array", "s t d vector", "Default"],
+      "say": "s t d array has a fixed compile time size, and stores its elements inline, with no allocation. s t d vector has a dynamic size, keeps its elements on the heap, and growing can invalidate pointers. Default to vector, and use array for small, fixed size data." }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "q37", "num": 37, "short": "Pointer, &, &&",
+  "question": "What is the difference between `int* p`, `int& r`, and `int&& r`?",
+  "caps": [["[Ii]nt star p", "int* p"], ["[Ii]nt double ampersand r", "int&& r"], ["[Ii]nt ampersand r", "int& r"], ["l value", "lvalue"], ["r value", "rvalue"], ["f of rr", "f(rr)"]],
+  "scenes": [
+    { "type": "title", "sub": "A pointer, an lvalue reference, and an rvalue reference.",
+      "say": "int star p, int ampersand r, and int double ampersand r. A pointer, an l value reference, and an r value reference. Let's see what each one can bind to." },
+
+    { "type": "diagram", "head": "What each one binds to",
+      "panels": [{ "file": "bind.cpp", "size": 34, "code": "int x = 5;\nint* p = &x;     // holds x's address\nint& r = x;      // another name for x\nint&& rr = 10;   // binds to a temporary\n\n// int& bad = 10;    error: 10 is an rvalue\n// int&& bad2 = x;   error: x is an lvalue\nint&& ok = std::move(x);  // cast to rvalue" }],
+      "steps": [
+        { "cue": "The pointer p", "lines": [2] },
+        { "cue": "r is just another name", "lines": [3] },
+        { "cue": "rr binds", "lines": [4] },
+        { "cue": "can't bind", "lines": [6, 7] },
+        { "cue": "s t d colon colon move", "lines": [8] }
+      ],
+      "items": [
+        { "id": "xv", "x": 1040, "y": 270, "w": 280, "h": 120, "label": "x", "text": "5", "size": 44, "tone": "blue" },
+        { "id": "pv", "x": 1460, "y": 270, "w": 300, "h": 120, "label": "p (own variable)", "text": "&x", "size": 40, "tone": "warn", "cue": "The pointer p" },
+        { "id": "rv", "x": 1040, "y": 470, "w": 280, "h": 100, "text": "r", "sub": "alias of x", "size": 36, "tone": "ghost", "cue": "r is just another name" },
+        { "id": "tmp", "x": 1460, "y": 580, "w": 300, "h": 120, "label": "temporary", "text": "10", "size": 44, "tone": "good", "cue": "rr binds" },
+        { "id": "rrv", "x": 1460, "y": 790, "w": 300, "h": 100, "text": "rr", "sub": "alias of the temporary", "size": 36, "tone": "ghost", "cue": "rr binds" }
+      ],
+      "arrows": [
+        { "from": "pv", "to": "xv", "cue": "The pointer p" },
+        { "from": "rv", "to": "xv", "tone": "good", "cue": "r is just another name" },
+        { "from": "rrv", "to": "tmp", "tone": "good", "cue": "rr binds" }
+      ],
+      "say": "The pointer p is its own variable holding x's address. It can be null, and it can be re-pointed. r is just another name for x, an l value reference. It binds to an l value, an object you can take the address of. rr binds to the temporary ten, and keeps it alive as long as rr lives. That's an r value reference. A plain l value reference can't bind to ten, and an r value reference can't bind to x, unless you cast it with s t d colon colon move." },
+
+    { "type": "code", "head": "Why && exists: overloading on value category",
+      "panels": [{ "file": "overload.cpp", "size": 34, "code": "void f(int&)  { std::cout << \"lvalue\\n\"; }\nvoid f(int&&) { std::cout << \"rvalue\\n\"; }\n\nint main() {\n    int x = 1;\n    f(x);             // lvalue\n    f(42);            // rvalue\n    f(std::move(x));  // rvalue\n    int&& rr = 5;\n    f(rr);            // lvalue!\n}" }],
+      "steps": [
+        { "cue": "Overloading", "lines": [1, 2] },
+        { "cue": "x picks", "lines": [6] },
+        { "cue": "Forty two", "lines": [7, 8] },
+        { "cue": "classic trap", "lines": [9, 10] }
+      ],
+      "output": { "cmd": "./overload", "cue": "f of rr", "text": "lvalue\nrvalue\nrvalue\nlvalue" },
+      "say": "Why do r value references exist? Overloading. The compiler picks the double ampersand version for temporaries, which is how move constructors know they may steal resources. x picks the l value version. Forty two, and s t d colon colon move of x, pick the r value version. Now the classic trap: rr is declared as an r value reference, but it has a name, so the expression rr is an l value. f of rr prints l value." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["int* p", "int& r", "int&& r"], "rowHeads": ["What it is", "Binds to", "Null?", "Re-seat?", "Typical use"],
+      "rows": [
+        ["Object holding an address", "Alias of an lvalue", "Alias of an rvalue"],
+        ["An address (or `nullptr`)", "Named objects, `*p`, `a[i]`", "Temporaries, `std::move(x)`"],
+        ["Can be null", "Never null", "Never null"],
+        ["Yes", "No", "No"],
+        ["Optional access, re-pointing", "Pass or modify without copying", "Move semantics"]
+      ],
+      "cues": ["A pointer is", "binds", "Null", "re-seated", "Typical use"],
+      "say": "A pointer is an object holding an address. The other two are aliases. An l value reference binds to l values, an r value reference binds to temporaries. Null: only the pointer. And only the pointer can be re-seated. Typical use: pointers for optional access, l value references to pass without copying, r value references for move semantics." },
+
+    { "type": "take", "lines": ["int* p: a variable storing an address. Nullable, re-pointable.", "int& r: alias for an lvalue. int&& r: alias for an rvalue, which enables moves.", "Trap: a named int&& is itself an lvalue. Use std::move to pass it on."],
+      "cues": ["A pointer stores", "An l value reference", "the trap"],
+      "say": "A pointer stores an address, can be null, and can be re-pointed. An l value reference is an alias for an l value, and an r value reference is an alias for a temporary, which is what enables move semantics. And the trap: a named r value reference is itself an l value." }
+  ]
+}

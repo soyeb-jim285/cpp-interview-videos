@@ -1,0 +1,55 @@
+{
+  "id": "q22", "num": 22, "short": "Memory leaks",
+  "question": "What is a memory leak? How do you detect and prevent it?",
+  "caps": [["dash f sanitize", "-fsanitize"], ["make unique", "make_unique"]],
+  "scenes": [
+    { "type": "title", "sub": "Memory you still own, but can never reach again.",
+      "say": "Memory leaks. What they are, how to find them, and how to make them almost impossible." },
+
+    { "type": "diagram", "head": "Watch the address get lost",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "void process() {\n    int* data = new int[1000];\n    if (failed())\n        return;          // early exit!\n    delete[] data;\n}\n\nint main() {\n    process();\n}" }],
+      "steps": [
+        { "cue": "process allocates", "lines": [2] },
+        { "cue": "we leave early", "lines": [3, 4] },
+        { "cue": "is never reached", "lines": [5] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1000, "y": 220, "w": 360, "h": 380, "label": "STACK", "tone": "blue" },
+        { "id": "hp", "region": true, "x": 1420, "y": 220, "w": 390, "h": 380, "label": "HEAP", "tone": "warn" },
+        { "id": "pd", "x": 1030, "y": 400, "w": 300, "h": 110, "label": "data", "text": "0x9b00", "size": 36, "tone": "blue", "cue": "process allocates" },
+        { "id": "blk", "x": 1450, "y": 400, "w": 330, "h": 110, "label": "@0x9b00", "text": "1000 ints", "size": 36, "tone": "warn", "cue": "process allocates" }
+      ],
+      "arrows": [{ "from": "pd", "to": "blk", "cue": "keeps the address" }],
+      "changes": [
+        { "id": "pd", "fade": true, "cue": "so it vanishes" },
+        { "id": "a0", "fade": true, "cue": "so it vanishes" },
+        { "id": "blk", "tone": "bad", "cue": "Nobody holds" },
+        { "id": "blk", "text": "unreachable", "cue": "Nobody holds" }
+      ],
+      "notes": [
+        { "cue": "That's a memory leak", "x": 1450, "y": 680, "text": "leaked: still allocated", "tone": "bad" }
+      ],
+      "say": "process allocates a thousand ints on the heap, and keeps the address in data. If failed returns true, we leave early, and delete is never reached. data is a local, so it vanishes. The heap block doesn't. Nobody holds its address anymore, so nobody can ever free it. That's a memory leak. Call this in a loop, and memory use keeps climbing. The operating system only reclaims it when the process exits, so leaks hurt long running programs most." },
+
+    { "type": "code", "head": "Detect: let a tool find it",
+      "panels": [{ "file": "leak.cpp", "size": 36, "code": "int main() {\n    int* p = new int[1000];\n    p = nullptr;          // address lost\n}" }],
+      "steps": [
+        { "cue": "Here the address", "lines": [2, 3] }
+      ],
+      "output": { "cmd": "g++ -g -fsanitize=address leak.cpp && ./a.out", "tone": "bad", "cue": "Compile with", "text": "ERROR: LeakSanitizer: detected memory leaks\nDirect leak of 4000 byte(s) in 1 object(s) allocated from:" },
+      "say": "Here the address is simply overwritten. Leaks are silent, so you need tools. Compile with dash f sanitize equals address. On Linux, Leak Sanitizer runs at exit and reports every block nobody can reach, with the line that allocated it. Valgrind does the same without recompiling, and calls it definitely lost. In a running service, watch memory usage over time. Steady growth is the classic symptom." },
+
+    { "type": "code", "head": "Prevent: give every allocation an owner",
+      "panels": [{ "file": "fixed.cpp", "size": 34, "code": "void process() {\n    std::vector<int> data(1000);   // owns its memory\n    if (failed())\n        return;                    // freed here\n}                                  // ...or here\n\nvoid other() {\n    auto w = std::make_unique<Widget>();\n    mayThrow();                    // freed even on throw\n}" }],
+      "steps": [
+        { "cue": "Replace the raw pointer", "lines": [2] },
+        { "cue": "Every exit", "lines": [4, 5] },
+        { "cue": "make unique", "lines": [8, 9] }
+      ],
+      "say": "Prevention is about ownership. Replace the raw pointer with a vector. Its destructor frees the memory automatically. Every exit, a return, or an exception, runs that destructor. For single objects, use make unique. That's R A I I, and it removes the need for delete entirely. One leak smart pointers can't fix on their own: two shared pointers pointing at each other. Break that cycle with a weak pointer." },
+
+    { "type": "take", "lines": ["Leak: heap memory still allocated, but no pointer can reach it anymore.", "Detect: AddressSanitizer / LeakSanitizer, Valgrind, steadily growing memory.", "Prevent: RAII owners (vector, unique_ptr), no raw new/delete, weak_ptr for cycles."],
+      "cues": ["A leak is", "Detect it", "Prevent it"],
+      "say": "A leak is heap memory that's still allocated, but unreachable. Detect it with sanitizers, Valgrind, or memory that keeps growing. Prevent it with owners like vector and unique pointer, no raw new and delete, and weak pointers to break cycles." }
+  ]
+}

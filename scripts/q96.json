@@ -1,0 +1,58 @@
+{
+  "id": "q96", "num": 96, "short": "Returning a local's address",
+  "question": "What is wrong with this code? `int* getValue() { int x = 10; return &x; }`",
+  "caps": [["ampersand x", "&x"], ["star p", "*p"], ["make unique", "make_unique"], ["dash Wall", "-Wall"]],
+  "scenes": [
+    { "type": "title", "sub": "It compiles. It might even print 10. It's still broken.",
+      "say": "This one looks innocent. It compiles, and it might even print ten. But it's broken. Let's find out why." },
+
+    { "type": "code", "head": "Pause and guess",
+      "panels": [{ "file": "value.cpp", "size": 38, "code": "int* getValue() { int x = 10; return &x; }" }],
+      "steps": [
+        { "cue": "returns ampersand x", "lines": [1] }
+      ],
+      "notes": [
+        { "cue": "Is that pointer", "line": 1, "inside": true, "text": "?", "tone": "warn" }
+      ],
+      "say": "getValue creates a local int x, sets it to ten, and returns ampersand x, the address of x. Is that pointer safe to use after the function returns? Pause the video and decide before we look at memory." },
+
+    { "type": "diagram", "head": "Watch the stack",
+      "panels": [{ "file": "value.cpp", "size": 32, "code": "int* getValue() { int x = 10; return &x; }\n\nint main() {\n    int* p = getValue();\n    other();          // any later call\n    std::cout << *p;  // undefined behavior\n}" }],
+      "steps": [
+        { "cue": "main calls getValue", "lines": [4, 1] },
+        { "cue": "returns its address", "lines": [1, 4] },
+        { "cue": "the frame is gone", "lines": [1] },
+        { "cue": "next function call", "lines": [5] },
+        { "cue": "star p", "lines": [6] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1040, "y": 220, "w": 560, "h": 680, "label": "STACK", "tone": "blue" },
+        { "id": "mf", "region": true, "x": 1070, "y": 640, "w": 500, "h": 230, "label": "main() frame" },
+        { "id": "p", "x": 1110, "y": 740, "w": 420, "h": 100, "label": "p", "text": "?", "size": 38, "tone": "blue", "cue": "main calls getValue" },
+        { "id": "gv", "region": true, "x": 1070, "y": 300, "w": 500, "h": 260, "label": "getValue() frame", "tone": "warn", "cue": "main calls getValue" },
+        { "id": "x", "x": 1110, "y": 410, "w": 420, "h": 110, "label": "x @0x7ffc10", "text": "10", "size": 44, "tone": "warn", "cue": "main calls getValue" }
+      ],
+      "arrows": [{ "from": "p", "to": "x", "cue": "returns its address" }],
+      "changes": [
+        { "id": "p", "text": "0x7ffc10", "cue": "returns its address" },
+        { "id": "gv", "fade": true, "cue": "the frame is gone" },
+        { "id": "x", "tone": "bad", "cue": "the frame is gone" },
+        { "id": "a0", "tone": "bad", "cue": "the frame is gone" },
+        { "id": "x", "text": "garbage", "cue": "next function call" }
+      ],
+      "say": "main calls getValue, and a new stack frame is pushed, with x inside it, holding ten. The function returns its address, and p stores it. But the moment getValue returns, its frame is popped. x no longer exists. The frame is gone, yet p still points at that spot. The next function call reuses the same stack memory and overwrites it. So reading star p is undefined behavior. It might print ten, print garbage, or crash." },
+
+    { "type": "code", "head": "The compiler warns you, and the fix",
+      "panels": [{ "file": "fixed.cpp", "size": 34, "code": "// fix 1: return the value, not its address\nint getValue() { int x = 10; return x; }\n\n// fix 2: if it truly must live on the heap\nstd::unique_ptr<int> makeValue() {\n    return std::make_unique<int>(10);\n}" }],
+      "steps": [
+        { "cue": "just return the int", "lines": [1, 2] },
+        { "cue": "outlive the function", "lines": [4, 5, 6, 7] }
+      ],
+      "output": { "cmd": "g++ -Wall value.cpp", "tone": "bad", "cue": "compilers warn", "text": "warning: address of local variable 'x' returned" },
+      "say": "Good news: compilers warn about this. Build with dash Wall and you'll see it. Always read that warning. The simplest fix: just return the int by value. Copying an int is free. If the object really must outlive the function, allocate it on the heap and return a smart pointer, like make unique. A static local would also work, but it's shared state, so avoid it." },
+
+    { "type": "take", "lines": ["`x` is a local: it dies when `getValue` returns.", "The returned pointer dangles. Dereferencing it is undefined behavior.", "Return by value, or return a `unique_ptr` to heap memory."],
+      "cues": ["x is a local", "The returned pointer", "Return by value"],
+      "say": "x is a local, so it dies when getValue returns. The returned pointer dangles, and dereferencing it is undefined behavior. Return by value, or return a unique pointer to heap memory." }
+  ]
+}

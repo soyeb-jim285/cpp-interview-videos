@@ -1,0 +1,67 @@
+{
+  "id": "q74", "num": 74, "short": "size vs capacity",
+  "question": "What is the difference between `size()` and `capacity()`?",
+  "caps": [["[Pp]ush backs?", "push_back"], ["[Rr]eserve eight", "reserve(8)"], ["shrink to fit", "shrink_to_fit"], ["v of fifty", "v[50]"]],
+  "scenes": [
+    { "type": "title", "sub": "How many elements exist, versus how many fit.",
+      "say": "Size versus capacity. One counts what's in the vector. The other counts how much room it has. Let's see both on one vector." },
+
+    { "type": "diagram", "head": "Elements that exist vs. slots that exist",
+      "panels": [{ "file": "main.cpp", "size": 36, "code": "std::vector<int> v;\nv.reserve(8);\nv.push_back(7);\nv.push_back(4);\nv.push_back(9);\n\nv.size();      // 3\nv.capacity();  // 8" }],
+      "steps": [
+        { "cue": "Reserve eight", "lines": [2] },
+        { "cue": "Push back seven", "lines": [3] },
+        { "cue": "four, and", "lines": [4] },
+        { "cue": "and nine", "lines": [5] },
+        { "cue": "Size is how many", "lines": [7] },
+        { "cue": "Capacity is how many", "lines": [8] }
+      ],
+      "items": [
+        { "id": "c0", "x": 1020, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c1", "x": 1120, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c2", "x": 1220, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c3", "x": 1320, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c4", "x": 1420, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c5", "x": 1520, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c6", "x": 1620, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "c7", "x": 1720, "y": 400, "w": 90, "h": 110, "text": "?", "size": 36, "tone": "ghost", "cue": "room for eight" },
+        { "id": "sz", "x": 1020, "y": 600, "w": 290, "h": 100, "text": "size = 3", "size": 34, "tone": "good", "cue": "Size is how many" },
+        { "id": "cap", "x": 1020, "y": 760, "w": 790, "h": 100, "text": "capacity = 8", "size": 34, "tone": "warn", "cue": "Capacity is how many" }
+      ],
+      "changes": [
+        { "id": "c0", "text": "7", "cue": "Push back seven" },
+        { "id": "c0", "tone": "info", "cue": "Push back seven" },
+        { "id": "c1", "text": "4", "cue": "four, and" },
+        { "id": "c1", "tone": "info", "cue": "four, and" },
+        { "id": "c2", "text": "9", "cue": "and nine" },
+        { "id": "c2", "tone": "info", "cue": "and nine" }
+      ],
+      "say": "Reserve eight gives the vector room for eight ints. Nothing lives there yet. Push back seven, four, and nine fills the first three slots. Size is how many elements actually exist: three. Capacity is how many fit before the vector must reallocate: eight. Size is always less than or equal to capacity, and the gap is free space, ready for cheap push backs." },
+
+    { "type": "code", "head": "Capacity is not permission",
+      "panels": [{ "file": "trap.cpp", "size": 34, "code": "std::vector<int> v(3);   // size 3, capacity 3\nv.reserve(100);          // size 3, capacity >= 100\nv[50] = 1;               // UB: index >= size()\nv.at(50) = 1;            // throws std::out_of_range\n\nv.clear();               // size 0, capacity unchanged\nv.shrink_to_fit();       // request: capacity -> size" }],
+      "steps": [
+        { "cue": "capacity is not permission", "lines": [1, 2, 3] },
+        { "cue": "at checks", "lines": [4] },
+        { "cue": "clear destroys", "lines": [6] },
+        { "cue": "shrink to fit", "lines": [7] }
+      ],
+      "notes": [{ "cue": "still undefined", "line": 3, "inside": true, "text": "undefined behavior", "tone": "bad" }],
+      "say": "The trap: capacity is not permission. After reserving a hundred, v of fifty is still undefined behavior, because only three elements exist. at checks against size, and throws. Going the other way, clear destroys the elements and size drops to zero, but the capacity stays. The memory is kept for reuse. To give it back, call shrink to fit. It's only a request, but the major libraries honor it." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["size()", "capacity()"], "rowHeads": ["Counts", "Grows on", "Shrinks on", "Indexing"],
+      "rows": [
+        ["Elements that exist", "Slots allocated"],
+        ["`push_back`, `insert`, `resize`", "Reallocation or `reserve`"],
+        ["`pop_back`, `erase`, `clear`", "Only `shrink_to_fit` (or swap)"],
+        ["Valid: 0 to size() - 1", "Slots past size() are not elements"]
+      ],
+      "cues": ["Size counts", "Size grows", "Size shrinks", "only index"],
+      "say": "Size counts the elements that exist, capacity counts the slots allocated. Size grows with every push back or insert, capacity only on reallocation or reserve. Size shrinks on erase or clear, while capacity basically never shrinks on its own. And you may only index below size." },
+
+    { "type": "take", "lines": ["size(): number of elements that actually exist.", "capacity(): elements that fit before the next reallocation. Always >= size().", "Only indices below size() are valid. clear() keeps the capacity."],
+      "cues": ["Size is", "Capacity is", "Only index"],
+      "say": "Size is how many elements exist. Capacity is how many fit before the next reallocation. Only index below size, and remember that clear keeps the capacity." }
+  ]
+}

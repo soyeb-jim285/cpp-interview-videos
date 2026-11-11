@@ -1,0 +1,72 @@
+{
+  "id": "q72", "num": 72, "short": "Vector internals",
+  "question": "How does `std::vector` manage memory internally?",
+  "caps": [["[Pp]ush back", "push_back"], ["[Rr]eserve four", "reserve(4)"], ["O of one", "O(1)"], ["M S V C", "MSVC"]],
+  "scenes": [
+    { "type": "title", "sub": "A tiny object on the outside, one big heap block on the inside.",
+      "say": "How does a vector really manage its memory? Under the hood, it's a tiny object that points at one block on the heap. Let's watch it fill up." },
+
+    { "type": "diagram", "head": "Three pointers and a heap block",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "std::vector<int> v;  // three null pointers\nv.reserve(4);        // room for 4 ints\nv.push_back(10);\nv.push_back(20);\nv.push_back(30);\n// size() == 3, capacity() == 4" }],
+      "steps": [
+        { "cue": "three pointers", "lines": [1] },
+        { "cue": "Reserve four", "lines": [2] },
+        { "cue": "Push back ten", "lines": [3] },
+        { "cue": "Push back twenty", "lines": [4] },
+        { "cue": "Push back thirty", "lines": [5] },
+        { "cue": "Size is end minus begin", "lines": [6] }
+      ],
+      "items": [
+        { "id": "bg", "x": 1020, "y": 270, "w": 240, "h": 100, "label": "begin", "text": "null", "size": 34, "tone": "blue", "cue": "three pointers" },
+        { "id": "en", "x": 1290, "y": 270, "w": 240, "h": 100, "label": "end", "text": "null", "size": 34, "tone": "blue", "cue": "three pointers" },
+        { "id": "cp", "x": 1560, "y": 270, "w": 240, "h": 100, "label": "capacity end", "text": "null", "size": 34, "tone": "blue", "cue": "three pointers" },
+        { "id": "c0", "x": 1020, "y": 600, "w": 150, "h": 110, "label": "0x7a0", "text": "?", "size": 40, "tone": "ghost", "cue": "raw memory" },
+        { "id": "c1", "x": 1180, "y": 600, "w": 150, "h": 110, "label": "0x7a4", "text": "?", "size": 40, "tone": "ghost", "cue": "raw memory" },
+        { "id": "c2", "x": 1340, "y": 600, "w": 150, "h": 110, "label": "0x7a8", "text": "?", "size": 40, "tone": "ghost", "cue": "raw memory" },
+        { "id": "c3", "x": 1500, "y": 600, "w": 150, "h": 110, "label": "0x7ac", "text": "?", "size": 40, "tone": "ghost", "cue": "raw memory" },
+        { "id": "past", "x": 1670, "y": 600, "w": 130, "h": 110, "label": "0x7b0", "text": "end", "sub": "of block", "size": 32, "tone": "ghost", "cue": "capacity pointer marks" }
+      ],
+      "arrows": [
+        { "from": "bg", "to": "c0", "cue": "begin points" },
+        { "from": "en", "to": "c3", "cue": "end points one past" },
+        { "from": "cp", "to": "past", "tone": "warn", "cue": "capacity pointer marks" }
+      ],
+      "changes": [
+        { "id": "bg", "text": "0x7a0", "cue": "Reserve four" },
+        { "id": "en", "text": "0x7a0", "cue": "Reserve four" },
+        { "id": "cp", "text": "0x7b0", "cue": "Reserve four" },
+        { "id": "c0", "text": "10", "cue": "Push back ten" },
+        { "id": "c0", "tone": "info", "cue": "Push back ten" },
+        { "id": "en", "text": "0x7a4", "cue": "end pointer moves" },
+        { "id": "c1", "text": "20", "cue": "Push back twenty" },
+        { "id": "c1", "tone": "info", "cue": "Push back twenty" },
+        { "id": "en", "text": "0x7a8", "cue": "Push back twenty" },
+        { "id": "c2", "text": "30", "cue": "Push back thirty" },
+        { "id": "c2", "tone": "info", "cue": "Push back thirty" },
+        { "id": "en", "text": "0x7ac", "cue": "Push back thirty" }
+      ],
+      "say": "A vector object itself is tiny. Typically just three pointers, twenty four bytes on a sixty four bit system, all null while it's empty. Reserve four asks the allocator for raw memory for four ints. No elements exist there yet. Push back ten constructs the first element in place, and the end pointer moves forward. Push back twenty. Push back thirty. Now begin points at the first element, end points one past the last, and the capacity pointer marks the end of the block. Size is end minus begin. Capacity is the last pointer minus begin." },
+
+    { "type": "code", "head": "One contiguous block, like an array",
+      "panels": [{ "file": "contiguous.cpp", "size": 36, "code": "std::vector<int> v = {10, 20, 30};\n\nint* p = v.data();          // start of the heap block\nassert(&v[1] == p + 1);     // guaranteed contiguous\nassert(v[2] == p[2]);\n\n// sizeof(v) stays the same (often 24 bytes)\n// no matter how many elements it holds" }],
+      "steps": [
+        { "cue": "elements are contiguous", "lines": [1] },
+        { "cue": "data gives you", "lines": [3, 4, 5] },
+        { "cue": "size of the vector object", "lines": [7, 8] }
+      ],
+      "say": "The standard guarantees the elements are contiguous, exactly like an array. data gives you a pointer to the start of the block, and element one sits right after element zero. That's why a vector works with C functions that take a pointer and a length, and why scanning it is so cache friendly. And notice: the size of the vector object itself never changes as it grows. Only the heap block does." },
+
+    { "type": "flow", "head": "When the block is full",
+      "items": [
+        { "label": "step 1", "text": "Allocate", "sub": "a bigger block", "cue": "allocates a bigger block" },
+        { "label": "step 2", "text": "Transfer", "sub": "move or copy elements", "cue": "moves or copies" },
+        { "label": "step 3", "text": "Free old", "sub": "destroy, deallocate", "cue": "frees the old block" },
+        { "label": "step 4", "text": "Re-point", "sub": "begin, end, capacity", "cue": "updates its three pointers" }
+      ],
+      "say": "When there's no room left, a vector can't grow in place. It allocates a bigger block, typically double the size with GCC and Clang, or one and a half times with M S V C. It moves or copies the elements across, destroys the old ones, frees the old block, and updates its three pointers. Because growth is geometric, push back is amortized O of one. The classic follow up: this is why pointers and iterators into a vector can suddenly dangle." },
+
+    { "type": "take", "lines": ["Three pointers (begin, end, capacity end) into one contiguous heap block.", "Full? Allocate bigger (2x GCC/Clang, 1.5x MSVC), transfer elements, free old block.", "Amortized O(1) push_back, but reallocation invalidates pointers and iterators."],
+      "cues": ["three pointers", "When it's full", "amortized"],
+      "say": "A vector is three pointers into one contiguous heap block. When it's full, it allocates a bigger block, transfers the elements, and frees the old one. That gives amortized O of one push back, but every reallocation invalidates pointers and iterators." }
+  ]
+}

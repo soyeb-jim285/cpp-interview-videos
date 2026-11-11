@@ -1,0 +1,56 @@
+{
+  "id": "q44", "num": 44, "short": "Array decay",
+  "question": "What is array decay?",
+  "caps": [["int star p equals arr", "int* p = arr"]],
+  "scenes": [
+    { "type": "title", "sub": "An array quietly turns into a pointer, and forgets its size.",
+      "say": "Array decay. An array quietly turns into a pointer to its first element, and in the process, it forgets its own size. Let's watch it happen." },
+
+    { "type": "diagram", "head": "The array becomes a pointer",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "int arr[4] = {10, 20, 30, 40};\n\nint* p = arr;  // same as &arr[0]\n\nsizeof(arr);   // 16: whole array\nsizeof(p);     // 8: just a pointer" }],
+      "steps": [
+        { "cue": "an array of four ints", "lines": [1] },
+        { "cue": "int star p equals arr", "lines": [3] },
+        { "cue": "Ask sizeof of the array", "lines": [5] },
+        { "cue": "sizeof of p", "lines": [6] }
+      ],
+      "items": [
+        { "id": "e0", "x": 1010, "y": 620, "w": 190, "h": 120, "label": "arr[0]", "text": "10", "size": 44, "tone": "blue", "cue": "an array of four ints" },
+        { "id": "e1", "x": 1210, "y": 620, "w": 190, "h": 120, "label": "arr[1]", "text": "20", "size": 44, "tone": "blue", "cue": "an array of four ints" },
+        { "id": "e2", "x": 1410, "y": 620, "w": 190, "h": 120, "label": "arr[2]", "text": "30", "size": 44, "tone": "blue", "cue": "an array of four ints" },
+        { "id": "e3", "x": 1610, "y": 620, "w": 190, "h": 120, "label": "arr[3]", "text": "40", "size": 44, "tone": "blue", "cue": "an array of four ints" },
+        { "id": "p", "x": 1010, "y": 290, "w": 300, "h": 120, "label": "p (int*)", "text": "&arr[0]", "size": 38, "tone": "warn", "cue": "int star p equals arr" },
+        { "id": "lost", "x": 1390, "y": 290, "w": 410, "h": 120, "text": "length: ?", "sub": "the 4 is gone", "size": 38, "tone": "ghost", "cue": "forgets the length" }
+      ],
+      "arrows": [{ "from": "p", "to": "e0", "cue": "pointer to its first element" }],
+      "changes": [{ "id": "lost", "tone": "bad", "cue": "forgets the length" }],
+      "say": "Here's an array of four ints, sixteen bytes side by side. Now, int star p equals arr. We never wrote ampersand, but the array silently converts to a pointer to its first element. That's array decay. Ask sizeof of the array, and you get sixteen, the whole thing. Ask sizeof of p, and you get eight on a sixty four bit machine. The pointer knows where the array starts, but it forgets the length." },
+
+    { "type": "code", "head": "Where it bites: function parameters",
+      "panels": [{ "file": "param.cpp", "code": "void print(int a[4]) {        // really: void print(int* a)\n    std::cout << sizeof(a);    // size of a pointer\n}\n\nint main() {\n    int arr[4] = {10, 20, 30, 40};\n    std::cout << sizeof(arr) << ' ';\n    print(arr);                // arr decays here\n}" }],
+      "steps": [
+        { "cue": "You can't pass", "lines": [1] },
+        { "cue": "inside print", "lines": [2] },
+        { "cue": "decays at the call", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "the four is ignored", "line": 1, "inside": true, "text": "the [4] is ignored", "tone": "bad" }
+      ],
+      "output": { "cmd": "./param", "text": "16 8", "cue": "prints sixteen", "tone": "bad" },
+      "say": "Decay bites hardest with functions. You can't pass a plain array by value. Even if you write the parameter with brackets and a size, the four is ignored, and the parameter is really an int pointer. The array decays at the call. So inside print, sizeof gives the pointer size. The program prints sixteen, then eight. That's why C style functions always take the length as a separate argument." },
+
+    { "type": "code", "head": "When it doesn't decay, and the modern fix",
+      "panels": [{ "file": "nodecay.cpp", "code": "int arr[4] = {10, 20, 30, 40};\n\nauto  q = &arr;              // int(*)[4]: size kept\nauto& r = arr;               // int(&)[4]: no decay\n\ntemplate <std::size_t N>\nvoid show(int (&a)[N]);      // N deduced as 4\n\nvoid show(std::span<int> s); // C++20: pointer + length\nstd::array<int, 4> safe{};   // never decays" }],
+      "steps": [
+        { "cue": "sizeof and the ampersand", "lines": [3] },
+        { "cue": "Binding a reference", "lines": [4] },
+        { "cue": "a template", "lines": [6, 7] },
+        { "cue": "In modern C plus plus", "lines": [9, 10] }
+      ],
+      "say": "Decay doesn't happen everywhere. sizeof and the ampersand operator see the real array, so address of arr is a pointer to an array of four. Binding a reference also keeps the full type. That lets a template take the array by reference and deduce N as four. In modern C plus plus, use s t d colon colon array, which never decays, or pass a s t d colon colon span, which carries the pointer and length together. Interview trap: arrays are not pointers. They just convert to one." },
+
+    { "type": "take", "lines": ["Array decay: an array converts to a pointer to its first element.", "The size is lost: sizeof gives pointer size, functions can't know the length.", "No decay with sizeof, &, or references. Prefer std::array or std::span."],
+      "cues": ["Array decay is", "The size is lost", "It doesn't happen"],
+      "say": "Array decay is the implicit conversion of an array to a pointer to its first element. The size is lost, so a function receiving it can't know the length. It doesn't happen with sizeof, ampersand, or references. Prefer s t d colon colon array or span." }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "q94", "num": 94, "short": "mutex & lock_guard",
+  "question": "What is a mutex, and how does `std::lock_guard` work?",
+  "caps": [["lock guard", "lock_guard"], ["unique lock", "unique_lock"], ["scoped lock", "scoped_lock"], ["plus plus counter", "++counter"], ["m dot lock", "m.lock()"], ["m dot unlock", "m.unlock()"]],
+  "scenes": [
+    { "type": "title", "sub": "One thread at a time, and RAII makes sure you let go.",
+      "say": "A mutex lets only one thread at a time into a piece of code. And lock guard makes sure you never forget to unlock it. Let's watch two threads take turns." },
+
+    { "type": "diagram", "head": "Two threads, one lock",
+      "panels": [{ "file": "mutex.cpp", "size": 32, "code": "std::mutex m;\nint counter = 0;\n\nvoid work() {\n    for (int i = 0; i < 100000; ++i) {\n        std::lock_guard<std::mutex> lk(m);\n        ++counter;\n    }   // lk destroyed here: m unlocked\n}" }],
+      "steps": [
+        { "cue": "A mutex is", "lines": [1] },
+        { "cue": "Thread A creates", "lines": [6] },
+        { "cue": "only A can", "lines": [7] },
+        { "cue": "At the closing brace", "lines": [8] }
+      ],
+      "items": [
+        { "id": "mx", "x": 1200, "y": 240, "w": 460, "h": 130, "label": "mutex m", "text": "unlocked", "size": 40, "tone": "good", "cue": "A mutex is" },
+        { "id": "ta", "x": 1020, "y": 500, "w": 360, "h": 130, "label": "thread A", "text": "running", "size": 38, "tone": "warn", "cue": "A mutex is" },
+        { "id": "tb", "x": 1450, "y": 500, "w": 360, "h": 130, "label": "thread B", "text": "running", "size": 38, "tone": "blue", "cue": "A mutex is" },
+        { "id": "ctr", "x": 1250, "y": 770, "w": 360, "h": 110, "label": "counter", "text": "5", "size": 44, "cue": "only A can" }
+      ],
+      "arrows": [
+        { "from": "ta", "to": "mx", "cue": "Thread A creates", "tone": "warn" },
+        { "from": "tb", "to": "mx", "cue": "Thread B tries", "tone": "bad" },
+        { "from": "tb", "to": "mx", "cue": "B wakes up", "tone": "blue" }
+      ],
+      "changes": [
+        { "id": "mx", "text": "locked by A", "cue": "Thread A creates" },
+        { "id": "mx", "tone": "warn", "cue": "Thread A creates" },
+        { "id": "tb", "text": "blocked", "cue": "Thread B tries" },
+        { "id": "tb", "tone": "bad", "cue": "Thread B tries" },
+        { "id": "ctr", "text": "6", "cue": "only A can" },
+        { "id": "a0", "fade": true, "cue": "At the closing brace" },
+        { "id": "a1", "fade": true, "cue": "At the closing brace" },
+        { "id": "mx", "text": "unlocked", "cue": "At the closing brace" },
+        { "id": "mx", "text": "locked by B", "cue": "B wakes up" },
+        { "id": "tb", "text": "running", "cue": "B wakes up" },
+        { "id": "tb", "tone": "blue", "cue": "B wakes up" }
+      ],
+      "say": "A mutex is a lock that only one thread can hold at a time. Thread A creates a lock guard, which locks m. Thread B tries to lock the same mutex, and blocks, it just waits. Now only A can touch counter, so the increment is safe. At the closing brace, A's lock guard is destroyed, and its destructor unlocks m. B wakes up, takes the lock, and does its increment." },
+
+    { "type": "code", "head": "Why not lock and unlock by hand?",
+      "panels": [{ "file": "manual.cpp", "size": 36, "code": "void work() {\n    m.lock();\n    ++counter;\n    if (counter > limit) return;  // forgot to unlock!\n    process();                    // may throw: no unlock\n    m.unlock();\n}" }],
+      "steps": [
+        { "cue": "m dot lock", "lines": [2, 6] },
+        { "cue": "early return", "lines": [4] },
+        { "cue": "throws", "lines": [5] }
+      ],
+      "notes": [
+        { "cue": "early return", "line": 4, "inside": true, "text": "m stays locked", "tone": "bad" },
+        { "cue": "deadlock", "line": 5, "inside": true, "text": "deadlock", "tone": "bad" }
+      ],
+      "say": "Why not just call m dot lock and m dot unlock yourself? Because every path out must unlock. An early return skips the unlock. If process throws, the unlock is skipped too. The mutex stays locked forever, and the next thread to lock it hangs. That's a deadlock." },
+
+    { "type": "code", "head": "lock_guard is just RAII",
+      "panels": [{ "file": "lock_guard.h", "size": 34, "code": "// simplified\ntemplate <class Mutex>\nclass lock_guard {\n    Mutex& mtx;\npublic:\n    explicit lock_guard(Mutex& m) : mtx(m) { mtx.lock(); }\n    ~lock_guard() { mtx.unlock(); }\n    lock_guard(const lock_guard&) = delete;\n};" }],
+      "steps": [
+        { "cue": "The constructor locks", "lines": [6] },
+        { "cue": "the destructor unlocks", "lines": [7] },
+        { "cue": "always run", "lines": [] },
+        { "cue": "can't be copied", "lines": [8] }
+      ],
+      "say": "lock guard is tiny. The constructor locks, and the destructor unlocks. That's R A I I. Destructors always run when a scope ends, whether by return, by exception, or normally. So the unlock can't be forgotten. It can't be copied, either. Need more? unique lock can unlock early and works with condition variables. scoped lock, from C plus plus seventeen, locks several mutexes at once without deadlocking." },
+
+    { "type": "take", "lines": ["Mutex: a lock only one thread can hold; others block until it's released.", "`lock_guard` locks in its constructor and unlocks in its destructor (RAII).", "Never call `lock()`/`unlock()` by hand; keep the locked scope small."],
+      "cues": ["A mutex", "lock guard locks", "Avoid"],
+      "say": "A mutex is a lock only one thread can hold, and the others block until it's released. lock guard locks in its constructor and unlocks in its destructor, so even returns and exceptions release it. Avoid manual lock and unlock, and keep the locked scope small." }
+  ]
+}

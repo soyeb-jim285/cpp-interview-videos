@@ -1,0 +1,59 @@
+{
+  "id": "q31", "num": 31, "short": "Reference counting",
+  "question": "What is reference counting?",
+  "caps": [["[Ss]hared pointer", "shared_ptr"], ["use count", "use_count"]],
+  "scenes": [
+    { "type": "title", "sub": "Count the owners. Free the object at zero.",
+      "say": "Reference counting. It's how shared pointer knows when to delete, and the idea is simple: count the owners, and free the object when the count hits zero." },
+
+    { "type": "diagram", "head": "Watch the count",
+      "panels": [{ "file": "count.cpp", "size": 34, "code": "auto a = std::make_shared<int>(7);\nstd::cout << a.use_count();     // 1\n{\n    auto b = a;                  // copy: +1\n    std::cout << a.use_count();  // 2\n}                                // b dies: -1\nstd::cout << a.use_count();     // 1\na.reset();                       // 0: delete" }],
+      "steps": [
+        { "cue": "When a is created", "lines": [1, 2] },
+        { "cue": "Copying a into b", "lines": [4, 5] },
+        { "cue": "When the block ends", "lines": [6, 7] },
+        { "cue": "Finally, reset", "lines": [8] }
+      ],
+      "items": [
+        { "id": "av", "x": 1020, "y": 280, "w": 280, "h": 110, "label": "a", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "When a is created" },
+        { "id": "bv", "x": 1020, "y": 560, "w": 280, "h": 110, "label": "b", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "Copying a into b" },
+        { "id": "cnt", "x": 1440, "y": 280, "w": 340, "h": 120, "label": "count", "text": "1", "size": 48, "tone": "warn", "cue": "When a is created" },
+        { "id": "obj", "x": 1440, "y": 560, "w": 340, "h": 120, "label": "heap int", "text": "7", "size": 48, "tone": "warn", "cue": "When a is created" }
+      ],
+      "arrows": [
+        { "from": "av", "to": "obj", "cue": "When a is created" },
+        { "from": "bv", "to": "obj", "cue": "Copying a into b" }
+      ],
+      "changes": [
+        { "id": "cnt", "text": "2", "cue": "bumps the count" },
+        { "id": "a1", "fade": true, "cue": "b is destroyed" },
+        { "id": "bv", "fade": true, "cue": "b is destroyed" },
+        { "id": "cnt", "text": "1", "cue": "back to one" },
+        { "id": "a0", "fade": true, "cue": "Finally, reset" },
+        { "id": "cnt", "text": "0", "cue": "The count hits zero" },
+        { "id": "obj", "kill": true, "cue": "deletes the int" }
+      ],
+      "say": "When a is created, the heap gets the int and a counter, starting at one. Copying a into b doesn't copy the int. It just bumps the count to two. When the block ends, b is destroyed, and its destructor drops the count back to one. Finally, reset releases the last owner. The count hits zero, and that last owner deletes the int. You can peek at the count with use count, but it's mostly for debugging." },
+
+    { "type": "flow", "head": "The whole algorithm",
+      "items": [
+        { "label": "New owner", "text": "count + 1", "sub": "copy construct or assign", "cue": "adds one" },
+        { "label": "Owner leaves", "text": "count − 1", "sub": "destroyed or reset", "cue": "subtracts one" },
+        { "label": "Count hits 0", "text": "delete", "sub": "object freed", "tone": "good", "cue": "brings the count to zero" }
+      ],
+      "say": "The rules are tiny. Every new owner, by copy construction or copy assignment, adds one. Every owner that's destroyed or reset subtracts one. And whoever brings the count to zero deletes the object. Moving a shared pointer just transfers ownership, so the count doesn't change at all." },
+
+    { "type": "code", "head": "It isn't free",
+      "panels": [{ "file": "cost.cpp", "size": 32, "code": "void byValue(std::shared_ptr<Widget> w);       // +1 on call, -1 on return\nvoid byRef(const std::shared_ptr<Widget>& w);  // no count change\nvoid best(const Widget& w);                    // no ownership needed\n\n// count updates are atomic: the COUNT is thread-safe,\n// the Widget itself is NOT protected" }],
+      "steps": [
+        { "cue": "by value unless", "lines": [1] },
+        { "cue": "Pass a reference", "lines": [2, 3] },
+        { "cue": "the counter is thread safe", "lines": [5, 6] }
+      ],
+      "say": "Reference counting isn't free. Each copy changes the count, and those updates are atomic, so they're safe across threads, but slower than a plain increment. So don't pass shared pointers by value unless the function really keeps a copy. Pass a reference, or just a reference to the object. And note: the counter is thread safe, the object it points to is not. The classic follow up? Two objects that own each other never reach zero. That's a cycle, and it leaks." },
+
+    { "type": "take", "lines": ["Reference counting: track how many owners an object has.", "Copy → +1, destroy/reset → −1, zero → delete. Atomic in shared_ptr.", "Costs a control block and atomic ops. Trap: cycles never reach zero."],
+      "cues": ["Reference counting", "Copies add", "It costs"],
+      "say": "Reference counting tracks how many owners an object has. Copies add one, destruction subtracts one, and zero means delete. In shared pointer the counts are atomic. It costs a control block and atomic operations, and watch out for cycles, which never reach zero." }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "q42", "num": 42, "short": "Null dereference",
+  "question": "What happens when you dereference a null pointer?",
+  "caps": [["star p", "*p"]],
+  "scenes": [
+    { "type": "title", "sub": "Undefined behavior. Usually a crash, but not always.",
+      "say": "What happens when you dereference a null pointer? The honest answer: undefined behavior. Usually a crash, but the standard promises nothing." },
+
+    { "type": "diagram", "head": "What usually happens",
+      "panels": [{ "file": "null.cpp", "size": 36, "code": "int* p = nullptr;   // address 0\nint v = *p;         // UB" }],
+      "steps": [
+        { "cue": "null is address zero", "lines": [1] },
+        { "cue": "when star p reads", "lines": [2] }
+      ],
+      "items": [
+        { "id": "mem", "x": 1340, "y": 260, "w": 440, "h": 110, "text": "heap · stack", "size": 32, "tone": "ghost" },
+        { "id": "code", "x": 1340, "y": 450, "w": 440, "h": 110, "text": "code · globals", "size": 32, "tone": "ghost" },
+        { "id": "pg0", "x": 1340, "y": 720, "w": 440, "h": 140, "label": "page at address 0", "text": "unmapped", "sub": "no access allowed", "size": 36, "tone": "bad", "cue": "never mapped" },
+        { "id": "pv", "x": 1010, "y": 740, "w": 220, "h": 110, "label": "p", "text": "0x0", "size": 36, "tone": "warn", "cue": "null is address zero" }
+      ],
+      "arrows": [{ "from": "pv", "to": "pg0", "tone": "bad", "cue": "when star p reads" }],
+      "changes": [
+        { "id": "pg0", "text": "SIGSEGV", "cue": "sends the signal" }
+      ],
+      "notes": [
+        { "cue": "segmentation fault", "x": 1010, "y": 600, "text": "Segmentation fault (core dumped)", "tone": "bad" }
+      ],
+      "say": "On mainstream systems, null is address zero, and the page at address zero is never mapped. So when star p reads it, the processor raises a fault, the operating system sends the signal S I G S E G V, and you see segmentation fault. On Windows, it's an access violation. And note: this is not a C plus plus exception. A try catch block won't catch it." },
+
+    { "type": "code", "head": "Why it's not always a crash",
+      "panels": [{ "file": "opt.cpp", "size": 36, "code": "void f(int* p) {\n    int v = *p;            // compiler: so p isn't null\n    if (p == nullptr)      // ...this check is always false\n        return;            // ...and may be deleted\n    std::cout << v;\n}" }],
+      "steps": [
+        { "cue": "dereferenced on line two", "lines": [2] },
+        { "cue": "delete the null check", "lines": [3, 4] },
+        { "cue": "far from the start", "lines": [] }
+      ],
+      "notes": [
+        { "cue": "delete the null check", "line": 3, "inside": true, "text": "check removed", "tone": "bad" }
+      ],
+      "say": "Why isn't it always a crash? Undefined behavior lets the compiler assume it never happens. Since p was dereferenced on line two, the optimizer concludes p can't be null, and is allowed to delete the null check below it. This exact pattern caused a real security bug in the Linux kernel. Also, accessing a member far from the start of a null object can land in mapped memory, and silently read garbage." },
+
+    { "type": "code", "head": "How to avoid it",
+      "panels": [{ "file": "safe.cpp", "size": 36, "code": "void use(int* p) {\n    if (!p) return;          // check when null is possible\n    std::cout << *p;\n}\n\nvoid use(int& r);            // can't be null: no check needed\n\nstd::optional<int> find();   // \"maybe no value\", no pointer" }],
+      "steps": [
+        { "cue": "Check pointers", "lines": [1, 2, 3] },
+        { "cue": "take a reference", "lines": [6] },
+        { "cue": "optional", "lines": [8] }
+      ],
+      "say": "How do you prevent it? Check pointers that can legitimately be null, before using them. If a value must always exist, take a reference instead, because a valid reference is never null. For maybe a value, maybe not, s t d colon colon optional is clearer than a null pointer. And in testing, the undefined behavior sanitizer reports a null dereference with file and line, instead of a mystery crash." },
+
+    { "type": "take", "lines": ["Dereferencing null is undefined behavior: no guarantees.", "In practice: usually a segfault or access violation. Not a C++ exception.", "The optimizer may delete later null checks. Check first, prefer references."],
+      "cues": ["Dereferencing null", "In practice", "the optimizer"],
+      "say": "Dereferencing null is undefined behavior, with no guarantees. In practice you usually get a segmentation fault or access violation, and it's not an exception you can catch. Worse, the optimizer may delete null checks that come after the dereference. So check first, and prefer references when null isn't allowed." }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "q20", "num": 20, "short": "Inside new",
+  "question": "What happens internally when you call `new`?",
+  "caps": [["bad alloc", "bad_alloc"], ["size of Widget", "sizeof(Widget)"], ["Widget star", "Widget*"]],
+  "scenes": [
+    { "type": "title", "sub": "One expression, two separate jobs: allocate, then construct.",
+      "say": "What really happens when you write new? One expression, but two separate jobs. Let's slow it down." },
+
+    { "type": "diagram", "head": "new Widget(3), step by step",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "struct Widget {\n    int v;\n    Widget(int x) : v(x) {}\n};\n\nWidget* w = new Widget(3);\n// 1. operator new(sizeof(Widget))\n// 2. Widget(3) runs in that memory\n// 3. typed address goes into w" }],
+      "steps": [
+        { "cue": "First, new calls", "lines": [6, 7] },
+        { "cue": "Second, the constructor", "lines": [3, 8] },
+        { "cue": "Third, the address", "lines": [6, 9] }
+      ],
+      "items": [
+        { "id": "blk", "x": 1440, "y": 330, "w": 360, "h": 120, "label": "heap @0x7a10", "text": "? ? ? ?", "sub": "raw bytes", "size": 40, "tone": "warn", "cue": "returns raw" },
+        { "id": "pw", "x": 1040, "y": 650, "w": 300, "h": 110, "label": "w", "text": "0x7a10", "size": 36, "tone": "blue", "cue": "Third, the address" }
+      ],
+      "arrows": [{ "from": "pw", "to": "blk", "cue": "Third, the address" }],
+      "changes": [
+        { "id": "blk", "text": "v = 3", "cue": "Second, the constructor" },
+        { "id": "blk", "tone": "good", "cue": "into a real Widget" }
+      ],
+      "say": "First, new calls a function named operator new, asking for size of Widget bytes. It returns raw, uninitialized memory, usually from malloc. Second, the constructor runs inside that memory, turning raw bytes into a real Widget, with v equal to three. Third, the address is handed back, already typed as Widget star. No cast needed. Allocation and construction are two separate steps. That's the key idea." },
+
+    { "type": "code", "head": "The same steps, by hand",
+      "panels": [{ "file": "manual.cpp", "size": 34, "code": "// What  new Widget(3)  does:\nvoid* raw = ::operator new(sizeof(Widget));  // allocate only\nWidget* w = new (raw) Widget(3);             // construct only\n\n// What  delete w  does:\nw->~Widget();                                // destroy\n::operator delete(raw);                      // deallocate" }],
+      "steps": [
+        { "cue": "operator new only allocates", "lines": [2] },
+        { "cue": "Placement new", "lines": [3] },
+        { "cue": "delete reverses it", "lines": [6, 7] },
+        { "cue": "Containers like vector", "lines": [2, 3] }
+      ],
+      "say": "You can split the steps yourself. Calling operator new only allocates. Placement new only constructs, in memory you already have. And delete reverses it: destructor first, then operator delete. Containers like vector use this split, to reserve capacity without building objects yet." },
+
+    { "type": "code", "head": "When something goes wrong",
+      "panels": [{ "file": "fail.cpp", "size": 34, "code": "struct Bad {\n    Bad() { throw std::runtime_error(\"boom\"); }\n};\n\ntry {\n    Bad* b = new Bad;     // memory is freed for you\n} catch (const std::exception&) {}\n\nstd::size_t n = 1ULL << 50;   // petabytes of ints\ntry {\n    int* big = new int[n];\n} catch (const std::bad_alloc&) {}" }],
+      "steps": [
+        { "cue": "If operator new can't", "lines": [9, 10, 11, 12] },
+        { "cue": "constructor throws", "lines": [1, 2, 6] },
+        { "cue": "nothing leaks", "lines": [6] }
+      ],
+      "notes": [
+        { "cue": "nothing leaks", "line": 6, "inside": true, "text": "no leak", "tone": "good" }
+      ],
+      "say": "Two failure paths. If operator new can't get memory, it throws s t d colon colon bad alloc. And if the memory is fine but the constructor throws, new automatically calls the matching operator delete, so nothing leaks. That's a favorite follow up question. One more: a class can overload operator new, which is how memory pools hook in." },
+
+    { "type": "take", "lines": ["new = operator new (allocate raw memory) + constructor (build the object).", "Returns a typed pointer. Throws std::bad_alloc if allocation fails.", "If the constructor throws, the memory is freed automatically. delete reverses both steps."],
+      "cues": ["new is two steps", "It returns", "If the constructor"],
+      "say": "new is two steps: operator new allocates raw memory, then the constructor builds the object. It returns a typed pointer, and throws bad alloc if allocation fails. If the constructor throws, the memory is freed automatically. delete does the reverse: destructor, then deallocation." }
+  ]
+}

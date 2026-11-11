@@ -1,0 +1,58 @@
+{
+  "id": "q41", "num": 41, "short": "Returning local address",
+  "question": "Can a function return a pointer to a local variable? Why or why not?",
+  "caps": [["star p", "*p"], ["Address Sanitizer", "AddressSanitizer"]],
+  "scenes": [
+    { "type": "title", "sub": "It compiles. That's the scary part.",
+      "say": "Can a function return a pointer to a local variable? It compiles, but the pointer dangles the moment the function returns. Let's watch the stack." },
+
+    { "type": "diagram", "head": "The frame is gone, the address isn't",
+      "panels": [{ "file": "dangle.cpp", "size": 34, "code": "int* bad() {\n    int x = 42;\n    return &x;       // address of a local\n}\n\nvoid other() { int y = 7; }\n\nint main() {\n    int* p = bad();\n    other();\n    std::cout << *p;   // UB\n}" }],
+      "steps": [
+        { "cue": "When bad is called", "lines": [9, 1] },
+        { "cue": "x lives", "lines": [2] },
+        { "cue": "returns the address", "lines": [3] },
+        { "cue": "when bad returns", "lines": [4, 9] },
+        { "cue": "other is called", "lines": [10, 6] },
+        { "cue": "star p might", "lines": [11] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1020, "y": 210, "w": 790, "h": 700, "label": "STACK", "tone": "blue" },
+        { "id": "mainf", "region": true, "x": 1060, "y": 640, "w": 710, "h": 240, "label": "main()" },
+        { "id": "frame", "region": true, "x": 1060, "y": 270, "w": 710, "h": 300, "label": "bad() frame", "tone": "warn", "cue": "When bad is called" },
+        { "id": "xv", "x": 1420, "y": 370, "w": 300, "h": 120, "label": "x @0x7f10", "text": "42", "size": 44, "tone": "blue", "cue": "x lives" },
+        { "id": "pv", "x": 1420, "y": 740, "w": 300, "h": 110, "label": "p", "text": "0x7f10", "size": 36, "tone": "warn", "cue": "p holds" }
+      ],
+      "arrows": [{ "from": "pv", "to": "xv", "cue": "p holds" }],
+      "changes": [
+        { "id": "frame", "fade": true, "cue": "when bad returns" },
+        { "id": "xv", "tone": "bad", "cue": "when bad returns" },
+        { "id": "a0", "tone": "bad", "cue": "p still points" },
+        { "id": "xv", "text": "7", "cue": "reuse the very same" }
+      ],
+      "say": "When bad is called, it gets a stack frame, and x lives inside it. It returns the address of x, and p holds that address. But when bad returns, its frame is gone. p still points there, at memory that no longer belongs to x. Then other is called, and its frame may reuse the very same bytes. Now star p might print seven, or forty two, or crash. Reading it is undefined behavior." },
+
+    { "type": "code", "head": "Compilers warn about the simple case",
+      "panels": [{ "file": "warn.cpp", "size": 36, "code": "int* bad() {\n    int x = 42;\n    return &x;\n}\n\nint& badRef() {\n    int x = 42;\n    return x;        // same bug, as a reference\n}" }],
+      "steps": [
+        { "cue": "compilers catch", "lines": [1, 2, 3] },
+        { "cue": "reference to a local", "lines": [6, 7, 8] }
+      ],
+      "output": { "cmd": "g++ -c warn.cpp", "tone": "bad", "cue": "G C C warns", "text": "warning: address of local variable 'x' returned [-Wreturn-local-addr]\nwarning: reference to local variable 'x' returned [-Wreturn-local-addr]" },
+      "say": "Good news: compilers catch the simple case. G C C warns that the address of a local variable is returned, even without extra flags. Returning a reference to a local is the same bug, with the same warning. But once the address passes through another variable or function, the warning can disappear, so don't rely on it. Treat warnings as errors, and use Address Sanitizer, which can detect stack use after return." },
+
+    { "type": "code", "head": "What to do instead",
+      "panels": [{ "file": "fixes.cpp", "size": 32, "code": "int  byValue() { int x = 42; return x; }              // copy out\nint* fromStatic() { static int x = 42; return &x; }   // lives forever\nstd::unique_ptr<int> fromHeap() {\n    return std::make_unique<int>(42);                 // caller owns it\n}\nconst char* literal() { return \"hi\"; }               // OK: static storage" }],
+      "steps": [
+        { "cue": "return by value", "lines": [1] },
+        { "cue": "A static local", "lines": [2] },
+        { "cue": "unique pointer", "lines": [3, 4, 5] },
+        { "cue": "string literal", "lines": [6] }
+      ],
+      "say": "So what should you do instead? Usually, just return by value. It's cheap, and the compiler often elides the copy entirely. A static local lives for the whole program, so its address stays valid, but it's shared state. If you need the heap, return a unique pointer, so ownership is clear. And the classic trick question: returning a string literal is fine, because literals have static storage." },
+
+    { "type": "take", "lines": ["Returning &local compiles, but the pointer dangles once the frame is popped.", "Using it is UB: it may seem to work, print garbage, or crash.", "Return by value, a static, or a smart pointer instead."],
+      "cues": ["It compiles", "Using it", "Instead"],
+      "say": "It compiles, but the local dies when the function returns, so the pointer dangles. Using it is undefined behavior: it may seem to work, print garbage, or crash. Instead, return by value, a static, or a smart pointer." }
+  ]
+}

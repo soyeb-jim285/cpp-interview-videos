@@ -1,0 +1,71 @@
+{
+  "id": "q75", "num": 75, "short": "Iterator invalidation",
+  "question": "What is iterator invalidation?",
+  "caps": [["[Pp]ush back four", "push_back(4)"], ["plus plus it", "++it"], ["C\\+\\+ twenty", "C++20"], ["erase if", "std::erase_if"], ["erase remove idiom", "erase-remove idiom"]],
+  "scenes": [
+    { "type": "title", "sub": "The iterator is still there. What it points to is not.",
+      "say": "Iterator invalidation. Your iterator still exists, but the memory it points to has moved or vanished. Using it is a silent bug." },
+
+    { "type": "diagram", "head": "Holding an iterator across a push_back",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "std::vector<int> v = {1, 2, 3};\n// capacity 3 here: full\nauto it = v.begin();\n\nv.push_back(4);    // reallocates\n\nstd::cout << *it;  // UB: it dangles" }],
+      "steps": [
+        { "cue": "vector is full", "lines": [1, 2] },
+        { "cue": "points at the first", "lines": [3] },
+        { "cue": "push back four", "lines": [5] },
+        { "cue": "still points into", "lines": [7] }
+      ],
+      "items": [
+        { "id": "it", "x": 1040, "y": 300, "w": 240, "h": 100, "label": "it", "text": "iterator", "size": 32, "tone": "warn", "cue": "points at the first" },
+        { "id": "o0", "x": 1420, "y": 300, "w": 120, "h": 100, "text": "1", "size": 36, "tone": "blue", "cue": "vector is full" },
+        { "id": "o1", "x": 1550, "y": 300, "w": 120, "h": 100, "text": "2", "size": 36, "tone": "blue", "cue": "vector is full" },
+        { "id": "o2", "x": 1680, "y": 300, "w": 120, "h": 100, "text": "3", "size": 36, "tone": "blue", "cue": "vector is full" },
+        { "id": "n0", "x": 1020, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" },
+        { "id": "n1", "x": 1150, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" },
+        { "id": "n2", "x": 1280, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" },
+        { "id": "n3", "x": 1410, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" },
+        { "id": "n4", "x": 1540, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" },
+        { "id": "n5", "x": 1670, "y": 600, "w": 120, "h": 100, "text": "?", "size": 36, "tone": "ghost", "cue": "new block" }
+      ],
+      "arrows": [{ "from": "it", "to": "o0", "cue": "points at the first" }],
+      "changes": [
+        { "id": "n0", "text": "1", "cue": "elements copied over" },
+        { "id": "n1", "text": "2", "cue": "elements copied over" },
+        { "id": "n2", "text": "3", "cue": "elements copied over" },
+        { "id": "n3", "text": "4", "cue": "elements copied over" },
+        { "id": "o0", "kill": true, "cue": "old block freed" },
+        { "id": "o1", "kill": true, "cue": "old block freed" },
+        { "id": "o2", "kill": true, "cue": "old block freed" },
+        { "id": "a0", "tone": "bad", "cue": "still points into" },
+        { "id": "it", "tone": "bad", "cue": "still points into" }
+      ],
+      "say": "An iterator is basically a pointer into a container. Here the vector is full, and it points at the first element. Push back four has to reallocate: a new block, elements copied over, old block freed. The vector itself is fine, but it still points into the old, freed memory. That's iterator invalidation. The iterator still exists, but using it is undefined behavior. Often it even seems to work, which makes the bug hard to find." },
+
+    { "type": "code", "head": "The classic: erasing inside a loop",
+      "panels": [{ "file": "erase.cpp", "size": 32, "code": "// remove all even numbers: BROKEN\nfor (auto it = v.begin(); it != v.end(); ++it)\n    if (*it % 2 == 0)\n        v.erase(it);          // it is now invalid\n\n// FIXED\nfor (auto it = v.begin(); it != v.end(); )\n    if (*it % 2 == 0)\n        it = v.erase(it);     // returns the next element\n    else\n        ++it;" }],
+      "steps": [
+        { "cue": "erasing inside a loop", "lines": [1, 2, 3, 4] },
+        { "cue": "plus plus it", "lines": [2, 4] },
+        { "cue": "The fix", "lines": [7, 8, 9] },
+        { "cue": "only advance", "lines": [10, 11] }
+      ],
+      "notes": [
+        { "cue": "plus plus it", "line": 4, "inside": true, "text": "next ++it is UB", "tone": "bad" },
+        { "cue": "Assign it back", "line": 9, "inside": true, "text": "safe", "tone": "good" }
+      ],
+      "say": "The other classic: erasing inside a loop. Erase invalidates the erased element and everything after it. So the plus plus it at the end of the loop is undefined behavior. The fix: erase returns an iterator to the element after the one removed. Assign it back, and only advance when you didn't erase. Or skip the loop entirely and use the erase remove idiom, or erase if in C plus plus twenty." },
+
+    { "type": "diagram", "head": "Every container has its own rules",
+      "items": [
+        { "id": "rv", "x": 160, "y": 220, "w": 1600, "h": 120, "text": "vector, string", "sub": "Reallocation: all. Otherwise: everything at or after the insert/erase point.", "size": 34, "tone": "bad", "cue": "Vector, and string" },
+        { "id": "rd", "x": 160, "y": 365, "w": 1600, "h": 120, "text": "deque", "sub": "Push at either end: all iterators, but references stay valid. Middle insert/erase: all.", "size": 34, "tone": "warn", "cue": "Deque is odd" },
+        { "id": "rl", "x": 160, "y": 510, "w": 1600, "h": 120, "text": "list, forward_list", "sub": "Insert invalidates nothing. Erase: only the erased element.", "size": 34, "tone": "good", "cue": "List and" },
+        { "id": "rm", "x": 160, "y": 655, "w": 1600, "h": 120, "text": "map, set (tree based)", "sub": "Same as list: only the erased element.", "size": 34, "tone": "good", "cue": "tree based map" },
+        { "id": "ru", "x": 160, "y": 800, "w": 1600, "h": 120, "text": "unordered_map, unordered_set", "sub": "Rehash on insert: all iterators, references stay valid. Erase: only the erased one.", "size": 34, "tone": "warn", "cue": "Unordered containers" }
+      ],
+      "say": "Each container has its own rules. Vector, and string, are the strictest: a reallocation invalidates everything, otherwise anything at or after the change point. Deque is odd: pushing at either end invalidates its iterators, but references stay valid. List and the tree based map and set are node based, so only the erased element is affected. Unordered containers invalidate iterators when they rehash, but references to elements survive. Interview tip: when you modify a container in a loop, ask what the operation invalidates." },
+
+    { "type": "take", "lines": ["An invalidated iterator (or pointer/reference) still exists, but using it is UB.", "vector: reallocation invalidates all; erase invalidates from that point on.", "Node-based containers (list, map, set): only erased elements. Use it = v.erase(it)."],
+      "cues": ["An invalidated iterator", "In a vector", "Node based"],
+      "say": "An invalidated iterator still exists, but using it is undefined behavior. In a vector, reallocation invalidates everything, and erase invalidates from that point on. Node based containers only lose the erased elements. And in loops, write it equals erase of it." }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "q65", "num": 65, "short": "Copy vs move",
+  "question": "What is the difference between copying and moving an object?",
+  "caps": [["O of n", "O(n)"], ["O of one", "O(1)"], ["s t d move", "std::move"]],
+  "scenes": [
+    { "type": "title", "sub": "Copying duplicates the resources. Moving transfers them.",
+      "say": "Copying versus moving. Both create an object with the same value. The difference is what happens to the resources, and to the source." },
+
+    { "type": "diagram", "head": "A million ints: copy vs move",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "std::vector<int> a(1000000, 7);\n\nstd::vector<int> b = a;            // copy\nstd::vector<int> c = std::move(a); // move" }],
+      "steps": [
+        { "cue": "a holds", "lines": [1] },
+        { "cue": "Copying a into b", "lines": [3] },
+        { "cue": "Moving a into c", "lines": [4] }
+      ],
+      "items": [
+        { "id": "va", "x": 1030, "y": 270, "w": 320, "h": 110, "label": "a", "text": "size 1M", "size": 34, "tone": "blue", "cue": "a holds" },
+        { "id": "h1", "x": 1450, "y": 270, "w": 350, "h": 110, "label": "buffer 1", "text": "1M × 7", "size": 34, "tone": "warn", "cue": "a holds" },
+        { "id": "vb", "x": 1030, "y": 500, "w": 320, "h": 110, "label": "b", "text": "size 1M", "size": 34, "tone": "blue", "cue": "Copying a into b" },
+        { "id": "h2", "x": 1450, "y": 500, "w": 350, "h": 110, "label": "buffer 2 (new)", "text": "1M × 7", "size": 34, "tone": "warn", "cue": "allocates a second buffer" },
+        { "id": "vc", "x": 1030, "y": 760, "w": 320, "h": 110, "label": "c", "text": "size 1M", "size": 34, "tone": "good", "cue": "Moving a into c" }
+      ],
+      "arrows": [
+        { "from": "va", "to": "h1", "cue": "a holds" },
+        { "from": "vb", "to": "h2", "cue": "allocates a second buffer" },
+        { "from": "vc", "to": "h1", "tone": "good", "cue": "takes over buffer one" }
+      ],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "takes over buffer one" },
+        { "id": "va", "text": "empty", "cue": "a is left" },
+        { "id": "va", "tone": "dim", "cue": "a is left" }
+      ],
+      "say": "a holds a million ints in a heap buffer. Copying a into b allocates a second buffer and copies every element. That's O of n, and a is untouched. Moving a into c allocates nothing. c just takes over buffer one by copying a few pointers. That's O of one. But a is left empty. Officially, a moved from object is in a valid but unspecified state: you may destroy it or assign to it, but don't rely on its value." },
+
+    { "type": "code", "head": "Who decides? The value category",
+      "panels": [{ "file": "keep.cpp", "size": 36, "code": "void keep(std::string x);\n\nstd::string s = \"a long string, too long for SSO\";\nkeep(s);                 // lvalue: copied\nkeep(std::move(s));      // rvalue: moved\n\nconst std::string k = \"another long string here\";\nkeep(std::move(k));      // const: silently COPIED" }],
+      "steps": [
+        { "cue": "Pass s", "lines": [4] },
+        { "cue": "Wrap it in", "lines": [5] },
+        { "cue": "classic trap", "lines": [7, 8] }
+      ],
+      "notes": [
+        { "cue": "classic trap", "line": 8, "inside": true, "text": "no error, no move", "tone": "bad" }
+      ],
+      "say": "Who decides? Overload resolution. Pass s, an lvalue, and the copy constructor is chosen, because you might still use s. Wrap it in s t d move, and it becomes an rvalue, so the move constructor wins. The classic trap: moving a const object. A const rvalue can't bind to the move constructor, so it quietly falls back to a copy." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Copy", "Move"], "rowHeads": ["Resources", "Source after", "Cost", "Chosen for", "Signature"],
+      "rows": [
+        ["Duplicated", "Transferred"],
+        ["Unchanged", "Valid but unspecified"],
+        ["O(n): allocate + copy", "O(1) for vector, string, unique_ptr"],
+        ["lvalues", "rvalues: temporaries, std::move"],
+        ["`T(const T&)`", "`T(T&&) noexcept`"]
+      ],
+      "cues": ["A copy duplicates", "The source", "Cost", "Copy is chosen", "Signatures"],
+      "say": "A copy duplicates resources, a move transfers them. The source is unchanged after a copy, but valid but unspecified after a move. Cost: a copy is O of n, a move is usually O of one. But for types that hold everything inline, like int or s t d array, moving is just copying. Copy is chosen for lvalues, move for rvalues. Signatures: a const reference, versus an rvalue reference." },
+
+    { "type": "take", "lines": ["Copy: duplicates resources. Source unchanged. Usually O(n).", "Move: transfers resources. Source valid but unspecified. Usually O(1).", "Moves happen for rvalues; std::move on a const object still copies."],
+      "cues": ["Copying", "Moving", "Moves happen"],
+      "say": "Copying duplicates resources and leaves the source unchanged. Moving transfers them, leaving the source valid but unspecified. Moves happen for rvalues, and remember: s t d move on a const object still copies." }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "q16", "num": 16, "short": "Memory allocation",
+  "question": "How does memory allocation work in C++?",
+  "caps": [["make unique", "make_unique"], ["unique pointer", "unique_ptr"]],
+  "scenes": [
+    { "type": "title", "sub": "Three kinds of storage, and who is responsible for each.",
+      "say": "How does memory allocation work in C plus plus? Every object gets one of three kinds of storage. Let's watch all three in one small program." },
+
+    { "type": "diagram", "head": "Three kinds of storage",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "int counter = 0;           // static storage\n\nvoid f() {\n    int x = 7;             // stack\n    int* p = new int(42);  // heap\n    delete p;\n}                          // x and p vanish\n\nint main() {\n    f();\n}" }],
+      "steps": [
+        { "cue": "A global like counter", "lines": [1] },
+        { "cue": "Inside f", "lines": [3, 4] },
+        { "cue": "new int of forty two", "lines": [5] },
+        { "cue": "Delete p", "lines": [6] },
+        { "cue": "When f returns", "lines": [7] }
+      ],
+      "items": [
+        { "id": "st", "region": true, "x": 1010, "y": 210, "w": 800, "h": 170, "label": "STATIC", "tone": "good", "cue": "A global like counter" },
+        { "id": "cnt", "x": 1300, "y": 250, "w": 360, "h": 100, "text": "counter = 0", "size": 34, "tone": "good", "cue": "A global like counter" },
+        { "id": "stk", "region": true, "x": 1010, "y": 430, "w": 380, "h": 480, "label": "STACK", "tone": "blue", "cue": "Inside f" },
+        { "id": "hp", "region": true, "x": 1430, "y": 430, "w": 380, "h": 480, "label": "HEAP", "tone": "warn", "cue": "new int of forty two" },
+        { "id": "vx", "x": 1040, "y": 560, "w": 320, "h": 100, "label": "x", "text": "7", "size": 40, "tone": "blue", "cue": "the local x" },
+        { "id": "vp", "x": 1040, "y": 740, "w": 320, "h": 100, "label": "p", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "p stores its address" },
+        { "id": "hv", "x": 1460, "y": 740, "w": 320, "h": 100, "label": "@0x5f20", "text": "42", "size": 40, "tone": "warn", "cue": "new int of forty two" }
+      ],
+      "arrows": [{ "from": "vp", "to": "hv", "cue": "p stores its address" }],
+      "changes": [
+        { "id": "hv", "kill": true, "cue": "Delete p" },
+        { "id": "a0", "fade": true, "cue": "When f returns" },
+        { "id": "vx", "fade": true, "cue": "When f returns" },
+        { "id": "vp", "fade": true, "cue": "When f returns" },
+        { "id": "hv", "fade": true, "cue": "When f returns" }
+      ],
+      "say": "A global like counter has static storage. It exists for the whole run of the program. Inside f, the local x lives on the stack, created automatically when f is called. But new int of forty two is different. It asks the heap for memory at runtime, and p stores its address. Delete p hands that memory back. When f returns, x and p vanish automatically. Heap memory never does. It stays until someone frees it." },
+
+    { "type": "flow", "head": "Where heap memory comes from", "y": 400, "h": 280,
+      "items": [
+        { "label": "1", "text": "new int(42)", "sub": "your code", "size": 32, "cue": "Your code writes new" },
+        { "label": "2", "text": "operator new", "sub": "allocation function", "size": 32, "tone": "warn", "cue": "That calls a function" },
+        { "label": "3", "text": "Allocator", "sub": "usually malloc: keeps free lists", "size": 32, "tone": "warn", "cue": "The allocator keeps" },
+        { "label": "4", "text": "Operating system", "sub": "more pages (brk / mmap)", "size": 30, "tone": "bad", "cue": "Only when it runs out" }
+      ],
+      "say": "So where does heap memory come from? Your code writes new. That calls a function named operator new, which on GCC and Clang usually just calls malloc. The allocator keeps lists of free blocks and hands out one big enough. Only when it runs out does it ask the operating system for more pages. That bookkeeping, and the occasional system call, is why the heap is slower than the stack." },
+
+    { "type": "code", "head": "Modern C++: let an owner allocate",
+      "panels": [{ "file": "modern.cpp", "size": 34, "code": "int scores[10];                       // stack: automatic\n\nstd::vector<int> big(1'000'000);      // heap, owned by big\nauto w = std::make_unique<Widget>();  // heap, owned by w\n\nWidget* raw = new Widget;             // heap, owned by... you\ndelete raw;                           // forget this: leak" }],
+      "steps": [
+        { "cue": "Small, short lived data", "lines": [1] },
+        { "cue": "use an owner", "lines": [3, 4] },
+        { "cue": "Raw new and delete", "lines": [6, 7] }
+      ],
+      "notes": [
+        { "cue": "frees the memory automatically", "line": 3, "inside": true, "text": "freed automatically", "tone": "good" },
+        { "cue": "exactly one delete", "line": 7, "inside": true, "text": "easy to get wrong", "tone": "bad" }
+      ],
+      "say": "In modern C plus plus, you rarely call new yourself. Small, short lived data goes on the stack. For heap memory, use an owner, like a vector, or make unique. The owner frees the memory automatically when it goes out of scope. Raw new and delete still work, but every new needs exactly one delete, on every path. That's where leaks and crashes come from." },
+
+    { "type": "take", "lines": ["Three storage kinds: static (whole program), automatic (stack), dynamic (heap).", "new → operator new → allocator (usually malloc) → OS pages when it runs out.", "Prefer the stack and owning types (vector, unique_ptr) over raw new/delete."],
+      "cues": ["Three kinds", "Heap memory flows", "Prefer"],
+      "say": "Three kinds of storage: static for the whole program, automatic on the stack, and dynamic on the heap. Heap memory flows from new, to operator new, to the allocator, and from the operating system when needed. Prefer the stack, and owning types like vector and unique pointer, over raw new and delete." }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "q39", "num": 39, "short": "Pointer to pointer",
+  "question": "What is a pointer to a pointer?",
+  "caps": [["[Ss]tar star pp", "**pp"], ["[Ss]tar pp", "*pp"], ["int star star", "int**"], ["char star star argv", "char** argv"], ["grid of one of two", "grid[1][2]"], ["2 D", "2D"]],
+  "scenes": [
+    { "type": "title", "sub": "A variable that stores the address of another pointer.",
+      "say": "A pointer to a pointer. It sounds confusing, but it's just one more arrow in the chain. Let's draw it." },
+
+    { "type": "diagram", "head": "Follow the arrows",
+      "panels": [{ "file": "chain.cpp", "size": 34, "code": "int x = 42;\nint* p = &x;      // p -> x\nint** pp = &p;    // pp -> p\n\nstd::cout << *pp;   // p's value: 0x100\nstd::cout << **pp;  // 42\n\n**pp = 99;        // changes x" }],
+      "steps": [
+        { "cue": "x holds", "lines": [1] },
+        { "cue": "p is an int pointer", "lines": [2] },
+        { "cue": "pp is an int star star", "lines": [3] },
+        { "cue": "Star pp follows", "lines": [5] },
+        { "cue": "Star star pp follows", "lines": [6] },
+        { "cue": "assigning ninety nine", "lines": [8] }
+      ],
+      "items": [
+        { "id": "ppv", "x": 1000, "y": 440, "w": 240, "h": 130, "label": "pp @0x300", "text": "0x200", "size": 36, "tone": "warn", "cue": "pp is an int star star" },
+        { "id": "pv", "x": 1290, "y": 440, "w": 240, "h": 130, "label": "p @0x200", "text": "0x100", "size": 36, "tone": "warn", "cue": "p is an int pointer" },
+        { "id": "xv", "x": 1580, "y": 440, "w": 230, "h": 130, "label": "x @0x100", "text": "42", "size": 48, "tone": "blue", "cue": "x holds" }
+      ],
+      "arrows": [
+        { "from": "pv", "to": "xv", "cue": "p is an int pointer" },
+        { "from": "ppv", "to": "pv", "cue": "pp is an int star star" }
+      ],
+      "changes": [
+        { "id": "pv", "tone": "good", "cue": "Star pp follows" },
+        { "id": "xv", "tone": "good", "cue": "Star star pp follows" },
+        { "id": "xv", "text": "99", "cue": "assigning ninety nine" }
+      ],
+      "say": "x holds forty two, at address hex one hundred. p is an int pointer holding x's address. pp is an int star star, holding p's address. Each star follows one arrow. Star pp follows one arrow and gives you p, the address of x. Star star pp follows both arrows and gives forty two. So assigning ninety nine through star star pp changes x itself." },
+
+    { "type": "code", "head": "Why: let a function change the caller's pointer",
+      "panels": [{ "file": "out.cpp", "size": 32, "code": "void make(int** out) {\n    *out = new int(7);    // writes into caller's p\n}\n\nvoid make2(int*& out) {   // C++: reference to pointer\n    out = new int(7);\n}\n\nint main() {\n    int* p = nullptr;\n    make(&p);             // p now points to a 7\n    delete p;\n    make2(p);\n    delete p;\n}" }],
+      "steps": [
+        { "cue": "change the caller's pointer", "lines": [1, 2] },
+        { "cue": "Passing the address of p", "lines": [10, 11] },
+        { "cue": "reference to a pointer", "lines": [5, 6, 13] }
+      ],
+      "say": "Why would you need one? To let a function change the caller's pointer. If make took a plain int pointer, it would only change its own copy. Passing the address of p lets it write a new address into p itself. That's the C style. In C plus plus, a reference to a pointer does the same job with cleaner syntax. Even better, just return a unique pointer." },
+
+    { "type": "code", "head": "You've already met one",
+      "panels": [{ "file": "more.cpp", "size": 34, "code": "int main(int argc, char** argv) {\n    // argv[0] is a char*: the program name\n}\n\nint** grid = new int*[3];      // array of row pointers\nfor (int i = 0; i < 3; ++i)\n    grid[i] = new int[4];      // each row: 4 ints\ngrid[1][2] = 5;" }],
+      "steps": [
+        { "cue": "char star star argv", "lines": [1, 2] },
+        { "cue": "jagged", "lines": [5, 6, 7] },
+        { "cue": "grid of one of two", "lines": [8] }
+      ],
+      "say": "You've already met one: char star star argv. It points to an array of C strings, one per command line argument. Another classic is a jagged 2 D array: an array of row pointers, each pointing to its own row. grid of one of two follows two pointers. In real C plus plus code, prefer a vector of vectors, or one flat vector, which is faster and frees itself." },
+
+    { "type": "take", "lines": ["int** pp stores the address of an int*: one more arrow in the chain.", "*pp gives the pointer; **pp gives the int.", "Used to change a caller's pointer, and for argv / arrays of pointers. C++: prefer int*&."],
+      "cues": ["A pointer to a pointer", "pp gives the pointer", "Use it"],
+      "say": "A pointer to a pointer stores the address of another pointer, one more arrow in the chain. Star pp gives the pointer, star star pp gives the value. Use it to change a caller's pointer, or for arrays of pointers like argv. In C plus plus, a reference to a pointer is usually cleaner." }
+  ]
+}

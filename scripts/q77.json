@@ -1,0 +1,79 @@
+{
+  "id": "q77", "num": 77, "short": "Map complexities",
+  "question": "What are the time complexities of insertion, lookup, and deletion in `map` and `unordered_map`?",
+  "caps": [["[Uu]nordered map", "unordered_map"], ["O of one", "O(1)"], ["O of log n", "O(log n)"], ["O of n", "O(n)"]],
+  "scenes": [
+    { "type": "title", "sub": "Log n, guaranteed. Or constant on average, with a catch.",
+      "say": "Insert, find, and erase, in map and unordered map. The numbers are easy to memorize. Knowing why is what interviewers check." },
+
+    { "type": "diagram", "head": "The whole answer in one grid",
+      "items": [
+        { "id": "hm", "x": 480, "y": 220, "w": 400, "h": 90, "text": "map", "size": 34, "tone": "blue" },
+        { "id": "hu", "x": 920, "y": 220, "w": 420, "h": 90, "text": "unordered: average", "size": 32, "tone": "good" },
+        { "id": "hw", "x": 1380, "y": 220, "w": 420, "h": 90, "text": "unordered: worst", "size": 32, "tone": "bad" },
+        { "id": "ri", "x": 140, "y": 340, "w": 300, "h": 100, "text": "insert", "size": 34, "tone": "ghost" },
+        { "id": "rf", "x": 140, "y": 470, "w": 300, "h": 100, "text": "find", "size": 34, "tone": "ghost" },
+        { "id": "re", "x": 140, "y": 600, "w": 300, "h": 100, "text": "erase", "size": 34, "tone": "ghost" },
+        { "id": "mi", "x": 480, "y": 340, "w": 400, "h": 100, "text": "O(log n)", "size": 40, "tone": "blue", "cue": "Map is a balanced" },
+        { "id": "mf", "x": 480, "y": 470, "w": 400, "h": 100, "text": "O(log n)", "size": 40, "tone": "blue", "cue": "Map is a balanced" },
+        { "id": "me", "x": 480, "y": 600, "w": 400, "h": 100, "text": "O(log n)", "size": 40, "tone": "blue", "cue": "Map is a balanced" },
+        { "id": "ui", "x": 920, "y": 340, "w": 420, "h": 100, "text": "O(1)", "size": 40, "tone": "good", "cue": "O of one on average" },
+        { "id": "uf", "x": 920, "y": 470, "w": 420, "h": 100, "text": "O(1)", "size": 40, "tone": "good", "cue": "O of one on average" },
+        { "id": "ue", "x": 920, "y": 600, "w": 420, "h": 100, "text": "O(1)", "size": 40, "tone": "good", "cue": "O of one on average" },
+        { "id": "wi", "x": 1380, "y": 340, "w": 420, "h": 100, "text": "O(n)", "size": 40, "tone": "bad", "cue": "worst case, when" },
+        { "id": "wf", "x": 1380, "y": 470, "w": 420, "h": 100, "text": "O(n)", "size": 40, "tone": "bad", "cue": "worst case, when" },
+        { "id": "we", "x": 1380, "y": 600, "w": 420, "h": 100, "text": "O(n)", "size": 40, "tone": "bad", "cue": "worst case, when" }
+      ],
+      "notes": [{ "cue": "through an iterator", "x": 480, "y": 760, "text": "map.erase(it): amortized O(1)", "tone": "info" }],
+      "say": "Map is a balanced tree, so insert, find, and erase are all O of log n, and that's guaranteed, even in the worst case. Unordered map is a hash table. Insert, find, and erase are O of one on average. But in the worst case, when keys pile into the same bucket, each one degrades to O of n. One detail: erasing a map element through an iterator you already have is amortized constant, since there's no search. That's the one grid to remember." },
+
+    { "type": "diagram", "head": "Why the worst case exists",
+      "items": [
+        { "id": "gb0", "x": 160, "y": 280, "w": 140, "h": 90, "text": "[0]", "size": 32, "tone": "ghost", "cue": "good hash" },
+        { "id": "gb1", "x": 160, "y": 400, "w": 140, "h": 90, "text": "[1]", "size": 32, "tone": "ghost", "cue": "good hash" },
+        { "id": "gb2", "x": 160, "y": 520, "w": 140, "h": 90, "text": "[2]", "size": 32, "tone": "ghost", "cue": "good hash" },
+        { "id": "gb3", "x": 160, "y": 640, "w": 140, "h": 90, "text": "[3]", "size": 32, "tone": "ghost", "cue": "good hash" },
+        { "id": "gk0", "x": 400, "y": 280, "w": 160, "h": 90, "text": "k1", "size": 34, "tone": "good", "cue": "spread out" },
+        { "id": "gk1", "x": 400, "y": 400, "w": 160, "h": 90, "text": "k2", "size": 34, "tone": "good", "cue": "spread out" },
+        { "id": "gk2", "x": 400, "y": 520, "w": 160, "h": 90, "text": "k3", "size": 34, "tone": "good", "cue": "spread out" },
+        { "id": "gk3", "x": 400, "y": 640, "w": 160, "h": 90, "text": "k4", "size": 34, "tone": "good", "cue": "spread out" },
+        { "id": "bb0", "x": 900, "y": 280, "w": 140, "h": 90, "text": "[0]", "size": 32, "tone": "ghost", "cue": "bad hash" },
+        { "id": "bb1", "x": 900, "y": 400, "w": 140, "h": 90, "text": "[1]", "size": 32, "tone": "ghost", "cue": "bad hash" },
+        { "id": "bb2", "x": 900, "y": 520, "w": 140, "h": 90, "text": "[2]", "size": 32, "tone": "ghost", "cue": "bad hash" },
+        { "id": "bb3", "x": 900, "y": 640, "w": 140, "h": 90, "text": "[3]", "size": 32, "tone": "ghost", "cue": "bad hash" },
+        { "id": "bk0", "x": 1130, "y": 400, "w": 130, "h": 90, "text": "k1", "size": 34, "tone": "bad", "cue": "lands in one bucket" },
+        { "id": "bk1", "x": 1310, "y": 400, "w": 130, "h": 90, "text": "k2", "size": 34, "tone": "bad", "cue": "lands in one bucket" },
+        { "id": "bk2", "x": 1490, "y": 400, "w": 130, "h": 90, "text": "k3", "size": 34, "tone": "bad", "cue": "lands in one bucket" },
+        { "id": "bk3", "x": 1670, "y": 400, "w": 130, "h": 90, "text": "k4", "size": 34, "tone": "bad", "cue": "lands in one bucket" }
+      ],
+      "arrows": [
+        { "from": "gb0", "to": "gk0", "cue": "spread out" },
+        { "from": "gb1", "to": "gk1", "cue": "spread out" },
+        { "from": "gb2", "to": "gk2", "cue": "spread out" },
+        { "from": "gb3", "to": "gk3", "cue": "spread out" },
+        { "from": "bb1", "to": "bk0", "cue": "lands in one bucket" },
+        { "from": "bk0", "to": "bk1", "cue": "walks a chain" },
+        { "from": "bk1", "to": "bk2", "cue": "walks a chain" },
+        { "from": "bk2", "to": "bk3", "cue": "walks a chain" }
+      ],
+      "notes": [
+        { "cue": "checks almost nothing", "x": 160, "y": 790, "text": "about one key per bucket: O(1)", "tone": "good" },
+        { "cue": "walks a chain", "x": 900, "y": 790, "text": "all in one bucket: O(n)", "tone": "bad" }
+      ],
+      "say": "Picture why the worst case exists. With a good hash, keys spread out, about one per bucket, so a lookup checks almost nothing. With a bad hash, or keys an attacker chose on purpose, everything lands in one bucket. Now a lookup walks a chain of n keys, and the hash table is no better than a linked list. That's why map is sometimes preferred when worst case latency really matters." },
+
+    { "type": "code", "head": "The costs hiding behind the big O",
+      "panels": [{ "file": "costs.cpp", "size": 32, "code": "std::map<int, int> m;              // with 1,000,000 keys:\nm.find(42);                        // ~20 to 40 comparisons\n\nstd::unordered_map<int, int> u;\nu.reserve(1000000);                // no rehashing while filling\nu.find(42);                        // hash, then check one bucket\n\nstd::unordered_map<std::string, int> s;\ns.find(\"some long key\");           // hashing a string: O(length)" }],
+      "steps": [
+        { "cue": "Why log n", "lines": [1, 2] },
+        { "cue": "A hash lookup", "lines": [4, 6] },
+        { "cue": "Calling reserve", "lines": [5] },
+        { "cue": "string keys", "lines": [8, 9] }
+      ],
+      "say": "Why log n? A balanced tree with a million keys is only about twenty to forty levels deep, so a lookup takes a few dozen comparisons. A hash lookup computes the hash, jumps to one bucket, and checks the few keys there. Two hidden costs. An insert can trigger a rehash, which is O of n, but it's rare, so inserts are still O of one on average. Calling reserve up front avoids it. And with string keys, every hash or comparison costs time proportional to the string's length." },
+
+    { "type": "take", "lines": ["map: insert, find, erase all O(log n), guaranteed (balanced tree).", "unordered_map: O(1) average, O(n) worst case when keys collide.", "Rehashing is O(n) but rare. reserve() up front avoids it."],
+      "cues": ["Map is", "Unordered map is", "Rehashing"],
+      "say": "Map is O of log n for everything, guaranteed. Unordered map is O of one on average, but O of n in the worst case, when keys collide. Rehashing costs O of n, but it's rare, and reserve avoids it." }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "q86", "num": 86, "short": "C++11 features",
+  "question": "What are the major features introduced in C++11?",
+  "caps": [["range based for", "range-based for"], ["s t d colon colon move", "std::move"], ["enum class", "enum class"]],
+  "scenes": [
+    { "type": "title", "sub": "The release that turned old C++ into modern C++.",
+      "say": "What changed in C plus plus eleven? Almost everything about how we write C plus plus day to day. Let's see the big features in real code." },
+
+    { "type": "code", "head": "Everyday code got shorter and safer",
+      "panels": [{ "file": "modern.cpp", "size": 32, "code": "int main() {\n    std::vector<int> v{5, 2, 8};          // brace initialization\n    auto it = v.begin();                  // type deduction\n    for (int x : v) std::cout << x;       // range-based for\n    std::sort(v.begin(), v.end(),\n        [](int a, int b) { return a > b; });  // lambda\n    int* p = nullptr;                     // typed null pointer\n    std::unique_ptr<int> up(new int(7));  // smart pointer\n}" }],
+      "steps": [
+        { "cue": "Brace initialization", "lines": [2] },
+        { "cue": "auto lets", "lines": [3] },
+        { "cue": "range based for", "lines": [4] },
+        { "cue": "Lambdas", "lines": [5, 6] },
+        { "cue": "null p t r", "lines": [7] },
+        { "cue": "unique pointer", "lines": [8] }
+      ],
+      "say": "One small program, six C plus plus eleven features. Brace initialization fills the vector directly. auto lets the compiler deduce the iterator type. The range based for loop walks every element. Lambdas let you write the comparison inline. null p t r is a real null pointer, not the integer zero. And unique pointer, plus shared pointer, free memory automatically." },
+
+    { "type": "code", "head": "The biggest one: move semantics",
+      "panels": [{ "file": "move.cpp", "size": 34, "code": "std::vector<std::string> load() {\n    std::vector<std::string> big(1000000, \"row\");\n    return big;              // moved or elided, never deep-copied\n}\n\nstd::string a(1000, 'x');\nstd::string b = std::move(a);   // b takes a's buffer\n// a is still valid, but its value is unspecified" }],
+      "steps": [
+        { "cue": "Before C plus plus eleven", "lines": [1, 2, 3] },
+        { "cue": "Rvalue references", "lines": [7] },
+        { "cue": "moved from", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "steals the pointer", "line": 7, "inside": true, "text": "O(1), no copy", "tone": "good" }
+      ],
+      "say": "The biggest feature is move semantics. Before C plus plus eleven, returning a big container could mean copying it. Rvalue references and move constructors let an object hand over its resources instead. s t d colon colon move marks a as safe to steal from, so b just steals the pointer to the buffer. The moved from string is still valid, just with an unspecified value." },
+
+    { "type": "diagram", "head": "And much more",
+      "items": [
+        { "id": "lang", "x": 160, "y": 240, "w": 760, "h": 250, "text": "Type safety", "sub": "enum class, override, final, = delete, = default", "size": 40, "tone": "blue", "cue": "For type safety" },
+        { "id": "ct", "x": 1000, "y": 240, "w": 760, "h": 250, "text": "Compile time", "sub": "constexpr, static_assert, variadic templates", "size": 40, "tone": "warn", "cue": "At compile time" },
+        { "id": "conc", "x": 160, "y": 600, "w": 760, "h": 250, "text": "Concurrency", "sub": "memory model, thread, mutex, atomic, future", "size": 40, "tone": "good", "cue": "concurrency" },
+        { "id": "lib", "x": 1000, "y": 600, "w": 760, "h": 250, "text": "Library", "sub": "unordered_map, array, tuple, chrono, regex", "size": 40, "cue": "the library" }
+      ],
+      "say": "There's more. For type safety, scoped enum class, override and final, and deleted or defaulted functions. At compile time, constexpr functions, static assert, and variadic templates. For the first time, the standard defined a memory model and real concurrency: thread, mutex, atomic and future. And the library grew too: hash maps, fixed size arrays, tuples, and chrono for time. In an interview, lead with move semantics, then name a few of these." },
+
+    { "type": "take", "lines": ["Syntax: `auto`, range-for, lambdas, `nullptr`, brace init.", "Performance and safety: move semantics, smart pointers, `constexpr`.", "Concurrency: memory model, `std::thread`, `mutex`, `atomic`."],
+      "cues": ["Syntax", "Performance", "Concurrency"],
+      "say": "Syntax: auto, range based for, lambdas, null p t r, and brace initialization. Performance and safety: move semantics, smart pointers, and constexpr. Concurrency: a real memory model, with threads, mutexes and atomics in the standard library." }
+  ]
+}

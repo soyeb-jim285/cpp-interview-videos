@@ -1,0 +1,69 @@
+{
+  "id": "q84", "num": 84, "short": "Erase-remove idiom",
+  "question": "What is the erase-remove idiom?",
+  "caps": [["erase remove idiom", "erase-remove idiom"], ["[Rr]emove if", "remove_if"], ["erase if", "erase_if"], ["C\\+\\+ twenty", "C++20"], ["O of n squared", "O(n²)"], ["O of n", "O(n)"], ["v dot end", "v.end()"]],
+  "scenes": [
+    { "type": "title", "sub": "Because std::remove doesn't actually remove anything.",
+      "say": "The erase remove idiom. It exists because of one surprising fact: the remove algorithm doesn't actually remove anything." },
+
+    { "type": "diagram", "head": "Watch remove, then erase",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "std::vector<int> v = {1, 2, 3, 2, 5};\n\nauto it = std::remove(v.begin(), v.end(), 2);\n// v.size() is still 5!\n\nv.erase(it, v.end());\n// v: 1 3 5, size 3" }],
+      "steps": [
+        { "cue": "Remove two from", "lines": [1] },
+        { "cue": "remove doesn't", "lines": [3] },
+        { "cue": "size is still five", "lines": [4] },
+        { "cue": "Then erase", "lines": [6, 7] }
+      ],
+      "items": [
+        { "id": "c0", "x": 1020, "y": 380, "w": 140, "h": 110, "label": "[0]", "text": "1", "size": 40, "tone": "blue", "cue": "Remove two from" },
+        { "id": "c1", "x": 1180, "y": 380, "w": 140, "h": 110, "label": "[1]", "text": "2", "size": 40, "tone": "blue", "cue": "Remove two from" },
+        { "id": "c2", "x": 1340, "y": 380, "w": 140, "h": 110, "label": "[2]", "text": "3", "size": 40, "tone": "blue", "cue": "Remove two from" },
+        { "id": "c3", "x": 1500, "y": 380, "w": 140, "h": 110, "label": "[3]", "text": "2", "size": 40, "tone": "blue", "cue": "Remove two from" },
+        { "id": "c4", "x": 1660, "y": 380, "w": 140, "h": 110, "label": "[4]", "text": "5", "size": 40, "tone": "blue", "cue": "Remove two from" },
+        { "id": "it", "x": 1500, "y": 640, "w": 140, "h": 90, "text": "it", "size": 36, "tone": "warn", "cue": "new logical end" }
+      ],
+      "arrows": [{ "from": "it", "to": "c3", "tone": "warn", "cue": "new logical end" }],
+      "changes": [
+        { "id": "c1", "text": "3", "cue": "Three moves" },
+        { "id": "c1", "tone": "good", "cue": "Three moves" },
+        { "id": "c2", "text": "5", "cue": "five moves" },
+        { "id": "c2", "tone": "good", "cue": "five moves" },
+        { "id": "c0", "tone": "good", "cue": "five moves" },
+        { "id": "c3", "text": "?", "cue": "leftovers" },
+        { "id": "c4", "text": "?", "cue": "leftovers" },
+        { "id": "c3", "tone": "dim", "cue": "leftovers" },
+        { "id": "c4", "tone": "dim", "cue": "leftovers" },
+        { "id": "c3", "kill": true, "cue": "actually destroys" },
+        { "id": "c4", "kill": true, "cue": "actually destroys" },
+        { "id": "a0", "fade": true, "cue": "actually destroys" },
+        { "id": "it", "fade": true, "cue": "actually destroys" }
+      ],
+      "say": "Remove two from one, two, three, two, five. Here's the surprise: remove doesn't erase anything. It can't. It only sees iterators, not the vector. Instead it shifts the keepers forward. Three moves into slot one, five moves into slot two. It returns an iterator to the new logical end. Past it are leftovers, with unspecified values, and the size is still five. Then erase, from it to the end, actually destroys them and shrinks the vector to three." },
+
+    { "type": "code", "head": "The idiom, and the modern shortcut",
+      "panels": [{ "file": "idiom.cpp", "size": 32, "code": "// the idiom, in one line\nv.erase(std::remove(v.begin(), v.end(), 2), v.end());\n\n// with a condition\nv.erase(std::remove_if(v.begin(), v.end(),\n                       [](int x) { return x % 2 == 0; }),\n        v.end());\n\n// C++20: just say what you mean\nstd::erase(v, 2);\nstd::erase_if(v, [](int x) { return x % 2 == 0; });" }],
+      "steps": [
+        { "cue": "in one line", "lines": [2] },
+        { "cue": "remove if", "lines": [5, 6, 7] },
+        { "cue": "In C plus plus twenty", "lines": [10, 11] }
+      ],
+      "say": "Put together, that's the erase remove idiom, in one line. Remove if does the same with a condition. It's one pass, O of n, with each kept element moved at most once. Erasing matches one at a time instead would be O of n squared, since every erase shifts the tail. In C plus plus twenty you can simply call erase or erase if on the container, and they do the idiom for you." },
+
+    { "type": "code", "head": "The classic trap",
+      "panels": [{ "file": "trap.cpp", "size": 32, "code": "v.erase(std::remove(v.begin(), v.end(), 2));            // BUG\nv.erase(std::remove(v.begin(), v.end(), 2), v.end());   // OK\n\nstd::list<int> l = {1, 2, 3, 2};\nl.remove(2);   // list member: unlinks nodes directly" }],
+      "steps": [
+        { "cue": "forgetting the second argument", "lines": [1] },
+        { "cue": "Always pass", "lines": [2] },
+        { "cue": "for a list", "lines": [4, 5] }
+      ],
+      "notes": [
+        { "cue": "removes just one", "line": 1, "inside": true, "text": "erases only one!", "tone": "bad" },
+        { "cue": "Always pass", "line": 2, "inside": true, "text": "whole range", "tone": "good" }
+      ],
+      "say": "The classic trap: forgetting the second argument. Then erase removes just one element, the first leftover. And if nothing matched, remove returns end, and erasing end is undefined behavior. Always pass v dot end as the second argument. And for a list, use its member function remove instead. It unlinks the nodes directly, without moving any values around." },
+
+    { "type": "take", "lines": ["std::remove only shifts keepers forward and returns the new logical end.", "v.erase(std::remove(...), v.end()) then actually shrinks the container.", "C++20: std::erase / std::erase_if. Don't forget the second argument to erase."],
+      "cues": ["Remove only", "Erase then", "In C plus plus twenty"],
+      "say": "Remove only shifts the keepers forward and returns the new logical end. Erase then cuts off the leftovers. In C plus plus twenty, just call erase or erase if. And never forget the second argument to erase." }
+  ]
+}

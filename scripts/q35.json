@@ -1,0 +1,58 @@
+{
+  "id": "q35", "num": 35, "short": "ASan & Valgrind",
+  "question": "How can you detect memory corruption using AddressSanitizer or Valgrind?",
+  "caps": [["Address Sanitizer", "AddressSanitizer"], ["dash f sanitize equals address", "-fsanitize=address"], ["dash g\\b", "-g"]],
+  "scenes": [
+    { "type": "title", "sub": "Let tools catch the bugs your eyes miss.",
+      "say": "How do you detect memory corruption? Bugs like buffer overflows and use after free often don't crash right away. Two tools catch them for you: Address Sanitizer and Valgrind." },
+
+    { "type": "code", "head": "AddressSanitizer: compile it in",
+      "panels": [{ "file": "bug.cpp", "size": 36, "code": "int main() {\n    int* a = new int[4];\n    a[4] = 1;        // one past the end\n    delete[] a;\n}" }],
+      "steps": [
+        { "cue": "writes one element past", "lines": [2, 3] },
+        { "cue": "seems fine", "lines": [] },
+        { "cue": "stops at the bad write", "lines": [3] }
+      ],
+      "output": { "cmd": "g++ -g -fsanitize=address bug.cpp && ./a.out", "tone": "bad", "cue": "stops at the bad write", "text": "ERROR: AddressSanitizer: heap-buffer-overflow on address 0x...\nWRITE of size 4 at 0x... thread T0\n    #0 0x... in main bug.cpp:3\n0x... is located 0 bytes after 16-byte region" },
+      "say": "This program writes one element past the end of a heap array. Run it normally, and it probably seems fine. Now compile with dash g and dash f sanitize equals address, and run it again. Address Sanitizer stops at the bad write and tells you exactly what happened: a heap buffer overflow, a write of four bytes, in main, at line three, right after a sixteen byte block." },
+
+    { "type": "diagram", "head": "How ASan sees the overflow",
+      "items": [
+        { "id": "ins", "x": 540, "y": 210, "w": 620, "h": 100, "text": "check before every load and store", "size": 32, "tone": "warn", "cue": "compiler inserts" },
+        { "id": "rzl", "x": 200, "y": 430, "w": 300, "h": 140, "text": "redzone", "sub": "poisoned", "size": 36, "tone": "bad", "cue": "poisoned redzones" },
+        { "id": "blk", "x": 540, "y": 430, "w": 620, "h": 140, "label": "new int[4]: 16 bytes", "text": "a[0] a[1] a[2] a[3]", "size": 36, "tone": "blue", "cue": "Every heap block" },
+        { "id": "rzr", "x": 1200, "y": 430, "w": 300, "h": 140, "text": "redzone", "sub": "poisoned", "size": 36, "tone": "bad", "cue": "poisoned redzones" },
+        { "id": "sh", "x": 540, "y": 740, "w": 620, "h": 120, "label": "shadow memory", "text": "1 shadow byte per 8 bytes", "size": 32, "tone": "ghost", "cue": "shadow memory" }
+      ],
+      "arrows": [
+        { "from": "blk", "to": "sh", "cue": "shadow memory" },
+        { "from": "ins", "to": "blk", "cue": "compiler inserts" }
+      ],
+      "changes": [
+        { "id": "rzr", "text": "a[4] caught", "cue": "caught instantly" }
+      ],
+      "say": "How does it work? Every heap block gets poisoned redzones on both sides. A shadow memory records which bytes are valid, one shadow byte for every eight bytes. The compiler inserts a quick shadow check before every load and store, so touching a redzone is caught instantly. Freed memory is poisoned and held in quarantine, which catches use after free. It also finds stack and global overflows, double frees, and on Linux, leaks. The cost is roughly two times slower, cheap enough for your tests." },
+
+    { "type": "code", "head": "Valgrind: no recompiling",
+      "panels": [{ "file": "uaf.cpp", "size": 36, "code": "int main() {\n    int* p = new int(5);\n    delete p;\n    return *p;       // use after free\n}" }],
+      "steps": [
+        { "cue": "run the program under valgrind", "lines": [] },
+        { "cue": "already freed", "lines": [3, 4] }
+      ],
+      "output": { "cmd": "g++ -g uaf.cpp && valgrind ./a.out", "tone": "bad", "cue": "Here it catches", "text": "Invalid read of size 4\n   at 0x...: main (uaf.cpp:4)\n Address 0x... is 0 bytes inside a block of size 4 free'd\nERROR SUMMARY: 1 errors from 1 contexts" },
+      "say": "Valgrind takes a different approach. No special build, just add dash g for line numbers, and run the program under valgrind. It executes your binary on a simulated processor and checks every memory access. Here it catches a read from memory that was already freed. It also reports uses of uninitialized values, and leaks at exit. The catch: it's slow, often twenty to thirty times slower, and it misses most overflows of stack arrays." },
+
+    { "type": "flow", "head": "In practice",
+      "items": [
+        { "label": "1 · Build", "text": "ASan + UBSan", "sub": "sanitizer flags, -g", "cue": "build your tests" },
+        { "label": "2 · Run", "text": "Test suite", "sub": "locally and in CI", "cue": "Run the whole" },
+        { "label": "3 · Read", "text": "The report", "sub": "error, stack, alloc site", "cue": "Read the report" },
+        { "label": "4 · Can't rebuild?", "text": "Valgrind", "sub": "also uninit reads", "cue": "Use Valgrind" }
+      ],
+      "say": "In practice: build your tests with Address Sanitizer, and the undefined behavior sanitizer too. Run the whole test suite. Read the report: it shows the kind of error, the stack trace, and where the memory was allocated and freed. Use Valgrind when you can't rebuild, or to hunt uninitialized reads. One trap: don't run an Address Sanitizer build under Valgrind. They don't mix." },
+
+    { "type": "take", "lines": ["AddressSanitizer: compile with -fsanitize=address -g. About 2× slower, precise reports.", "Valgrind: no rebuild, runs the binary on a simulated CPU. Much slower.", "Both catch heap overflows, use-after-free and leaks. Run them in CI."],
+      "cues": ["Address Sanitizer", "Valgrind", "Both catch"],
+      "say": "Address Sanitizer: compile with the flag, about twice as slow, with precise reports. Valgrind: no rebuild, but much slower. Both catch heap overflows, use after free and leaks, so run them in your test pipeline." }
+  ]
+}

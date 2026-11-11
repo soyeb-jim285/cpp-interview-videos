@@ -1,0 +1,65 @@
+{
+  "id": "q40", "num": 40, "short": "const and pointers",
+  "question": "What is the difference between `const int*`, `int* const`, and `const int* const`?",
+  "caps": [["[Cc]onst int star const", "const int* const"], ["[Cc]onst int star", "const int*"], ["[Ii]nt star const", "int* const"], ["int const star", "int const*"], ["star p", "*p"]],
+  "scenes": [
+    { "type": "title", "sub": "Read the declaration from right to left.",
+      "say": "Const int star, int star const, and const int star const. They look alike, but they lock different things. The trick: read them from right to left." },
+
+    { "type": "code", "head": "Three declarations, three different locks",
+      "panels": [{ "file": "const.cpp", "size": 32, "code": "int a = 1, b = 2;\n\nconst int* p1 = &a;        // pointer to const int\n*p1 = 5;                   // error: value is read-only\np1 = &b;                   // OK: can re-point\n\nint* const p2 = &a;        // const pointer to int\n*p2 = 5;                   // OK: modifies a\np2 = &b;                   // error: p2 itself is const\n\nconst int* const p3 = &a;  // const pointer to const int\n*p3 = 5;                   // error\np3 = &b;                   // error" }],
+      "steps": [
+        { "cue": "Const int star p1", "lines": [3, 4, 5] },
+        { "cue": "Int star const p2", "lines": [7, 8, 9] },
+        { "cue": "Const int star const p3", "lines": [11, 12, 13] }
+      ],
+      "notes": [
+        { "cue": "can't change the value", "line": 4, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "never point elsewhere", "line": 9, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "No writing", "line": 12, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "no re-pointing", "line": 13, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Const int star p1: reading right to left, p1 is a pointer to a const int. You can't change the value through it, but you can re-point it. Int star const p2: p2 is a const pointer to an int. You can change a through it, but p2 must be initialized, and can never point elsewhere. Const int star const p3: both are locked. No writing, and no re-pointing." },
+
+    { "type": "diagram", "head": "Which side of the * is const on?",
+      "items": [
+        { "id": "p1", "x": 260, "y": 250, "w": 520, "h": 110, "label": "p1 · const int*", "text": "pointer: free", "size": 34, "tone": "good", "cue": "So p1" },
+        { "id": "v1", "x": 1140, "y": 250, "w": 520, "h": 110, "label": "*p1", "text": "value: locked", "size": 34, "tone": "bad", "cue": "So p1" },
+        { "id": "p2", "x": 260, "y": 500, "w": 520, "h": 110, "label": "p2 · int* const", "text": "pointer: locked", "size": 34, "tone": "bad", "cue": "p2 locks" },
+        { "id": "v2", "x": 1140, "y": 500, "w": 520, "h": 110, "label": "*p2", "text": "value: free", "size": 34, "tone": "good", "cue": "p2 locks" },
+        { "id": "p3", "x": 260, "y": 750, "w": 520, "h": 110, "label": "p3 · const int* const", "text": "pointer: locked", "size": 34, "tone": "bad", "cue": "p3 locks both" },
+        { "id": "v3", "x": 1140, "y": 750, "w": 520, "h": 110, "label": "*p3", "text": "value: locked", "size": 34, "tone": "bad", "cue": "p3 locks both" }
+      ],
+      "arrows": [
+        { "from": "p1", "to": "v1", "cue": "So p1" },
+        { "from": "p2", "to": "v2", "cue": "p2 locks" },
+        { "from": "p3", "to": "v3", "cue": "p3 locks both" }
+      ],
+      "say": "Each declaration has two things you could lock: the pointer itself, and the int it points to. A const to the left of the star locks the int. A const to the right of the star locks the pointer. So p1 locks the value, p2 locks the pointer, and p3 locks both. That also means int const star is exactly the same as const int star. Only the side of the star matters." },
+
+    { "type": "code", "head": "The trap: pointer-to-const isn't a const object",
+      "panels": [{ "file": "trap.cpp", "size": 36, "code": "int a = 1;\nconst int* p = &a;\na = 10;              // fine: a itself is not const\nstd::cout << *p;     // prints 10\n\nvoid print(const int* data, int n);  // promise: read only" }],
+      "steps": [
+        { "cue": "a can still change", "lines": [3] },
+        { "cue": "star p sees ten", "lines": [4] },
+        { "cue": "function parameters", "lines": [6] }
+      ],
+      "output": { "cmd": "./trap", "cue": "star p sees ten", "text": "10" },
+      "say": "The classic trap. A pointer to const does not mean the int is constant. It only means you can't modify it through this pointer. a can still change directly, and star p sees ten. That's why const int star is so common in function parameters: it's a promise that the function will only read the data." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["const int*", "int* const", "const int* const"], "rowHeads": ["Read as", "Change *p?", "Re-point p?", "Must initialize?"],
+      "rows": [
+        ["pointer to const int", "const pointer to int", "const pointer to const int"],
+        ["No", "Yes", "No"],
+        ["Yes", "No", "No"],
+        ["No", "Yes", "Yes"]
+      ],
+      "cues": ["Read right to left", "Change the value", "Re-point it", "must be initialized"],
+      "say": "Read right to left: pointer to const int, const pointer to int, and const pointer to const int. Change the value through it? Only the middle one. Re-point it? Only the first. And the two const pointers must be initialized, because you can never assign them later." },
+
+    { "type": "take", "lines": ["Read right to left. const left of * locks the value; right of * locks the pointer.", "const int*: can't modify the value. int* const: can't re-point.", "const int* const: neither. Pointer-to-const doesn't make the object const."],
+      "cues": ["Read right", "Const int star can't", "can do neither"],
+      "say": "Read right to left. Const before the star locks the value, const after the star locks the pointer. Const int star can't modify the value, int star const can't re-point, and const int star const can do neither. And remember, a pointer to const doesn't make the object itself const." }
+  ]
+}

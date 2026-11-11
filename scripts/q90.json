@@ -1,0 +1,53 @@
+{
+  "id": "q90", "num": 90, "short": "Templates",
+  "question": "What are templates?",
+  "caps": [["max of", "maxOf"], ["Box of int", "Box<int>"], ["Box of string", "Box<std::string>"]],
+  "scenes": [
+    { "type": "title", "sub": "Write the code once. The compiler writes a version for each type.",
+      "say": "What are templates? They let you write a function or class once, with the type as a parameter. The compiler then generates the real code for each type you use." },
+
+    { "type": "code", "head": "One function, any type",
+      "panels": [{ "file": "max.cpp", "size": 36, "code": "template <typename T>\nT maxOf(T a, T b) {\n    return a > b ? a : b;\n}\n\nmaxOf(3, 7);                  // T = int\nmaxOf(2.5, 1.5);              // T = double\nmaxOf<std::string>(\"a\", \"b\");  // T explicit\n\nmaxOf(3, 2.5);                // int or double?" }],
+      "steps": [
+        { "cue": "Without templates", "lines": [] },
+        { "cue": "T is a placeholder", "lines": [1, 2, 3, 4] },
+        { "cue": "deduces T", "lines": [6, 7] },
+        { "cue": "spell it out", "lines": [8] },
+        { "cue": "classic gotcha", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "classic gotcha", "line": 10, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "Without templates you'd write max for int, again for double, again for string. With a template, T is a placeholder type. Call maxOf with two ints, and the compiler deduces T is int. Two doubles, T is double. You can also spell it out in angle brackets. A classic gotcha: an int and a double. T can't be both, so deduction fails and it won't compile." },
+
+    { "type": "diagram", "head": "Instantiation happens at compile time",
+      "items": [
+        { "id": "tpl", "x": 660, "y": 230, "w": 600, "h": 160, "label": "template (a recipe)", "text": "maxOf<T>", "size": 44, "tone": "warn", "cue": "is a recipe" },
+        { "id": "fi", "x": 180, "y": 580, "w": 460, "h": 160, "label": "generated", "text": "maxOf<int>", "sub": "real machine code", "size": 38, "tone": "blue", "cue": "for int" },
+        { "id": "fd", "x": 730, "y": 580, "w": 460, "h": 160, "label": "generated", "text": "maxOf<double>", "sub": "real machine code", "size": 38, "tone": "blue", "cue": "for double" },
+        { "id": "fs", "x": 1280, "y": 580, "w": 460, "h": 160, "label": "generated", "text": "maxOf<string>", "sub": "real machine code", "size": 38, "tone": "blue", "cue": "for string" }
+      ],
+      "arrows": [
+        { "from": "tpl", "to": "fi", "cue": "for int" },
+        { "from": "tpl", "to": "fd", "cue": "for double" },
+        { "from": "tpl", "to": "fs", "cue": "for string" }
+      ],
+      "notes": [
+        { "cue": "header files", "x": 680, "y": 820, "text": "definition lives in the header", "tone": "warn" }
+      ],
+      "say": "The template itself is a recipe, not code. When you use it, the compiler stamps out a separate function: one for int, one for double, one for string. This is called instantiation. It all happens at compile time, so there's no runtime cost. The price is longer builds and bigger binaries. Because the compiler needs the full recipe at each use, templates usually live in header files." },
+
+    { "type": "code", "head": "Class templates",
+      "panels": [{ "file": "box.cpp", "size": 36, "code": "template <typename T>\nclass Box {\n    T value;\npublic:\n    Box(T v) : value(v) {}\n    T get() const { return value; }\n};\n\nBox<int> a(5);\nBox<std::string> b(\"hi\");\n// std::vector<int>, std::map<K, V> work the same way" }],
+      "steps": [
+        { "cue": "Classes can be templates", "lines": [1, 2, 3, 5, 6] },
+        { "cue": "Box of int", "lines": [9, 10] },
+        { "cue": "The whole S T L", "lines": [11] }
+      ],
+      "say": "Classes can be templates too. Box of int and Box of string are two completely different types, generated from one definition. The whole S T L is built this way: vector, map, unique pointer. This is called generic programming. And unlike Java generics, each instantiation is real, type specific code." },
+
+    { "type": "take", "lines": ["Templates: code parameterized by type (or value), written once.", "The compiler instantiates a separate version per type, at compile time.", "Zero runtime cost; costs compile time and binary size. Defined in headers."],
+      "cues": ["Templates are", "The compiler", "No runtime"],
+      "say": "Templates are code parameterized by type, written once. The compiler instantiates a separate version for each type you use, at compile time. No runtime cost, but longer builds and bigger binaries, and they're usually defined in headers." }
+  ]
+}

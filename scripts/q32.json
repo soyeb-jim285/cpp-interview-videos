@@ -1,0 +1,69 @@
+{
+  "id": "q32", "num": 32, "short": "shared_ptr cycles",
+  "question": "What is a circular reference problem with `shared_ptr`?",
+  "caps": [["[Ss]hared pointer", "shared_ptr"], ["[Ww]eak pointer", "weak_ptr"], ["Leak Sanitizer", "LeakSanitizer"]],
+  "scenes": [
+    { "type": "title", "sub": "Two objects keep each other alive. Forever.",
+      "say": "The circular reference problem. Shared pointer frees an object when its count hits zero. But what if two objects own each other?" },
+
+    { "type": "diagram", "head": "Two nodes that own each other",
+      "panels": [{ "file": "cycle.cpp", "size": 32, "code": "struct Node {\n    std::shared_ptr<Node> other;\n    ~Node() { std::cout << \"freed\\n\"; }\n};\n\nint main() {\n    auto a = std::make_shared<Node>();\n    auto b = std::make_shared<Node>();\n    a->other = b;\n    b->other = a;\n}   // prints nothing: leak" }],
+      "steps": [
+        { "cue": "Two nodes", "lines": [7, 8] },
+        { "cue": "a's member points to b", "lines": [9] },
+        { "cue": "b's member points back", "lines": [10] },
+        { "cue": "main ends", "lines": [11] },
+        { "cue": "neither destructor", "lines": [3] }
+      ],
+      "items": [
+        { "id": "sa", "x": 1010, "y": 270, "w": 260, "h": 100, "label": "a (stack)", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "Two nodes" },
+        { "id": "sb", "x": 1010, "y": 710, "w": 260, "h": 100, "label": "b (stack)", "text": "shared_ptr", "size": 32, "tone": "blue", "cue": "Two nodes" },
+        { "id": "na", "x": 1440, "y": 260, "w": 340, "h": 120, "label": "Node A (heap)", "text": "count 1", "size": 36, "tone": "warn", "cue": "Two nodes" },
+        { "id": "nb", "x": 1440, "y": 700, "w": 340, "h": 120, "label": "Node B (heap)", "text": "count 1", "size": 36, "tone": "warn", "cue": "Two nodes" }
+      ],
+      "arrows": [
+        { "from": "sa", "to": "na", "cue": "Two nodes" },
+        { "from": "sb", "to": "nb", "cue": "Two nodes" },
+        { "from": "na", "to": "nb", "bend": 70, "cue": "a's member points to b" },
+        { "from": "nb", "to": "na", "bend": 70, "cue": "b's member points back" }
+      ],
+      "changes": [
+        { "id": "nb", "text": "count 2", "cue": "a's member points to b" },
+        { "id": "na", "text": "count 2", "cue": "b's member points back" },
+        { "id": "a0", "fade": true, "cue": "main ends" },
+        { "id": "a1", "fade": true, "cue": "main ends" },
+        { "id": "sa", "fade": true, "cue": "main ends" },
+        { "id": "sb", "fade": true, "cue": "main ends" },
+        { "id": "na", "text": "count 1", "cue": "each count drops" },
+        { "id": "nb", "text": "count 1", "cue": "each count drops" },
+        { "id": "na", "tone": "bad", "cue": "Nothing prints" },
+        { "id": "nb", "tone": "bad", "cue": "Nothing prints" },
+        { "id": "a2", "tone": "bad", "cue": "Nothing prints" },
+        { "id": "a3", "tone": "bad", "cue": "Nothing prints" }
+      ],
+      "say": "Two nodes, a and b, each start with a count of one. Then a's member points to b, so B's count becomes two. Then b's member points back to a, so A's count is two as well. Now main ends. The stack pointers die, and each count drops to one. But one is not zero. Each node is kept alive by the other, so neither destructor ever runs. Nothing prints. It's a memory leak, even though we never wrote new." },
+
+    { "type": "code", "head": "The fix: make the back edge weak",
+      "panels": [{ "file": "fixed.cpp", "size": 32, "code": "struct Child;\nstruct Parent {\n    std::shared_ptr<Child> child;    // owns\n    ~Parent() { std::cout << \"~Parent\\n\"; }\n};\nstruct Child {\n    std::weak_ptr<Parent> parent;    // only observes\n    ~Child() { std::cout << \"~Child\\n\"; }\n};\nint main() {\n    auto p = std::make_shared<Parent>();\n    p->child = std::make_shared<Child>();\n    p->child->parent = p;\n}" }],
+      "steps": [
+        { "cue": "The parent owns", "lines": [3] },
+        { "cue": "The child only observes", "lines": [7] },
+        { "cue": "when p dies", "lines": [14] },
+        { "cue": "Both destructors", "lines": [4, 8] }
+      ],
+      "output": { "cmd": "./fixed", "tone": "", "cue": "Both destructors", "text": "~Parent\n~Child" },
+      "say": "The fix: break the cycle with a weak pointer. Decide who owns whom. The parent owns its child with a shared pointer. The child only observes its parent with a weak pointer, which doesn't add to the count. Now when p dies, the parent's count hits zero, its destructor runs, and destroying its members releases the child too. Both destructors print. When the child needs its parent, it calls lock." },
+
+    { "type": "flow", "head": "Where cycles hide",
+      "items": [
+        { "label": "Back pointers", "text": "child → parent", "sub": "trees, graphs", "cue": "Back pointers" },
+        { "label": "Linked lists", "text": "next ↔ prev", "sub": "doubly linked", "cue": "Doubly linked" },
+        { "label": "Callbacks", "text": "lambda captures", "sub": "a shared_ptr to its owner", "cue": "And callbacks" }
+      ],
+      "say": "Where do cycles hide? Back pointers, like a child pointing to its parent. Doubly linked lists, where next and prev point both ways. And callbacks, where an object stores a lambda that captures a shared pointer to the object itself. To find them, Leak Sanitizer or Valgrind will report the leaked memory. Rule of thumb: ownership should form a tree, and every back edge should be weak, or a plain raw pointer." },
+
+    { "type": "take", "lines": ["Cycle: A owns B, B owns A, so the counts never reach zero.", "No crash: destructors just never run and memory leaks silently.", "Fix: make one direction a weak_ptr. Ownership should be a tree."],
+      "cues": ["A cycle", "no crash", "The fix"],
+      "say": "A cycle is when shared pointers own each other, so the counts never reach zero. There's no crash, the destructors just never run, and memory leaks silently. The fix is to make one direction a weak pointer, so ownership forms a tree." }
+  ]
+}

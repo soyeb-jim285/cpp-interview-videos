@@ -1,0 +1,43 @@
+{
+  "id": "q81", "num": 81, "short": "Custom comparator",
+  "question": "What is a custom comparator?",
+  "caps": [["a greater than b", "a > b"], ["a less than b", "a < b"]],
+  "scenes": [
+    { "type": "title", "sub": "One function that answers: should a come before b?",
+      "say": "A custom comparator. It's how you tell sort, set, map, or a priority queue what order means for your data." },
+
+    { "type": "code", "head": "Changing the order of sort",
+      "panels": [{ "file": "sort.cpp", "size": 34, "code": "std::vector<int> v = {3, 1, 4, 1, 5};\n\nstd::sort(v.begin(), v.end());             // 1 1 3 4 5\n\nstd::sort(v.begin(), v.end(),\n          [](int a, int b) { return a > b; });  // 5 4 3 1 1\n\nstd::sort(v.begin(), v.end(), std::greater<int>());  // same" }],
+      "steps": [
+        { "cue": "By default", "lines": [3] },
+        { "cue": "here a lambda", "lines": [5, 6] },
+        { "cue": "ready made ones", "lines": [8] }
+      ],
+      "say": "A comparator is a function that answers one question: should a come before b? By default, sort uses less than, so you get ascending order. Pass your own comparator, here a lambda returning a greater than b, and you get descending order. The library also ships ready made ones, like greater. A comparator can be a lambda, a plain function, or a function object. Anything callable with two elements that returns bool." },
+
+    { "type": "code", "head": "In a set, the comparator is part of the type",
+      "panels": [{ "file": "set.cpp", "size": 32, "code": "struct ByLength {\n    bool operator()(const std::string& a,\n                    const std::string& b) const {\n        return a.size() < b.size();\n    }\n};\n\nstd::set<std::string, ByLength> s = {\"kiwi\", \"fig\", \"pear\"};\nfor (auto& w : s) std::cout << w << ' ';   // fig kiwi" }],
+      "steps": [
+        { "cue": "orders strings by length", "lines": [1, 2, 3, 4, 5, 6] },
+        { "cue": "part of the type", "lines": [8] },
+        { "cue": "printing gives", "lines": [9] }
+      ],
+      "notes": [{ "cue": "Where did pear go", "line": 9, "inside": true, "text": "pear vanished!", "tone": "bad" }],
+      "say": "For a set or a map, the comparator is part of the type. This function object orders strings by length. But watch: printing gives only fig and kiwi. Where did pear go? A set treats two keys as equivalent when neither comes before the other. Kiwi and pear have the same length, so the set thinks pear is a duplicate, and drops it. Your comparator also defines what equal means." },
+
+    { "type": "code", "head": "The rule: a strict weak ordering",
+      "panels": [{ "file": "rules.cpp", "size": 32, "code": "// WRONG: <= is not a strict weak ordering\nstd::sort(v.begin(), v.end(),\n          [](int a, int b) { return a <= b; });\n\n// RIGHT: cmp(x, x) must be false\nstd::sort(v.begin(), v.end(),\n          [](int a, int b) { return a < b; });\n\n// several keys: compare tuples\nstruct Person { int age; std::string name; };\nauto byAgeThenName = [](const Person& a, const Person& b) {\n    return std::tie(a.age, a.name) < std::tie(b.age, b.name);\n};" }],
+      "steps": [
+        { "cue": "strict weak ordering", "lines": [1] },
+        { "cue": "Less than or equal", "lines": [2, 3] },
+        { "cue": "Use strict less than", "lines": [5, 6, 7] },
+        { "cue": "multiple keys", "lines": [10, 11, 12, 13] }
+      ],
+      "notes": [{ "cue": "undefined behavior", "line": 3, "inside": true, "text": "undefined behavior", "tone": "bad" }],
+      "say": "The big rule: a comparator must be a strict weak ordering. Most importantly, comparing an element with itself must return false. Less than or equal breaks that rule, and with sort, that's undefined behavior. In practice it can read past the end of the vector and crash. Use strict less than. For multiple keys, compare tuples with tie, which gets the ordering right for you." },
+
+    { "type": "take", "lines": ["A comparator answers “does a come before b?” (lambda, function, or functor).", "It must be a strict weak ordering: cmp(x, x) is false. Never use <=.", "In set/map it also defines equivalence: !cmp(a, b) && !cmp(b, a)."],
+      "cues": ["A comparator answers", "It must be strict", "In a set or map"],
+      "say": "A comparator answers one question: does a come before b. It must be strict, so comparing x with itself returns false. Never use less than or equal. In a set or map, it also decides which keys count as duplicates." }
+  ]
+}

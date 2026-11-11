@@ -1,0 +1,61 @@
+{
+  "id": "q26", "num": 26, "short": "Double free",
+  "question": "What is a double-free error?",
+  "caps": [["Buffer b equals a", "Buffer b = a"]],
+  "scenes": [
+    { "type": "title", "sub": "Giving the same memory back twice.",
+      "say": "Double free. Freeing the same block of memory twice. It sounds easy to avoid, but the most common cause is hidden in your classes." },
+
+    { "type": "code", "head": "The obvious version",
+      "panels": [{ "file": "double.cpp", "size": 36, "code": "int main() {\n    int* p = new int(5);\n    int* q = p;      // same block\n    delete p;\n    delete q;        // freed again\n}" }],
+      "steps": [
+        { "cue": "Two pointers", "lines": [2, 3] },
+        { "cue": "delete p frees", "lines": [4] },
+        { "cue": "delete q frees", "lines": [5] }
+      ],
+      "notes": [
+        { "cue": "delete q frees", "line": 5, "inside": true, "text": "UB", "tone": "bad" }
+      ],
+      "output": { "cmd": "g++ double.cpp && ./a.out      # Linux, glibc", "tone": "bad", "cue": "Modern glibc", "text": "free(): double free detected in tcache 2\nAborted (core dumped)" },
+      "say": "Two pointers, one block. delete p frees it. delete q frees it again. That's undefined behavior. The allocator may put the same block on its free list twice, so two later allocations get the same memory. Attackers can exploit exactly that. Modern glibc often detects it and aborts, but you can't count on it." },
+
+    { "type": "diagram", "head": "The hidden version: copying an owner",
+      "panels": [{ "file": "buffer.cpp", "size": 32, "code": "struct Buffer {\n    int* data;\n    Buffer() : data(new int[10]) {}\n    ~Buffer() { delete[] data; }\n};\n\nint main() {\n    Buffer a;\n    Buffer b = a;  // copies the pointer\n}   // ~b frees data, then ~a frees it again" }],
+      "steps": [
+        { "cue": "Buffer owns", "lines": [2, 3, 4] },
+        { "cue": "Buffer b equals a", "lines": [9] },
+        { "cue": "b is destroyed first", "lines": [10] },
+        { "cue": "Then a's destructor", "lines": [4, 10] }
+      ],
+      "items": [
+        { "id": "oa", "x": 1010, "y": 280, "w": 330, "h": 110, "label": "a", "text": "data: 0x7a10", "size": 32, "tone": "blue", "cue": "Buffer owns" },
+        { "id": "ob", "x": 1010, "y": 650, "w": 330, "h": 110, "label": "b", "text": "data: 0x7a10", "size": 32, "tone": "blue", "cue": "Buffer b equals a" },
+        { "id": "arr", "x": 1480, "y": 465, "w": 320, "h": 110, "label": "@0x7a10", "text": "int[10]", "size": 38, "tone": "warn", "cue": "Buffer owns" }
+      ],
+      "arrows": [
+        { "from": "oa", "to": "arr", "cue": "Buffer owns" },
+        { "from": "ob", "to": "arr", "cue": "not the array" }
+      ],
+      "changes": [
+        { "id": "arr", "kill": true, "cue": "b is destroyed first" },
+        { "id": "ob", "fade": true, "cue": "b is destroyed first" },
+        { "id": "a1", "fade": true, "cue": "b is destroyed first" },
+        { "id": "oa", "tone": "bad", "cue": "Then a's destructor" },
+        { "id": "a0", "tone": "bad", "cue": "Then a's destructor" }
+      ],
+      "say": "Buffer owns a heap array and deletes it in its destructor. Buffer b equals a uses the compiler generated copy constructor. It copies the pointer, not the array. Now two objects think they own one block. At the end of main, b is destroyed first and frees the array. Then a's destructor deletes the same address again. Double free, and no delete in sight in main." },
+
+    { "type": "code", "head": "Prevent it",
+      "panels": [{ "file": "fixes.cpp", "size": 34, "code": "delete p;\np = nullptr;           // deleting nullptr again is a no-op\n\nstruct Buffer {\n    std::vector<int> data = std::vector<int>(10);\n};                      // copies are deep, no double free\n\nauto u = std::make_unique<int>(5);\n// auto v = u;          // won't compile: one owner only" }],
+      "steps": [
+        { "cue": "Setting a pointer to null", "lines": [1, 2] },
+        { "cue": "For classes", "lines": [4, 5, 6] },
+        { "cue": "unique pointer", "lines": [8, 9] }
+      ],
+      "say": "Setting a pointer to null after delete helps a little, because deleting null does nothing. But it doesn't protect the copies. For classes, follow the rule of three: write a deep copy, or delete copying. Even better, the rule of zero: hold a vector, and the compiler generated copies are already correct. And a unique pointer can't be copied at all, so there's only ever one owner to delete it." },
+
+    { "type": "take", "lines": ["Double free: releasing the same block twice. Undefined behavior, often exploitable.", "Common cause: copying a class that owns a raw pointer (shallow copy).", "Prevent: single ownership (unique_ptr), rule of three/zero, ASan to detect."],
+      "cues": ["A double free", "The classic cause", "Prevent it"],
+      "say": "A double free means releasing the same memory twice. It's undefined behavior, and often exploitable. The classic cause is copying a class that owns a raw pointer. Prevent it with single ownership, like unique pointer, follow the rule of three or zero, and use address sanitizer to catch it." }
+  ]
+}

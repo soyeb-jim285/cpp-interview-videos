@@ -1,0 +1,45 @@
+{
+  "id": "q62", "num": 62, "short": "When destructors run",
+  "question": "When is a destructor called?",
+  "scenes": [
+    { "type": "title", "sub": "Whenever an object's lifetime ends. The trick is knowing when that is.",
+      "say": "When is a destructor called? Simply, whenever an object's lifetime ends. Let's trace a program that prints every construction and destruction." },
+
+    { "type": "code", "head": "Trace every lifetime",
+      "panels": [{ "file": "trace.cpp", "size": 30, "code": "struct T {\n    std::string n;\n    T(std::string s) : n(s) { std::cout << \"+\" << n << ' '; }\n    ~T() { std::cout << \"-\" << n << ' '; }\n};\nT g(\"g\");                   // global\nint main() {\n    T a(\"a\");               // local\n    {\n        T b(\"b\");\n    }                       // b's scope ends here\n    T* h = new T(\"h\");\n    delete h;               // heap: only on delete\n    T(\"tmp\");               // temporary\n}                           // a now, g after main" }],
+      "steps": [
+        { "cue": "prints a plus", "lines": [3, 4] },
+        { "cue": "A local like b", "lines": [10, 11] },
+        { "cue": "A heap object", "lines": [12, 13] },
+        { "cue": "A temporary", "lines": [14] },
+        { "cue": "When main ends", "lines": [15] },
+        { "cue": "globals and statics", "lines": [6, 15] }
+      ],
+      "output": { "cmd": "./trace", "text": "+g +a +b -b +h -h +tmp -tmp -a -g", "cue": "globals and statics", "tone": "good" },
+      "say": "T prints a plus when constructed and a minus when destroyed. A local like b dies at the closing brace of its scope. A heap object dies only when you call delete. A temporary dies at the end of the full expression that created it, that semicolon. When main ends, a is destroyed. And globals and statics are destroyed after main returns, in reverse order of construction." },
+
+    { "type": "flow", "head": "Inside one object: the destruction order",
+      "items": [
+        { "label": "1", "text": "~Derived body", "sub": "your code runs first", "cue": "your destructor body" },
+        { "label": "2", "text": "Members", "sub": "reverse declaration order", "cue": "then its members" },
+        { "label": "3", "text": "Base classes", "sub": "reverse order, ~Base last", "cue": "then the base" }
+      ],
+      "say": "Inside one object, destruction runs in the exact reverse of construction. First your destructor body runs, then its members are destroyed in reverse order of declaration, then the base class destructors. Same rule for locals in a scope: last constructed, first destroyed." },
+
+    { "type": "code", "head": "Exceptions, and when it's NOT called",
+      "panels": [{ "file": "edge.cpp", "size": 34, "code": "void f() {\n    T a(\"a\");\n    throw std::runtime_error(\"oops\");  // ~a runs while unwinding\n}\n\nT* leak = new T(\"L\");    // never deleted: ~T never runs\n\nBase* p = new Derived;\ndelete p;                // needs a virtual ~Base" }],
+      "steps": [
+        { "cue": "an exception leaves", "lines": [2, 3] },
+        { "cue": "never delete", "lines": [6] },
+        { "cue": "through a base pointer", "lines": [8, 9] }
+      ],
+      "notes": [
+        { "cue": "undefined behavior", "line": 9, "inside": true, "text": "else: UB", "tone": "bad" }
+      ],
+      "say": "When an exception leaves a scope and is caught, stack unwinding destroys every local along the way. That's why R A I I works. But if you new an object and never delete it, its destructor never runs. And deleting a derived object through a base pointer is undefined behavior unless the base destructor is virtual. Calling s t d abort also skips destructors." },
+
+    { "type": "take", "lines": ["Locals: at the end of their scope, in reverse order. Temporaries: end of the full expression.", "Heap objects: only on delete. Globals and statics: after main returns.", "Exceptions unwind and destroy locals. Polymorphic base? Make ~Base virtual."],
+      "cues": ["Locals", "Heap objects", "Exceptions"],
+      "say": "Locals are destroyed at the end of their scope, in reverse order, and temporaries at the end of the full expression. Heap objects only on delete. Globals and statics after main returns. Exceptions unwind and destroy locals, and a polymorphic base needs a virtual destructor." }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "q73", "num": 73, "short": "Vector reallocation",
+  "question": "What happens when a vector exceeds its capacity?",
+  "caps": [["[Pp]ush back", "push_back"], ["move if noexcept", "move_if_noexcept"], ["O of one", "O(1)"], ["O of n", "O(n)"]],
+  "scenes": [
+    { "type": "title", "sub": "No room left: the vector moves house, and old addresses go stale.",
+      "say": "What happens when a vector runs out of capacity? It can't stretch its memory, so it moves everything to a new, bigger home." },
+
+    { "type": "diagram", "head": "Watch one push_back reallocate",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "std::vector<int> v = {1, 2, 3, 4};\n// here: size 4, capacity 4 (full)\nint* p = &v[0];\n\nv.push_back(5);   // no room left!\n\n// p now dangles: old block is gone" }],
+      "steps": [
+        { "cue": "holds four ints", "lines": [1, 2] },
+        { "cue": "pointer p", "lines": [3] },
+        { "cue": "push back five", "lines": [5] },
+        { "cue": "dangling", "lines": [7] }
+      ],
+      "items": [
+        { "id": "p", "x": 1040, "y": 290, "w": 260, "h": 100, "label": "p", "text": "&v[0]", "size": 34, "tone": "warn", "cue": "pointer p" },
+        { "id": "o0", "x": 1420, "y": 290, "w": 90, "h": 100, "text": "1", "size": 34, "tone": "blue", "cue": "holds four ints" },
+        { "id": "o1", "x": 1520, "y": 290, "w": 90, "h": 100, "text": "2", "size": 34, "tone": "blue", "cue": "holds four ints" },
+        { "id": "o2", "x": 1620, "y": 290, "w": 90, "h": 100, "text": "3", "size": 34, "tone": "blue", "cue": "holds four ints" },
+        { "id": "o3", "x": 1720, "y": 290, "w": 90, "h": 100, "text": "4", "size": 34, "tone": "blue", "cue": "holds four ints" },
+        { "id": "n0", "x": 1020, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n1", "x": 1120, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n2", "x": 1220, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n3", "x": 1320, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n4", "x": 1420, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n5", "x": 1520, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n6", "x": 1620, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" },
+        { "id": "n7", "x": 1720, "y": 580, "w": 90, "h": 100, "text": "?", "size": 34, "tone": "ghost", "cue": "allocates a new block" }
+      ],
+      "notes": [
+        { "cue": "holds four ints", "x": 1420, "y": 220, "text": "old block: capacity 4" },
+        { "cue": "allocates a new block", "x": 1020, "y": 710, "text": "new block: capacity 8 (GCC)" }
+      ],
+      "arrows": [{ "from": "p", "to": "o0", "cue": "pointer p" }],
+      "changes": [
+        { "id": "n4", "text": "5", "cue": "constructs five" },
+        { "id": "n4", "tone": "good", "cue": "constructs five" },
+        { "id": "n0", "text": "1", "cue": "moves or copies" },
+        { "id": "n1", "text": "2", "cue": "moves or copies" },
+        { "id": "n2", "text": "3", "cue": "moves or copies" },
+        { "id": "n3", "text": "4", "cue": "moves or copies" },
+        { "id": "o0", "kill": true, "cue": "frees the old block" },
+        { "id": "o1", "kill": true, "cue": "frees the old block" },
+        { "id": "o2", "kill": true, "cue": "frees the old block" },
+        { "id": "o3", "kill": true, "cue": "frees the old block" },
+        { "id": "a0", "tone": "bad", "cue": "dangling" },
+        { "id": "p", "tone": "bad", "cue": "dangling" }
+      ],
+      "say": "This vector holds four ints, and it's full: capacity four. We also keep a pointer p to the first element. Now push back five. There's no room, so the vector allocates a new block, here twice as big. It constructs five in the new block, then moves or copies the four old elements across. It destroys them and frees the old block. The vector is fine. But p still points into the freed block. It's dangling, and using it is undefined behavior." },
+
+    { "type": "code", "head": "How much bigger? Implementation-defined",
+      "panels": [{ "file": "grow.cpp", "size": 38, "code": "std::vector<int> v;\nfor (int i = 0; i < 9; ++i) {\n    v.push_back(i);\n    std::cout << v.capacity() << ' ';\n}" }],
+      "steps": [
+        { "cue": "How much bigger", "lines": [1, 2, 3, 4, 5] },
+        { "cue": "GCC and Clang", "lines": [4] }
+      ],
+      "notes": [{ "cue": "Microsoft", "line": 4, "inside": true, "text": "MSVC: 1 2 3 4 6 6 9 9 9", "tone": "info" }],
+      "output": { "cmd": "g++ grow.cpp && ./a.out", "cue": "GCC and Clang", "text": "1 2 4 4 8 8 8 8 16" },
+      "say": "How much bigger? The standard only requires push back to be amortized constant time, so the growth factor is up to the implementation. GCC and Clang's libraries double the capacity. Microsoft's grows by one and a half times. Either way the growth is geometric, so the total copying stays proportional to n. Most pushes are cheap, a rare one costs O of n, and on average push back is O of one." },
+
+    { "type": "code", "head": "Move or copy? It depends on noexcept",
+      "panels": [{ "file": "move.cpp", "size": 36, "code": "struct A {\n    A() = default;\n    A(const A&)     { std::cout << \"copy \"; }\n    A(A&&) noexcept { std::cout << \"move \"; }\n};\n\nstd::vector<A> v(2);   // size 2, capacity 2\nv.emplace_back();      // prints: move move" }],
+      "steps": [
+        { "cue": "move if noexcept", "lines": [4] },
+        { "cue": "Otherwise it copies", "lines": [3] },
+        { "cue": "Remove noexcept", "lines": [7, 8] }
+      ],
+      "notes": [{ "cue": "Remove noexcept", "line": 8, "inside": true, "text": "no noexcept: copy copy", "tone": "bad" }],
+      "say": "Move or copy? During reallocation the vector uses move if noexcept. It moves elements only if the move constructor is noexcept, or the type can't be copied at all. Otherwise it copies, so if something throws halfway, the original vector is untouched. That's the strong exception guarantee. Remove noexcept here, and this prints copy, copy. So mark your move constructors noexcept." },
+
+    { "type": "take", "lines": ["New bigger block, elements moved or copied, old block destroyed and freed.", "Growth factor is implementation-defined: 2x GCC/Clang, 1.5x MSVC. Amortized O(1).", "All pointers, references and iterators are invalidated. Mark moves noexcept."],
+      "cues": ["It allocates", "The growth factor", "Every pointer"],
+      "say": "It allocates a bigger block, transfers the elements, and frees the old one. The growth factor is implementation defined, usually two or one and a half, which keeps push back amortized O of one. Every pointer, reference, and iterator into the vector is invalidated." }
+  ]
+}

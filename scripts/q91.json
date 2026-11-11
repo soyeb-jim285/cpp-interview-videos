@@ -1,0 +1,45 @@
+{
+  "id": "q91", "num": 91, "short": "Template specialization",
+  "question": "What is template specialization?",
+  "caps": [["TypeName of int", "TypeName<int>"], ["TypeName of double", "TypeName<double>"], ["template, empty angle brackets", "template <>"], ["IsPointer of T star", "IsPointer<T*>"], ["static assert", "static_assert"], ["s t r c m p", "strcmp"]],
+  "scenes": [
+    { "type": "title", "sub": "Same template, a custom version for particular types.",
+      "say": "Template specialization. A template gives you one generic version for every type. Specialization lets you swap in a different version for specific types." },
+
+    { "type": "code", "head": "Full specialization",
+      "panels": [{ "file": "name.cpp", "size": 34, "code": "template <typename T>              // primary template\nstruct TypeName {\n    static const char* get() { return \"unknown\"; }\n};\n\ntemplate <>                         // full specialization\nstruct TypeName<int> {\n    static const char* get() { return \"int\"; }\n};\n\nstd::cout << TypeName<int>::get() << '\\n';\nstd::cout << TypeName<double>::get();" }],
+      "steps": [
+        { "cue": "primary template", "lines": [1, 2, 3, 4] },
+        { "cue": "template, empty angle brackets", "lines": [6, 7, 8, 9] },
+        { "cue": "TypeName of int", "lines": [11] },
+        { "cue": "TypeName of double", "lines": [12] }
+      ],
+      "output": { "cmd": "./name", "text": "int\nunknown", "cue": "falls back", "tone": "good" },
+      "say": "First, the primary template: the generic version, returning unknown. Then a full specialization. You write template, empty angle brackets, and the exact type, int. For that one type, the compiler uses your special version instead. So TypeName of int prints int. TypeName of double has no specialization, so it falls back to the primary and prints unknown." },
+
+    { "type": "code", "head": "Why: the generic version can be wrong",
+      "panels": [{ "file": "equal.cpp", "size": 34, "code": "template <typename T>\nbool equal(T a, T b) { return a == b; }\n\n// for C strings, == compares addresses, not text\ntemplate <>\nbool equal<const char*>(const char* a, const char* b) {\n    return std::strcmp(a, b) == 0;\n}" }],
+      "steps": [
+        { "cue": "The generic equal", "lines": [1, 2] },
+        { "cue": "compares the pointers", "lines": [4] },
+        { "cue": "specialize it", "lines": [5, 6, 7, 8] }
+      ],
+      "notes": [
+        { "cue": "compares the pointers", "line": 2, "inside": true, "text": "wrong for char*", "tone": "bad" }
+      ],
+      "say": "Why bother? Sometimes the generic code is wrong for one type. The generic equal uses double equals. For two C strings, that compares the pointers, the addresses, not the text. So we specialize it for const char pointer, and compare the contents with s t r c m p. In practice, for functions, a plain overload often does the same job more simply." },
+
+    { "type": "code", "head": "Partial specialization: a family of types",
+      "panels": [{ "file": "ispointer.cpp", "size": 34, "code": "template <typename T>\nstruct IsPointer { static constexpr bool value = false; };\n\ntemplate <typename T>             // still a template\nstruct IsPointer<T*> { static constexpr bool value = true; };\n\nstatic_assert(!IsPointer<int>::value);\nstatic_assert(IsPointer<int*>::value);\nstatic_assert(IsPointer<double*>::value);" }],
+      "steps": [
+        { "cue": "Partial specialization", "lines": [4, 5] },
+        { "cue": "any pointer type", "lines": [7, 8, 9] },
+        { "cue": "only for class templates", "lines": [] }
+      ],
+      "say": "Partial specialization matches a whole family of types. Here, IsPointer of T star still has a template parameter, so it matches any pointer type: int pointer, double pointer, anything. The checks pass at compile time. This is how s t d type traits work. The follow up trap: partial specialization is only for class templates. Function templates can't be partially specialized, you overload them instead." },
+
+    { "type": "take", "lines": ["Specialization: a custom implementation of a template for specific types.", "Full: `template <>` + one exact type. Partial: a pattern like `T*` (classes only).", "Used for type traits and types where the generic code is wrong or slow."],
+      "cues": ["Specialization", "Full specialization", "It's used"],
+      "say": "Specialization is a custom implementation of a template for specific types. Full specialization fixes one exact type. Partial specialization matches a pattern, like any pointer, and works only for class templates. It's used for type traits, and for types where the generic code is wrong or slow." }
+  ]
+}
