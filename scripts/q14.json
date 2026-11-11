@@ -1,0 +1,58 @@
+{
+  "id": "q14", "num": 14, "short": "Undefined behavior",
+  "question": "What is undefined behavior? Give examples.",
+  "caps": [["dash f sanitize", "-fsanitize"], ["dash Wall", "-Wall"]],
+  "scenes": [
+    { "type": "title", "sub": "Code the standard makes no promises about. Anything can happen.",
+      "say": "Undefined behavior, or U B. It's the most dangerous idea in C plus plus, because it often looks like it works." },
+
+    { "type": "code", "head": "Three classic examples",
+      "panels": [{ "file": "ub.cpp", "size": 36, "code": "int arr[3] = {1, 2, 3};\nint x = arr[5];        // out of bounds\n\nint* p = nullptr;\n*p = 10;               // null dereference\n\nint big = INT_MAX;\nbig = big + 1;         // signed overflow" }],
+      "steps": [
+        { "cue": "Reading past the end", "lines": [1, 2] },
+        { "cue": "Dereferencing a null", "lines": [4, 5] },
+        { "cue": "Overflowing a signed", "lines": [7, 8] },
+        { "cue": "All three", "lines": [2, 5, 8] }
+      ],
+      "say": "Undefined behavior means the C plus plus standard places no requirements on what happens. Not an error message. Not a guaranteed crash. Anything. Reading past the end of an array. Dereferencing a null pointer. Overflowing a signed integer. All three are undefined behavior." },
+
+    { "type": "diagram", "head": "What actually happens? Any of these.",
+      "items": [
+        { "id": "ub", "x": 760, "y": 440, "w": 400, "h": 170, "text": "UB", "sub": "no rules", "size": 64, "tone": "bad", "cue": "The scary part" },
+        { "id": "o1", "x": 180, "y": 230, "w": 480, "h": 150, "text": "Seems to work", "sub": "today, on your machine", "size": 34, "cue": "seems to work" },
+        { "id": "o2", "x": 1260, "y": 230, "w": 480, "h": 150, "text": "Garbage values", "sub": "silent wrong output", "size": 34, "cue": "print garbage" },
+        { "id": "o3", "x": 180, "y": 680, "w": 480, "h": 150, "text": "Crash", "sub": "segmentation fault", "size": 34, "cue": "crash on another" },
+        { "id": "o4", "x": 1260, "y": 680, "w": 480, "h": 150, "text": "Code vanishes", "sub": "optimizer assumes no UB", "size": 34, "tone": "warn", "cue": "The compiler is allowed" }
+      ],
+      "arrows": [
+        { "from": "ub", "to": "o1", "cue": "seems to work" },
+        { "from": "ub", "to": "o2", "cue": "print garbage" },
+        { "from": "ub", "to": "o3", "cue": "crash on another" },
+        { "from": "ub", "to": "o4", "cue": "The compiler is allowed" }
+      ],
+      "say": "The scary part: code with undefined behavior often seems to work. It may run fine today, print garbage tomorrow, crash on another compiler, or change when you turn on optimizations. The compiler is allowed to assume U B never happens, and optimize based on that." },
+
+    { "type": "code", "head": "A real example: the check that disappears",
+      "panels": [{ "file": "overflow.cpp", "size": 36, "code": "bool willOverflow(int x) {\n    return x + 1 < x;      // signed overflow is UB...\n}\n\n// ...so the optimizer may compile it as:\nbool willOverflow(int x) {\n    return false;\n}" }],
+      "steps": [
+        { "cue": "This check", "lines": [1, 2, 3] },
+        { "cue": "assumes x plus one", "lines": [2] },
+        { "cue": "replace the whole function", "lines": [6, 7, 8] }
+      ],
+      "say": "Here's a real example. This check tries to detect overflow. But signed overflow is undefined, so the compiler assumes x plus one is always bigger than x. It's allowed to replace the whole function with return false. Your safety check silently disappears." },
+
+    { "type": "code", "head": "More common ones, and how to catch them",
+      "panels": [{ "file": "more.cpp", "code": "int x;                  // uninitialized\nstd::cout << x;         // reading garbage\n\nint* q = new int(5);\ndelete q;\n*q = 7;                 // use after free\n\nint i = 0;\ni = i++ + ++i;          // unsequenced modifications" }],
+      "steps": [
+        { "cue": "reading an uninitialized", "lines": [1, 2] },
+        { "cue": "using memory after delete", "lines": [4, 5, 6] },
+        { "cue": "modifying a variable twice", "lines": [8, 9] }
+      ],
+      "output": { "cmd": "g++ -Wall -fsanitize=address,undefined more.cpp && ./a.out", "tone": "bad", "cue": "To catch them", "text": "ERROR: AddressSanitizer: heap-use-after-free" },
+      "say": "More common ones: reading an uninitialized variable, using memory after delete, and modifying a variable twice in one expression. To catch them, compile with sanitizers: dash f sanitize equals address and undefined. Turn on warnings with dash Wall too. They catch these at runtime, with a clear report." },
+
+    { "type": "take", "lines": ["UB: the standard makes no promises. Anything can happen.", "Common: out of bounds, null or dangling deref, signed overflow, uninitialized reads.", "“Works on my machine” proves nothing. Use -Wall and sanitizers."],
+      "cues": ["Undefined behavior means", "The usual suspects", "And remember"],
+      "say": "Undefined behavior means no promises at all. The usual suspects: out of bounds access, null or dangling pointers, signed overflow, and uninitialized reads. And remember, works on my machine proves nothing. Use warnings and sanitizers." }
+  ]
+}

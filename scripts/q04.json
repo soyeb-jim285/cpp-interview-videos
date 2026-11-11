@@ -1,0 +1,66 @@
+{
+  "id": "q04", "num": 4, "short": "Stack vs heap",
+  "question": "What is the difference between stack and heap memory?",
+  "scenes": [
+    { "type": "title", "sub": "Two places your data can live, with very different rules.",
+      "say": "Stack versus heap. Two places your data can live, with very different rules. Let's watch memory while a function runs." },
+
+    { "type": "diagram", "head": "Watch memory while f() runs",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "void f() {\n    int a = 5;\n    int* p = new int(42);\n    // ... use a and *p\n    delete p;\n}\n\nint main() {\n    f();\n}" }],
+      "steps": [
+        { "cue": "When f is called", "lines": [1, 9] },
+        { "cue": "Local variable a", "lines": [2] },
+        { "cue": "new int of 42", "lines": [3] },
+        { "cue": "Delete p", "lines": [5] },
+        { "cue": "when f returns", "lines": [6] }
+      ],
+      "items": [
+        { "id": "stk", "region": true, "x": 1020, "y": 220, "w": 380, "h": 680, "label": "STACK", "tone": "blue" },
+        { "id": "hp", "region": true, "x": 1440, "y": 220, "w": 380, "h": 680, "label": "HEAP", "tone": "warn" },
+        { "id": "mf", "x": 1045, "y": 780, "w": 330, "h": 90, "text": "main()", "size": 30, "tone": "ghost" },
+        { "id": "ff", "region": true, "x": 1040, "y": 420, "w": 340, "h": 330, "label": "f() frame", "cue": "When f is called" },
+        { "id": "va", "x": 1070, "y": 610, "w": 280, "h": 100, "label": "a", "text": "5", "size": 40, "tone": "blue", "cue": "Local variable a" },
+        { "id": "vp", "x": 1070, "y": 470, "w": 280, "h": 100, "label": "p", "text": "0x5f20", "size": 36, "tone": "blue", "cue": "the pointer p" },
+        { "id": "hv", "x": 1470, "y": 470, "w": 320, "h": 100, "label": "@0x5f20", "text": "42", "size": 40, "tone": "warn", "cue": "new int of 42" }
+      ],
+      "arrows": [{ "from": "vp", "to": "hv", "cue": "stores that address" }],
+      "changes": [
+        { "id": "hv", "kill": true, "cue": "Delete p" },
+        { "id": "a0", "fade": true, "cue": "when f returns" },
+        { "id": "va", "fade": true, "cue": "when f returns" },
+        { "id": "vp", "fade": true, "cue": "when f returns" },
+        { "id": "ff", "fade": true, "cue": "when f returns" },
+        { "id": "hv", "fade": true, "cue": "when f returns" }
+      ],
+      "say": "When f is called, the stack gets a new frame for it, right on top of main. Local variable a lives right there, inside the frame. Then new int of 42 asks the heap for memory. The heap hands back an address, and the pointer p, which itself lives on the stack, stores that address. Delete p gives the heap memory back. And when f returns, its whole stack frame disappears automatically, a and p included." },
+
+    { "type": "compare", "head": "The rules side by side",
+      "heads": ["Stack", "Heap"], "rowHeads": ["Managed by", "Lifetime", "Speed", "Size", "Typical bug", "Use for"],
+      "rows": [
+        ["The compiler, automatically", "You (`new`/`delete`) or smart pointers"],
+        ["Ends with the scope", "Until it is freed"],
+        ["Very fast: move one pointer", "Slower: allocator must find space"],
+        ["Small (often 1 to 8 MB)", "Large (most of your RAM)"],
+        ["Stack overflow", "Leaks, dangling pointers"],
+        ["Small, short-lived locals", "Big or long-lived data"]
+      ],
+      "cues": ["The stack is managed", "Lifetime", "Speed", "Size", "Typical bugs", "So use"],
+      "say": "The stack is managed by the compiler automatically. The heap is managed by you, with new and delete, or better, by smart pointers. Lifetime: stack data ends with its scope, heap data lives until it's freed. Speed: allocating on the stack just moves one pointer, while the heap allocator has to search for free space. Size: the stack is small, often one to eight megabytes, the heap can use most of your RAM. Typical bugs: stack overflow, versus leaks and dangling pointers. So use the stack for small, short lived locals, and the heap for big data, or data that must outlive the function." },
+
+    { "type": "code", "head": "Size matters",
+      "panels": [{ "file": "size.cpp", "code": "void bad() {\n    int big[10000000];               // ~40 MB on the stack\n}                                    // stack overflow: crash\n\nvoid good() {\n    std::vector<int> big(10000000);  // elements live on the heap\n}                                    // freed automatically" }],
+      "steps": [
+        { "cue": "A huge local array", "lines": [2, 3] },
+        { "cue": "A vector", "lines": [6, 7] }
+      ],
+      "notes": [
+        { "cue": "crash the program", "line": 2, "inside": true, "text": "segfault", "tone": "bad" },
+        { "cue": "still cleans up", "line": 6, "inside": true, "text": "best of both", "tone": "good" }
+      ],
+      "say": "Size matters. A huge local array, about forty megabytes, will overflow the stack and crash the program. A vector object sits on the stack, but stores its elements on the heap. So it can be huge, and it still cleans up automatically when it goes out of scope." },
+
+    { "type": "take", "lines": ["Stack: automatic, very fast, small. Freed when the scope ends.", "Heap: large and flexible. Lives until freed (by you or a smart pointer).", "Prefer the stack. Use the heap through vector / unique_ptr, not raw new."],
+      "cues": ["The stack", "The heap", "Prefer"],
+      "say": "The stack is automatic, very fast, and small, freed when the scope ends. The heap is large and flexible, and lives until it's freed. Prefer the stack, and when you need the heap, use it through vector or unique pointer, not raw new." }
+  ]
+}

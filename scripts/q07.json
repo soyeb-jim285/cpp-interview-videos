@@ -1,0 +1,68 @@
+{
+  "id": "q07", "num": 7, "short": "Pointer vs reference",
+  "question": "What is the difference between a pointer and a reference?",
+  "caps": [["p equals address of b", "p = &b"], ["r equals b", "r = b"], ["p plus plus", "p++"]],
+  "scenes": [
+    { "type": "title", "sub": "One is an object holding an address. The other is just a second name.",
+      "say": "Pointer versus reference. Both let you reach another variable, but they behave very differently. One assignment shows it best." },
+
+    { "type": "diagram", "head": "One assignment tells them apart",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "int a = 10, b = 20;\n\nint* p = &a;   // p stores a's address\nint& r = a;    // r IS a\n\np = &b;        // p now points to b\nr = b;         // copies 20 into a!" }],
+      "steps": [
+        { "cue": "both start", "lines": [1] },
+        { "cue": "The pointer p", "lines": [3] },
+        { "cue": "The reference r", "lines": [4] },
+        { "cue": "p equals address", "lines": [6] },
+        { "cue": "But r equals b", "lines": [7] }
+      ],
+      "items": [
+        { "id": "a", "x": 1100, "y": 560, "w": 280, "h": 130, "label": "a @0x100", "text": "10", "size": 48, "tone": "blue", "cue": "both start" },
+        { "id": "b", "x": 1480, "y": 560, "w": 280, "h": 130, "label": "b @0x104", "text": "20", "size": 48, "tone": "blue", "cue": "both start" },
+        { "id": "p", "x": 1100, "y": 260, "w": 280, "h": 120, "label": "p (own variable)", "text": "0x100", "size": 40, "tone": "warn", "cue": "The pointer p" },
+        { "id": "r", "x": 1100, "y": 790, "w": 280, "h": 90, "text": "r", "sub": "just a label on a", "size": 34, "tone": "ghost", "cue": "The reference r" }
+      ],
+      "arrows": [
+        { "from": "p", "to": "a", "cue": "holding a's address" },
+        { "from": "r", "to": "a", "tone": "good", "cue": "another name" },
+        { "from": "p", "to": "b", "cue": "re-points p" }
+      ],
+      "changes": [
+        { "id": "a0", "fade": true, "cue": "re-points p" },
+        { "id": "p", "text": "0x104", "cue": "re-points p" },
+        { "id": "a", "text": "20", "cue": "It copies twenty" },
+        { "id": "a", "tone": "bad", "cue": "It copies twenty" }
+      ],
+      "say": "A pointer and a reference both start out at a. The pointer p is its own variable, holding a's address. The reference r is not a separate variable. It's just another name for a. Now watch. p equals address of b re-points p to b. But r equals b does not re-bind r. It copies twenty into a, because r is a, forever." },
+
+    { "type": "code", "head": "More rules",
+      "panels": [{ "file": "rules.cpp", "code": "int* p;            // allowed (but dangerous)\nint* q = nullptr;  // allowed: points to nothing\nint& r;            // must be initialized\nint& s = nullptr;  // no null references\n\nint arr[3] = {1, 2, 3};\nint* it = arr;\nit++;              // pointer arithmetic: now at arr[1]" }],
+      "steps": [
+        { "cue": "A pointer can be left", "lines": [1, 2] },
+        { "cue": "A reference must", "lines": [3, 4] },
+        { "cue": "Pointers support arithmetic", "lines": [6, 7, 8] },
+        { "cue": "References don't", "lines": [] }
+      ],
+      "notes": [
+        { "cue": "must be bound", "line": 3, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "can never be null", "line": 4, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "More rules. A pointer can be left uninitialized, or set to null. A reference must be bound when it's created, and can never be null. Pointers support arithmetic, like p plus plus, to walk through an array. References don't. You use a reference exactly like the original variable, with no stars or arrows." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Pointer", "Reference"], "rowHeads": ["What it is", "Null", "Re-point", "Initialize", "Arithmetic", "Syntax"],
+      "rows": [
+        ["A variable holding an address", "Another name for an object"],
+        ["Can be `nullptr`", "Never null"],
+        ["Yes, any time", "No, bound for life"],
+        ["Optional", "Required"],
+        ["Yes: `p++`, `p + 2`", "No"],
+        ["`*p`, `p->x`", "`r`, `r.x`"]
+      ],
+      "cues": ["A pointer is", "Null", "Re-pointing", "Initialization", "Arithmetic", "And syntax"],
+      "say": "A pointer is a variable holding an address. A reference is another name for an existing object. Null: pointers can be, references can't. Re-pointing: pointers any time, references never. Initialization: optional for pointers, required for references. Arithmetic: only pointers. And syntax: pointers need star and arrow, references look like the object itself." },
+
+    { "type": "take", "lines": ["Pointer: its own object storing an address. Nullable, re-pointable.", "Reference: an alias. Never null, never re-bound, must be initialized.", "Use references by default. Pointers when you need “nothing” or re-pointing."],
+      "cues": ["A pointer", "A reference", "Use references"],
+      "say": "A pointer is its own object that stores an address. A reference is an alias. Never null, never re-bound. Use references by default, and pointers when you need to represent nothing, or to re-point." }
+  ]
+}

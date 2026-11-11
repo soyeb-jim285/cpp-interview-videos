@@ -1,0 +1,43 @@
+{
+  "id": "q09", "num": 9, "short": "Namespaces",
+  "question": "What are namespaces, and why do we use them?",
+  "scenes": [
+    { "type": "title", "sub": "Named boxes that keep names from colliding.",
+      "say": "Namespaces. What problem do they solve? Let's create the problem first." },
+
+    { "type": "code", "head": "The problem: two libraries, one name",
+      "panels": [{ "file": "main.cpp", "size": 38, "code": "// from a graphics library\nvoid draw() { /* draws pixels */ }\n\n// from a card-game library\nvoid draw() { /* draws a card */ }" }],
+      "steps": [
+        { "cue": "both define", "lines": [2, 5] }
+      ],
+      "notes": [{ "cue": "refuses", "line": 5, "inside": true, "text": "redefinition of draw()", "tone": "bad" }],
+      "say": "Imagine two libraries that both define a function called draw. Put them in one program, and the names collide. The compiler sees two draws with the same signature, and refuses." },
+
+    { "type": "diagram", "head": "The fix: give each name a home",
+      "panels": [{ "file": "main.cpp", "size": 34, "code": "namespace gfx {\n    void draw() { /* pixels */ }\n}\nnamespace cards {\n    void draw() { /* a card */ }\n}\n\nint main() {\n    gfx::draw();\n    cards::draw();\n}" }],
+      "steps": [
+        { "cue": "Put each draw", "lines": [1, 2, 3, 4, 5, 6] },
+        { "cue": "Their full names", "lines": [9, 10] }
+      ],
+      "items": [
+        { "id": "g", "region": true, "x": 1060, "y": 240, "w": 700, "h": 260, "label": "gfx", "tone": "blue", "cue": "Put each draw" },
+        { "id": "gd", "x": 1120, "y": 310, "w": 580, "h": 140, "text": "draw()", "sub": "gfx::draw", "size": 44, "tone": "blue", "cue": "Put each draw" },
+        { "id": "c", "region": true, "x": 1060, "y": 580, "w": 700, "h": 260, "label": "cards", "tone": "warn", "cue": "own namespace" },
+        { "id": "cd", "x": 1120, "y": 650, "w": 580, "h": 140, "text": "draw()", "sub": "cards::draw", "size": 44, "tone": "warn", "cue": "own namespace" }
+      ],
+      "say": "A namespace is a named box for names. Put each draw in its own namespace, and they no longer collide. Their full names are gfx colon colon draw, and cards colon colon draw. The double colon is the scope resolution operator." },
+
+    { "type": "code", "head": "std and using",
+      "panels": [{ "file": "std.cpp", "code": "#include <vector>\n#include <iostream>\n\nstd::vector<int> v;      // full name: always clear\n\nusing std::cout;         // bring in ONE name\ncout << \"hi\";\n\nusing namespace std;     // bring in EVERYTHING\n                         // ok in a small .cpp, never in a header" }],
+      "steps": [
+        { "cue": "The whole standard library", "lines": [4] },
+        { "cue": "A using declaration", "lines": [6, 7] },
+        { "cue": "Using namespace", "lines": [9, 10] }
+      ],
+      "say": "The whole standard library lives in namespace s t d. That's why you write s t d colon colon vector. A using declaration brings in one name. Using namespace s t d brings in all of them. That's handy in small programs, but never put it in a header, because it leaks every standard name into every file that includes it." },
+
+    { "type": "take", "lines": ["A namespace groups names so different code can't collide.", "Reach inside with ns::name. The standard library lives in std::.", "using namespace std; is ok in small .cpp files, never in headers."],
+      "cues": ["A namespace", "Reach inside", "And using namespace"],
+      "say": "A namespace groups names so different code can't collide. Reach inside with the double colon, and remember the standard library lives in s t d. And using namespace s t d is fine in small files, but never in headers." }
+  ]
+}

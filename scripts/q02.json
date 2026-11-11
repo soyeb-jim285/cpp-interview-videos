@@ -1,0 +1,69 @@
+{
+  "id": "q02", "num": 2, "short": "Compile & run",
+  "question": "What happens when you compile and execute a C++ program?",
+  "caps": [["hello dot c p p", "hello.cpp"], ["Dash E", "-E"], ["Dash S", "-S"], ["Dash c", "-c"]],
+  "scenes": [
+    { "type": "title", "sub": "From a text file to a running process: four tools, then the OS.",
+      "say": "What actually happens between writing hello dot c p p and seeing Hello on the screen? Let's follow one file all the way." },
+
+    { "type": "code", "head": "Our file",
+      "panels": [{ "file": "hello.cpp", "size": 40, "code": "#include <iostream>\n#define GREETING \"Hello\"\n\nint main() {\n    std::cout << GREETING << \", world\\n\";\n    return 0;\n}" }],
+      "steps": [
+        { "cue": "an include", "lines": [1] },
+        { "cue": "a macro", "lines": [2, 5] },
+        { "cue": "and main", "lines": [4, 5, 6, 7] },
+        { "cue": "Typing", "lines": [] }
+      ],
+      "say": "It has an include, a macro, and main. Typing g plus plus hello dot c p p looks like one step. But four separate tools run, one after another." },
+
+    { "type": "flow", "head": "Build: four stages", "y": 380, "h": 280,
+      "items": [
+        { "label": "hello.i", "text": "Preprocessor", "sub": "pastes #include, expands #define", "cue": "First, the preprocessor", "size": 30 },
+        { "label": "hello.s", "text": "Compiler", "sub": "checks code, C++ → assembly", "cue": "Then the compiler", "size": 30 },
+        { "label": "hello.o", "text": "Assembler", "sub": "assembly → machine code", "cue": "The assembler", "size": 30 },
+        { "label": "hello", "text": "Linker", "sub": "joins .o files + libraries", "cue": "Finally, the linker", "tone": "good", "size": 30 }
+      ],
+      "say": "First, the preprocessor. It pastes in the full text of every include, and replaces macros like GREETING with their value. Then the compiler checks your syntax and types, and translates C plus plus into assembly. The assembler turns that assembly into machine code, called an object file. Finally, the linker joins your object files with library code, like the code behind cout, into one executable." },
+
+    { "type": "code", "head": "Stop at any stage yourself",
+      "panels": [{ "file": "terminal", "code": "g++ -E hello.cpp -o hello.i    // preprocess only\ng++ -S hello.cpp -o hello.s    // stop after compiling\ng++ -c hello.cpp -o hello.o    // stop after assembling\ng++ hello.o -o hello           // link\n./hello" }],
+      "steps": [
+        { "cue": "Dash E", "lines": [1] },
+        { "cue": "Dash S", "lines": [2] },
+        { "cue": "Dash c", "lines": [3] },
+        { "cue": "without those flags", "lines": [4, 5] }
+      ],
+      "output": { "cmd": "./hello", "text": "Hello, world", "cue": "Then run it", "tone": "good" },
+      "say": "You can stop at each stage yourself. Dash E stops after preprocessing. Dash S gives you the assembly. Dash c gives an object file. And without those flags, g plus plus links everything into a program. Then run it." },
+
+    { "type": "code", "head": "Why it matters: reading errors",
+      "panels": [{ "file": "main.cpp", "size": 40, "code": "int add(int a, int b);   // declared, never defined\n\nint main() {\n    return add(2, 3);\n}" }],
+      "steps": [
+        { "cue": "compiles fine", "lines": [1, 4] }
+      ],
+      "output": { "cmd": "g++ main.cpp", "text": "undefined reference to `add(int, int)'\ncollect2: error: ld returned 1 exit status", "cue": "But the linker", "tone": "bad" },
+      "say": "Knowing the stages helps you read errors. This code compiles fine, because the compiler only needs to know that add exists. But the linker can't find add's body anywhere, so it fails with undefined reference. L D is the linker." },
+
+    { "type": "diagram", "head": "Run: the OS takes over",
+      "items": [
+        { "id": "disk", "x": 160, "y": 430, "w": 320, "h": 170, "text": "hello", "sub": "file on disk", "size": 44, "cue": "When you run it" },
+        { "id": "proc", "region": true, "x": 600, "y": 210, "w": 640, "h": 690, "label": "PROCESS MEMORY", "tone": "blue", "cue": "creates a process" },
+        { "id": "text", "x": 650, "y": 260, "w": 540, "h": 120, "text": "Text", "sub": "machine code", "size": 36, "cue": "maps the machine code" },
+        { "id": "data", "x": 650, "y": 415, "w": 540, "h": 120, "text": "Data", "sub": "globals, statics", "size": 36, "cue": "sets up globals" },
+        { "id": "heap", "x": 650, "y": 570, "w": 540, "h": 120, "text": "Heap", "sub": "new / malloc", "size": 36, "cue": "gives you a heap" },
+        { "id": "stack", "x": 650, "y": 725, "w": 540, "h": 120, "text": "Stack", "sub": "function calls, locals", "size": 36, "cue": "and a stack" },
+        { "id": "main", "x": 1340, "y": 330, "w": 420, "h": 170, "text": "main()", "sub": "called by startup code", "size": 44, "tone": "warn", "cue": "then calls main" },
+        { "id": "exit", "x": 1340, "y": 640, "w": 420, "h": 170, "text": "return 0", "sub": "exit code → shell", "size": 44, "tone": "good", "cue": "When main returns" }
+      ],
+      "arrows": [
+        { "from": "disk", "to": "text", "cue": "maps the machine code" },
+        { "from": "proc", "to": "main", "cue": "then calls main" },
+        { "from": "main", "to": "exit", "cue": "When main returns" }
+      ],
+      "say": "When you run it, the operating system's loader creates a process. It maps the machine code into the text segment, sets up globals in the data segment, and gives you a heap and a stack. Startup code constructs any global objects, then calls main. When main returns zero, that becomes the exit code, telling the shell the program succeeded." },
+
+    { "type": "take", "lines": ["Preprocess → Compile → Assemble → Link. One command, four tools.", "Type and syntax errors come from the compiler. “undefined reference” comes from the linker.", "Run: the OS loads the program, sets up memory, calls main(). Its return value is the exit code."],
+      "cues": ["Preprocess", "Type and syntax", "Running"],
+      "say": "Remember. Preprocess, compile, assemble, link. Type and syntax errors come from the compiler, and undefined reference comes from the linker. Running means the OS loads the program, sets up its memory, and calls main, whose return value becomes the exit code." }
+  ]
+}

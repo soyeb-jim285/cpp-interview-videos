@@ -1,0 +1,5 @@
+.venv/
+out/
+snaps/
+q[0-9]*/
+!scripts/

@@ -1,0 +1,59 @@
+{
+  "id": "q10", "num": 10, "short": "++i vs i++",
+  "question": "What is the difference between `++i` and `i++`?",
+  "scenes": [
+    { "type": "title", "sub": "Both add one. They differ in what they give back.",
+      "say": "Plus plus i, versus i plus plus. Both add one to i. The difference is what the expression gives back." },
+
+    { "type": "diagram", "head": "Watch the values",
+      "panels": [{ "file": "main.cpp", "size": 32, "code": "int i = 5;\nint a = ++i;   // a = 6, i = 6\n\nint j = 5;\nint b = j++;   // b = 5, j = 6" }],
+      "area": { "w": 780 },
+      "steps": [
+        { "cue": "Pre-increment", "lines": [1, 2] },
+        { "cue": "Post-increment", "lines": [4, 5] }
+      ],
+      "items": [
+        { "id": "i", "x": 1060, "y": 250, "w": 260, "h": 120, "label": "i", "text": "5", "size": 48, "tone": "blue", "cue": "Pre-increment" },
+        { "id": "va", "x": 1480, "y": 250, "w": 260, "h": 120, "label": "a", "text": "?", "size": 48, "cue": "Pre-increment" },
+        { "id": "j", "x": 1060, "y": 560, "w": 260, "h": 120, "label": "j", "text": "5", "size": 48, "tone": "blue", "cue": "Post-increment" },
+        { "id": "vb", "x": 1480, "y": 560, "w": 260, "h": 120, "label": "b", "text": "?", "size": 48, "cue": "Post-increment" },
+        { "id": "tmp", "x": 1270, "y": 760, "w": 260, "h": 110, "label": "temp copy", "text": "5", "size": 44, "tone": "ghost", "cue": "saves a copy" }
+      ],
+      "arrows": [
+        { "from": "i", "to": "va", "label": "new value", "cue": "then returns the new value" },
+        { "from": "j", "to": "tmp", "cue": "saves a copy" },
+        { "from": "tmp", "to": "vb", "cue": "returns the copy" }
+      ],
+      "changes": [
+        { "id": "i", "text": "6", "cue": "increments first" },
+        { "id": "va", "text": "6", "cue": "So a and i" },
+        { "id": "va", "tone": "good", "cue": "So a and i" },
+        { "id": "j", "text": "6", "cue": "increments j" },
+        { "id": "vb", "text": "5", "cue": "So b gets five" },
+        { "id": "vb", "tone": "warn", "cue": "So b gets five" }
+      ],
+      "say": "Pre-increment, plus plus i, increments first, then returns the new value. So a and i are both six. Post-increment, j plus plus, saves a copy of the old value, increments j, and returns the copy. So b gets five, while j becomes six." },
+
+    { "type": "code", "head": "How a class implements them",
+      "panels": [{ "file": "counter.cpp", "code": "Counter& operator++() {       // ++c  (prefix)\n    ++value;\n    return *this;             // return myself\n}\n\nCounter operator++(int) {     // c++  (postfix)\n    Counter old = *this;      // make a copy\n    ++value;\n    return old;               // return the copy\n}" }],
+      "steps": [
+        { "cue": "Prefix increments", "lines": [1, 2, 3] },
+        { "cue": "Postfix must", "lines": [6, 7, 8, 9] },
+        { "cue": "The extra int", "lines": [6] }
+      ],
+      "notes": [{ "cue": "The extra int", "line": 6, "inside": true, "text": "dummy int = postfix", "tone": "info" }],
+      "say": "You can see why in how a class implements them. Prefix increments and returns a reference to itself. No copy. Postfix must make a copy of the old object, increment, and return that copy. The extra int parameter is just a marker that means postfix." },
+
+    { "type": "code", "head": "Does it matter in loops?",
+      "panels": [{ "file": "loops.cpp", "code": "for (int i = 0; i < n; ++i)    // int: identical either way\n    work(i);\n\nfor (auto it = v.begin(); it != v.end(); ++it)  // object: prefer ++it\n    work(*it);" }],
+      "steps": [
+        { "cue": "For a plain int", "lines": [1, 2] },
+        { "cue": "For iterators", "lines": [4, 5] }
+      ],
+      "say": "For a plain int in a loop, the compiler makes both versions identical. For iterators or other objects, post-increment may create a copy you never use. So the habit is simple: write plus plus i, unless you actually need the old value." },
+
+    { "type": "take", "lines": ["++i: increment, then return the new value (by reference).", "i++: copy the old value, increment, return the copy.", "Default to ++i. Use i++ only when you need the old value."],
+      "cues": ["Pre-increment", "Post-increment", "Default"],
+      "say": "Pre-increment: increment, then return the new value. Post-increment: copy the old value, increment, and return the copy. Default to plus plus i, and use i plus plus only when you need the old value." }
+  ]
+}

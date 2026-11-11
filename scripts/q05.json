@@ -1,0 +1,67 @@
+{
+  "id": "q05", "num": 5, "short": "static / const / constexpr",
+  "question": "What is the difference between `static`, `const`, and `constexpr`?",
+  "caps": [["static assert", "static_assert"]],
+  "scenes": [
+    { "type": "title", "sub": "Three keywords answering three different questions.",
+      "say": "static, const, and constexpr. They look related, but each one answers a different question. Let's take them one at a time." },
+
+    { "type": "code", "head": "static: how long it lives",
+      "panels": [{ "file": "counter.cpp", "code": "int counter() {\n    static int calls = 0;   // created once, lives forever\n    return ++calls;\n}\n\nint main() {\n    counter();\n    counter();\n    std::cout << counter();\n}" }],
+      "steps": [
+        { "cue": "A static local", "lines": [2] },
+        { "cue": "keeps its value", "lines": [3] },
+        { "cue": "So calling counter", "lines": [7, 8, 9] }
+      ],
+      "output": { "cmd": "./counter", "text": "3", "cue": "prints three", "tone": "good" },
+      "say": "static is about lifetime and visibility. A static local variable is created once, the first time the function runs, and keeps its value between calls, instead of resetting each time. So calling counter three times prints three, not one." },
+
+    { "type": "code", "head": "static: who can see it",
+      "panels": [{ "file": "player.cpp", "code": "static int helper() { return 1; }   // visible only in this file\n\nclass Player {\npublic:\n    static int count;    // ONE copy, shared by all players\n    Player() { ++count; }\n};\nint Player::count = 0;\n\nPlayer a, b, c;          // Player::count == 3" }],
+      "steps": [
+        { "cue": "At file level", "lines": [1] },
+        { "cue": "Inside a class", "lines": [5, 6, 8] },
+        { "cue": "so three players", "lines": [10] }
+      ],
+      "say": "At file level, static hides a function or variable from other files. Inside a class, a static member belongs to the class itself, not to any one object. There's a single count shared by everyone, so three players make it three." },
+
+    { "type": "code", "head": "const: can it change?",
+      "panels": [{ "file": "const.cpp", "code": "const int maxUsers = 100;\nmaxUsers = 200;                    // read-only\n\nint n;\nstd::cin >> n;\nconst int size = n * 2;            // value known only at runtime\n\nvoid print(const std::string& s);  // promise: won't modify s" }],
+      "steps": [
+        { "cue": "const means", "lines": [1, 2] },
+        { "cue": "come from runtime", "lines": [4, 5, 6] },
+        { "cue": "a promise", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "can't change", "line": 2, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "come from runtime", "line": 6, "inside": true, "text": "fine for const", "tone": "good" }
+      ],
+      "say": "const means read only after initialization. You can't change maxUsers later. But a const value can still come from runtime, like user input. That's perfectly legal. const is also a promise in function parameters: print takes a reference to s, but swears it won't modify it." },
+
+    { "type": "code", "head": "constexpr: known at compile time?",
+      "panels": [{ "file": "constexpr.cpp", "code": "constexpr int square(int x) { return x * x; }\n\nconstexpr int a = square(8);   // compiler computes 64\nint arr[square(3)];            // array of 9, size fixed at compile time\n\nint n;\nstd::cin >> n;\nconstexpr int b = n * 2;       // n isn't known yet" }],
+      "steps": [
+        { "cue": "the value must be known", "lines": [1, 3] },
+        { "cue": "size an array", "lines": [4] },
+        { "cue": "from user input", "lines": [6, 7, 8] }
+      ],
+      "notes": [
+        { "cue": "from user input", "line": 8, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "constexpr goes further: the value must be known at compile time. The compiler itself runs square, and bakes sixty four into the program. That's why it can even size an array. Try to make a constexpr from user input, and it fails, because the compiler can't know what the user will type." },
+
+    { "type": "compare", "head": "One question each",
+      "heads": ["static", "const", "constexpr"], "rowHeads": ["Answers", "Value", "Typical use"],
+      "rows": [
+        ["How long does it live? Who sees it?", "Can it change?", "Known at compile time?"],
+        ["Can change", "Fixed, may be set at runtime", "Fixed, set at compile time"],
+        ["Counters, shared class data", "Parameters, read-only values", "Array sizes, compile-time math"]
+      ],
+      "cues": ["static answers", "As for values", "In practice"],
+      "say": "So, static answers: how long does it live, and who can see it. const answers: can it change. constexpr answers: is it known at compile time. As for values, a static can still change, a const can be set at runtime, and a constexpr is fixed by the compiler. In practice, every constexpr variable is also const, but not every const is constexpr." },
+
+    { "type": "take", "lines": ["static: lifetime and visibility. Nothing to do with being constant.", "const: read-only after initialization. The value may come from runtime.", "constexpr: must be computable at compile time. Implies const."],
+      "cues": ["static is", "const is", "constexpr must"],
+      "say": "Remember. static is about lifetime and visibility, not about being constant. const is read only after initialization. constexpr must be computable at compile time." }
+  ]
+}

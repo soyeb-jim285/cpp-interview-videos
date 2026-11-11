@@ -1,0 +1,73 @@
+{
+  "id": "q01", "num": 1, "short": "C vs C++",
+  "question": "What is the difference between C and C++?",
+  "scenes": [
+    { "type": "title", "sub": "Same speed. Same low-level control. Many more tools.",
+      "say": "What is the difference between C and C plus plus? C plus plus started life as C with classes. Almost every C program is also valid C plus plus, but C plus plus adds a lot on top. Let's see exactly what changes." },
+
+    { "type": "code", "head": "The same tiny stack, written twice",
+      "panels": [
+        { "file": "stack.c", "label": "C", "tone": "warn", "code": "#include <stdlib.h>\n\nstruct Stack { int* data; int size; };\n\nvoid push(struct Stack* s, int v) {\n    s->data[s->size++] = v;\n}\n\nint main(void) {\n    struct Stack s;\n    s.data = malloc(10 * sizeof(int));\n    s.size = 0;\n    push(&s, 42);\n    free(s.data);   // you must remember\n}" },
+        { "file": "stack.cpp", "label": "C++", "tone": "good", "code": "#include <vector>\n\nclass Stack {\n    std::vector<int> data;\npublic:\n    void push(int v) {\n        data.push_back(v);\n    }\n};\n\nint main() {\n    Stack s;\n    s.push(42);\n}   // memory freed automatically" }
+      ],
+      "steps": [
+        { "cue": "In C, data and functions", "panel": 0, "lines": [3, 5, 6, 7] },
+        { "cue": "call malloc and free", "panel": 0, "lines": [11, 14] },
+        { "cue": "In C plus plus, the data", "panel": 1, "lines": [3, 4, 5, 6, 7, 8, 9] },
+        { "cue": "The vector manages", "panel": 1, "lines": [4] },
+        { "cue": "when s goes out of scope", "panel": 1, "lines": [12, 14] },
+        { "cue": 0.99, "lines": [] }
+      ],
+      "say": "Here is the same tiny stack in both languages. In C, data and functions live apart. You pass the struct into every function by pointer, and you must call malloc and free yourself. Forget free, and you leak memory. In C plus plus, the data and the functions that use it live together inside a class. The vector manages its own memory, so when s goes out of scope, everything is cleaned up automatically." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["C", "C++"], "rowHeads": ["Style", "Memory", "Generic code", "Errors", "Library", "Names"],
+      "rows": [
+        ["Procedural: functions + data", "Procedural + OOP + generic"],
+        ["`malloc` / `free` only", "`new` / `delete`, RAII, smart pointers"],
+        ["Macros, `void*`", "Templates (type-safe)"],
+        ["Return codes", "Exceptions (plus return codes)"],
+        ["Small standard library", "STL: containers, algorithms"],
+        ["One global namespace", "Namespaces, overloading"]
+      ],
+      "cues": ["C is procedural", "In memory", "For generic code", "For errors", "The library", "And names"],
+      "say": "Side by side. C is procedural. C plus plus supports procedural, object oriented, and generic programming. In memory, C has only malloc and free. C plus plus adds new and delete, plus R A I I and smart pointers that free memory for you. For generic code, C uses macros and void pointers, while C plus plus has type safe templates. For errors, C uses return codes, C plus plus can also throw exceptions. The library: C is small, C plus plus brings the S T L with ready made containers and algorithms. And names: C has one global namespace, C plus plus has namespaces and function overloading." },
+
+    { "type": "code", "head": "Features C simply does not have",
+      "panels": [
+        { "file": "only_cpp.cpp", "code": "namespace geo {\n    int    area(int side)  { return side * side; }\n    double area(double r)  { return 3.14 * r * r; }\n}\n\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\n\nvoid twice(int& x) { x *= 2; }\n\nint n = 5;\ntwice(n);                 // n is now 10\nbiggest(3, 7);            // 7\nbiggest(2.5, 1.5);        // 2.5" }
+      ],
+      "steps": [
+        { "cue": "A namespace", "lines": [1, 4] },
+        { "cue": "Two functions", "lines": [2, 3] },
+        { "cue": "A template", "lines": [6, 7, 13, 14] },
+        { "cue": "And a reference", "lines": [9, 11, 12] },
+        { "cue": 0.99, "lines": [] }
+      ],
+      "notes": [
+        { "cue": "Two functions", "line": 2, "inside": true, "text": "overloading", "tone": "info" },
+        { "cue": "A template", "line": 7, "inside": true, "text": "one function, any type", "tone": "info" },
+        { "cue": "And a reference", "line": 9, "inside": true, "text": "reference, no pointer syntax", "tone": "info" }
+      ],
+      "say": "Here are four features you will not find in C. A namespace groups names so they don't collide. Two functions can share the name area, because C plus plus picks one by the argument type. That's overloading. A template writes biggest once, and the compiler makes a version for int, double, or any type. And a reference lets twice change n directly, without any pointer syntax." },
+
+    { "type": "code", "head": "Careful: C++ is not a perfect superset",
+      "panels": [
+        { "file": "legacy.c", "code": "int* p = malloc(sizeof(int));     // fine in C\nint class = 5;                    // fine in C\n\n// C++ version:\nint* q = static_cast<int*>(malloc(sizeof(int)));\nint klass = 5;" }
+      ],
+      "steps": [
+        { "cue": "In C, malloc", "lines": [1] },
+        { "cue": "And class", "lines": [2] },
+        { "cue": "The fix", "lines": [5, 6] }
+      ],
+      "notes": [
+        { "cue": "C plus plus refuses", "line": 1, "inside": true, "text": "C++: error, needs a cast", "tone": "bad" },
+        { "cue": "And class", "line": 2, "inside": true, "text": "C++: 'class' is a keyword", "tone": "bad" }
+      ],
+      "say": "One catch. C plus plus is almost, but not exactly, a superset of C. In C, malloc returns a void pointer that silently converts to an int pointer. C plus plus refuses that conversion, so you need an explicit cast. And class is a keyword in C plus plus, so old C code that uses it as a variable name won't compile. The fix is a cast and a new name." },
+
+    { "type": "take", "lines": ["C: procedural, manual memory, tiny and close to the hardware.", "C++: keeps all of that, adds classes, RAII, templates, overloading, exceptions, the STL.", "Zero-overhead: you don't pay for features you don't use."],
+      "cues": ["C is procedural", "C plus plus keeps", "zero overhead"],
+      "say": "So, in an interview: C is procedural, with manual memory management, and very close to the hardware. C plus plus keeps all of that and adds classes, R A I I, templates, overloading, exceptions, and the S T L. And it follows the zero overhead rule: you don't pay for features you don't use." }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "q12", "num": 12, "short": "inline",
+  "question": "What is the purpose of the `inline` keyword?",
+  "caps": [["c p p", "cpp"]],
+  "scenes": [
+    { "type": "title", "sub": "It started as a speed hint. Today it is mostly about linking.",
+      "say": "The inline keyword. It has an old meaning that everybody remembers, and a modern meaning that actually matters." },
+
+    { "type": "diagram", "head": "Old meaning: paste the body here",
+      "panels": [{ "file": "square.cpp", "size": 34, "code": "inline int square(int x) {\n    return x * x;\n}\n\nint main() {\n    int a = square(5);\n}" }],
+      "area": { "w": 760 },
+      "steps": [
+        { "cue": "a normal function call", "lines": [6] },
+        { "cue": "Inline suggests", "lines": [1, 2, 3] }
+      ],
+      "items": [
+        { "id": "r1", "region": true, "x": 980, "y": 210, "w": 380, "h": 680, "label": "NORMAL CALL" },
+        { "id": "c1", "x": 1010, "y": 270, "w": 320, "h": 110, "text": "put 5 in a register", "size": 26, "cue": "Arguments are set up" },
+        { "id": "c2", "x": 1010, "y": 430, "w": 320, "h": 110, "text": "jump to square", "size": 26, "cue": "jumps to the function" },
+        { "id": "c3", "x": 1010, "y": 590, "w": 320, "h": 110, "text": "compute x * x", "size": 26, "cue": "jumps to the function" },
+        { "id": "c4", "x": 1010, "y": 750, "w": 320, "h": 110, "text": "jump back", "size": 26, "cue": "and jumps back" },
+        { "id": "r2", "region": true, "x": 1400, "y": 210, "w": 380, "h": 680, "label": "INLINED", "tone": "good", "cue": "Inline suggests" },
+        { "id": "in", "x": 1430, "y": 470, "w": 320, "h": 140, "text": "a = 5 * 5;", "sub": "no jump at all", "size": 34, "tone": "good", "cue": "paste the function body" }
+      ],
+      "arrows": [
+        { "from": "c1", "to": "c2", "cue": "jumps to the function" },
+        { "from": "c2", "to": "c3", "cue": "jumps to the function" },
+        { "from": "c3", "to": "c4", "cue": "and jumps back" }
+      ],
+      "changes": [{ "id": "in", "text": "a = 25;", "cue": "even computes" }],
+      "say": "The old idea: a normal function call has overhead. Arguments are set up, the program jumps to the function, and jumps back. Inline suggests the compiler paste the function body right at the call site instead. For a tiny function like square, the call disappears, and the compiler even computes twenty five ahead of time." },
+
+    { "type": "code", "head": "Modern meaning: OK to define in many files",
+      "panels": [{ "file": "math.h  (included by many .cpp files)", "code": "inline int square(int x) { return x * x; }  // OK\n\nint cube(int x) { return x * x * x; }       // linker error\n\ninline int counter = 0;   // C++17: inline variable, one shared copy" }],
+      "steps": [
+        { "cue": "compilers decide", "lines": [] },
+        { "cue": "Without inline", "lines": [3] },
+        { "cue": "With inline", "lines": [1] },
+        { "cue": "also lets variables", "lines": [5] }
+      ],
+      "notes": [
+        { "cue": "Without inline", "line": 3, "inside": true, "text": "multiple definition", "tone": "bad" },
+        { "cue": "With inline", "line": 1, "inside": true, "text": "merged into one", "tone": "good" }
+      ],
+      "say": "But today, compilers decide inlining on their own, and mostly treat the keyword as a weak hint. The real job of inline is the one definition rule. A function defined in a header gets compiled into every c p p file that includes it. Without inline, the linker sees multiple definitions, and fails. With inline, it's allowed, and the copies are merged into one. C plus plus seventeen also lets variables be inline." },
+
+    { "type": "code", "head": "Inline without writing inline",
+      "panels": [{ "file": "implicit.cpp", "code": "class Circle {\n    double r;\npublic:\n    double area() const { return 3.14 * r * r; }  // implicitly inline\n};\n\nconstexpr int sq(int x) { return x * x; }          // implicitly inline" }],
+      "steps": [
+        { "cue": "member functions defined", "lines": [4] },
+        { "cue": "and constexpr functions", "lines": [7] },
+        { "cue": "a request", "lines": [] }
+      ],
+      "say": "Some functions are inline automatically: member functions defined inside the class body, and constexpr functions. And remember, inline is a request, not a command. Big or recursive functions usually won't be inlined, and too much inlining can bloat your program." },
+
+    { "type": "take", "lines": ["Old meaning: a hint to paste the body at the call site. The compiler decides.", "Modern meaning: may be defined in many files; the linker keeps one copy.", "In-class member functions and constexpr functions are implicitly inline."],
+      "cues": ["The old meaning", "The modern meaning", "And member"],
+      "say": "The old meaning: a hint to paste the body at the call site, which the compiler is free to ignore. The modern meaning: the function may be defined in many files, and the linker keeps one. And member functions defined in the class, plus constexpr functions, are inline automatically." }
+  ]
+}

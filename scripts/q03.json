@@ -1,0 +1,52 @@
+{
+  "id": "q03", "num": 3, "short": "Declaration vs definition",
+  "question": "What is the difference between declaration and definition?",
+  "caps": [["c p p", "cpp"]],
+  "scenes": [
+    { "type": "title", "sub": "A declaration introduces a name. A definition creates the thing.",
+      "say": "Declaration versus definition. It sounds like word play, but it explains headers, linker errors, and the one definition rule." },
+
+    { "type": "code", "head": "Same names, two kinds of statements",
+      "panels": [{ "file": "example.cpp", "code": "extern int count;          // declaration\nint add(int a, int b);     // declaration\nstruct Point;              // declaration\n\nint count = 0;             // definition: memory reserved\nint add(int a, int b) {    // definition: the body\n    return a + b;\n}\nstruct Point { int x, y; };  // definition: full layout" }],
+      "steps": [
+        { "cue": "A declaration introduces", "lines": [1, 2, 3] },
+        { "cue": "A definition actually creates", "lines": [5, 6, 7, 8, 9] },
+        { "cue": "For a variable", "lines": [5] },
+        { "cue": "For a function", "lines": [6, 7, 8] },
+        { "cue": "For a class", "lines": [9] },
+        { "cue": "Every definition", "lines": [] }
+      ],
+      "say": "A declaration introduces a name and its type to the compiler. It says: this exists somewhere, trust me. A definition actually creates it. For a variable, memory is reserved. For a function, the body is written. For a class, its full layout becomes known. Every definition is also a declaration, but not the other way around." },
+
+    { "type": "diagram", "head": "This is why headers exist",
+      "items": [
+        { "id": "h", "x": 710, "y": 230, "w": 500, "h": 140, "label": "math.h", "text": "int add(int, int);", "sub": "declaration", "size": 32, "tone": "blue", "cue": "The header holds" },
+        { "id": "m", "x": 200, "y": 500, "w": 520, "h": 140, "label": "main.cpp", "text": "add(2, 3);", "sub": "a call", "size": 32, "cue": "any file can call" },
+        { "id": "d", "x": 1200, "y": 500, "w": 520, "h": 140, "label": "math.cpp", "text": "int add(…) { … }", "sub": "the one definition", "size": 32, "tone": "good", "cue": "Exactly one" },
+        { "id": "l", "x": 660, "y": 750, "w": 600, "h": 130, "text": "Linker", "sub": "connects every call to the definition", "size": 38, "tone": "warn", "cue": "and the linker" }
+      ],
+      "arrows": [
+        { "from": "h", "to": "m", "label": "#include", "cue": "any file can call" },
+        { "from": "h", "to": "d", "label": "#include", "cue": "Exactly one" },
+        { "from": "m", "to": "l", "cue": "and the linker" },
+        { "from": "d", "to": "l", "cue": "single definition" }
+      ],
+      "say": "The header holds only the declaration, so any file can include it, and any file can call add. Exactly one c p p file holds the definition. The compiler checks each file separately, using just the declaration, and the linker connects every call to the single definition." },
+
+    { "type": "code", "head": "Rule: declare many times, define once",
+      "panels": [{ "file": "a.cpp + b.cpp", "size": 38, "code": "// a.cpp\nint counter = 0;\n\n// b.cpp\nint counter = 0;     // a second definition!" }],
+      "steps": [{ "cue": "Define the same global", "lines": [2, 5] }],
+      "output": { "cmd": "g++ a.cpp b.cpp", "text": "multiple definition of `counter'", "cue": "the linker complains", "tone": "bad" },
+      "say": "The rule: you can declare something as many times as you like, but define it exactly once. This is the one definition rule. Define the same global in two files, and the linker complains about multiple definitions. The fix is to write extern int counter in a header, and define it in just one file." },
+
+    { "type": "code", "head": "The opposite mistake",
+      "panels": [{ "file": "main.cpp", "size": 38, "code": "void greet(const char* name);   // declared...\n\nint main() {\n    greet(\"Sam\");                 // ...called...\n}                                // ...never defined" }],
+      "steps": [{ "cue": "declared and called", "lines": [1, 4] }],
+      "output": { "cmd": "g++ main.cpp", "text": "undefined reference to `greet(char const*)'", "cue": "The linker is not", "tone": "bad" },
+      "say": "The opposite mistake: declared and called, but never defined. The compiler is happy, because the declaration is enough to check the call. The linker is not, and reports an undefined reference." },
+
+    { "type": "take", "lines": ["Declaration: introduces a name and its type. “It exists somewhere.”", "Definition: creates it. Memory, a function body, or a full class layout.", "Declare as often as you want. Define exactly once (ODR)."],
+      "cues": ["A declaration", "A definition", "Declare"],
+      "say": "In one line each. A declaration introduces a name and type. A definition creates the thing: memory, a body, or a layout. Declare as often as you want, but define exactly once." }
+  ]
+}

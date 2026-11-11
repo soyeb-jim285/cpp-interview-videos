@@ -1,0 +1,91 @@
+{
+  "id": "q06", "num": 6, "short": "Value / reference / pointer",
+  "question": "What is the difference between pass by value, reference, and pointer?",
+  "caps": [["star x", "*x"], ["const T ref", "const T&"]],
+  "scenes": [
+    { "type": "title", "sub": "Same function, three ways to hand it the data.",
+      "say": "Pass by value, by reference, and by pointer. We'll write the same add one function three ways, and watch what happens to n." },
+
+    { "type": "diagram", "head": "1 · By value: a copy",
+      "panels": [{ "file": "value.cpp", "size": 36, "code": "void addOne(int x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n    // n is still 5\n}" }],
+      "steps": [
+        { "cue": "is called", "lines": [7, 1] },
+        { "cue": "Changing x", "lines": [2] },
+        { "cue": "When the function returns", "lines": [3, 8] }
+      ],
+      "items": [
+        { "id": "fm", "region": true, "x": 1060, "y": 600, "w": 700, "h": 250, "label": "main()" },
+        { "id": "n", "x": 1120, "y": 680, "w": 260, "h": 120, "label": "n", "text": "5", "size": 48, "tone": "blue" },
+        { "id": "fa", "region": true, "x": 1060, "y": 230, "w": 700, "h": 250, "label": "addOne()", "cue": "is called" },
+        { "id": "x", "x": 1120, "y": 310, "w": 260, "h": 120, "label": "x", "text": "5", "size": 48, "tone": "warn", "cue": "a copy of n" }
+      ],
+      "arrows": [{ "from": "n", "to": "x", "label": "copy", "cue": "a copy of n" }],
+      "changes": [
+        { "id": "x", "text": "6", "cue": "Changing x" },
+        { "id": "x", "fade": true, "cue": "When the function returns" },
+        { "id": "a0", "fade": true, "cue": "When the function returns" },
+        { "id": "fa", "fade": true, "cue": "When the function returns" },
+        { "id": "n", "tone": "good", "cue": "n is still five" }
+      ],
+      "say": "By value. When addOne is called, x is a brand new variable, a copy of n. Changing x to six touches only the copy. When the function returns, the copy disappears, and n is still five." },
+
+    { "type": "diagram", "head": "2 · By reference: an alias",
+      "panels": [{ "file": "reference.cpp", "size": 36, "code": "void addOne(int& x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n    // n is now 6\n}" }],
+      "steps": [
+        { "cue": "The ampersand", "lines": [1] },
+        { "cue": "So x plus one", "lines": [2] },
+        { "cue": "n is now six", "lines": [8] }
+      ],
+      "items": [
+        { "id": "fm", "region": true, "x": 1060, "y": 600, "w": 700, "h": 250, "label": "main()" },
+        { "id": "n", "x": 1120, "y": 680, "w": 260, "h": 120, "label": "n", "text": "5", "size": 48, "tone": "blue" },
+        { "id": "fa", "region": true, "x": 1060, "y": 230, "w": 700, "h": 250, "label": "addOne()", "cue": "The ampersand" },
+        { "id": "x", "x": 1120, "y": 310, "w": 260, "h": 120, "label": "x", "text": "→ n", "size": 40, "tone": "ghost", "cue": "another name" }
+      ],
+      "arrows": [{ "from": "x", "to": "n", "label": "same object", "cue": "another name" }],
+      "changes": [
+        { "id": "n", "text": "6", "cue": "So x plus one" },
+        { "id": "n", "tone": "good", "cue": "n is now six" }
+      ],
+      "say": "By reference. The ampersand means x is not a copy. It's another name for n itself. So x plus one changes n directly. n is now six, and nothing was copied." },
+
+    { "type": "diagram", "head": "3 · By pointer: a copy of the address",
+      "panels": [{ "file": "pointer.cpp", "size": 36, "code": "void addOne(int* x) {\n    *x = *x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(&n);\n    // n is now 6\n}" }],
+      "steps": [
+        { "cue": "We pass the address", "lines": [7] },
+        { "cue": "x is a copy", "lines": [1] },
+        { "cue": "Following it", "lines": [2] },
+        { "cue": "The caller sees", "lines": [7] },
+        { "cue": "But x could", "lines": [1] }
+      ],
+      "items": [
+        { "id": "fm", "region": true, "x": 1060, "y": 600, "w": 700, "h": 250, "label": "main()" },
+        { "id": "n", "x": 1120, "y": 680, "w": 260, "h": 120, "label": "n @0x1000", "text": "5", "size": 48, "tone": "blue" },
+        { "id": "fa", "region": true, "x": 1060, "y": 230, "w": 700, "h": 250, "label": "addOne()", "cue": "We pass the address" },
+        { "id": "x", "x": 1120, "y": 310, "w": 300, "h": 120, "label": "x", "text": "0x1000", "size": 40, "tone": "warn", "cue": "x is a copy" }
+      ],
+      "arrows": [{ "from": "x", "to": "n", "label": "points to", "cue": "Following it" }],
+      "changes": [
+        { "id": "n", "text": "6", "cue": "so n becomes six" },
+        { "id": "n", "tone": "good", "cue": "so n becomes six" }
+      ],
+      "notes": [{ "cue": "But x could", "x": 1460, "y": 370, "text": "could be nullptr!", "tone": "bad" }],
+      "say": "By pointer. We pass the address of n. x is a copy of that address. Following it with star x reaches the real n, so n becomes six. The caller sees the ampersand, so it's obvious n might change. But x could also be null, so a careful function checks it first." },
+
+    { "type": "compare", "head": "Side by side",
+      "heads": ["Value", "Reference", "Pointer"], "rowHeads": ["Call looks like", "What's copied", "Changes caller?", "Can be null?", "Use for"],
+      "rows": [
+        ["`f(n)`", "`f(n)`", "`f(&n)`"],
+        ["The whole object", "Nothing", "Just the address"],
+        ["No", "Yes", "Yes"],
+        ["No", "No", "Yes: check it"],
+        ["Small types: int, double", "Big objects: `const T&`", "Optional args, C APIs"]
+      ],
+      "cues": ["The call", "What gets copied", "Can the function", "Can it be null", "When to use"],
+      "say": "Side by side. The call looks the same for value and reference, only the pointer needs an ampersand. What gets copied: the whole object, nothing, or just the address. Can the function change the caller's variable? Not by value, yes for the other two. Can it be null? Only a pointer. When to use: value for small types like int, const T ref for big objects you only read, and pointers when the argument is optional." },
+
+    { "type": "take", "lines": ["By value: the function gets its own copy. Safe, but big copies are slow.", "By reference: an alias, no copy. Use const T& for big read-only inputs.", "By pointer: a copy of an address. Can be null, so check it."],
+      "cues": ["By value", "By reference", "By pointer"],
+      "say": "By value, the function gets its own copy: safe, but copying big objects is slow. By reference, it gets an alias with no copy at all. By pointer, it gets a copy of the address, which might be null, so check it." }
+  ]
+}

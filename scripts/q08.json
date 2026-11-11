@@ -1,0 +1,45 @@
+{
+  "id": "q08", "num": 8, "short": "struct vs class",
+  "question": "What is the difference between `struct` and `class`?",
+  "scenes": [
+    { "type": "title", "sub": "Almost nothing. But that one thing matters.",
+      "say": "struct versus class. In C plus plus, the answer is shorter than most people expect." },
+
+    { "type": "code", "head": "The only difference: default access",
+      "panels": [{ "file": "access.cpp", "size": 38, "code": "struct A {\n    int x;      // public by default\n};\n\nclass B {\n    int x;      // private by default\n};\n\nA a;  a.x = 1;  // OK\nB b;  b.x = 1;  // x is private" }],
+      "steps": [
+        { "cue": "Both can have", "lines": [] },
+        { "cue": "Members of a struct", "lines": [1, 2, 3, 9] },
+        { "cue": "Members of a class", "lines": [5, 6, 7, 10] }
+      ],
+      "notes": [
+        { "cue": "Members of a struct", "line": 9, "inside": true, "text": "works", "tone": "good" },
+        { "cue": "Members of a class", "line": 10, "inside": true, "text": "compile error", "tone": "bad" }
+      ],
+      "say": "In C plus plus, struct and class are almost identical. Both can have constructors, member functions, virtual functions, and inheritance. The only real difference is the default access. Members of a struct are public by default. Members of a class are private by default." },
+
+    { "type": "code", "head": "Same rule for inheritance",
+      "panels": [{ "file": "inherit.cpp", "size": 38, "code": "struct Base { int v; };\n\nstruct D1 : Base {};   // public inheritance\nclass  D2 : Base {};   // private inheritance\n\nD1 d1;  d1.v = 1;      // OK\nD2 d2;  d2.v = 1;      // Base is private in D2" }],
+      "steps": [
+        { "cue": "A struct inherits", "lines": [3, 6] },
+        { "cue": "a class inherits", "lines": [4, 7] },
+        { "cue": "That's it", "lines": [] }
+      ],
+      "notes": [{ "cue": "a class inherits", "line": 7, "inside": true, "text": "compile error", "tone": "bad" }],
+      "say": "The same default applies to inheritance. A struct inherits publicly by default, and a class inherits privately. That's it. Write public or private explicitly, and the two keywords become completely interchangeable." },
+
+    { "type": "code", "head": "So when do you use which?",
+      "panels": [{ "file": "convention.cpp", "code": "struct Point {            // plain data, no rules\n    double x, y;\n};\n\nclass BankAccount {       // has a rule to protect\npublic:\n    void deposit(double amt) {\n        if (amt > 0) balance += amt;\n    }\n    double get() const { return balance; }\nprivate:\n    double balance = 0;   // nobody can set it to -500\n};" }],
+      "steps": [
+        { "cue": "use struct", "lines": [1, 2, 3] },
+        { "cue": "Use class", "lines": [5] },
+        { "cue": "balance is private", "lines": [11, 12] },
+        { "cue": "deposit", "lines": [7, 8, 9] }
+      ],
+      "say": "So when do you use which? By convention, use struct for plain bundles of data with no rules, like a point. Use class when there's an invariant to protect. Here, balance is private, so the only way to change it is through deposit, which refuses negative amounts." },
+
+    { "type": "take", "lines": ["The only difference is the default: struct is public, class is private.", "It applies to members and to inheritance.", "Convention: struct for plain data, class for objects with rules (invariants)."],
+      "cues": ["The only difference", "It applies", "By convention"],
+      "say": "The only difference is the default access. struct is public, class is private. It applies to members and to inheritance. By convention, struct holds plain data, and class protects objects that have rules." }
+  ]
+}

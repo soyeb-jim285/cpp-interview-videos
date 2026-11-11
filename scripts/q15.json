@@ -1,0 +1,61 @@
+{
+  "id": "q15", "num": 15, "short": "NULL, 0, nullptr",
+  "question": "What is the difference between `NULL`, `0`, and `nullptr`?",
+  "caps": [["std nullptr t", "std::nullptr_t"], ["zero L", "0L"]],
+  "scenes": [
+    { "type": "title", "sub": "Two integers in disguise, and one real null pointer.",
+      "say": "NULL, zero, and null p t r. All three can give you a null pointer. Only one of them is actually a pointer." },
+
+    { "type": "code", "head": "Three ways to say “points to nothing”",
+      "panels": [{ "file": "null.cpp", "size": 40, "code": "int* a = 0;         // literal zero\nint* b = NULL;      // a macro: 0 or 0L\nint* c = nullptr;   // C++11: a real null pointer" }],
+      "steps": [
+        { "cue": "Zero is just", "lines": [1] },
+        { "cue": "NULL is a macro", "lines": [2] },
+        { "cue": "Only null p t r", "lines": [3] }
+      ],
+      "say": "Zero is just an integer literal, that the language allows to convert into a null pointer. NULL is a macro inherited from C, usually defined as zero, or zero L. Still an integer. Only null p t r, added in C plus plus eleven, is a real null pointer, with its own type: std nullptr t." },
+
+    { "type": "code", "head": "Why it matters: overloading",
+      "panels": [{ "file": "overload.cpp", "size": 38, "code": "void f(int x)   { std::cout << \"int\"; }\nvoid f(char* p) { std::cout << \"pointer\"; }\n\nf(0);         // \"int\"\nf(NULL);      // \"int\", or ambiguous!\nf(nullptr);   // \"pointer\"" }],
+      "steps": [
+        { "cue": "Calling f with zero", "lines": [1, 4] },
+        { "cue": "Calling f with NULL", "lines": [5] },
+        { "cue": "can only convert", "lines": [2, 6] }
+      ],
+      "notes": [
+        { "cue": "Calling f with NULL", "line": 5, "inside": true, "text": "not the pointer version!", "tone": "bad" },
+        { "cue": "always picks", "line": 6, "inside": true, "text": "exactly what you meant", "tone": "good" }
+      ],
+      "say": "Why does it matter? Overloading. Calling f with zero picks the int version, of course. Calling f with NULL, you'd expect the pointer version, but you get the int version, or a compile error saying the call is ambiguous. null p t r can only convert to a pointer, so it always picks the pointer version." },
+
+    { "type": "diagram", "head": "Where each one can go",
+      "items": [
+        { "id": "z", "x": 220, "y": 230, "w": 420, "h": 140, "text": "0", "sub": "type: int", "size": 48, "cue": "Zero and NULL" },
+        { "id": "n", "x": 220, "y": 460, "w": 420, "h": 140, "text": "NULL", "sub": "macro: 0 or 0L", "size": 44, "cue": "Zero and NULL" },
+        { "id": "np", "x": 220, "y": 690, "w": 420, "h": 140, "text": "nullptr", "sub": "type: std::nullptr_t", "size": 44, "tone": "good", "cue": "null p t r converts" },
+        { "id": "ti", "x": 1280, "y": 300, "w": 440, "h": 140, "label": "integers", "text": "int, long", "size": 40, "tone": "blue", "cue": "Zero and NULL" },
+        { "id": "tp", "x": 1280, "y": 620, "w": 440, "h": 140, "label": "pointers", "text": "int*, char*, …", "size": 40, "tone": "warn", "cue": "sneak into pointers" }
+      ],
+      "arrows": [
+        { "from": "z", "to": "ti", "cue": "are integers" },
+        { "from": "n", "to": "ti", "cue": "are integers" },
+        { "from": "z", "to": "tp", "tone": "warn", "bend": 30, "cue": "sneak into pointers" },
+        { "from": "n", "to": "tp", "tone": "warn", "cue": "sneak into pointers" },
+        { "from": "np", "to": "tp", "tone": "good", "cue": "null p t r converts" }
+      ],
+      "say": "Picture the conversions. Zero and NULL are integers, that can also sneak into pointers. null p t r converts to any pointer type, but never to an integer. One meaning, no surprises." },
+
+    { "type": "code", "head": "Same story with auto",
+      "panels": [{ "file": "auto.cpp", "size": 38, "code": "auto x = NULL;       // an integer, not a pointer!\nauto y = nullptr;    // std::nullptr_t\n\nif (ptr == nullptr) { /* intent is obvious */ }" }],
+      "steps": [
+        { "cue": "auto of NULL", "lines": [1] },
+        { "cue": "auto of null p t r", "lines": [2] },
+        { "cue": "comparing", "lines": [4] }
+      ],
+      "say": "The same thing happens with auto. auto of NULL gives you an integer, not a pointer. auto of null p t r gives a null pointer type. And comparing against null p t r makes your intent obvious to every reader." },
+
+    { "type": "take", "lines": ["0: an int literal that can also convert to a pointer.", "NULL: a C macro for 0 (or 0L). Still an integer.", "nullptr (C++11): a true null pointer, type std::nullptr_t. Always use it."],
+      "cues": ["Zero is", "NULL is", "null p t r is"],
+      "say": "Zero is an integer that can become a pointer. NULL is a macro for zero, still an integer. null p t r is a true null pointer. In modern C plus plus, always use it." }
+  ]
+}

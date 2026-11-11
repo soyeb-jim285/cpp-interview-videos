@@ -1,0 +1,67 @@
+name: render
+on:
+  workflow_dispatch:
+    inputs:
+      questions:
+        description: 'Space-separated ids (e.g. "q16 q17"), or "all"'
+        default: all
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        env:
+          QS: ${{ inputs.questions }}
+        run: |
+          if [ "$QS" = "all" ]; then ids=$(ls scripts | sed 's/\.json$//'); else ids=$(printf '%s\n' $QS | grep -E '^q[0-9]+$'); fi
+          echo "matrix=$(printf '%s\n' $ids | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        q: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hyperframes
+            ~/.cache/pip
+            ~/.npm
+          key: hf-${{ runner.os }}-v1
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q kokoro-onnx soundfile
+          export HYPERFRAMES_PYTHON=$(which python)
+          npx -y hyperframes@0.9.34 tts "warm up" -o /tmp/warm.wav   # downloads the Kokoro model once
+      - name: Validate
+        env: { Q: "${{ matrix.q }}" }
+        run: node validate.mjs "scripts/$Q.json"
+      - name: Voice, build, render
+        env:
+          PY: python
+          WORKERS: 4
+          HYPERFRAMES_PYTHON: python
+          Q: ${{ matrix.q }}
+        run: ./make.sh "$Q"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.q }}
+          path: |
+            out/*.mp4
+            out/*.log
+          if-no-files-found: warn

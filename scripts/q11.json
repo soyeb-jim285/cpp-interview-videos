@@ -1,0 +1,52 @@
+{
+  "id": "q11", "num": 11, "short": "Function overloading",
+  "question": "What is function overloading?",
+  "caps": [["extern C", "extern \"C\""]],
+  "scenes": [
+    { "type": "title", "sub": "One name, several functions. The compiler picks by argument types.",
+      "say": "Function overloading. One name, several functions, and the compiler picks the right one for you." },
+
+    { "type": "code", "head": "Same name, different parameters",
+      "panels": [{ "file": "print.cpp", "code": "void print(int x)                { std::cout << \"int: \" << x; }\nvoid print(double x)             { std::cout << \"double: \" << x; }\nvoid print(const std::string& s) { std::cout << \"string: \" << s; }\n\nprint(42);                    // int: 42\nprint(3.14);                  // double: 3.14\nprint(std::string(\"hi\"));     // string: hi" }],
+      "steps": [
+        { "cue": "several functions", "lines": [1, 2, 3] },
+        { "cue": "forty two", "lines": [1, 5] },
+        { "cue": "three point one four", "lines": [2, 6] },
+        { "cue": "With a string", "lines": [3, 7] },
+        { "cue": "This choice", "lines": [] }
+      ],
+      "say": "Overloading means several functions share one name, but differ in their parameter types or count. Call print with forty two, and the compiler sees an int, so it picks the int version. With three point one four, it picks double. With a string, it picks the string version. This choice happens entirely at compile time. That's why overloading is called compile time polymorphism." },
+
+    { "type": "diagram", "head": "Under the hood: name mangling",
+      "items": [
+        { "id": "s1", "x": 180, "y": 260, "w": 640, "h": 120, "text": "print(int)", "size": 36, "tone": "blue", "cue": "mangles each name" },
+        { "id": "s2", "x": 180, "y": 460, "w": 640, "h": 120, "text": "print(double)", "size": 36, "tone": "blue", "cue": "mangles each name" },
+        { "id": "s3", "x": 180, "y": 660, "w": 640, "h": 120, "text": "print(const string&)", "size": 34, "tone": "blue", "cue": "mangles each name" },
+        { "id": "m1", "x": 1100, "y": 260, "w": 640, "h": 120, "label": "symbol", "text": "_Z5printi", "size": 36, "tone": "warn", "cue": "the linker sees" },
+        { "id": "m2", "x": 1100, "y": 460, "w": 640, "h": 120, "label": "symbol", "text": "_Z5printd", "size": 36, "tone": "warn", "cue": "the linker sees" },
+        { "id": "m3", "x": 1100, "y": 660, "w": 640, "h": 120, "label": "symbol", "text": "_Z5printRKNSt7__cxx11…", "size": 30, "tone": "warn", "cue": "the linker sees" }
+      ],
+      "arrows": [
+        { "from": "s1", "to": "m1", "cue": "with its parameter types" },
+        { "from": "s2", "to": "m2", "cue": "with its parameter types" },
+        { "from": "s3", "to": "m3", "cue": "with its parameter types" }
+      ],
+      "say": "How can three functions share a name? Under the hood, the compiler mangles each name, encoding it with its parameter types. So the linker sees three completely different symbols. i for int, d for double. This is also why C code can't call them directly without extern C." },
+
+    { "type": "code", "head": "Two traps",
+      "panels": [{ "file": "traps.cpp", "code": "int    parse(const std::string& s);\ndouble parse(const std::string& s);   // differs only by return type\n\nvoid f(long x);\nvoid f(double x);\nf(5);                                  // int -> long? int -> double?" }],
+      "steps": [
+        { "cue": "Return type alone", "lines": [1, 2] },
+        { "cue": "calls can be ambiguous", "lines": [4, 5, 6] }
+      ],
+      "notes": [
+        { "cue": "it's an error", "line": 2, "inside": true, "text": "compile error", "tone": "bad" },
+        { "cue": "gives up", "line": 6, "inside": true, "text": "ambiguous call", "tone": "bad" }
+      ],
+      "say": "Two traps. Return type alone doesn't count. These two parse functions look identical to a caller, so it's an error. And calls can be ambiguous. Five is an int, and converting it to long or to double are equally good, so the compiler gives up." },
+
+    { "type": "take", "lines": ["Same name, different parameter list: types, count, or const-ness.", "Chosen at compile time from the argument types.", "Return type alone can't overload. Watch for ambiguous conversions."],
+      "cues": ["Same name", "Chosen", "Return type"],
+      "say": "Same name, different parameter list. Chosen at compile time from the argument types. Return type alone can't overload, and watch out for ambiguous conversions." }
+  ]
+}

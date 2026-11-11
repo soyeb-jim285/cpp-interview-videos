@@ -1,0 +1,51 @@
+{
+  "id": "q13", "num": 13, "short": "Compile-time vs runtime errors",
+  "question": "What is the difference between compile-time and runtime errors?",
+  "caps": [["static assert", "static_assert"], ["enum class", "enum class"]],
+  "scenes": [
+    { "type": "title", "sub": "Caught before the program exists, or after it is already running.",
+      "say": "Compile time errors versus runtime errors. The difference is when the mistake is caught, and that changes everything about how bad it is." },
+
+    { "type": "code", "head": "Compile-time: the compiler stops you",
+      "panels": [{ "file": "main.cpp", "size": 36, "code": "int main() {\n    int x = \"hello\";   // wrong type\n    undefinedFn();      // unknown name\n    int y = 5           // missing semicolon\n}" }],
+      "steps": [
+        { "cue": "Wrong types", "lines": [2] },
+        { "cue": "unknown names", "lines": [3] },
+        { "cue": "missing semicolons", "lines": [4] }
+      ],
+      "output": { "cmd": "g++ main.cpp", "tone": "bad", "cue": "No executable", "text": "main.cpp:2:13: error: invalid conversion from 'const char*' to 'int'\nmain.cpp:3:5: error: 'undefinedFn' was not declared in this scope\nmain.cpp:4:14: error: expected ',' or ';' before '}' token" },
+      "say": "A compile time error is found by the compiler, before the program ever runs. Wrong types, unknown names, missing semicolons. No executable is produced at all, so this bug can never reach a user. That's the good kind of error." },
+
+    { "type": "code", "head": "Runtime: it builds, then fails",
+      "panels": [{ "file": "main.cpp", "code": "int main() {\n    std::vector<int> v = {1, 2, 3};\n    int d;\n    std::cin >> d;\n    std::cout << 10 / d;     // user types 0\n    std::cout << v.at(10);   // index 10 of 3 elements\n}" }],
+      "steps": [
+        { "cue": "If the user types zero", "lines": [4, 5] },
+        { "cue": "asking for element ten", "lines": [6] }
+      ],
+      "output": { "cmd": "./app      (input: 0)", "tone": "bad", "cue": "crashes the program", "text": "Floating point exception (core dumped)" },
+      "notes": [{ "cue": "asking for element ten", "line": 6, "inside": true, "text": "throws std::out_of_range", "tone": "bad" }],
+      "say": "A runtime error compiles without complaint, then fails while running, often only for certain inputs. If the user types zero, ten divided by d crashes the program. And asking for element ten of a three element vector with at throws an out of range exception." },
+
+    { "type": "flow", "head": "A timeline of when bugs show up", "y": 400, "h": 280,
+      "items": [
+        { "label": "1", "text": "Compile", "sub": "syntax, types, names", "tone": "good", "cue": "Compile time errors", "size": 34 },
+        { "label": "2", "text": "Link", "sub": "undefined reference", "tone": "good", "cue": "Link errors", "size": 34 },
+        { "label": "3", "text": "Run", "sub": "crash, exception", "tone": "bad", "cue": "Runtime errors", "size": 34 },
+        { "label": "4", "text": "Wrong output", "sub": "logic errors: no crash at all", "tone": "bad", "cue": "Logic errors", "size": 30 }
+      ],
+      "say": "Think of it as a timeline. Compile time errors are caught first, and cheapest. Link errors come next, like a missing definition. Runtime errors only appear while the program runs, maybe only for some inputs, maybe in front of your users. Logic errors are the sneakiest: no crash, just a wrong answer." },
+
+    { "type": "code", "head": "Push mistakes toward compile time",
+      "panels": [{ "file": "safer.cpp", "code": "static_assert(sizeof(int) == 4, \"this code needs 32-bit int\");\n\nenum class Color { Red, Green };\nvoid paint(Color c);\n\npaint(Color::Red);   // OK\npaint(1);            // not a Color" }],
+      "steps": [
+        { "cue": "static assert", "lines": [1] },
+        { "cue": "strong types", "lines": [3, 4, 6, 7] }
+      ],
+      "notes": [{ "cue": "into a compile error", "line": 7, "inside": true, "text": "compile error", "tone": "good" }],
+      "say": "Good C plus plus pushes mistakes toward compile time. static assert checks your assumptions while compiling. And strong types, like enum class, turn a wrong argument into a compile error, instead of a bug at runtime." },
+
+    { "type": "take", "lines": ["Compile-time: found by the compiler. Syntax, types, names. No program is built.", "Runtime: the program builds, then fails while running. Bad input, bad index, null.", "Prefer errors at compile time: strong types, const, static_assert."],
+      "cues": ["Compile time errors", "Runtime errors", "Prefer"],
+      "say": "Compile time errors are found by the compiler, and no program is built. Runtime errors happen while the program runs, often depending on input. Prefer to catch errors at compile time, using strong types, const, and static assert." }
+  ]
+}
