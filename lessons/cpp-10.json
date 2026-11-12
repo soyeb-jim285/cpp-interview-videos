@@ -632,14 +632,14 @@
      ],
      "notes": [
       {
-       "x": 150,
+       "x": 300,
        "y": 770,
        "text": "copy: a second house",
        "tone": "bad",
        "cue": "second house"
       },
       {
-       "x": 1260,
+       "x": 1090,
        "y": 770,
        "text": "move: hand over the keys",
        "tone": "good",
