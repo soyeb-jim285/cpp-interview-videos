@@ -1137,7 +1137,7 @@
      "say": "The recursion: partition, then sort what's left of the pivot, and what's right of it. Stop when a range has fewer than two cards. On our array, it prints one through six.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "snippet.cpp",
        "code": "void quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}\nvector<int> a = {5, 2, 4, 6, 1, 3};\nquickSort(a, 0, 5);\nfor (int x : a) cout << x << ' ';"
       }
      ],
@@ -1173,7 +1173,10 @@
      "output": {
       "cmd": "./sol",
       "text": "1 2 3 4 5 6",
-      "cue": "prints one through six"
+      "cue": "prints one through six",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint partition(vector<int>& a, int lo, int hi) {\n    int pivot = a[hi], i = lo;\n    for (int j = lo; j < hi; j++) {\n        if (a[j] < pivot) {\n            swap(a[i], a[j]);\n            i++;\n        }\n    }\n    swap(a[i], a[hi]);\n    return i;\n}\nvoid quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}\nint main(){\nvector<int> a = {5, 2, 4, 6, 1, 3};\nquickSort(a, 0, 5);\nfor (int x : a) cout << x << ' ';\n}\n"
+      }
      }
     },
     {
@@ -1309,7 +1312,7 @@
      "say": "For a custom order, pass a comparator: does x come before y? Here, shorter words first. It must say strictly less. Fig, kiwi, apple, banana.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "snippet.cpp",
        "code": "vector<string> w = {\"banana\", \"fig\", \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(), [](const string& x, const string& y) {\n    return x.size() < y.size();\n});\nfor (auto& s : w) cout << s << ' ';"
       }
      ],
@@ -1353,7 +1356,10 @@
      "output": {
       "cmd": "./sol",
       "text": "fig kiwi apple banana",
-      "cue": "Fig, kiwi"
+      "cue": "Fig, kiwi",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<string> w = {\"banana\", \"fig\", \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(), [](const string& x, const string& y) {\n    return x.size() < y.size();\n});\nfor (auto& s : w) cout << s << ' ';\n}\n"
+      }
      }
     },
     {
@@ -1374,7 +1380,7 @@
      "say": "Stable sort, with greater than. Plain sort makes no promise about ties. Stable sort keeps equal items in input order, so Bob stays ahead of Cat. Amy, with eighty five, comes last.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "snippet.cpp",
        "code": "vector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';"
       }
      ],
@@ -1427,7 +1433,10 @@
       "cmd": "./sol",
       "text": "bob 90\ncat 90\namy 85",
       "tone": "good",
-      "cue": "Bob stays ahead"
+      "cue": "Bob stays ahead",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';\n}\n"
+      }
      }
     },
     {
@@ -1609,7 +1618,7 @@
      "say": "In code: a counter array of size five, all zero. One pass counts. Then for each value, print it as many times as its counter says. Sorted. The cost is O of n plus k, where k is the value range. For a million ages, k is just one hundred twenty one.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "snippet.cpp",
        "code": "vector<int> a = {3, 1, 0, 3, 4, 1, 3};\nvector<int> cnt(5, 0);\nfor (int x : a) cnt[x]++;\nfor (int v = 0; v < 5; v++)\n    for (int c = 0; c < cnt[v]; c++)\n        cout << v << ' ';"
       }
      ],
@@ -1658,7 +1667,10 @@
      "output": {
       "cmd": "./sol",
       "text": "0 1 1 3 3 3 4",
-      "cue": "Sorted."
+      "cue": "Sorted.",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<int> a = {3, 1, 0, 3, 4, 1, 3};\nvector<int> cnt(5, 0);\nfor (int x : a) cnt[x]++;\nfor (int v = 0; v < 5; v++)\n    for (int c = 0; c < cnt[v]; c++)\n        cout << v << ' ';\n}\n"
+      }
      }
     },
     {
@@ -1760,6 +1772,16 @@
       "When insertion sort?",
       "Common mistake?"
      ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "cp22"
+     ],
+     "pause": 5,
+     "say": "Quick self test. A million integers, each up to a billion. Counting sort, or s t d colon colon sort? Pause and predict.",
+     "q": "1M ints up to 10⁹: which sort?",
+     "answer": "std::sort"
     },
     {
      "type": "compare",

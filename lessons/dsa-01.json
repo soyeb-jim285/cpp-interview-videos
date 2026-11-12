@@ -653,7 +653,10 @@
      "output": {
       "cmd": "./sol",
       "text": "4",
-      "cue": "prints four"
+      "cue": "prints four",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvoid fast(vector<int> a);\nint main(){ fast({2,-2,5,-2,2}); }\n"
+      }
      }
     },
     {
