@@ -1,0 +1,1380 @@
+{
+ "id": "dsa-03",
+ "track": "DSA",
+ "num": 3,
+ "title": "Two Pointers & Sliding Window",
+ "covers": [
+  "cp03",
+  "cp04"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Squeeze from both ends",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Find two numbers that add to ten, without trying every pair. By the end you'll do it in one pass, then use a sliding window to solve problems on strings too.",
+     "lines": [
+      {
+       "text": "Two numbers that add to 10",
+       "cue": "two numbers"
+      },
+      {
+       "text": "Without trying every pair",
+       "cue": "without trying"
+      },
+      {
+       "text": "One pass.",
+       "cue": "one pass",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Why bother?",
+     "unit": "steps",
+     "say": "Here's what it buys you. A thousand numbers, one target pair. Checking every pair means about five hundred thousand additions. Two pointers takes at most nine hundred ninety nine steps. Five hundred times less work.",
+     "bars": [
+      {
+       "label": "Every pair",
+       "value": 499500,
+       "tone": "bad",
+       "cue": "Checking every pair"
+      },
+      {
+       "label": "Pointers",
+       "value": 999,
+       "tone": "good",
+       "cue": "Two pointers takes"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Two gifts, one budget",
+     "say": "Think of gifts sorted by price, with a budget of exactly ten. Put one finger on the cheapest and one on the priciest. Total too high? The priciest gift can't work with anything, so drop it. Total too low? Drop the cheapest.",
+     "items": [
+      {
+       "label": "sorted prices",
+       "text": "1 3 4 6 8 11",
+       "sub": "budget: 10",
+       "cue": "sorted by price"
+      },
+      {
+       "label": "two fingers",
+       "text": "1 + 11",
+       "sub": "cheapest + priciest",
+       "cue": "one finger on"
+      },
+      {
+       "label": "too high?",
+       "text": "move right in",
+       "sub": "drop the priciest",
+       "cue": "Total too high"
+      },
+      {
+       "label": "too low?",
+       "text": "move left in",
+       "sub": "drop the cheapest",
+       "cue": "Total too low"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Sorted [1, 3, 4, 6, 8, 11], target 10",
+     "say": "Here is the sorted array, and the target is ten. L sits on the one, R on the eleven. One plus eleven is twelve. Too high, and the eleven is too big for any partner, so R moves left. One plus eight is nine. Too low, so L moves right. Three plus eight is eleven. Too high, so R steps left. Three plus six is nine. Too low, so L steps right. Four plus six is ten. Found, in five steps.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         1,
+         3,
+         4,
+         6,
+         8,
+         11
+        ],
+        "y": 380,
+        "cue": "sorted array"
+       }
+      },
+      {
+       "id": "tgt",
+       "x": 1100,
+       "y": 780,
+       "w": 360,
+       "h": 110,
+       "label": "target",
+       "text": "10",
+       "size": 56,
+       "tone": "info",
+       "cue": "target is ten"
+      },
+      {
+       "id": "pl",
+       "x": 450,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "L",
+       "tone": "warn",
+       "cue": "L sits"
+      },
+      {
+       "id": "pr",
+       "x": 1350,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "R",
+       "tone": "good",
+       "cue": "R on the eleven"
+      },
+      {
+       "id": "sum",
+       "x": 560,
+       "y": 780,
+       "w": 440,
+       "h": 110,
+       "label": "sum",
+       "text": "1 + 11 = 12",
+       "size": 48,
+       "tone": "bad",
+       "cue": "is twelve"
+      }
+     ],
+     "changes": [
+      {
+       "id": "pr",
+       "move": [
+        1170,
+        570
+       ],
+       "cue": "R moves left"
+      },
+      {
+       "id": "c5",
+       "tone": "dim",
+       "cue": "R moves left"
+      },
+      {
+       "id": "sum",
+       "text": "1 + 8 = 9",
+       "tone": "warn",
+       "cue": "is nine"
+      },
+      {
+       "id": "pl",
+       "move": [
+        630,
+        570
+       ],
+       "cue": "L moves right"
+      },
+      {
+       "id": "c0",
+       "tone": "dim",
+       "cue": "L moves right"
+      },
+      {
+       "id": "sum",
+       "text": "3 + 8 = 11",
+       "tone": "bad",
+       "cue": "eight is eleven"
+      },
+      {
+       "id": "pr",
+       "move": [
+        990,
+        570
+       ],
+       "cue": "R steps left"
+      },
+      {
+       "id": "c4",
+       "tone": "dim",
+       "cue": "R steps left"
+      },
+      {
+       "id": "sum",
+       "text": "3 + 6 = 9",
+       "tone": "warn",
+       "cue": "six is nine"
+      },
+      {
+       "id": "pl",
+       "move": [
+        810,
+        570
+       ],
+       "cue": "L steps right"
+      },
+      {
+       "id": "c1",
+       "tone": "dim",
+       "cue": "L steps right"
+      },
+      {
+       "id": "sum",
+       "text": "4 + 6 = 10",
+       "tone": "good",
+       "cue": "six is ten"
+      },
+      {
+       "id": "c2",
+       "glow": true,
+       "tone": "good",
+       "cue": "Found, in five"
+      },
+      {
+       "id": "c3",
+       "glow": true,
+       "tone": "good",
+       "cue": "Found, in five"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Two pointers in code",
+     "say": "Here it is in C plus plus. L at the start, R at the last index. Keep going while L is less than R. Add the two ends. Equal to the target? Done. Too small, L moves right. Otherwise R moves left. Each step throws one index away, so it's at most n steps. On our array it prints true, and for a hundred, false.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool pairSum(const vector<int>& a, int t) {\n    int l = 0, r = (int)a.size() - 1;\n    while (l < r) {\n        int s = a[l] + a[r];\n        if (s == t) return true;\n        if (s < t) l++; else r--;\n    }\n    return false;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "L at the start"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "while L is less"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Add the two ends"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Equal to the target"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Too small"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "O(n) time, O(1) memory",
+       "tone": "good",
+       "cue": "throws one index away"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "true\nfalse",
+      "cue": "prints true"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same array, but the target is fourteen. One plus eleven is twelve. Which pointer moves? Pause and predict.",
+     "q": "Target 14, sorted [1, 3, 4, 6, 8, 11]. Sum is 12. What moves?",
+     "options": [
+      "L moves right",
+      "R moves left",
+      "both move",
+      "stop: no pair"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "code",
+     "head": "The bug: l <= r",
+     "say": "L moves right. Twelve is too low, so the one is finished. Next, three plus eleven is fourteen. Found. Now the classic trap. Let L reach R, and a number pairs with itself. One element, five, target ten. Five plus five is ten. Prints true, but there is only one five. Use strictly less than.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "bool bad(const vector<int>& a, int t) {\n    int l = 0, r = (int)a.size() - 1;\n    while (l <= r) {\n        int s = a[l] + a[r];\n        if (s == t) return true;\n        if (s < t) l++; else r--;\n    }\n    return false;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6
+       ],
+       "cue": "L moves right"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "three plus eleven"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Let L reach R"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Five plus five"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "a number pairs with itself",
+       "tone": "bad",
+       "cue": "Use strictly less"
+      }
+     ],
+     "output": {
+      "cmd": "./sol  # a = {5}, t = 10",
+      "text": "true",
+      "tone": "bad",
+      "cue": "Prints true"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Second flavor: slow and fast",
+     "say": "A second flavor: a slow pointer and a fast one. Slow w marks where the next kept value goes. The loop is the fast pointer. A new value gets copied to w. One, one, two, two, two, three becomes one, two, three, length three. Unsorted input? Sort first, or use a hash map. Next: Two Sum Two, Three Sum, Container With Most Water.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int dedupe(vector<int>& a) {\n    int w = 0;\n    for (int x : a)\n        if (w == 0 || x != a[w - 1]) a[w++] = x;\n    return w;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Slow w"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "fast pointer"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "copied to w"
+      }
+     ],
+     "output": {
+      "cmd": "./sol  # {1, 1, 2, 2, 2, 3}",
+      "text": "3\n1 2 3",
+      "cue": "becomes one, two, three"
+     },
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "needs sorted input",
+       "tone": "warn",
+       "cue": "Unsorted input"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "same family: 3Sum",
+       "tone": "good",
+       "cue": "Three Sum"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Slide, don't recount",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A bus with three seats",
+     "say": "Picture a bus with three seats and a fare total on board. One passenger gets off, one gets on. Do you recount everyone? No. Subtract the one who left, add the one who arrived.",
+     "items": [
+      {
+       "label": "on board",
+       "text": "3 riders",
+       "sub": "fare total 8",
+       "cue": "three seats"
+      },
+      {
+       "label": "steps off",
+       "text": "minus 2",
+       "sub": "leaves the window",
+       "cue": "gets off"
+      },
+      {
+       "label": "steps on",
+       "text": "plus 1",
+       "sub": "enters the window",
+       "cue": "gets on"
+      },
+      {
+       "label": "new total",
+       "text": "7",
+       "tone": "good",
+       "sub": "no recount",
+       "cue": "Subtract the one"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Window of 3: slide, don't recount",
+     "say": "Array two, one, five, one, three, two. Window of three. The first window sums to eight. That's our best so far. Slide right. The two leaves, so subtract two. The next one enters, so add one. Seven. Slide again. One out, three in: nine. New best. Slide once more. Five out, two in: six. Two operations per step, however wide the window.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         2,
+         1,
+         5,
+         1,
+         3,
+         2
+        ],
+        "y": 380,
+        "cue": "two, one, five"
+       }
+      },
+      {
+       "id": "win",
+       "region": true,
+       "x": 410,
+       "y": 330,
+       "w": 560,
+       "h": 250,
+       "label": "WINDOW",
+       "tone": "warn",
+       "cue": "Window of three"
+      },
+      {
+       "id": "sum",
+       "x": 560,
+       "y": 700,
+       "w": 380,
+       "h": 150,
+       "label": "window sum",
+       "text": "8",
+       "size": 64,
+       "tone": "warn",
+       "cue": "sums to eight"
+      },
+      {
+       "id": "best",
+       "x": 1000,
+       "y": 700,
+       "w": 380,
+       "h": 150,
+       "label": "best so far",
+       "text": "8",
+       "size": 64,
+       "tone": "good",
+       "cue": "best so far"
+      }
+     ],
+     "changes": [
+      {
+       "id": "win",
+       "move": [
+        590,
+        330
+       ],
+       "cue": "Slide right"
+      },
+      {
+       "id": "c0",
+       "tone": "dim",
+       "cue": "two leaves"
+      },
+      {
+       "id": "c3",
+       "glow": true,
+       "tone": "good",
+       "cue": "next one enters"
+      },
+      {
+       "id": "sum",
+       "text": "7",
+       "cue": "Seven"
+      },
+      {
+       "id": "win",
+       "move": [
+        770,
+        330
+       ],
+       "cue": "Slide again"
+      },
+      {
+       "id": "c1",
+       "tone": "dim",
+       "cue": "One out"
+      },
+      {
+       "id": "c4",
+       "glow": true,
+       "tone": "good",
+       "cue": "three in"
+      },
+      {
+       "id": "sum",
+       "text": "9",
+       "cue": "nine"
+      },
+      {
+       "id": "best",
+       "text": "9",
+       "cue": "New best"
+      },
+      {
+       "id": "win",
+       "move": [
+        950,
+        330
+       ],
+       "cue": "Slide once more"
+      },
+      {
+       "id": "c2",
+       "tone": "dim",
+       "cue": "Five out"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "tone": "good",
+       "cue": "two in"
+      },
+      {
+       "id": "sum",
+       "text": "6",
+       "cue": "six"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fixed window in code",
+     "say": "Same thing in code. Cur is the window sum. Each step adds the element entering on the right. Once i reaches k, subtract the element leaving on the left. From the first full window on, record the best. Best starts at the smallest int, so negative arrays work too. It's one pass. On our array it prints nine.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int maxSum(const vector<int>& a, int k) {\n    int cur = 0, best = INT_MIN;\n    for (int i = 0; i < (int)a.size(); i++) {\n        cur += a[i];\n        if (i >= k) cur -= a[i - k];\n        if (i >= k - 1) best = max(best, cur);\n    }\n    return best;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Cur is the window"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "adds the element"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "subtract the element"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "record the best"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "INT_MIN: negatives are fine",
+       "tone": "good",
+       "cue": "smallest int"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "one pass: O(n)",
+       "tone": "good",
+       "cue": "one pass"
+      }
+     ],
+     "output": {
+      "cmd": "./sol  # k = 3",
+      "text": "9",
+      "cue": "prints nine"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Make the window four wide. Two, one, five, one adds to nine. Slide right once. Which sum comes next? Pause and predict.",
+     "q": "Window of 4 on [2, 1, 5, 1, 3, 2] sums to 9. After one slide?",
+     "options": [
+      "9",
+      "10",
+      "11",
+      "12"
+     ],
+     "answer": "10"
+    },
+    {
+     "type": "chart",
+     "head": "Why recounting hurts",
+     "unit": "ops",
+     "say": "Ten: nine minus two plus three. Now the trap. Recounting windows of a thousand, over a hundred thousand numbers, costs ninety nine million additions. Sliding costs two hundred thousand operations. Never recount.",
+     "bars": [
+      {
+       "label": "Recount",
+       "value": 99000000,
+       "tone": "bad",
+       "cue": "Recounting windows"
+      },
+      {
+       "label": "Slide",
+       "value": 200000,
+       "tone": "good",
+       "cue": "Sliding costs"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Grow right, shrink left",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "Longest run with no repeat",
+     "say": "Now strings. Find the longest stretch with no repeated letter. Here is the string: a, b, c, a, b, c, b, b. L and R start on the first letter. R moves right, reading b. Then c. Three different letters. Now R reads a second a. A repeat! So L steps right, past the first a. The window is b, c, a. Still three.",
+     "items": [
+      {
+       "array": {
+        "id": "s",
+        "values": [
+         "a",
+         "b",
+         "c",
+         "a",
+         "b",
+         "c",
+         "b",
+         "b"
+        ],
+        "y": 380,
+        "cue": "Here is the string"
+       }
+      },
+      {
+       "id": "pl",
+       "x": 270,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "L",
+       "tone": "warn",
+       "cue": "L and R"
+      },
+      {
+       "id": "pr",
+       "x": 270,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "R",
+       "tone": "good",
+       "cue": "start on"
+      },
+      {
+       "id": "len",
+       "x": 500,
+       "y": 780,
+       "w": 400,
+       "h": 110,
+       "label": "window length",
+       "text": "3",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Three different letters"
+      },
+      {
+       "id": "best",
+       "x": 1100,
+       "y": 780,
+       "w": 400,
+       "h": 110,
+       "label": "longest so far",
+       "text": "3",
+       "size": 56,
+       "tone": "good",
+       "cue": "Still three"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s0",
+       "tone": "warn",
+       "cue": "the first letter"
+      },
+      {
+       "id": "pr",
+       "move": [
+        450,
+        660
+       ],
+       "cue": "reading b"
+      },
+      {
+       "id": "s1",
+       "tone": "warn",
+       "cue": "reading b"
+      },
+      {
+       "id": "pr",
+       "move": [
+        630,
+        660
+       ],
+       "cue": "Then c"
+      },
+      {
+       "id": "s2",
+       "tone": "warn",
+       "cue": "Then c"
+      },
+      {
+       "id": "pr",
+       "move": [
+        810,
+        660
+       ],
+       "cue": "second a"
+      },
+      {
+       "id": "s3",
+       "tone": "bad",
+       "cue": "second a"
+      },
+      {
+       "id": "s0",
+       "glow": true,
+       "tone": "bad",
+       "cue": "A repeat"
+      },
+      {
+       "id": "pl",
+       "move": [
+        450,
+        570
+       ],
+       "cue": "L steps right"
+      },
+      {
+       "id": "s0",
+       "tone": "dim",
+       "cue": "L steps right"
+      },
+      {
+       "id": "s3",
+       "tone": "warn",
+       "cue": "L steps right"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Longest run with no repeat",
+     "say": "Same string. L sits on the b, R on the second a. R moves to the next b. The b is already inside, so L drops the b. Window c, a, b. R moves to c. Repeat again, so L drops the c. Window a, b, c. R reaches b. L has to drop two letters, a then b. Window c, b. The last b: L drops c and b. The window is one letter. The best never beat three.",
+     "items": [
+      {
+       "array": {
+        "id": "s",
+        "values": [
+         "a",
+         "b",
+         "c",
+         "a",
+         "b",
+         "c",
+         "b",
+         "b"
+        ],
+        "y": 380
+       }
+      },
+      {
+       "id": "pl",
+       "x": 450,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "L",
+       "tone": "warn"
+      },
+      {
+       "id": "pr",
+       "x": 810,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "R",
+       "tone": "good"
+      },
+      {
+       "id": "len",
+       "x": 500,
+       "y": 780,
+       "w": 400,
+       "h": 110,
+       "label": "window length",
+       "text": "3",
+       "size": 56,
+       "tone": "warn"
+      },
+      {
+       "id": "best",
+       "x": 1100,
+       "y": 780,
+       "w": 400,
+       "h": 110,
+       "label": "longest so far",
+       "text": "3",
+       "size": 56,
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s0",
+       "tone": "dim",
+       "cue": "L sits"
+      },
+      {
+       "id": "pr",
+       "move": [
+        990,
+        660
+       ],
+       "cue": "next b"
+      },
+      {
+       "id": "s1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "already inside"
+      },
+      {
+       "id": "pl",
+       "move": [
+        630,
+        570
+       ],
+       "cue": "L drops the b"
+      },
+      {
+       "id": "s1",
+       "tone": "dim",
+       "cue": "L drops the b"
+      },
+      {
+       "id": "pr",
+       "move": [
+        1170,
+        660
+       ],
+       "cue": "R moves to c"
+      },
+      {
+       "id": "s2",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Repeat again"
+      },
+      {
+       "id": "pl",
+       "move": [
+        810,
+        570
+       ],
+       "cue": "L drops the c"
+      },
+      {
+       "id": "s2",
+       "tone": "dim",
+       "cue": "L drops the c"
+      },
+      {
+       "id": "pr",
+       "move": [
+        1350,
+        660
+       ],
+       "cue": "R reaches b"
+      },
+      {
+       "id": "pl",
+       "move": [
+        1170,
+        570
+       ],
+       "cue": "drop two letters"
+      },
+      {
+       "id": "s3",
+       "tone": "dim",
+       "cue": "drop two letters"
+      },
+      {
+       "id": "s4",
+       "tone": "dim",
+       "cue": "drop two letters"
+      },
+      {
+       "id": "len",
+       "text": "2",
+       "cue": "Window c, b"
+      },
+      {
+       "id": "pr",
+       "move": [
+        1530,
+        660
+       ],
+       "cue": "The last b"
+      },
+      {
+       "id": "pl",
+       "move": [
+        1530,
+        570
+       ],
+       "cue": "L drops c"
+      },
+      {
+       "id": "s5",
+       "tone": "dim",
+       "cue": "L drops c"
+      },
+      {
+       "id": "s6",
+       "tone": "dim",
+       "cue": "L drops c"
+      },
+      {
+       "id": "len",
+       "text": "1",
+       "cue": "one letter"
+      },
+      {
+       "id": "best",
+       "glow": true,
+       "tone": "good",
+       "cue": "never beat three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Variable window in code",
+     "say": "In code, cnt counts each letter inside the window. R adds the new letter. While that letter appears twice, remove the letter at L and step L forward. Now the window has no repeats. Record its length. Each index enters once and leaves once, so O of n. On our string it prints three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int longest(const string& s) {\n    int cnt[256] = {}, l = 0, best = 0;\n    for (int r = 0; r < (int)s.size(); r++) {\n        cnt[(uint8_t)s[r]]++;\n        while (cnt[(uint8_t)s[r]] > 1) cnt[(uint8_t)s[l++]]--;\n        best = max(best, r - l + 1);\n    }\n    return best;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "cnt counts"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "R adds"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "While that letter"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Record its length"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "L only moves forward",
+       "tone": "good",
+       "cue": "step L forward"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "each index enters once",
+       "tone": "good",
+       "cue": "enters once"
+      }
+     ],
+     "output": {
+      "cmd": "./sol  # \"abcabcbb\"",
+      "text": "3",
+      "cue": "prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The string is p, w, w, k, e, w. Which is the longest run with no repeated letter? Pause and predict.",
+     "q": "Longest substring with no repeats in \"pwwkew\"?",
+     "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": "3"
+    },
+    {
+     "type": "code",
+     "head": "Shrink while the rule holds",
+     "say": "Three. The run w, k, e is contiguous. P, w, k, e skips a letter. Same trick, new rule: shortest run with a sum of at least seven. R adds a number. While the sum is at least seven, record the length, then subtract the number at L. On two, three, one, two, four, three, it prints two.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int shortest(const vector<int>& a, int t) {\n    int l = 0, sum = 0, best = INT_MAX;\n    for (int r = 0; r < (int)a.size(); r++) {\n        sum += a[r];\n        while (sum >= t) { best = min(best, r - l + 1); sum -= a[l++]; }\n    }\n    return best == INT_MAX ? 0 : best;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Same trick"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "R adds a number"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "While the sum"
+      }
+     ],
+     "output": {
+      "cmd": "./sol  # t = 7",
+      "text": "2",
+      "cue": "it prints two"
+     },
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "L only moves forward",
+       "tone": "good",
+       "cue": "subtract the number"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The trap: negative numbers",
+     "say": "Now the trap. Try one, minus one, six, with target six. The answer is the six alone, length one. But the code prints three. Negatives break the shrink step, because dropping a number can raise the sum. The fix is prefix sums with a deque.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "vector<int> a = {1, -1, 6};\ncout << shortest(a, 6);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "one, minus one, six"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The answer is"
+      },
+      {
+       "lines": [],
+       "cue": "The fix"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "want 1, got 3",
+       "tone": "bad",
+       "cue": "Negatives break"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "tone": "bad",
+      "cue": "prints three"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Fixed vs variable window",
+     "say": "Two kinds of window. Fixed: the size is k, and it never changes. Variable: R always moves, and L only when the rule breaks. Examples: max sum of size three, longest without repeats.",
+     "heads": [
+      "",
+      "Fixed",
+      "Variable"
+     ],
+     "rows": [
+      [
+       "size",
+       "k, never changes",
+       "grows and shrinks"
+      ],
+      [
+       "moves",
+       "both ends together, forward only",
+       "R always; L when rule breaks"
+      ],
+      [
+       "example",
+       "max sum of size 3",
+       "longest without repeats"
+      ]
+     ],
+     "cues": [
+      "Fixed: the size",
+      "R always moves",
+      "Examples"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Spot it in a timed test",
+     "say": "How do you spot a window problem? Three signals. First, the question says subarray or substring: a contiguous range. Second, it wants the longest, shortest, or best one. Third, you can update the answer cheaply when one element enters or leaves.",
+     "items": [
+      {
+       "label": "signal 1",
+       "text": "contiguous",
+       "sub": "subarray or substring",
+       "cue": "subarray or substring"
+      },
+      {
+       "label": "signal 2",
+       "text": "longest / best",
+       "sub": "one best range",
+       "cue": "longest, shortest"
+      },
+      {
+       "label": "signal 3",
+       "text": "cheap update",
+       "sub": "when one enters or leaves",
+       "cue": "update the answer"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp03"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "When do you use two pointers? Sorted data with a pair rule, like sum ten. Unsorted? Sort first, or use a hash map. Complexity? O of n, constant memory. Common mistake? L less than or equal to R pairs a number with itself.",
+     "rows": [
+      [
+       "When do you use two pointers?",
+       "Sorted + pair rule: too big, R left; too small, L right"
+      ],
+      [
+       "Unsorted input?",
+       "Sort first, O(n log n), or a hash map"
+      ],
+      [
+       "Complexity?",
+       "O(n) time, O(1) memory"
+      ],
+      [
+       "Common mistake?",
+       "`l <= r`: a number pairs with itself"
+      ]
+     ],
+     "cues": [
+      "When do you",
+      "Unsorted",
+      "Complexity",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp04"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How does a sliding window work? Add what enters, subtract what leaves: O of n. When do you use it? A contiguous range asking longest, shortest or best. Fixed or variable? Variable grows right, shrinks left. Negatives? Shrinking breaks, so use prefix sums with a deque.",
+     "rows": [
+      [
+       "How does a sliding window work?",
+       "Add what enters, subtract what leaves; each element in and out once: O(n)"
+      ],
+      [
+       "When do you use it?",
+       "Contiguous range: longest, shortest, best"
+      ],
+      [
+       "Fixed or variable?",
+       "Fixed slides by one; variable grows right, shrinks left"
+      ],
+      [
+       "Negative numbers?",
+       "Shrinking breaks: prefix sums + deque"
+      ]
+     ],
+     "cues": [
+      "How does a sliding",
+      "When do you use",
+      "Fixed or variable",
+      "Negatives"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode six forty three, maximum average subarray, is a fixed window. LeetCode one sixty seven, two sum two, is today's two pointers. LeetCode three is the variable window you just built.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 643 · Maximum Average Subarray I",
+       "fixed window"
+      ],
+      [
+       "LeetCode 167 · Two Sum II - Input Array Is Sorted",
+       "two pointers on a sorted array"
+      ],
+      [
+       "LeetCode 3 · Longest Substring Without Repeating Characters",
+       "variable window"
+      ]
+     ],
+     "cues": [
+      "six forty three",
+      "one sixty seven",
+      "LeetCode three"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Sorted data and a pair rule? Two pointers: move the end that's wrong. A window adds what enters and subtracts what leaves. Contiguous range, longest, shortest or best? Slide a window.",
+     "lines": [
+      "Sorted + pair rule: two pointers, one pass.",
+      "Window: add what enters, subtract what leaves.",
+      "Contiguous + longest/shortest/best: O(n)."
+     ],
+     "cues": [
+      "Sorted data",
+      "A window adds",
+      "Contiguous range"
+     ]
+    }
+   ]
+  }
+ ]
+}
