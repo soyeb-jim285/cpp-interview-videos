@@ -335,6 +335,12 @@ function build(specPath) {
     .replace("%SCENES%", scenesHtml).replace("%CAPS%", caps).replace("%AUDIO%", audio)
     .replace("%TWEENS%", tws.join("\n") + `\n// global\ntl.fromTo("#prog",{scaleX:0},{scaleX:1,duration:${total},ease:"none"},0);`);
   fs.writeFileSync(path.join(dir, "index.html"), html);
+  if (spec.chapters) { // YouTube chapters: first line must be 0:00:00
+    const ts = (x) => `${Math.floor(x / 3600)}:${String(Math.floor(x / 60) % 60).padStart(2, "0")}:${String(Math.floor(x % 60)).padStart(2, "0")}`;
+    const rows = spec.chapters.map((c) => [spec.scenes[c.start].t0, c.title]);
+    if (rows[0][0] > 0) rows.unshift([0, "Intro"]);
+    fs.writeFileSync(path.join(dir, "chapters.txt"), rows.map(([x, n]) => `${ts(x)} ${n}`).join("\n") + "\n");
+  }
   console.log(`${dir}: ${spec.scenes.length} scenes, ${total}s`);
 }
 

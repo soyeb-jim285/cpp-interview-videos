@@ -1,0 +1,4 @@
+{"id":"fx-01","track":"FX","num":1,"title":"Fixture lesson","covers":["x"],
+ "chapters":[
+  {"title":"First","scenes":[{"type":"hook","say":"Hello there.","lines":[{"text":"Hello","cue":"Hello"}]},{"type":"take","say":"Done one.","lines":["x"]}]},
+  {"title":"Second","kind":"recap","scenes":[{"type":"take","say":"Done two.","lines":["x"]}]}]}

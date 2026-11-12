@@ -15,6 +15,8 @@ for path in sys.argv[1:]:
     meta = json.load(open(meta_path)) if os.path.exists(meta_path) else {}
     voice, speed = spec.get("voice", "am_michael"), spec.get("speed", 1.0)
     for i, sc in enumerate(spec["scenes"]):
+        if "say" not in sc:
+            continue
         text = sc["say"]
         h = hashlib.md5(f"{voice}{speed}{text}".encode()).hexdigest()
         key = f"s{i}"
