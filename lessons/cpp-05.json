@@ -70,7 +70,7 @@
     {
      "type": "flow",
      "head": "A self-closing door",
-     "say": "Think of a self closing door. Walking in opens it. However you leave, it closes behind you. The constructor is the opening. The destructor is the closing, and it always runs.",
+     "say": "Think of a self closing door. Walking in opens it. However you leave, it closes behind you. The constructor is the opening. The destructor is the closing, and it runs on every normal exit or caught throw.",
      "items": [
       {
        "label": "walk in",
@@ -245,18 +245,18 @@
      "changes": [
       {
        "id": "c",
-       "fade": true,
-       "cue": "in reverse"
+       "cue": "in reverse",
+       "kill": true
       },
       {
        "id": "b",
-       "fade": true,
-       "cue": "c, then b"
+       "cue": "c, then b",
+       "kill": true
       },
       {
        "id": "a",
-       "fade": true,
-       "cue": "then a"
+       "cue": "then a",
+       "kill": true
       }
      ],
      "panels": [
@@ -284,15 +284,15 @@
      "notes": [
       {
        "x": 1050,
-       "y": 760,
+       "y": 640,
        "text": "uncaught: no unwinding promise",
        "tone": "warn",
        "cue": "One fine print"
       },
       {
        "x": 1050,
-       "y": 880,
-       "text": "terminate() runs",
+       "y": 760,
+       "text": "uncaught: terminate() is called",
        "tone": "warn",
        "cue": "unwinding is not guaranteed"
       }
@@ -301,7 +301,7 @@
     {
      "type": "compare",
      "head": "RAII is everywhere",
-     "say": "You already use it. Heap memory: unique pointer, vector, string. Files: fstream. Locks: lock guard. Threads: j thread joins for you, in C plus plus twenty.",
+     "say": "You already use it. Heap memory: unique pointer, vector, string. Files: fstream. Locks: lock guard. Threads: j thread joins in its destructor, so you cannot forget.",
      "heads": [
       "Resource",
       "RAII owner"
@@ -445,7 +445,7 @@
     {
      "type": "code",
      "head": "The price of sharing",
-     "say": "Eight and sixteen. A unique pointer is a raw pointer's size, so no extra cost. A shared pointer carries two pointers: one to the object, one to a control block, the shared counter beside it. Use unique by default.",
+     "say": "Eight and sixteen. A unique pointer is a raw pointer's size, so no extra cost. A shared pointer carries two pointers: one to the object, one to a control block, the small hidden record holding the count. Use unique by default.",
      "panels": [
       {
        "file": "main.cpp",
@@ -929,6 +929,13 @@
         4
        ],
        "cue": "counts are two"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "The scope ends"
       }
      ],
      "output": {
@@ -1153,7 +1160,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "What is R A I I? Resource acquisition is initialization. Constructor acquires, destructor releases. Why does it work? Destructors run on every exit: return, scope end, or exception. Examples? Unique pointer, lock guard, fstream.",
+     "say": "What is R A I I? Resource acquisition is initialization. Constructor acquires, destructor releases. Why does it work? Destructors run on every normal exit or caught throw. Examples? Unique pointer, lock guard, fstream.",
      "heads": [
       "They ask",
       "You say"
@@ -1165,7 +1172,7 @@
       ],
       [
        "Why does it work?",
-       "destructors run on every exit, even a throw"
+       "destructors run on every normal exit or caught throw"
       ],
       [
        "Examples?",
@@ -1313,14 +1320,14 @@
     },
     {
      "type": "take",
-     "say": "So say this. R A I I: constructor acquires, destructor releases, even on a throw. Use unique pointer by default, and shared pointer only for shared ownership. Make back links weak, so ownership forms a tree.",
+     "say": "Say this. R A I I: constructor acquires, destructor releases, even on a caught throw. Use unique pointer by default, and shared pointer only for shared ownership. Make back links weak, so ownership forms a tree.",
      "lines": [
       "RAII: constructor acquires, destructor releases.",
       "`unique_ptr` default; `shared_ptr` only if shared.",
       "`weak_ptr` for back links: ownership is a tree."
      ],
      "cues": [
-      "So say this",
+      "Say this",
       "Use unique pointer",
       "Make back links"
      ]
