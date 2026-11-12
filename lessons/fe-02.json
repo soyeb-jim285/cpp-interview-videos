@@ -121,7 +121,7 @@
     {
      "type": "code",
      "head": "The bug, in three lines",
-     "say": "Here's that loop. Var i counts from zero to two. Each pass schedules a timer that logs i. A timer of zero still waits until the loop is done. Run it, and you get three, three, three.",
+     "say": "Here's that loop. Var i counts from zero to two. Each pass schedules a timer that logs i. The timer runs later, after the loop is done. Run it, and you get three, three, three.",
      "panels": [
       {
        "file": "app.js",
@@ -150,7 +150,7 @@
        "inside": true,
        "text": "runs after the loop",
        "tone": "warn",
-       "cue": "still waits"
+       "cue": "runs later"
       }
      ],
      "output": {
@@ -457,7 +457,7 @@
       {
        "label": "Bo says it",
        "text": "I = Bo",
-       "sub": "h.hi()",
+       "sub": "someone else's object",
        "cue": "Bo says it"
       },
       {
@@ -472,7 +472,7 @@
     {
      "type": "code",
      "head": "A detached method loses `this`",
-     "say": "A dot call, u dot hi, works: Ada. Copy the method to f and call it bare. Now this is lost. In a class, that means undefined, so it throws a type error. Bind locks this to u, and it works again.",
+     "say": "A dot call, u dot hi, works: Ada. Copy the method to f and call it bare. Now this is lost. Class code runs in strict mode, so a bare this is undefined. Calling it throws a type error. Bind locks this to u, and it works again.",
      "panels": [
       {
        "file": "app.js",
@@ -492,6 +492,12 @@
         5
        ],
        "cue": "call it bare"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Class code runs in strict mode"
       },
       {
        "lines": [
@@ -528,7 +534,7 @@
     {
      "type": "compare",
      "head": "`this`, in four kinds of call",
-     "say": "Bo. This is decided by the call, not where the method was written. A dot call: this is the object before the dot. A bare call: this is lost, which is why f crashed. Bind: this is locked. Arrow functions have no this of their own, they use the one around them.",
+     "say": "Bo. This is decided by the call. A dot call: the object before the dot. A bare call loses it, which is why f crashed. Bind locks this. Arrow functions have no this of their own.",
      "heads": [
       "The call",
       "this is"
@@ -552,9 +558,9 @@
       ]
      ],
      "cues": [
-      "A dot call",
+      "Bo",
       "A bare call",
-      "Bind: this",
+      "Bind locks",
       "Arrow functions"
      ]
     }
@@ -984,26 +990,54 @@
      }
     },
     {
-     "type": "flow",
+     "type": "diagram",
      "head": "A promise is a buzzer",
      "say": "Think of ordering pizza. A promise is your buzzer: it starts pending. Later it settles exactly once. Fulfilled: the pizza arrives. Or rejected: sold out. Never changes after that. Await means sit and wait.",
      "items": [
       {
+       "id": "pend",
+       "x": 180,
+       "y": 420,
+       "w": 340,
+       "h": 180,
        "label": "buzzer in hand",
        "text": "Pending",
        "cue": "starts pending"
       },
       {
-       "label": "pizza arrives",
+       "id": "ful",
+       "x": 1100,
+       "y": 240,
+       "w": 340,
+       "h": 180,
        "text": "Fulfilled",
        "tone": "good",
        "cue": "Fulfilled"
       },
       {
-       "label": "sold out",
+       "id": "rej",
+       "x": 1100,
+       "y": 600,
+       "w": 340,
+       "h": 180,
        "text": "Rejected",
        "tone": "bad",
        "cue": "Or rejected"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pend",
+       "to": "ful",
+       "label": "pizza arrives",
+       "cue": "the pizza arrives"
+      },
+      {
+       "from": "pend",
+       "to": "rej",
+       "label": "or sold out",
+       "tone": "bad",
+       "cue": "sold out"
       }
      ]
     },
@@ -1183,7 +1217,7 @@
      "covers": [
       "fe03"
      ],
-     "say": "What is a closure? A function plus the variables it was created with. Why use one? Private state, memoization. Downside? Kept variables can leak. Var versus let? Function versus block scope. How does this work? The call sets it: dot, bare, or bind. Arrow versus normal? Arrows use the outer this. Normal follows the call.",
+     "say": "What is a closure? A function plus the variables it was created with. Why use one? Private state, memoization. Downside? Big objects stay in memory. Var versus let? Function versus block scope. How does this work? The call sets it: dot, bare, or bind. Arrow versus normal? Arrows use the outer this. Normal follows the call.",
      "heads": [
       "They ask",
       "You say"
@@ -1195,7 +1229,7 @@
       ],
       [
        "Why use one? Downside?",
-       "private state, memoization; may leak memory"
+       "private state, memoization; downside: big objects stay alive"
       ],
       [
        "`var` vs `let`?",
@@ -1224,7 +1258,7 @@
      "covers": [
       "fe02"
      ],
-     "say": "Is JavaScript async? One thread, but the browser waits on timers and network. The order? Sync code first. Then all microtasks, like then and await. Then one task, like a timer or a click. Common mistake? Thinking set timeout zero is immediate.",
+     "say": "Is JavaScript async? One thread, but the browser waits on timers and network. The order? Sync code first. Then all microtasks, like then and await. Then one task, also called a macrotask, like a timer or a click. Common mistake? Thinking set timeout zero is immediate.",
      "items": [
       {
        "label": "async?",
@@ -1246,9 +1280,9 @@
       },
       {
        "label": "3rd",
-       "text": "One task",
+       "text": "Macrotask",
        "sub": "timer, click",
-       "cue": "one task, like"
+       "cue": "also called a macrotask"
       },
       {
        "label": "trap",
@@ -1265,7 +1299,7 @@
      "covers": [
       "fe04"
      ],
-     "say": "Promise versus callback? Chaining and one error path. States? Pending, then fulfilled or rejected, once. Errors? Await with try and catch, and check res dot ok. Parallel? Promise dot all, or all settled for every result.",
+     "say": "Promise versus callback? Chaining, one error path, and no nested callbacks. States? Pending, then fulfilled or rejected, once. Errors? Await with try and catch, and check res dot ok. Parallel? Promise dot all, or all settled for every result.",
      "heads": [
       "They ask",
       "You say"
@@ -1273,7 +1307,7 @@
      "rows": [
       [
        "Promise vs callback?",
-       "chains, one error path, no pyramid"
+       "chains, one error path, no nested callbacks"
       ],
       [
        "States?",
@@ -1331,7 +1365,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. A closure is a function plus its variables. Run sync code, then every microtask, then one task. And await turns a rejection into a throw, so use try and catch.",
+     "say": "So say this. A closure is a function plus its variables. Run sync code, then all microtasks, then one task. Await turns rejections into throws. Use try and catch.",
      "lines": [
       "A closure is a function plus its variables.",
       "Sync code, all microtasks, then one task.",
@@ -1340,7 +1374,7 @@
      "cues": [
       "A closure is",
       "Run sync code",
-      "await turns"
+      "Use try and catch"
      ]
     }
    ]
