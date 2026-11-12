@@ -63,14 +63,14 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. List every subset with choose, explore, undo. Prune dead branches in permutations and sums. And do it again with bit tricks.",
+     "say": "Today you will do three things. List every subset. This pattern is called backtracking: choose, explore, undo. Without it you'd need a nested loop for every item. Prune dead branches in permutations and sums. And do it again with bit tricks.",
      "lines": [
-      "Every subset: choose, explore, undo",
+      "Backtracking: choose, explore, undo",
       "Permutations, and pruned searches",
       "The same with bit tricks"
      ],
      "cues": [
-      "List every subset",
+      "This pattern is called",
       "Prune dead branches",
       "bit tricks"
      ]
@@ -126,7 +126,7 @@
     {
      "type": "diagram",
      "head": "Subsets of 1, 2, 3: calls in order",
-     "say": "Empty first, then the same idea with one, two, three. Each box is one call, and each call writes its pizza down. Add one. Add two. Add three, and that's the longest pizza, nothing left to add. Undo back, and one three. Undo to the top, try two. Then two three. Last, three alone. Eight boxes, eight subsets.",
+     "say": "Each box is one call, and each call writes its pizza down. Empty first. One written. Add one. Two written. Add two. Three written. Add three, the longest pizza. Four written. Undo back, one three. Five written. Undo to the top, try two. Six written. Two three. Seven written. Three alone. Eight written. Eight boxes, eight subsets.",
      "items": [
       {
        "tree": {
@@ -194,12 +194,43 @@
      "changes": [
       {
        "id": "cnt",
-       "count": [
-        0,
-        8
-       ],
-       "dur": 2,
-       "cue": "Eight boxes"
+       "text": "1",
+       "cue": "one written"
+      },
+      {
+       "id": "cnt",
+       "text": "2",
+       "cue": "Two written"
+      },
+      {
+       "id": "cnt",
+       "text": "3",
+       "cue": "Three written"
+      },
+      {
+       "id": "cnt",
+       "text": "4",
+       "cue": "Four written"
+      },
+      {
+       "id": "cnt",
+       "text": "5",
+       "cue": "Five written"
+      },
+      {
+       "id": "cnt",
+       "text": "6",
+       "cue": "Six written"
+      },
+      {
+       "id": "cnt",
+       "text": "7",
+       "cue": "Seven written"
+      },
+      {
+       "id": "cnt",
+       "text": "8",
+       "cue": "Eight written"
       }
      ]
     },
@@ -272,7 +303,7 @@
     {
      "type": "code",
      "head": "Run it on 1, 2, 3",
-     "say": "Main calls go from zero, then prints every saved pizza in brackets. Empty, one, one two, one two three, one three, two, two three, three. Same order as the boxes. A copy costs up to n each time, so O of n times two to the n.",
+     "say": "Main calls go from zero, then prints every saved pizza in brackets. Empty, one, one two, one two three, one three, two, two three, three. That's every subset: the answer to the problem. Same order as the boxes. A copy costs up to n each time, so O of n times two to the n.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -297,7 +328,11 @@
       },
       {
        "lines": [],
-       "cue": "Same order as"
+       "cue": "That's every subset"
+      },
+      {
+       "lines": [],
+       "cue": "A copy costs"
       }
      ],
      "notes": [
@@ -335,7 +370,7 @@
      "type": "chart",
      "head": "Each topping doubles the count",
      "unit": "pizzas",
-     "say": "Two thousand forty eight, for eleven toppings. Each topping doubles the count. Seven toppings: one twenty eight. Eight: two fifty six. Nine: five twelve. Ten: one thousand twenty four.",
+     "say": "Two thousand forty eight, for eleven toppings. Each topping doubles the count. Seven toppings: one twenty eight. Eight: two fifty six. Nine: five twelve. Ten: one thousand twenty four. Eleven: two thousand forty eight.",
      "bars": [
       {
        "label": "7 toppings",
@@ -357,6 +392,12 @@
        "value": 1024,
        "tone": "good",
        "cue": "Ten"
+      },
+      {
+       "label": "11 toppings",
+       "value": 2048,
+       "tone": "good",
+       "cue": "Eleven:"
       }
      ]
     },
@@ -653,9 +694,9 @@
      ],
      "notes": [
       {
-       "x": 1340,
+       "x": 1150,
        "y": 560,
-       "text": "2 start with item 1",
+       "text": "2 orders start with 1",
        "tone": "info",
        "cue": "gives two orders"
       }
@@ -777,10 +818,10 @@
      "say": "Your turn. Three friends, but only two chairs. How many different seatings are there? Pause and predict.",
      "q": "3 friends, 2 chairs, order matters: how many seatings?",
      "options": [
-      "5",
+      "3",
       "6",
-      "8",
-      "9"
+      "9",
+      "2"
      ],
      "answer": 1,
      "pause": 5
@@ -788,7 +829,7 @@
     {
      "type": "flow",
      "head": "Chair 2 has one fewer choice",
-     "say": "Six. Chair one has three choices. Chair two has two, because one friend already sits. Three times two is six. Nine would let a friend sit twice. The used array prevents that.",
+     "say": "Six. Chair one has three choices. Chair two has two, because one friend already sits. Three times two is six. Picking two of three, order ignored, gives three. Nine would let a friend sit twice. The used array prevents that.",
      "items": [
       {
        "label": "chair 1",
@@ -902,7 +943,7 @@
     {
      "type": "diagram",
      "head": "Target 7 from 2, 3, 6, 7 (reuse OK)",
-     "say": "Candidates two, three, six, seven. Target seven, and numbers may repeat. Start empty. Add two. Now two again. A third two leaves one, too small for any candidate. Dead end. Add three instead: that's seven exactly. Found. Back up. Two then three leaves only two. Dead again. At the top, add three, then three again. One to go. Dead. Add six. Nothing fits. Last, seven alone: found.",
+     "say": "Candidates two, three, six, seven. Target seven, and numbers may repeat. Start empty. Add two. Now two again. A third two leaves one, too small for any candidate. Dead end. Add three instead: that's seven exactly. Found. Back up. Two then three leaves only two. Dead again.",
      "items": [
       {
        "tree": {
@@ -932,22 +973,6 @@
          [
           "2,3",
           1
-         ],
-         [
-          "3",
-          0
-         ],
-         [
-          "3,3",
-          6
-         ],
-         [
-          "6",
-          0
-         ],
-         [
-          "7",
-          0
          ]
         ],
         "cues": [
@@ -956,11 +981,7 @@
          "Now two again",
          "A third two",
          "Add three instead",
-         "Two then three",
-         "top, add three",
-         "three again",
-         "Add six",
-         "Last, seven"
+         "Two then three"
         ]
        }
       }
@@ -981,19 +1002,79 @@
        "id": "t5",
        "tone": "dim",
        "cue": "Dead again"
+      }
+     ],
+     "notes": [
+      {
+       "x": 300,
+       "y": 800,
+       "text": "1 left, dead",
+       "tone": "warn",
+       "cue": "Dead end"
       },
       {
-       "id": "t7",
+       "x": 1300,
+       "y": 600,
+       "text": "3 is too big",
+       "tone": "warn",
+       "cue": "Dead again"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Target 7: the 3, 6 and 7 branches",
+     "say": "Back at the top, add three, then three again. One to go. Dead. Add six, and nothing fits. Last, seven alone: found.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 190,
+        "nodes": [
+         [
+          "start",
+          -1
+         ],
+         [
+          "3",
+          0
+         ],
+         [
+          "3,3",
+          1
+         ],
+         [
+          "6",
+          0
+         ],
+         [
+          "7",
+          0
+         ]
+        ],
+        "cues": [
+         "Back at the top",
+         "add three",
+         "three again",
+         "Add six",
+         "Last, seven"
+        ]
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "t2",
        "tone": "dim",
        "cue": "One to go"
       },
       {
-       "id": "t8",
+       "id": "t3",
        "tone": "dim",
        "cue": "Nothing fits"
       },
       {
-       "id": "t9",
+       "id": "t4",
        "glow": true,
        "tone": "good",
        "cue": "alone: found"
@@ -1001,29 +1082,15 @@
      ],
      "notes": [
       {
-       "x": 330,
-       "y": 850,
-       "text": "1 left, dead",
-       "tone": "warn",
-       "cue": "Dead end"
-      },
-      {
-       "x": 790,
-       "y": 785,
-       "text": "3 is too big",
-       "tone": "warn",
-       "cue": "Dead again"
-      },
-      {
-       "x": 1130,
-       "y": 785,
+       "x": 420,
+       "y": 600,
        "text": "1 left, dead",
        "tone": "warn",
        "cue": "One to go"
       },
       {
-       "x": 1160,
-       "y": 340,
+       "x": 1100,
+       "y": 290,
        "text": "1 left, dead",
        "tone": "warn",
        "cue": "Nothing fits"
@@ -1087,19 +1154,19 @@
      "type": "chart",
      "head": "What pruning saves",
      "unit": "calls",
-     "say": "Ten primes, two up to twenty nine, and target forty. Without pruning: fourteen thousand one hundred eighty four calls. With it: two thousand six hundred seventy eight. Five times fewer.",
+     "say": "Ten primes, two up to twenty nine, and target forty. Without the break, but with a bounds check: fourteen thousand one hundred eighty four calls. With the break: two thousand six hundred seventy eight. Five times fewer.",
      "bars": [
       {
-       "label": "No pruning",
+       "label": "No break",
        "value": 14184,
        "tone": "bad",
-       "cue": "Without pruning"
+       "cue": "Without the break"
       },
       {
        "label": "Break",
        "value": 2678,
        "tone": "good",
-       "cue": "With it"
+       "cue": "With the break"
       }
      ]
     },
@@ -1150,7 +1217,7 @@
     {
      "type": "compare",
      "head": "Break assumes sorted input",
-     "say": "The trap: break assumes sorted input. Sorted two, three, six, target five: finds two and three. Unsorted six, two, three: break fires at six, and nothing is found. Sort first, or use continue. That's how we find both combinations.",
+     "say": "The trap: break assumes sorted input. Sorted two, three, six, target five: finds two and three. Unsorted six, two, three: break fires at six, and nothing is found. Sort first, or use continue. That's how we find the combination.",
      "heads": [
       "Input, target 5",
       "Result"
@@ -1416,7 +1483,7 @@
     {
      "type": "diagram",
      "head": "Mask 6 = 110: bits 1 and 2",
-     "say": "Fifty. Six is one one zero. Bit zero is off, bits one and two are on. That's twenty plus thirty. Reading left to right gives ten plus twenty, thirty: the classic slip. Bit zero is the rightmost.",
+     "say": "Fifty. Six is one one zero. Bit zero is off, bits one and two are on. That's twenty plus thirty. Read the bits left to right and you get bits zero and one: ten plus twenty, which is thirty, the classic slip.",
      "items": [
       {
        "id": "i0",
@@ -1540,15 +1607,15 @@
        "id": "i0",
        "glow": true,
        "tone": "bad",
-       "cue": "the classic slip"
+       "cue": "bits zero and one"
       }
      ]
     },
     {
      "type": "chart",
-     "head": "Why bitmasks stop: bars not to scale",
+     "head": "Steps grow about twenty times per four items",
      "unit": "steps",
-     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million. So masks count subsets, up to twenty items.",
+     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million, twenty times the one before. Twenty four: four hundred million, nineteen times more. So masks count subsets, up to twenty items.",
      "bars": [
       {
        "label": "n = 16",
@@ -1557,13 +1624,13 @@
        "cue": "Sixteen items"
       },
       {
-       "label": "n = 20",
+       "label": "n = 20 x20",
        "value": 20971520,
        "tone": "warn",
        "cue": "Twenty"
       },
       {
-       "label": "n = 24",
+       "label": "n = 24 x19",
        "value": 402653184,
        "tone": "bad",
        "cue": "four hundred million"
@@ -1594,7 +1661,7 @@
     {
      "type": "code",
      "head": "XOR cancels pairs, 1LL for big shifts",
-     "say": "Xor is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. That solves Single Number. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
+     "say": "Xor, written caret, is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. That solves Single Number. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1606,7 +1673,7 @@
        "lines": [
         3
        ],
-       "cue": "Xor is the star"
+       "cue": "is the star"
       },
       {
        "lines": [
@@ -2022,7 +2089,7 @@
      "rows": [
       [
        "What is backtracking?",
-       "choose, explore, undo; prune dead branches"
+       "Build a choice, recurse, undo it; prune dead ends."
       ],
       [
        "Cost?",
@@ -2054,7 +2121,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Loop over all subsets? Mask from zero to two to the n, test bit i. Bit tricks? n and n minus one clears the lowest bit, xor cancels pairs. Size limit? About twenty items. Mistake? Precedence, and shifting past the type.",
+     "say": "Loop over all subsets? Mask from zero to two to the n, test bit i. Bit tricks? n and n minus one clears the lowest bit, xor cancels pairs. Every submask? Start at m, then s becomes s minus one, and m. Size limit? About twenty items. Mistake? Precedence, and shifting past the type.",
      "rows": [
       [
        "Loop over all subsets?",
@@ -2063,6 +2130,10 @@
       [
        "Bit tricks?",
        "`n & (n-1)` clears lowest bit; xor cancels pairs"
+      ],
+      [
+       "Every submask?",
+       "start at m; `s = (s - 1) & m`"
       ],
       [
        "How big can n be?",
@@ -2076,6 +2147,7 @@
      "cues": [
       "Loop over all",
       "Bit tricks",
+      "Every submask",
       "Size limit",
       "Mistake"
      ]
