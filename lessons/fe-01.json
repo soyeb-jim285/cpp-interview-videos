@@ -96,10 +96,10 @@
      "title": "From text file to pixels",
      "statement": "The browser receives HTML and CSS as plain text. Name the steps that turn it into the pixels you see.",
      "example": {
-      "input": "`<h1>Hi</h1>` + `h1 { color: red }`",
+      "input": "<h1>Hi</h1> + h1 { color: red }",
       "output": "a red heading on screen"
      },
-     "say": "Here is the problem. The browser gets plain text. For example, one heading tag and one color rule. We want a red heading on screen. Which steps happen in between?",
+     "say": "Here is the puzzle. The browser gets plain text. For example, one heading tag and one color rule. We want a red heading on screen. Which steps happen in between?",
      "cues": {
       "example": "For example",
       "output": "red heading"
@@ -108,7 +108,7 @@
     {
      "type": "flow",
      "head": "Think of building a house",
-     "say": "Think of building a house. First, a blueprint says which rooms exist. Then paint swatches say how each room looks. Then you measure where every wall goes. Then you paint. The browser does these four jobs, in this order, for every page.",
+     "say": "Think of building a house. First, a blueprint says which rooms exist. Then paint swatches say how each room looks. Then you measure where every wall goes. Then you paint. The browser does the same, in that order.",
      "items": [
       {
        "label": "blueprint",
@@ -141,41 +141,47 @@
     {
      "type": "flow",
      "head": "The real names",
-     "say": "Now the real names. Parsing H T M L gives the D O M, a tree of nodes. Parsing C S S gives the C S S O M, a tree of rules. Merge them into the render tree. Layout sizes and places each box. Paint fills the pixels.",
+     "say": "Now the real names. H T M L becomes the D O M, the blueprint: a tree of nodes. C S S becomes the C S S O M, the swatches, a rule tree. Together: the render tree. Layout measures each box on it. Paint fills the pixels. Then a step no house has. Composite: the graphics card stacks painted layers.",
      "items": [
       {
-       "label": "from HTML",
+       "label": "blueprint",
        "text": "DOM",
+       "sub": "tree of nodes",
        "cue": "the D O M"
       },
       {
-       "label": "from CSS",
+       "label": "swatches",
        "text": "CSSOM",
-       "cue": "C S S O M, a tree"
+       "sub": "tree of rules",
+       "cue": "the C S S O M"
       },
       {
-       "label": "merged",
-       "text": "Render tree",
-       "cue": "render tree"
-      },
-      {
-       "label": "step 3",
+       "label": "measuring",
        "text": "Layout",
+       "sub": "render tree",
        "tone": "warn",
-       "cue": "Layout sizes"
+       "cue": "Layout measures"
       },
       {
-       "label": "step 4",
+       "label": "painting",
        "text": "Paint",
+       "sub": "fill pixels",
        "tone": "good",
        "cue": "Paint fills"
+      },
+      {
+       "label": "stacking",
+       "text": "Composite",
+       "sub": "layers stacked",
+       "tone": "blue",
+       "cue": "Composite: the graphics"
       }
      ]
     },
     {
      "type": "diagram",
      "head": "What a change re-runs",
-     "say": "After the first render, a change re-runs the pipeline from some step onward. Change a width or a position, and the browser restarts at layout. That's a reflow, and a repaint follows. Change a color, and it skips layout. Just a repaint. Change only transform or opacity, and the graphics card composites. No layout, no repaint.",
+     "say": "After the first render, a change re-runs the pipeline from some step onward. Change a width or a position, and the browser restarts at layout. That's a reflow, and a repaint follows. Change a color, and it skips layout. Just a repaint. Change only transform or opacity: the graphics card composites. No layout, no repaint.",
      "items": [
       {
        "id": "lay",
@@ -209,7 +215,7 @@
       {
        "id": "w",
        "x": 360,
-       "y": 480,
+       "y": 430,
        "w": 300,
        "h": 130,
        "text": "width, top",
@@ -219,7 +225,7 @@
       {
        "id": "c",
        "x": 810,
-       "y": 480,
+       "y": 430,
        "w": 300,
        "h": 130,
        "text": "color",
@@ -229,7 +235,7 @@
       {
        "id": "t",
        "x": 1260,
-       "y": 480,
+       "y": 430,
        "w": 300,
        "h": 130,
        "text": "transform",
@@ -257,14 +263,14 @@
      "notes": [
       {
        "x": 345,
-       "y": 660,
+       "y": 625,
        "text": "reflow: layout runs again",
        "tone": "warn",
        "cue": "That's a reflow"
       },
       {
        "x": 805,
-       "y": 660,
+       "y": 625,
        "text": "repaint: pixels redrawn",
        "tone": "good",
        "cue": "Just a repaint"
@@ -274,14 +280,15 @@
     {
      "type": "quiz",
      "say": "Your turn. You animate a box's top from zero to a hundred pixels. Sixty frames a second. Which steps run on every frame? Pause and predict.",
-     "q": "Animating `top` from 0 to 100px: what runs each frame?",
+     "q": "Animating top from 0 to 100px: what runs each frame?",
      "options": [
       "Composite only",
       "Paint + composite",
       "Layout+paint+composite",
       "Nothing, GPU does it"
      ],
-     "answer": 2
+     "answer": 2,
+     "optCue": 0.5
     },
     {
      "type": "code",
@@ -328,6 +335,14 @@
       },
       {
        "panel": 1,
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "almost nothing"
+      },
+      {
+       "panel": 1,
        "lines": [],
        "cue": "animate transform and opacity"
       }
@@ -346,7 +361,7 @@
       "input": "1,000 items: write, read, write, read",
       "output": "1 layout, not 1,000"
      },
-     "say": "Here is the problem. For example, a thousand items: write, read, write, read. We want one layout, not a thousand.",
+     "say": "A real bug report. For example, a thousand items: write, read, write, read. We want one layout, not a thousand.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -530,20 +545,21 @@
     {
      "type": "quiz",
      "say": "Your turn. A loop sets width, then color, on a thousand items. It never reads anything. How many layouts run? Pause and predict.",
-     "q": "Loop sets `width` and `color` on 1,000 items. No reads. Layouts?",
+     "q": "Loop sets width and color on 1,000 items. No reads. Layouts?",
      "options": [
       "1,000",
       "1, at frame end",
       "0, never",
       "2,000"
      ],
-     "answer": "1, at frame end"
+     "answer": "1, at frame end",
+     "optCue": 0.5
     },
     {
      "type": "chart",
-     "head": "Layouts per run",
+     "head": "Layouts run per frame",
      "unit": "layouts",
-     "say": "One, at the end of the frame. Writes alone only mark things stale, so the browser lays out once, just before painting. The mixed loop: a thousand. Batched, reads then writes: one again. Same work, a thousand times the layouts.",
+     "say": "This chart counts layouts in one frame. One, at the end of the frame. Writes alone only mark things stale, so the browser lays out once, before painting. The mixed loop: a thousand. Same work, batched: one again.",
      "bars": [
       {
        "label": "Writes",
@@ -561,7 +577,7 @@
        "label": "Batched",
        "value": 1,
        "tone": "good",
-       "cue": "Batched, reads"
+       "cue": "batched: one"
       }
      ]
     },
@@ -611,10 +627,10 @@
       "input": "width 200, padding 20, border 2",
       "output": "244 px, not 200"
      },
-     "say": "Here is the problem. For example, a card two hundred wide, with padding and border. On screen? Not two hundred.",
+     "say": "Here is a quick one. For example, a card two hundred wide, with padding and border. On screen? Not two hundred.",
      "cues": {
       "example": "For example",
-      "output": "Not two hundred"
+      "output": "On screen"
      }
     },
     {
@@ -755,14 +771,15 @@
     {
      "type": "quiz",
      "say": "Your turn. Default sizing. Width three hundred, padding ten on each side, border five on each side. How wide on screen? Pause and predict.",
-     "q": "`width: 300px; padding: 10px; border: 5px`. Screen width?",
+     "q": "Default sizing: width 300px, padding 10px, border 5px. Screen width?",
      "options": [
       "300px",
       "320px",
       "330px",
       "340px"
      ],
-     "answer": "330px"
+     "answer": "330px",
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -777,7 +794,7 @@
        "h": 150,
        "label": "content",
        "sub": "width",
-       "text": "200",
+       "text": "300",
        "size": 64,
        "tone": "blue"
       },
@@ -788,8 +805,8 @@
        "w": 360,
        "h": 150,
        "label": "padding",
-       "sub": "20 each side",
-       "text": "+ 40",
+       "sub": "10 each side",
+       "text": "+ 20",
        "size": 64,
        "tone": "warn"
       },
@@ -800,8 +817,8 @@
        "w": 300,
        "h": 150,
        "label": "border",
-       "sub": "2 each side",
-       "text": "+ 4",
+       "sub": "5 each side",
+       "text": "+ 10",
        "size": 64
       },
       {
@@ -811,7 +828,7 @@
        "w": 320,
        "h": 150,
        "label": "on screen",
-       "text": "244",
+       "text": "330",
        "size": 64,
        "tone": "good"
       }
@@ -819,25 +836,24 @@
      "changes": [
       {
        "id": "c",
-       "text": "300",
+       "glow": true,
        "cue": "Content three hundred"
       },
       {
        "id": "p",
-       "text": "+ 20",
+       "glow": true,
+       "tone": "warn",
        "cue": "Padding twenty"
       },
       {
        "id": "b",
-       "text": "+ 10",
+       "glow": true,
        "cue": "Border ten"
       },
       {
        "id": "t",
-       "count": [
-        244,
-        330
-       ],
+       "glow": true,
+       "tone": "good",
        "cue": "three thirty wide"
       }
      ]
@@ -887,7 +903,7 @@
       "input": "nav: logo + menu; gallery: 4 cards",
       "output": "nav: flex; gallery: grid"
      },
-     "say": "Here is the problem. A nav bar and a card gallery. For example, a logo and a menu, and four cards. We want to pick the right layout tool for each.",
+     "say": "Two layouts to build. A nav bar and a card gallery. For example, a logo and a menu, and four cards. We want the right layout tool for each.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -896,7 +912,7 @@
     {
      "type": "flow",
      "head": "A shelf and an egg carton",
-     "say": "Think of two ways to store things. A shelf: items in one line. That is flexbox, one axis. An egg carton: fixed slots in rows and columns together. That is grid, two axes.",
+     "say": "Think of two ways to store things. A shelf holds items in one line. That's flexbox: one axis. An egg carton has slots in rows and columns. That's grid: two axes.",
      "items": [
       {
        "label": "flexbox",
@@ -908,7 +924,7 @@
        "label": "grid",
        "text": "Egg carton",
        "sub": "rows and columns",
-       "cue": "An egg carton"
+       "cue": "slots in rows"
       }
      ]
     },
@@ -985,7 +1001,8 @@
       "350px",
       "700px"
      ],
-     "answer": "350px"
+     "answer": "350px",
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -1122,12 +1139,12 @@
     },
     {
      "type": "code",
-     "head": "Nav, gallery, and centering",
-     "say": "In C S S, the nav is display flex with space between. The gallery is display grid, three equal columns, sixteen pixels of gap. And to center anything, make its parent flex, and center both axes. Flex when content decides, grid when the layout decides.",
+     "head": "Nav and gallery in CSS",
+     "say": "In C S S, the nav is display flex with space between. The gallery is display grid, three equal columns, sixteen pixels of gap. Flex when content decides, grid when the layout decides.",
      "panels": [
       {
        "file": "style.css",
-       "code": ".nav {\n  display: flex;\n  justify-content: space-between;\n}\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}\n.center { display: flex;\n  justify-content: center;\n  align-items: center; }"
+       "code": ".nav {\n  display: flex;\n  justify-content: space-between;\n}\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}"
       }
      ],
      "steps": [
@@ -1152,15 +1169,49 @@
       },
       {
        "lines": [
-        10,
-        11,
-        12
+        7
        ],
-       "cue": "center anything"
+       "cue": "three equal columns"
       },
       {
        "lines": [],
        "cue": "grid when the layout"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Center anything",
+     "say": "And the classic interview ask: center a div. Make its parent flex. Justify content centers along the row. Align items centers across it. Both axes, three lines.",
+     "panels": [
+      {
+       "file": "style.css",
+       "code": ".center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "parent flex"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Justify content centers"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Align items centers"
+      },
+      {
+       "lines": [],
+       "cue": "Both axes"
       }
      ]
     }
@@ -1174,10 +1225,10 @@
      "title": "Which color wins?",
      "statement": "Two rules match the same heading. One uses an id. The other chains three classes. Which color shows?",
      "example": {
-      "input": "`#hero` red vs `.a.b.c` blue",
+      "input": "#hero red vs .a.b.c blue",
       "output": "red: (1,0,0) beats (0,3,0)"
      },
-     "say": "Here is the problem. Two rules hit one heading. For example, an id says red, three chained classes say blue. The answer is red. Let's see why.",
+     "say": "A classic fight. Two rules hit one heading. For example, an id says red, three chained classes say blue. The answer is red. Let's see why.",
      "cues": {
       "example": "For example",
       "output": "The answer is red"
@@ -1186,25 +1237,25 @@
     {
      "type": "flow",
      "head": "Specificity is a medal table",
-     "say": "Think of an Olympic medal table. Compare gold first. Only on a tie, silver. Only then bronze. Same for selectors: ids, classes, elements. Three silvers never beat one gold.",
+     "say": "Think of an Olympic medal table. Gold counts first: that's ids. Silver only breaks a tie: classes. Bronze comes last: elements. So three silvers never beat one gold.",
      "items": [
       {
        "label": "gold",
        "text": "ids",
        "sub": "#hero",
-       "cue": "Compare gold first"
+       "cue": "Gold counts first"
       },
       {
        "label": "silver",
        "text": "classes",
        "sub": ".card",
-       "cue": "Only on a tie"
+       "cue": "Silver only breaks"
       },
       {
        "label": "bronze",
        "text": "elements",
        "sub": "h1",
-       "cue": "Only then bronze"
+       "cue": "Bronze comes last"
       }
      ]
     },
@@ -1353,15 +1404,16 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Two rules, one list item with class on. First rule: class menu, then class on, red. Second rule: list, item, class on, blue. Which color? Pause and predict.",
-     "q": "`.menu .on` red, then `ul li.on` blue. Which wins?",
+     "say": "Your turn. Rule one: menu, then on, red. Rule two: list item with class on, blue. Which wins? Pause and predict.",
+     "q": "Rule one: .menu .on, red. Rule two: ul li.on, blue. Which wins?",
      "options": [
-      "`.menu .on` red",
-      "`ul li.on` blue",
+      "Rule one, red",
+      "Rule two, blue",
       "Tie: later wins",
       "Neither"
      ],
-     "answer": 0
+     "answer": 0,
+     "optCue": 0.5
     },
     {
      "type": "compare",
@@ -1436,7 +1488,7 @@
      "covers": [
       "fe01"
      ],
-     "say": "How does a browser render? Parse into trees, then layout, paint, composite. Reflow versus repaint? Reflow recomputes positions, so it costs more. Why is transform cheap? It only composites. Common mistake? Reading offset height between writes.",
+     "say": "How does a browser render? Parse into trees, then layout, paint, composite. Reflow versus repaint? Reflow redoes layout. Repaint only redraws pixels, so it's cheaper. Why is transform cheap? It only composites. Common mistake? Reading offset height between writes.",
      "heads": [
       "They ask",
       "You say"
@@ -1448,7 +1500,7 @@
       ],
       [
        "Reflow vs repaint?",
-       "reflow recomputes positions, costs more"
+       "reflow redoes layout; repaint only redraws pixels"
       ],
       [
        "Why is `transform` cheap?",
@@ -1472,7 +1524,7 @@
      "covers": [
       "fe10"
      ],
-     "say": "Box model? Content, padding, border, margin. Use border box so width includes padding. Flex or grid? Flex for one axis, grid for two. Center a div? Flex, then center both axes. A stubborn style? Lower the selector, avoid important.",
+     "say": "Box model? Content, padding, border, margin. Margin versus padding? Padding sits inside the border, margin outside. Border box? Width then includes padding and border. Flex or grid? Flex for one axis, a nav. Grid for two, a gallery. Center a div? Make the parent flex, center both axes.",
      "heads": [
       "They ask",
       "You say"
@@ -1480,15 +1532,56 @@
      "rows": [
       [
        "Box model?",
-       "content, padding, border, margin; use `border-box`"
+       "content, padding, border, margin"
+      ],
+      [
+       "Margin vs padding?",
+       "padding inside the border, margin outside"
+      ],
+      [
+       "What does `border-box` do?",
+       "width includes padding and border"
       ],
       [
        "Flex or grid?",
-       "flex: one axis. grid: two axes"
+       "flex: one axis (nav). grid: two (gallery)"
       ],
       [
        "Center a div?",
-       "`display: flex`, center both axes"
+       "parent `display: flex`, center both axes"
+      ]
+     ],
+     "cues": [
+      "Box model",
+      "Margin versus",
+      "Border box?",
+      "Flex or grid",
+      "Center a div"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe10"
+     ],
+     "say": "Which rule wins? Count ids, then classes, then elements. One id beats three classes. Same score? The later rule wins. Inline style beats any selector, and important beats inline. A stubborn style? Lower the selector, avoid important.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Which rule wins?",
+       "ids, then classes, then elements: `#a` beats `.b.c.d`"
+      ],
+      [
+       "Same score?",
+       "the later rule wins"
+      ],
+      [
+       "Inline or `!important`?",
+       "inline beats selectors; `!important` beats inline"
       ],
       [
        "Stubborn style?",
@@ -1496,9 +1589,9 @@
       ]
      ],
      "cues": [
-      "Box model",
-      "Flex or grid",
-      "Center a div",
+      "Which rule wins",
+      "Same score",
+      "Inline style",
       "stubborn style"
      ]
     }
