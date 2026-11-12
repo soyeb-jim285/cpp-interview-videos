@@ -114,48 +114,114 @@
      }
     },
     {
-     "type": "flow",
+     "type": "diagram",
      "head": "A hash is a meat grinder",
-     "say": "Start with passwords. Never store them. Think of beef, a meat grinder, and mince. Nobody turns mince back into beef. A hash works the same: no way back. At login, grind what they typed, and compare.",
+     "say": "Start with passwords. Never store them. Think of beef, a meat grinder, and mince. Nobody turns mince back into beef: no way back. At login, grind what they typed, and compare.",
      "items": [
       {
-       "label": "beef",
+       "id": "beef",
+       "x": 140,
+       "y": 460,
+       "w": 330,
+       "h": 150,
+       "label": "beef = password",
        "text": "hunter2",
-       "sub": "= the password",
+       "size": 40,
        "cue": "Think of beef"
       },
       {
-       "label": "meat grinder",
+       "id": "gr",
+       "x": 560,
+       "y": 460,
+       "w": 330,
+       "h": 150,
+       "label": "meat grinder = hash",
        "text": "hash",
-       "sub": "= b crypt",
+       "size": 40,
        "cue": "a meat grinder"
       },
       {
-       "label": "mince",
-       "text": "9f3a7c...",
-       "sub": "= stored hash",
+       "id": "mi",
+       "x": 980,
+       "y": 460,
+       "w": 480,
+       "h": 150,
+       "label": "mince = stored hash",
+       "text": "$2b$12$Z.A2a9...",
+       "size": 36,
+       "tone": "warn",
        "cue": "and mince"
       },
       {
-       "label": "one way",
-       "text": "no way back",
-       "tone": "bad",
-       "sub": "can't un-grind",
-       "cue": "no way back"
-      },
-      {
+       "id": "lo",
+       "x": 1500,
+       "y": 460,
+       "w": 300,
+       "h": 150,
        "label": "login",
        "text": "grind+match",
+       "size": 36,
        "tone": "good",
-       "sub": "same mince?",
-       "cue": "grind what they typed"
+       "cue": "At login"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "beef",
+       "to": "gr"
+      },
+      {
+       "from": "gr",
+       "to": "mi"
+      },
+      {
+       "from": "mi",
+       "to": "lo"
       }
      ]
     },
     {
+     "type": "code",
+     "head": "bcrypt in Python",
+     "say": "In Python. Hash the same password twice, each with a fresh salt. Print the first seven characters: algorithm and cost. The two hashes differ, yet check password says true. The salt follows, inside the same string.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "import bcrypt\npw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:7])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "twice"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Print the first"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "The two hashes differ"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "$2b$12$\nTrue True",
+      "tone": "good",
+      "cue": "says true"
+     }
+    },
+    {
      "type": "diagram",
-     "head": "Sign up, then log in",
-     "say": "Sign up. We feed hunter two to b crypt. Out comes one string, with four parts. Algorithm, b crypt. Cost twelve, meaning two to the twelfth rounds. A random salt: random bytes mixed into the password, fresh for every user. So a precomputed table of common hashes is useless. And the hash itself. At login, we take the salt from that string, hash the typed password again, and compare. Same hash: match.",
+     "head": "Sign up",
+     "say": "Sign up. We feed hunter two to b crypt. Out comes one string, with four parts. Algorithm, b crypt. Cost twelve, meaning two to the twelfth rounds. A random salt: random bytes mixed into the password, fresh for every user. So a precomputed table of common hashes is useless. And the hash itself.",
      "items": [
       {
        "id": "pw",
@@ -214,6 +280,52 @@
        "size": 36,
        "tone": "good",
        "cue": "the hash itself"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pw",
+       "to": "alg",
+       "cue": "feed hunter two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "salt",
+       "glow": true,
+       "tone": "warn",
+       "cue": "precomputed table"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Log in",
+     "say": "Log in. Type hunter two again. We take the salt from the stored string, hash the typed password, and compare. Same hash: match.",
+     "items": [
+      {
+       "id": "pw",
+       "x": 140,
+       "y": 400,
+       "w": 340,
+       "h": 130,
+       "label": "password",
+       "text": "hunter2",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Type hunter two"
+      },
+      {
+       "id": "hash",
+       "x": 580,
+       "y": 400,
+       "w": 420,
+       "h": 130,
+       "label": "stored hash",
+       "text": "$2b$12$Z.A2a9...",
+       "size": 36,
+       "tone": "good",
+       "cue": "the stored string"
       },
       {
        "id": "login",
@@ -222,9 +334,9 @@
        "w": 340,
        "h": 130,
        "label": "login attempt",
-       "text": "hunter2",
-       "size": 44,
-       "cue": "At login"
+       "text": "hash it again",
+       "size": 40,
+       "cue": "hash the typed password"
       },
       {
        "id": "same",
@@ -241,68 +353,19 @@
      ],
      "arrows": [
       {
-       "from": "pw",
-       "to": "alg",
-       "cue": "feed hunter two"
-      },
-      {
-       "from": "login",
-       "to": "salt",
-       "cue": "the salt from that string"
+       "from": "hash",
+       "to": "login",
+       "cue": "We take the salt"
       }
      ],
      "changes": [
       {
-       "id": "salt",
-       "glow": true,
-       "tone": "warn",
-       "cue": "precomputed table"
-      },
-      {
-       "id": "login",
+       "id": "same",
        "glow": true,
        "tone": "good",
-       "cue": "hash the typed"
+       "cue": "Same hash"
       }
      ]
-    },
-    {
-     "type": "code",
-     "head": "bcrypt in Python",
-     "say": "In Python. Hash the same password twice, each with a fresh salt. Print the first seven characters: algorithm and cost. The two hashes differ, yet check password says true. The salt follows, inside the same string.",
-     "panels": [
-      {
-       "file": "app.py",
-       "code": "import bcrypt\npw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:7])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
-      }
-     ],
-     "steps": [
-      {
-       "lines": [
-        3,
-        4
-       ],
-       "cue": "twice"
-      },
-      {
-       "lines": [
-        5
-       ],
-       "cue": "Print the first"
-      },
-      {
-       "lines": [
-        6
-       ],
-       "cue": "The two hashes differ"
-      }
-     ],
-     "output": {
-      "cmd": "python3 app.py",
-      "text": "$2b$12$\nTrue True",
-      "tone": "good",
-      "cue": "says true"
-     }
     },
     {
      "type": "quiz",
@@ -476,7 +539,7 @@
     {
      "type": "code",
      "head": "A JWT (JSON Web Token) is readable",
-     "say": "Now the other way. A J W T needs no store. It has three parts joined by dots: header, payload, signature. Here's one for user forty two. Anyone can decode the payload. It prints sub forty two and an expiry.",
+     "say": "Now the other way. A J W T needs no store. It has three parts joined by dots: header, payload, signature. The signature is made with the server's secret key. Change one character and it no longer matches. Here's one for user forty two. Anyone can decode the payload. It prints sub forty two and an expiry.",
      "panels": [
       {
        "file": "app.py",
@@ -489,6 +552,18 @@
         5
        ],
        "cue": "three parts"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The signature is made"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Change one character"
       },
       {
        "lines": [
@@ -664,7 +739,7 @@
     {
      "type": "flow",
      "head": "A valet key",
-     "say": "The app wants to know who you are, not your Google password. That's OAuth, short for Open Authorization. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key.",
+     "say": "The app wants to know who you are, not your Google password. That's OAuth 2.0. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key. Logging in with Google adds OpenID Connect, which returns an ID token that names you.",
      "items": [
       {
        "label": "master key",
@@ -677,14 +752,21 @@
        "label": "valet key",
        "text": "starts the car",
        "sub": "can't open the trunk",
-       "cue": "valet key"
+       "cue": "starts the car"
       },
       {
        "label": "OAuth token",
        "text": "limited access",
        "sub": "= the valet key",
        "tone": "good",
-       "cue": "a limited key"
+       "cue": "OAuth gives the app"
+      },
+      {
+       "label": "ID token",
+       "text": "who you are",
+       "sub": "OpenID Connect",
+       "tone": "good",
+       "cue": "Logging in with Google"
       }
      ]
     },
@@ -743,7 +825,7 @@
     {
      "type": "diagram",
      "head": "A stolen code is not enough",
-     "say": "No. The swap needs the app's secret, and only the app's server has it. The thief arrives with a code and no secret, and Google says no. That's why the code goes through the browser, but the token never does.",
+     "say": "No. The swap needs the app's secret, and only the app's server has it. Browser and phone apps use PKCE, a one-time secret made per login. The thief arrives with a code and no secret, and Google says no. That's why the code goes through the browser, but the token never does.",
      "items": [
       {
        "id": "th",
@@ -798,6 +880,13 @@
      ],
      "notes": [
       {
+       "x": 140,
+       "y": 680,
+       "text": "PKCE: browser and phone apps",
+       "tone": "good",
+       "cue": "Browser and phone apps"
+      },
+      {
        "x": 560,
        "y": 800,
        "text": "token never touches the browser",
@@ -817,7 +906,7 @@
     {
      "type": "compare",
      "head": "Authn vs authz",
-     "say": "OAuth tells the app who you are. That is authentication: failing it is four oh one. What you may do is a separate check, authorization. Failing that is four oh three.",
+     "say": "Google login is OpenID Connect, built on OAuth. Its ID token gives authentication: who you are. Failing it is four oh one. What you may do is authorization, a separate check. Failing that is four oh three.",
      "heads": [
       "",
       "Question",
@@ -843,12 +932,12 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "Problem solved. OAuth shows the app who you are, without your password.",
+     "say": "Problem solved. Google login shows the app who you are, without your password.",
      "lines": [
-      "OAuth: identity, no password"
+      "Google login: identity, no password"
      ],
      "cues": [
-      "OAuth shows"
+      "Google login shows"
      ]
     }
    ]
@@ -1190,7 +1279,7 @@
       "10",
       "5",
       "20",
-      "0"
+      "1"
      ],
      "answer": "20",
      "optCue": "One client sends"
@@ -1405,20 +1494,16 @@
     },
     {
      "type": "compare",
-     "head": "Three algorithms, one catch each",
-     "say": "Token bucket isn't the only limiter. A fixed window counts per minute. A client can spend ten at second fifty nine, ten more at sixty: twenty in two seconds. A sliding window counts the last sixty seconds, at a memory cost. Token bucket allows bursts up to capacity, then holds the average.",
+     "head": "Three algorithms, one trade-off each",
+     "say": "A fixed window counts per minute. Ten at second fifty nine, ten at sixty: twenty in about one second. Sliding window counts the last sixty seconds, at a memory cost. Token bucket allows bursts up to capacity, then holds the average.",
      "heads": [
       "Idea",
-      "Catch"
+      "Trade-off"
      ],
      "rows": [
       [
        "Fixed window: count per minute",
-       "resets at each minute mark"
-      ],
-      [
-       "Its edge burst",
-       "10 at :59 + 10 at :60 = 20 in 2 s"
+       "resets each minute; 10 at :59 + 10 at :60 = 20 in about 1 s"
       ],
       [
        "Sliding window: last 60 seconds",
@@ -1430,9 +1515,8 @@
       ]
      ],
      "cues": [
-      "A fixed window",
       "ten at second",
-      "sliding window",
+      "Sliding window",
       "Token bucket allows"
      ]
     },
@@ -1559,7 +1643,7 @@
      "covers": [
       "be08"
      ],
-     "say": "How does O Auth work? The app redirects you to Google. You log in there and approve. Google sends you back with a short lived code. The app's server swaps it for a token, using its secret. So the app never sees your password.",
+     "say": "How does O Auth work? The app redirects you to Google. You log in there and approve. Google sends you back with a short lived code. The app's server swaps it for a token, using its secret. So the app never sees your password. Who you are comes from the ID token, which Google login adds through OpenID Connect.",
      "items": [
       {
        "label": "1",
@@ -1584,47 +1668,48 @@
        "cue": "swaps it"
       },
       {
-       "label": "result",
-       "text": "no password",
+       "label": "5",
+       "text": "ID token",
        "tone": "good",
-       "cue": "never sees"
+       "sub": "who you are (OIDC)",
+       "cue": "Who you are"
       }
      ]
     },
     {
-     "type": "compare",
+     "type": "flow",
      "head": "Build a token bucket",
      "covers": [
       "be09"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
      "say": "How do you implement a token bucket? Store two numbers per user: coins, and the last request time. Each request adds rate times elapsed seconds, capped at capacity. One coin or more? Spend one and allow it. Otherwise, return four twenty nine. That's O of one.",
-     "rows": [
-      [
-       "How to implement it?",
-       "store coins and last time per user"
-      ],
-      [
-       "Each request?",
-       "add rate × elapsed, cap at capacity"
-      ],
-      [
-       "Then?",
-       "one coin or more: spend one, allow"
-      ],
-      [
-       "Otherwise?",
-       "429. Every step is O(1)"
-      ]
-     ],
-     "cues": [
-      "Store two numbers",
-      "Each request adds",
-      "One coin or more",
-      "Otherwise, return"
+     "items": [
+      {
+       "label": "1 store",
+       "text": "2 numbers",
+       "sub": "coins + last time",
+       "cue": "Store two numbers"
+      },
+      {
+       "label": "2 refill",
+       "text": "add",
+       "sub": "rate × elapsed, capped",
+       "cue": "Each request adds"
+      },
+      {
+       "label": "3 check",
+       "text": "1 coin or more?",
+       "tone": "good",
+       "sub": "spend one, allow",
+       "cue": "One coin or more"
+      },
+      {
+       "label": "4 else",
+       "text": "otherwise",
+       "tone": "bad",
+       "sub": "429, O(1)",
+       "cue": "Otherwise, return"
+      }
      ]
     },
     {
