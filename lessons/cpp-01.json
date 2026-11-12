@@ -1,0 +1,2185 @@
+{
+ "id": "cpp-01",
+ "track": "C++",
+ "num": 1,
+ "title": "What C++ Is and How a Program Runs",
+ "covers": [
+  "q01",
+  "q02",
+  "q03",
+  "q04",
+  "q05",
+  "q06",
+  "q07",
+  "q08"
+ ],
+ "caps": [
+  [
+   "main dot c p p",
+   "main.cpp"
+  ],
+  [
+   "a dot out",
+   "a.out"
+  ],
+  [
+   "main dot o",
+   "main.o"
+  ],
+  [
+   "g plus plus",
+   "g++"
+  ],
+  [
+   "Dash E",
+   "-E"
+  ],
+  [
+   "Dash S",
+   "-S"
+  ],
+  [
+   "Dash c",
+   "-c"
+  ],
+  [
+   "const T reference",
+   "const T&"
+  ],
+  [
+   "static cast",
+   "static_cast"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "What C++ adds to C",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Eight questions open every C plus plus interview. Follow one variable, int x equals five, from source code to R A M. You'll answer all eight.",
+     "lines": [
+      {
+       "text": "8 questions open every interview",
+       "cue": "Eight questions"
+      },
+      {
+       "text": "int x = 5",
+       "cue": "int x equals five"
+      },
+      {
+       "text": "Source code to RAM.",
+       "cue": "from source code",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Trace a source file all the way to a running process. Follow one variable by value, by reference, and by pointer. And answer the keyword questions: static, const, and struct.",
+     "lines": [
+      "Trace a source file to a running process",
+      "Follow one variable: copy, alias, address",
+      "Answer the keyword and memory questions"
+     ],
+     "cues": [
+      "Trace a source",
+      "Follow one variable",
+      "answer the keyword"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "C or C++: what changed?",
+     "statement": "C++ began as 'C with classes', and most C programs still compile as C++. So what does C++ actually add?",
+     "example": {
+      "input": "The same tiny job, in C and in C++",
+      "output": "Safer memory, templates, the STL"
+     },
+     "say": "First question. C plus plus began as C with classes. For example, the same tiny job, written twice. We want what C plus plus adds, in one sentence.",
+     "cues": {
+      "example": "For example",
+      "output": "We want what"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Same job, two languages",
+     "say": "Same job, twice. In C, you call malloc, and you must remember free. Forget it, and memory leaks. In C plus plus, a vector frees its own memory at the closing brace. That is R A I I. And the speed stays: zero overhead means you don't pay for features you don't use.",
+     "panels": [
+      {
+       "file": "stack.c",
+       "label": "C",
+       "tone": "warn",
+       "code": "int* d = malloc(\n    10 * sizeof(int));\nd[0] = 42;\nfree(d);  // you must remember"
+      },
+      {
+       "file": "stack.cpp",
+       "label": "C++",
+       "tone": "good",
+       "code": "std::vector<int> d(10);\nd[0] = 42;\n// freed at the closing brace"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "panel": 0,
+       "cue": "you call malloc"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 0,
+       "cue": "remember free"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 1,
+       "cue": "a vector frees"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "panel": 1,
+       "cue": "closing brace"
+      },
+      {
+       "lines": [],
+       "cue": "zero overhead"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Four things C does not have",
+     "say": "Four features C lacks. A namespace groups names so they don't collide. Two functions share the name area, and C plus plus picks by argument type: overloading. A template writes biggest once, for any type. And a reference lets twice change n directly.",
+     "panels": [
+      {
+       "file": "only_cpp.cpp",
+       "code": "namespace geo {\n    int area(int s) { return s * s; }\n    double area(double r) { return 3.14 * r * r; }\n}\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\nvoid twice(int& x) { x *= 2; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        4
+       ],
+       "cue": "A namespace groups"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "share the name area"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "A template writes"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "a reference lets"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "C versus C++",
+     "say": "Style: C is procedural. C plus plus adds objects and generics. Memory: malloc and free, against R A I I and smart pointers. Generic code: macros, against templates. Errors: return codes, plus exceptions. Library: small, against the S T L. Names: one global space, against namespaces.",
+     "heads": [
+      "C",
+      "C++"
+     ],
+     "rows": [
+      [
+       "procedural",
+       "procedural, OOP, generic"
+      ],
+      [
+       "`malloc` / `free`",
+       "`new`/`delete`, RAII, smart pointers"
+      ],
+      [
+       "macros, `void*`",
+       "templates, type-safe"
+      ],
+      [
+       "return codes",
+       "exceptions, too"
+      ],
+      [
+       "small library",
+       "STL: containers, algorithms"
+      ],
+      [
+       "one global namespace",
+       "namespaces, overloading"
+      ]
+     ],
+     "cues": [
+      "Style",
+      "Memory",
+      "Generic code",
+      "Errors",
+      "Library",
+      "Names"
+     ],
+     "rowHeads": [
+      "style",
+      "memory",
+      "generic",
+      "errors",
+      "library",
+      "names"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. This line is fine in C. Malloc returns a void pointer, and C converts it silently. Now compile it as C plus plus. What happens? Pause and predict.",
+     "q": "`int* p = malloc(sizeof(int));` compiled as C++: what happens?",
+     "options": [
+      "Compiles fine",
+      "Error: void* to int*",
+      "Warning only",
+      "Runs, then leaks"
+     ],
+     "answer": "Error: void* to int*"
+    },
+    {
+     "type": "code",
+     "head": "Why C++ is not a perfect superset",
+     "say": "Error. C plus plus won't convert a void pointer to an int pointer silently, so add a cast. And class is a keyword in C plus plus, so rename that variable. So C plus plus is almost a superset of C.",
+     "panels": [
+      {
+       "file": "legacy.c",
+       "label": "C only",
+       "tone": "bad",
+       "code": "int* p = malloc(sizeof(int));\nint class = 5;"
+      },
+      {
+       "file": "fixed.cpp",
+       "label": "C++",
+       "tone": "good",
+       "code": "int* p = static_cast<int*>(\n    malloc(sizeof(int)));\nint klass = 5;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "won't convert"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "panel": 1,
+       "cue": "add a cast"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "class is a keyword"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "panel": 1,
+       "cue": "rename that variable"
+      }
+     ],
+     "output": {
+      "cmd": "g++ legacy.c",
+      "text": "invalid conversion from 'void*' to 'int*'",
+      "tone": "bad",
+      "cue": "won't convert"
+     }
+    }
+   ]
+  },
+  {
+   "title": "One command, four tools",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "What does g++ main.cpp do?",
+     "statement": "One command turns main.cpp into a program. Name the tools it runs, in order, and which one reports which kind of error.",
+     "example": {
+      "input": "main.cpp  ->  ?  ->  main.o  ->  ?  ->  a.out",
+      "output": "preprocess, compile, assemble, link"
+     },
+     "say": "Question two. One command looks like one step. For example, main dot c p p in, a dot out out. We want the tools in between.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the tools"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Four tools, in order",
+     "say": "Four tools run in order. First the preprocessor pastes in every include and expands macros. Then the compiler checks syntax and types, and translates C plus plus into assembly. The assembler turns that into machine code. Finally the linker joins object files and libraries into one program.",
+     "items": [
+      {
+       "label": "1",
+       "text": "preprocessor",
+       "sub": "pastes headers, macros",
+       "cue": "preprocessor pastes"
+      },
+      {
+       "label": "2",
+       "text": "compiler",
+       "sub": "C++ to assembly",
+       "cue": "the compiler checks"
+      },
+      {
+       "label": "3",
+       "text": "assembler",
+       "sub": "to machine code",
+       "cue": "The assembler"
+      },
+      {
+       "label": "4",
+       "text": "linker",
+       "sub": "joins .o + libraries",
+       "tone": "good",
+       "cue": "the linker joins"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Stop at any stage yourself",
+     "say": "Here is main dot c p p. An include, a macro, and main. Now stop after each stage. Dash E stops after the preprocessor. Dash S stops after the compiler. Dash c stops after the assembler, and leaves main dot o. With no flag, the linker runs. Run it.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "#include <iostream>\n#define GREETING \"Hello\"\nint main() {\n    std::cout << GREETING\n              << \", world\\n\";\n}"
+      },
+      {
+       "file": "run.sh",
+       "code": "g++ -E main.cpp -o main.i\ng++ -S main.cpp -o main.s\ng++ -c main.cpp -o main.o\ng++ main.o -o a.out\n./a.out"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "panel": 0,
+       "cue": "An include, a macro"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "panel": 0,
+       "cue": "and main"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 1,
+       "cue": "Dash E"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "Dash S"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "panel": 1,
+       "cue": "Dash c"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 1,
+       "cue": "With no flag"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "panel": 1,
+       "cue": "Run it"
+      }
+     ],
+     "output": {
+      "cmd": "./a.out",
+      "text": "Hello, world",
+      "tone": "good",
+      "cue": "Run it"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A file declares a function add, calls it, but never writes its body. Which tool complains? Pause and predict.",
+     "q": "`add` is declared but never defined. Which tool reports an error?",
+     "options": [
+      "Preprocessor",
+      "Compiler",
+      "Assembler",
+      "Linker"
+     ],
+     "answer": "Linker"
+    },
+    {
+     "type": "code",
+     "head": "Why the stages matter: errors",
+     "say": "The linker. The compiler is happy: it only needs to know add exists. But the linker can't find its body anywhere, so it fails with undefined reference. L D is the linker.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int add(int a, int b);\n\nint main() {\n    return add(2, 3);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "only needs to know"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "can't find its body"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp 2>&1 | grep -E \"undefined|ld ret\"",
+      "text": "main.cpp:(.text+0xf): undefined reference to `add(int, int)'\ncollect2: error: ld returned 1 exit status",
+      "tone": "bad",
+      "cue": "undefined reference"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Run: the OS takes over",
+     "say": "When you run it, the operating system's loader creates a process. Machine code goes in the text part. Globals go in the data part. Then it adds a heap and a stack. Startup code runs, then main. When main returns zero, that is the exit code, and zero means success.",
+     "items": [
+      {
+       "id": "disk",
+       "x": 140,
+       "y": 480,
+       "w": 260,
+       "h": 120,
+       "text": "a.out",
+       "cue": "you run it",
+       "label": "disk file",
+       "tone": "blue"
+      },
+      {
+       "id": "pm",
+       "region": true,
+       "x": 560,
+       "y": 230,
+       "w": 700,
+       "h": 690,
+       "label": "process memory",
+       "cue": "creates a process"
+      },
+      {
+       "id": "txt",
+       "x": 640,
+       "y": 330,
+       "w": 540,
+       "h": 110,
+       "text": "text: machine code",
+       "cue": "the text part",
+       "size": 36
+      },
+      {
+       "id": "dat",
+       "x": 640,
+       "y": 470,
+       "w": 540,
+       "h": 110,
+       "text": "data: globals, statics",
+       "cue": "the data part",
+       "size": 36
+      },
+      {
+       "id": "hp",
+       "x": 640,
+       "y": 610,
+       "w": 540,
+       "h": 110,
+       "text": "heap: new",
+       "cue": "a heap",
+       "size": 36
+      },
+      {
+       "id": "stk",
+       "x": 640,
+       "y": 750,
+       "w": 540,
+       "h": 110,
+       "text": "stack: calls, locals",
+       "cue": "and a stack",
+       "size": 36
+      },
+      {
+       "id": "ex",
+       "x": 1400,
+       "y": 480,
+       "w": 380,
+       "h": 120,
+       "text": "0",
+       "cue": "returns zero",
+       "label": "exit code",
+       "tone": "good",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "disk",
+       "to": "txt",
+       "label": "loader",
+       "cue": "creates a process"
+      },
+      {
+       "from": "stk",
+       "to": "ex",
+       "bend": -80,
+       "tone": "good",
+       "cue": "returns zero"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Declare often, define once",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Declared or defined?",
+     "statement": "Two lines can look alike: one only names a variable, the other creates it. Which is which, and why does the difference decide linker errors?",
+     "example": {
+      "input": "extern int g;   vs   int g = 3;",
+      "output": "a name only   vs   memory reserved"
+     },
+     "say": "Question three. Two lines look alike. For example, extern int g, and int g equals three. One only names. The other creates.",
+     "cues": {
+      "example": "For example",
+      "output": "One only names"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A sign and a building",
+     "say": "Think of a street sign. The sign says there's a bakery. The building is the bakery. Sign: declaration. Building: definition.",
+     "items": [
+      {
+       "label": "declaration",
+       "text": "the sign",
+       "sub": "a name and a type",
+       "cue": "The sign says"
+      },
+      {
+       "label": "definition",
+       "text": "the building",
+       "sub": "memory, body, layout",
+       "tone": "good",
+       "cue": "The building is"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Three declarations, three definitions",
+     "say": "Three declarations: a variable, a function, a struct. Each only names a thing, saying it exists. Now the definitions. The variable gets memory. The function gets its body. The struct gets its full layout. Every definition is also a declaration, but not the other way around.",
+     "panels": [
+      {
+       "file": "example.cpp",
+       "code": "extern int g;            // declaration\nint add(int a, int b);   // declaration\nstruct Point;            // declaration\n\nint g = 3;               // definition\nint add(int a, int b) {  // definition\n    return a + b;\n}\nstruct Point { int x, y; };  // definition"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Three declarations"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "saying it exists"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "gets memory"
+      },
+      {
+       "lines": [
+        6,
+        7,
+        8
+       ],
+       "cue": "gets its body"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "full layout"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "This is why headers exist",
+     "say": "The header holds only the declaration, so any file can include it. Main dot c p p includes it and calls add. Exactly one source file holds the definition. The compiler checks each file alone. Then the linker connects every call to the single definition.",
+     "items": [
+      {
+       "id": "hd",
+       "x": 140,
+       "y": 400,
+       "w": 360,
+       "h": 130,
+       "text": "add.h",
+       "cue": "The header",
+       "label": "header",
+       "sub": "declaration only",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "mn",
+       "x": 700,
+       "y": 260,
+       "w": 360,
+       "h": 130,
+       "text": "main.cpp",
+       "cue": "calls add",
+       "sub": "uses add",
+       "size": 40
+      },
+      {
+       "id": "ad",
+       "x": 700,
+       "y": 540,
+       "w": 360,
+       "h": 130,
+       "text": "add.cpp",
+       "cue": "Exactly one",
+       "sub": "defines add",
+       "tone": "good",
+       "size": 40
+      },
+      {
+       "id": "lk",
+       "x": 1360,
+       "y": 400,
+       "w": 360,
+       "h": 130,
+       "text": "linker",
+       "cue": "the linker connects",
+       "sub": "one definition",
+       "tone": "warn",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "hd",
+       "glow": true,
+       "tone": "blue",
+       "cue": "The compiler checks"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "hd",
+       "to": "mn",
+       "cue": "any file can include"
+      },
+      {
+       "from": "hd",
+       "to": "ad",
+       "cue": "Exactly one"
+      },
+      {
+       "from": "mn",
+       "to": "lk",
+       "cue": "the linker connects"
+      },
+      {
+       "from": "ad",
+       "to": "lk",
+       "tone": "good",
+       "cue": "single definition"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Two source files each define int counter equals zero. Each compiles alone. What happens when you build them together? Pause and predict.",
+     "q": "a.cpp and b.cpp both define `int counter = 0;`. Build both: what happens?",
+     "options": [
+      "Both compile, runs",
+      "Compiler error",
+      "Linker: defined twice",
+      "Linker: undefined"
+     ],
+     "answer": "Linker: defined twice"
+    },
+    {
+     "type": "code",
+     "head": "The one definition rule",
+     "say": "The linker. Each file compiles alone, so the compiler is fine. But the linker finds two definitions of counter. The fix: extern in a header, one definition. Declare often, define once.",
+     "panels": [
+      {
+       "file": "a.cpp",
+       "code": "int counter = 0;"
+      },
+      {
+       "file": "b.cpp",
+       "label": "2nd definition",
+       "tone": "bad",
+       "code": "int counter = 0;\nint main() {}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "compiles alone"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 1,
+       "cue": "two definitions"
+      },
+      {
+       "lines": [],
+       "cue": "The fix"
+      },
+      {
+       "lines": [],
+       "cue": "Declare often"
+      }
+     ],
+     "output": {
+      "cmd": "g++ a.cpp b.cpp 2>&1 | grep -o \"multiple definition of .counter.\"",
+      "text": "multiple definition of `counter'",
+      "tone": "bad",
+      "cue": "of counter"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Value, reference, pointer",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Add one to n",
+     "statement": "A function adds one to n, which is 5. What does the function receive: a copy, an alias, or an address? And does the caller see the change?",
+     "example": {
+      "input": "n = 5, then addOne(n)",
+      "output": "value: 5, reference: 6, pointer: 6"
+     },
+     "say": "Questions six and seven. One variable, n equals five, goes into addOne. For example, three ways to hand it over. We want to know which ones change n.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to know"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "1 · By value: a copy",
+     "say": "Think of a document. By value hands over a photocopy. Calling addOne makes x, a brand new copy of n. Add one to the copy: six. The function returns, the copy vanishes, and n is still five.",
+     "panels": [
+      {
+       "file": "value.cpp",
+       "code": "void addOne(int x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Calling addOne"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Add one to the copy"
+      },
+      {
+       "lines": [],
+       "cue": "still five"
+      }
+     ],
+     "items": [
+      {
+       "id": "n",
+       "x": 1060,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "5",
+       "label": "main: n",
+       "size": 64,
+       "tone": "blue"
+      },
+      {
+       "id": "x",
+       "x": 1500,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "5",
+       "cue": "makes x",
+       "label": "addOne: x",
+       "size": 64,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n",
+       "to": "x",
+       "label": "copy",
+       "cue": "makes x"
+      }
+     ],
+     "changes": [
+      {
+       "id": "x",
+       "text": "6",
+       "cue": "copy: six"
+      },
+      {
+       "id": "x",
+       "kill": true,
+       "cue": "copy vanishes"
+      },
+      {
+       "id": "n",
+       "glow": true,
+       "tone": "good",
+       "cue": "still five"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "2 · By reference: an alias",
+     "say": "By reference. The ampersand means x is not a copy. It's a second name on the same document. Add one through x, and n itself becomes six. Nothing was copied.",
+     "panels": [
+      {
+       "file": "reference.cpp",
+       "code": "void addOne(int& x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "The ampersand means"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Add one through x"
+      }
+     ],
+     "items": [
+      {
+       "id": "n",
+       "x": 1060,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "5",
+       "label": "main: n",
+       "size": 64,
+       "tone": "blue"
+      },
+      {
+       "id": "x",
+       "x": 1500,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "= n",
+       "cue": "second name",
+       "label": "addOne: x",
+       "size": 64,
+       "tone": "ghost"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "x",
+       "to": "n",
+       "cue": "second name"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n",
+       "text": "6",
+       "tone": "good",
+       "cue": "n itself becomes six"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now the function takes a pointer. Main passes the address of n. The function adds one to whatever star x points at. What is n afterwards? Pause and predict.",
+     "q": "`addOne(&n)` runs `*x = *x + 1` with n = 5. What is n afterwards?",
+     "options": [
+      "5",
+      "6",
+      "An address",
+      "Crash"
+     ],
+     "answer": "6"
+    },
+    {
+     "type": "diagram",
+     "head": "3 · By pointer: a copy of the address",
+     "say": "Six. x holds a copy of n's address, a note saying where n lives. Star x follows the note to the real n, and adds one. The caller wrote ampersand n, so it's obvious n may change. But x could be null, so check it first.",
+     "panels": [
+      {
+       "file": "pointer.cpp",
+       "code": "void addOne(int* x) {\n    *x = *x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(&n);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "holds a copy"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "follows the note"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "wrote ampersand"
+      }
+     ],
+     "items": [
+      {
+       "id": "n",
+       "x": 1060,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "5",
+       "label": "main: n",
+       "size": 64,
+       "tone": "blue"
+      },
+      {
+       "id": "x",
+       "x": 1500,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "&n",
+       "cue": "holds a copy",
+       "label": "addOne: x",
+       "size": 64,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "x",
+       "to": "n",
+       "bend": -70,
+       "cue": "follows the note"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1250,
+       "y": 660,
+       "text": "x may be null: check it",
+       "tone": "warn",
+       "cue": "could be null"
+      }
+     ],
+     "changes": [
+      {
+       "id": "x",
+       "glow": true,
+       "cue": "a note saying"
+      },
+      {
+       "id": "n",
+       "text": "6",
+       "tone": "good",
+       "cue": "adds one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "One assignment tells them apart",
+     "say": "Now pointer against reference. Both start at a. The pointer p stores a's address. The reference r is not a separate variable. It's another name for a. Point p at b, and p moves. But r equals b copies twenty into a, because r is a, forever. Print them: twenty, twenty, twenty.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    int a = 10, b = 20;\n    int* p = &a;   // stores a's address\n    int& r = a;    // r IS a\n    p = &b;        // p points to b\n    r = b;         // copies 20 into a!\n    cout << a << ' ' << b << ' ' << *p;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "stores a's address"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "another name for a"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "p moves"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "copies twenty"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Print them"
+      }
+     ],
+     "output": {
+      "cmd": "./main",
+      "text": "20 20 20",
+      "cue": "twenty, twenty, twenty",
+      "setup": {
+       "main.cpp": "#include <iostream>\nusing namespace std;"
+      }
+     }
+    },
+    {
+     "type": "code",
+     "head": "More rules for each",
+     "say": "More rules. A pointer can be null. A reference must be bound when it's created, so this line fails with a real compiler error. A reference is never null. Pointers also support arithmetic: it plus plus walks to the next element. References don't.",
+     "panels": [
+      {
+       "file": "rules.cpp",
+       "code": "int main() {\n    int* q = nullptr;  // allowed\n    int& r;            // no value\n    int arr[3] = {1, 2, 3};\n    int* it = arr;\n    it++;  // now at arr[1]\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "can be null"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "must be bound"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "support arithmetic"
+      }
+     ],
+     "output": {
+      "cmd": "g++ rules.cpp 2>&1 | grep error",
+      "text": "rules.cpp:3:10: error: ‘r’ declared as reference but not initialized",
+      "tone": "bad",
+      "cue": "fails with"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Value, reference, pointer",
+     "say": "The call: only the pointer needs an ampersand. What is copied: the object, nothing, an address. Can it change n? Not by value. Can it be null? Only a pointer. Use value for small types, const T reference for big objects, pointers when optional.",
+     "heads": [
+      "value",
+      "reference",
+      "pointer"
+     ],
+     "rows": [
+      [
+       "`f(n)`",
+       "`f(n)`",
+       "`f(&n)`"
+      ],
+      [
+       "whole object",
+       "nothing",
+       "the address"
+      ],
+      [
+       "no",
+       "yes",
+       "yes"
+      ],
+      [
+       "no",
+       "no",
+       "yes: check it"
+      ],
+      [
+       "int, double",
+       "`const T&` for big",
+       "optional args"
+      ]
+     ],
+     "cues": [
+      "The call",
+      "What is copied",
+      "Can it change",
+      "Can it be",
+      "Use value"
+     ],
+     "rowHeads": [
+      "call",
+      "copies",
+      "changes n?",
+      "can be null?",
+      "use for"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Stack and heap",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Where does `a` live?",
+     "statement": "A function declares `int a = 5` and calls `new int(42)`. Which one lives on the stack, which on the heap, and what happens when the function returns?",
+     "example": {
+      "input": "f(): a = 5, p = new int(42)",
+      "output": "a, p on the stack; 42 on the heap"
+     },
+     "say": "Question four. Two places hold your data. For example, a function with a local a, and a new int. We want to know who lives where, and when each disappears.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to know"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Plates and a warehouse",
+     "say": "Think of two storage spaces. The stack is a pile of plates: the newest goes on top, and it's cleared automatically. The heap is a warehouse: you ask for space, and you must give it back.",
+     "items": [
+      {
+       "label": "stack",
+       "text": "pile of plates",
+       "sub": "newest on top, auto-cleared",
+       "cue": "pile of plates"
+      },
+      {
+       "label": "heap",
+       "text": "warehouse",
+       "sub": "ask, then give back",
+       "tone": "warn",
+       "cue": "a warehouse"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Watch memory while f() runs",
+     "say": "Call f, and the stack grows a frame on top of main. Local a lives right there. New int asks the heap for room, and the heap hands back an address. The pointer p, on the stack, stores it. Delete gives the room back. When f returns, its frame vanishes, a and p included.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void f() {\n    int a = 5;\n    int* p = new int(42);\n    delete p;\n}\n\nint main() {\n    f();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Call f"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Local a"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "New int"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Delete gives"
+      },
+      {
+       "lines": [],
+       "cue": "frame vanishes"
+      }
+     ],
+     "items": [
+      {
+       "id": "sr",
+       "region": true,
+       "x": 1040,
+       "y": 260,
+       "w": 340,
+       "h": 640,
+       "label": "stack"
+      },
+      {
+       "id": "hr",
+       "region": true,
+       "x": 1480,
+       "y": 260,
+       "w": 340,
+       "h": 640,
+       "label": "heap"
+      },
+      {
+       "id": "fm",
+       "x": 1070,
+       "y": 780,
+       "w": 280,
+       "h": 90,
+       "text": "main",
+       "size": 36,
+       "tone": "blue"
+      },
+      {
+       "id": "a",
+       "x": 1070,
+       "y": 640,
+       "w": 280,
+       "h": 100,
+       "text": "a = 5",
+       "cue": "Local a",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "p",
+       "x": 1070,
+       "y": 500,
+       "w": 280,
+       "h": 100,
+       "text": "p",
+       "cue": "The pointer p",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "h",
+       "x": 1510,
+       "y": 500,
+       "w": 280,
+       "h": 100,
+       "text": "42",
+       "cue": "asks the heap",
+       "size": 36,
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "h",
+       "label": "address",
+       "cue": "hands back an address"
+      }
+     ],
+     "changes": [
+      {
+       "id": "h",
+       "kill": true,
+       "cue": "Delete gives"
+      },
+      {
+       "id": "a",
+       "kill": true,
+       "cue": "frame vanishes"
+      },
+      {
+       "id": "p",
+       "kill": true,
+       "cue": "frame vanishes"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Stack versus heap",
+     "say": "Who manages it? The compiler, against you or a smart pointer. Lifetime: until the scope ends, against until freed. Speed: the stack just moves one pointer. Size: a few megabytes, against most of the R A M. Typical bugs: overflow, against leaks and dangling pointers.",
+     "heads": [
+      "Stack",
+      "Heap"
+     ],
+     "rows": [
+      [
+       "compiler, automatic",
+       "you, or smart pointers"
+      ],
+      [
+       "ends with the scope",
+       "until freed"
+      ],
+      [
+       "very fast: one pointer moves",
+       "slower: allocator searches"
+      ],
+      [
+       "small, about 1 to 8 MB",
+       "large, most of RAM"
+      ],
+      [
+       "stack overflow",
+       "leaks, dangling pointers"
+      ]
+     ],
+     "cues": [
+      "Who manages",
+      "Lifetime",
+      "Speed",
+      "Size",
+      "Typical bugs"
+     ],
+     "rowHeads": [
+      "managed by",
+      "lifetime",
+      "speed",
+      "size",
+      "bug"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A function declares a local array of ten million ints. That's about forty megabytes. What usually happens when it runs? Pause and predict.",
+     "q": "A local `int big[10000000];` is about 40 MB. What usually happens?",
+     "options": [
+      "Runs fine",
+      "Stack overflow crash",
+      "Compile error",
+      "Heap takes over"
+     ],
+     "answer": "Stack overflow crash"
+    },
+    {
+     "type": "code",
+     "head": "Size matters",
+     "say": "A stack overflow: it usually crashes, as the stack is small. A vector fixes it. The vector object sits on the stack, but its ten million elements live on the heap, and it frees them itself. Prefer the stack, and reach the heap through vector, not raw new.",
+     "panels": [
+      {
+       "file": "bad.cpp",
+       "label": "crashes",
+       "tone": "bad",
+       "code": "void bad() {\n    int big[10000000];\n}"
+      },
+      {
+       "file": "good.cpp",
+       "label": "fine",
+       "tone": "good",
+       "code": "void good() {\n    std::vector<int>\n        big(10000000);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "stack overflow"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "panel": 1,
+       "cue": "A vector fixes it"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "panel": 1,
+       "cue": "its ten million elements"
+      },
+      {
+       "lines": [],
+       "cue": "Prefer the stack"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "static, const, constexpr",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Three keywords, three questions",
+     "statement": "static, const and constexpr look related. What does each one actually promise?",
+     "example": {
+      "input": "static  ·  const  ·  constexpr",
+      "output": "lifetime · can it change · compile time"
+     },
+     "say": "Question five. Three keywords that look related. For example, static, const, constexpr. We want what each one promises.",
+     "cues": {
+      "example": "For example",
+      "output": "We want what"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "One question each",
+     "say": "Each keyword answers a different question. static: how long does it live? const: can it change after it's set? constexpr: can the compiler know it before the program runs?",
+     "items": [
+      {
+       "label": "static",
+       "text": "lifetime",
+       "sub": "and who can see it",
+       "cue": "static: how long"
+      },
+      {
+       "label": "const",
+       "text": "read-only",
+       "sub": "after it's set",
+       "cue": "const: can it"
+      },
+      {
+       "label": "constexpr",
+       "text": "compile time",
+       "sub": "the compiler knows it",
+       "tone": "good",
+       "cue": "constexpr: can the"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "static: how long it lives",
+     "say": "First, static as lifetime. A static local is created once, the first time the function runs, and keeps its value between calls. Call counter twice. Then print the third call. It prints three, not one.",
+     "panels": [
+      {
+       "file": "counter.cpp",
+       "code": "int counter() {\n    static int calls = 0;\n    return ++calls;\n}\nint main() {\n    counter();\n    counter();\n    cout << counter();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "created once"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "keeps its value"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Call counter twice"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "print the third call"
+      }
+     ],
+     "output": {
+      "cmd": "./counter",
+      "text": "3",
+      "tone": "good",
+      "cue": "prints three",
+      "setup": {
+       "counter.cpp": "#include <iostream>\nusing namespace std;"
+      }
+     }
+    },
+    {
+     "type": "code",
+     "head": "static: who can see it",
+     "say": "Second, static as visibility. At file level, static hides a function from other files. Inside a class, a static member belongs to the class, not to any object. There is one shared count, so three players make it three.",
+     "panels": [
+      {
+       "file": "player.cpp",
+       "code": "static int helper() { return 1; }\n\nclass Player {\npublic:\n    static int count;\n    Player() { ++count; }\n};\nint Player::count = 0;\n\nPlayer a, b, c;   // count is 3"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "hides a function"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6,
+        7
+       ],
+       "cue": "belongs to the class"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "one shared count"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "three players"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A variable n is read from the keyboard, at run time. Which line fails to compile: the const one, or the constexpr one? Pause and predict.",
+     "q": "n is read from cin. Which line fails to compile?",
+     "options": [
+      "const int a = n;",
+      "constexpr int b = n;",
+      "Both fail",
+      "Neither fails"
+     ],
+     "answer": "constexpr int b = n;"
+    },
+    {
+     "type": "code",
+     "head": "const and constexpr",
+     "say": "The constexpr line. Const only means read only, so size, computed from n at run time, is fine. Constexpr needs the value at compile time. Four times four is sixteen, so sq works, and can size an array. But n comes from the keyboard, so the last line fails.",
+     "panels": [
+      {
+       "file": "constexpr.cpp",
+       "code": "int main() {\n    const int maxUsers = 100;\n    int n;\n    cin >> n;\n    const int size = n * 2;\n    constexpr int sq = 4 * 4;\n    int arr[sq];\n    constexpr int b = n * 2;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "size, computed"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Constexpr needs"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "sixteen"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "from the keyboard"
+      }
+     ],
+     "notes": [
+      {
+       "line": 8,
+       "inside": true,
+       "text": "n unknown at compile time",
+       "tone": "bad",
+       "cue": "from the keyboard"
+      }
+     ],
+     "output": {
+      "cmd": "g++ constexpr.cpp 2>&1 | grep -o \"the value.*\"",
+      "text": "the value of ‘n’ is not usable in a constant expression",
+      "tone": "bad",
+      "cue": "fails",
+      "setup": {
+       "constexpr.cpp": "#include <iostream>\nusing namespace std;"
+      }
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Three keywords, side by side",
+     "say": "Static: how long does it live, and who sees it? Its value can still change. Const: can it change? Set once, maybe at run time. Constexpr: known at compile time? Fixed by the compiler, and every constexpr is also const.",
+     "heads": [
+      "Keyword",
+      "Asks",
+      "Value"
+     ],
+     "rows": [
+      [
+       "static",
+       "lifetime, visibility",
+       "can still change"
+      ],
+      [
+       "const",
+       "can it change?",
+       "set once, maybe at run time"
+      ],
+      [
+       "constexpr",
+       "known at compile time?",
+       "fixed by the compiler"
+      ]
+     ],
+     "cues": [
+      "Static",
+      "Const:",
+      "Constexpr"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "struct versus class",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "struct or class?",
+     "statement": "Both can have constructors, methods and inheritance. So what is the difference, and which one do you pick?",
+     "example": {
+      "input": "struct A { int x; };  class B { int x; };",
+      "output": "A::x is public, B::x is private"
+     },
+     "say": "Question eight, the shortest answer of all. For example, two types with one member each. We want the difference, and which to pick.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the difference"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The only difference: default access",
+     "say": "Think of an open drawer and a locked one. A struct is the open drawer: members are public by default. A class is the locked one: private by default. That's the whole difference. Set x on the struct: fine. Set x on the class: error.",
+     "panels": [
+      {
+       "file": "access.cpp",
+       "code": "struct A { int x; };\nclass B { int x; };\n\nint main() {\n    A a;  a.x = 1;\n    B b;  b.x = 1;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A struct is"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A class is"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Set x on the struct"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Set x on the class"
+      }
+     ],
+     "output": {
+      "cmd": "g++ access.cpp 2>&1 | grep error",
+      "text": "access.cpp:6:13: error: ‘int B::x’ is private within this context",
+      "tone": "bad",
+      "cue": "error."
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Base has a public member v. Class D inherits from Base, and says nothing about access. Can main set v on a D? Pause and predict.",
+     "q": "`class D : Base {};` Base::v is public. Does `d.v = 1;` compile?",
+     "options": [
+      "Yes, v is public",
+      "No: private base",
+      "Only inside D",
+      "Warning only"
+     ],
+     "answer": "No: private base"
+    },
+    {
+     "type": "code",
+     "head": "The same default for inheritance",
+     "say": "No. A class inherits privately by default, so Base's public v becomes private inside D. A struct inherits publicly by default. Write public or private yourself, and the two keywords are interchangeable.",
+     "panels": [
+      {
+       "file": "inherit.cpp",
+       "code": "struct Base { int v; };\n\nstruct D1 : Base {};  // public\nclass  D2 : Base {};  // private\n\nint main() {\n    D1 d1;  d1.v = 1;\n    D2 d2;  d2.v = 1;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "inherits privately"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "becomes private"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "inherits publicly"
+      }
+     ],
+     "output": {
+      "cmd": "g++ inherit.cpp 2>&1 | grep error",
+      "text": "inherit.cpp:8:16: error: ‘int Base::v’ is inaccessible within this context",
+      "tone": "bad",
+      "cue": "interchangeable"
+     }
+    },
+    {
+     "type": "code",
+     "head": "So which do you pick?",
+     "say": "So which do you pick? By convention, struct for plain data with no rules, like a point. Class when there's an invariant to protect. Here, balance is private, so the only way to change it is deposit, which refuses negative amounts.",
+     "panels": [
+      {
+       "file": "convention.cpp",
+       "code": "struct Point {\n    double x, y;\n};\n\nclass BankAccount {\npublic:\n    void deposit(double amt) {\n        if (amt > 0) balance += amt;\n    }\nprivate:\n    double balance = 0;\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "struct for plain data"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Class when"
+      },
+      {
+       "lines": [
+        11
+       ],
+       "cue": "balance is private"
+      },
+      {
+       "lines": [
+        7,
+        8,
+        9
+       ],
+       "cue": "deposit"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "C versus C plus plus? Procedural, against classes, templates, R A I I. The cost? Zero overhead. A strict superset? Almost: malloc needs a cast.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "C vs C++?",
+       "C: procedural, manual memory. C++: classes, RAII, templates, STL"
+      ],
+      [
+       "Cost of the extras?",
+       "Zero overhead: you pay for what you use"
+      ],
+      [
+       "Strict superset?",
+       "Almost: malloc needs a cast"
+      ]
+     ],
+     "cues": [
+      "C versus",
+      "The cost",
+      "A strict"
+     ],
+     "covers": [
+      "q01"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What happens when you compile and run? Preprocess, compile, assemble, link. Which tool reports? Types, the compiler. Undefined reference, the linker. Then? The O S loads it, calls main. Return value is the exit code.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Compile and run?",
+       "Preprocess, compile, assemble, link"
+      ],
+      [
+       "Who reports what?",
+       "Types: compiler. Undefined reference: linker"
+      ],
+      [
+       "Then?",
+       "OS loads it, calls main; return = exit code"
+      ]
+     ],
+     "cues": [
+      "What happens",
+      "Which tool",
+      "Then"
+     ],
+     "covers": [
+      "q02"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Declaration versus definition? Names it, or creates it. How often? Declare many times, define once. Define twice? The linker reports multiple definition.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Declaration vs definition?",
+       "Name and type vs memory, body, layout"
+      ],
+      [
+       "How often?",
+       "Declare often, define once (ODR)"
+      ],
+      [
+       "Defined twice?",
+       "Linker: multiple definition"
+      ]
+     ],
+     "cues": [
+      "Declaration versus",
+      "How often",
+      "Define twice"
+     ],
+     "covers": [
+      "q03"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Stack versus heap? Stack: automatic, fast, small. Heap: yours, large. Lifetime? Scope end, against until freed. A huge local array? Stack overflow, so use a vector.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Stack vs heap?",
+       "Stack: automatic, fast, small. Heap: yours, large"
+      ],
+      [
+       "Lifetime?",
+       "Scope end vs until freed"
+      ],
+      [
+       "Huge local array?",
+       "Stack overflow: use a vector"
+      ]
+     ],
+     "cues": [
+      "Stack versus",
+      "Lifetime",
+      "A huge"
+     ],
+     "covers": [
+      "q04"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What does static mean? Lifetime and visibility, not constant. Const? Read only after it's set, maybe at run time. Constexpr? Known at compile time, and implies const.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "static?",
+       "Lifetime and visibility, not constness"
+      ],
+      [
+       "const?",
+       "Read-only once set; may be set at run time"
+      ],
+      [
+       "constexpr?",
+       "Known at compile time; implies const"
+      ]
+     ],
+     "cues": [
+      "What does static",
+      "Const",
+      "Constexpr"
+     ],
+     "covers": [
+      "q05"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "By value? A copy, so the caller is unchanged. By reference? An alias, no copy, and the caller sees changes. By pointer? A copy of an address, which can be null, so check it. Big read only objects? Const reference.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "By value?",
+       "A copy: caller unchanged"
+      ],
+      [
+       "By reference?",
+       "An alias: no copy, caller sees changes"
+      ],
+      [
+       "By pointer?",
+       "Copy of an address: can be null, check it"
+      ],
+      [
+       "Big read-only object?",
+       "`const T&`"
+      ]
+     ],
+     "cues": [
+      "By value",
+      "By reference",
+      "By pointer",
+      "Big read"
+     ],
+     "covers": [
+      "q06"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Pointer versus reference? An object holding an address, or an alias. Null or re-point? Pointers can, references never. Which by default? Reference. Pointer for nothing, or re-pointing.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Pointer vs reference?",
+       "Object holding an address vs an alias"
+      ],
+      [
+       "Null? Re-point?",
+       "Pointer yes; reference never"
+      ],
+      [
+       "Which by default?",
+       "Reference; pointer for nothing or re-pointing"
+      ]
+     ],
+     "cues": [
+      "Pointer versus",
+      "Null or",
+      "Which by"
+     ],
+     "covers": [
+      "q07"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Struct versus class? Only default access: public, or private. Inheritance? Same default. Which one do you use? Struct for plain data, class for invariants.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "struct vs class?",
+       "Only default access: public vs private"
+      ],
+      [
+       "Inheritance?",
+       "Same default: public vs private"
+      ],
+      [
+       "Which to use?",
+       "struct: plain data; class: invariants"
+      ]
+     ],
+     "cues": [
+      "Struct versus",
+      "Inheritance",
+      "Which one"
+     ],
+     "covers": [
+      "q08"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode one, two sum: pass the vector by const reference. LeetCode two oh six, reverse linked list, is pointers and heap nodes. LeetCode one fifty five, min stack, is a class that protects an invariant.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 1 · Two Sum",
+       "pass the vector by `const&`"
+      ],
+      [
+       "LeetCode 206 · Reverse Linked List",
+       "pointers and heap nodes"
+      ],
+      [
+       "LeetCode 155 · Min Stack",
+       "a class that protects an invariant"
+      ]
+     ],
+     "cues": [
+      "LeetCode one",
+      "two oh six",
+      "one fifty five"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Source is preprocessed, compiled, assembled, linked, then loaded. Declare often, define once. Value copies, reference aliases, pointer holds an address. Stack is automatic, heap is yours. Struct versus class: default access.",
+     "lines": [
+      "Build: preprocess, compile, assemble, link, load.",
+      "Value copies, reference aliases, pointer: address.",
+      "Stack automatic, heap yours. struct vs class: access."
+     ],
+     "cues": [
+      "Source is",
+      "Declare often",
+      "Stack is automatic"
+     ]
+    }
+   ]
+  }
+ ]
+}
