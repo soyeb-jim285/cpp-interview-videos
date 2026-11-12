@@ -95,7 +95,7 @@
       "input": "T a; T b(7); T c = b;",
       "output": "default param7 copy7 dtor7 dtor7 dtor0"
      },
-     "say": "Can you trace a class that talks? Each constructor and destructor prints a word. For example, three objects: a, b with seven, and c copied from b. Six words come out.",
+     "say": "Can you trace a class that talks? For example, three objects: a, b with seven, c copied from b. Six words come out.",
      "cues": {
       "example": "For example",
       "output": "Six words"
@@ -129,25 +129,25 @@
     {
      "type": "code",
      "head": "Trace the three births",
-     "say": "Here is the class. Each constructor prints its own name. Now three objects. A is plain, so default. B passes seven, so param seven. C copies b, so copy seven. Then they die in reverse: c, b, a.",
+     "say": "Here is the class. Each constructor prints its name. A is plain, so default. B passes seven, so param seven. C copies b, so copy seven. Then they die in reverse: c, b, a.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct T { int id;\n  T() : id(0) { cout << \"default \"; }\n  T(int i) : id(i) { cout << \"param\" << i << \" \"; }\n  T(const T& o) : id(o.id) { cout << \"copy\" << id << \" \"; }\n  ~T() { cout << \"dtor\" << id << \" \"; } };\nT a;\nT b(7);\nT c = b;"
+       "code": "struct T { int id;\n  T() : id(0) { cout << \"default \"; }\n  T(int i) : id(i) { cout << \"param\" << i << \" \"; }\n  T(const T& o) : id(o.id) { cout << \"copy\" << id << \" \"; }\n  ~T() { cout << \"dtor\" << id << \" \"; } };\nint main() {\n  T a;\n  T b(7); T c = b;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
         2,
-        6
+        7
        ],
        "cue": "A is plain"
       },
       {
        "lines": [
         3,
-        7
+        8
        ],
        "cue": "B passes seven"
       },
@@ -160,13 +160,17 @@
       },
       {
        "lines": [
-        5
+        5,
+        9
        ],
        "cue": "die in reverse"
       }
      ],
      "output": {
       "cmd": "./trace",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "default param7 copy7 dtor7 dtor7 dtor0",
       "cue": "die in reverse",
       "tone": "good"
@@ -175,7 +179,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Add a fourth object, d, made plain. Then assign d equals c. How many times does copy print in total? Pause and predict.",
-     "q": "`T b(7); T c = b; T d; d = c;` How many `copy` words print?",
+     "q": "After `T b(7); T c = b; T d; d = c;`, how many `copy` words print?",
      "options": [
       "0",
       "1",
@@ -306,7 +310,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct T { char n;\n  T(char c) : n(c) { cout << '+' << n << ' '; }\n  ~T() { cout << '-' << n << ' '; } };\nT a('a');\n{ T b('b'); }\nT* h = new T('h');\ndelete h;"
+       "code": "struct T { char n;\n  T(char c) : n(c) { cout << '+' << n << ' '; }\n  ~T() { cout << '-' << n << ' '; } };\nint main() {\n  T a('a');\n  { T b('b'); }\n  T* h = new T('h');\n  delete h;\n}"
       }
      ],
      "steps": [
@@ -319,31 +323,34 @@
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Plus a"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "closing brace"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "Plus h"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "delete gives"
       }
      ],
      "output": {
       "cmd": "./life",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "+a +b -b +h -h -a",
       "cue": "Then main ends",
       "tone": "good"
@@ -453,20 +460,21 @@
      "panels": [
       {
        "file": "vptr.cpp",
-       "code": "struct Base {\n  Base() { hello(); }\n  virtual void hello()\n    { cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n  void hello() override\n    { cout << \"Derived\\n\"; }\n};\nDerived d;   // prints Base"
+       "code": "struct Base {\n  Base() { hello(); }\n  virtual void hello() {\n    cout << \"Base\"; } };\nstruct Derived : Base {\n  void hello() override {\n    cout << \"Derived\"; } };\nint main() { Derived d; }"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        3
        ],
        "cue": "hidden v pointer"
       },
       {
        "lines": [
-        6
+        5,
+        6,
+        7
        ],
        "cue": "in layers"
       },
@@ -478,7 +486,8 @@
       },
       {
        "lines": [
-        10
+        3,
+        4
        ],
        "cue": "hello prints Base"
       }
@@ -500,44 +509,44 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct Shape {\n    virtual ~Shape() = default;\n    virtual unique_ptr<Shape> clone() const = 0;\n};\nstruct Circle : Shape {\n    unique_ptr<Shape> clone() const override {\n        return make_unique<Circle>(*this);\n    }\n};\nvoid copyAny(const Shape& s) {\n    auto copy = s.clone();   // a Circle\n}"
+       "code": "struct Shape { virtual ~Shape() = default;\n  virtual unique_ptr<Shape> clone() const = 0; };\nstruct Circle : Shape {\n  unique_ptr<Shape> clone() const override {\n    return make_unique<Circle>(*this); } };\nvoid copyAny(const Shape& s) {\n  auto copy = s.clone();   // a Circle\n}\nint main() { copyAny(Circle()); }"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        2
        ],
        "cue": "ordinary virtual function"
       },
       {
        "lines": [
-        6
+        4
        ],
        "cue": "overrides clone"
       },
       {
        "lines": [
-        7
+        5
        ],
        "cue": "own copy constructor"
       },
       {
        "lines": [
-        10,
-        11
+        6,
+        7
        ],
        "cue": "Copy any shape"
       },
       {
        "lines": [
-        11
+        7
        ],
        "cue": "right type"
       },
       {
        "lines": [
-        2
+        1
        ],
        "cue": "should be virtual"
       }
@@ -648,72 +657,6 @@
      ]
     },
     {
-     "type": "code",
-     "head": "A move constructor",
-     "say": "A move constructor takes an rvalue reference, two ampersands. It binds only to things about to be discarded. We copy the pointer and size, then empty the source. Mark it noexcept, or vector copies when it grows. A thousand ints moved, and a is empty.",
-     "panels": [
-      {
-       "file": "main.cpp",
-       "code": "struct Buf { int* d; size_t n;\n  Buf(size_t k) : d(new int[k]), n(k) {}\n  Buf(Buf&& o) noexcept : d(o.d), n(o.n) {\n    o.d = nullptr;\n    o.n = 0; }\n  ~Buf() { delete[] d; } };\nBuf a(1000);\nBuf c = std::move(a);\ncout << c.n << ' ' << a.n;"
-      }
-     ],
-     "steps": [
-      {
-       "lines": [
-        3
-       ],
-       "cue": "takes an rvalue"
-      },
-      {
-       "lines": [
-        3
-       ],
-       "cue": "binds only"
-      },
-      {
-       "lines": [
-        3
-       ],
-       "cue": "copy the pointer"
-      },
-      {
-       "lines": [
-        4,
-        5
-       ],
-       "cue": "empty the source"
-      },
-      {
-       "lines": [
-        3
-       ],
-       "cue": "Mark it noexcept"
-      },
-      {
-       "lines": [
-        7,
-        8
-       ],
-       "cue": "A thousand ints"
-      }
-     ],
-     "notes": [
-      {
-       "line": 5,
-       "inside": true,
-       "text": "source left empty",
-       "tone": "good",
-       "cue": "empty the source"
-      }
-     ],
-     "output": {
-      "cmd": "./buf",
-      "text": "1000 0",
-      "cue": "a is empty",
-      "tone": "good"
-     }
-    },
-    {
      "type": "flow",
      "head": "What std::move really does",
      "say": "So what does s t d move do? Take your variable s. Wrap it: one cast to an rvalue reference, and no code runs. Overload resolution now picks the move constructor. And the move constructor steals the buffer.",
@@ -742,6 +685,75 @@
      ]
     },
     {
+     "type": "code",
+     "head": "A move constructor",
+     "say": "A move constructor takes an rvalue reference, two ampersands. It binds only to things about to be discarded. We copy the pointer and size, then empty the source. Mark it noexcept, or vector copies when it grows. A thousand ints moved, and a is empty.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Buf { int* d; size_t n; Buf(size_t k) : d(new int[k]), n(k) {}\n  Buf(Buf&& o) noexcept : d(o.d), n(o.n) {\n    o.d = nullptr; o.n = 0; }\n  ~Buf() { delete[] d; } };\nint main() {\n  Buf a(1000);\n  Buf c = std::move(a);\n  cout << c.n << ' ' << a.n;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "takes an rvalue"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "binds only"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "copy the pointer"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "empty the source"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Mark it noexcept"
+      },
+      {
+       "lines": [
+        6,
+        7,
+        8
+       ],
+       "cue": "A thousand ints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "moved-from: valid, here empty",
+       "tone": "good",
+       "cue": "empty the source"
+      }
+     ],
+     "output": {
+      "cmd": "./buf",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "1000 0",
+      "cue": "a is empty",
+      "tone": "good"
+     }
+    },
+    {
      "type": "quiz",
      "say": "Your turn. A constant string k, and we write t equals s t d move of k. Does anything get stolen? Pause and predict.",
      "q": "`const string k = ...; string t = std::move(k);` What runs?",
@@ -760,66 +772,74 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "string s = \"hello\";\nstring&& r = std::move(s);\ncout << s;\nconst string k = \"text\";\nstring t = std::move(k);\nstring make() {\n    string x = \"result\";\n    return std::move(x);\n}\nstring u = std::move(t);\ncout << t;"
+       "code": "string make() {\n    string x = \"result\";\n    return std::move(x); }\nint main() {\n    const string k = \"text\";\n    string t = std::move(k);\n    string u = std::move(t);\n    cout << u << \" [\" << t << \"]\";\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        4,
-        5
+        5,
+        6
        ],
        "cue": "A constant"
       },
       {
        "lines": [
-        8
+        6
+       ],
+       "cue": "silently copies"
+      },
+      {
+       "lines": [
+        3
        ],
        "cue": "return s t d move"
       },
       {
        "lines": [
-        8
+        3
        ],
        "cue": "blocks building"
       },
       {
        "lines": [
-        8
-       ],
-       "cue": "Just return s"
-      },
-      {
-       "lines": [
-        10,
-        11
+        7
        ],
        "cue": "Trap three"
       }
      ],
      "notes": [
       {
-       "line": 5,
+       "line": 6,
        "inside": true,
        "text": "const: copies",
        "tone": "bad",
        "cue": "silently copies"
       },
       {
-       "line": 8,
+       "line": 3,
        "inside": true,
        "text": "blocks NRVO",
        "tone": "bad",
        "cue": "blocks building"
       },
       {
-       "line": 11,
+       "line": 7,
        "inside": true,
-       "text": "unspecified value",
+       "text": "t: valid, here empty",
        "tone": "warn",
        "cue": "is unspecified"
       }
-     ]
+     ],
+     "output": {
+      "cmd": "./traps",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "text []",
+      "cue": "the value is unspecified",
+      "tone": "good"
+     }
     }
    ]
   },
@@ -873,14 +893,14 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int x = 5;\nint& a = x;\nint& b = 5;\nconst int& c = 5;\nint&& d = 5;\nint&& e = x;\nint&& f = std::move(x);"
+       "code": "int main() {\n    int x = 5;\n    int& a = x;\n    const int& c = 5;\n    int&& d = 5;\n    int&& f = std::move(x);\n    // int& b = 5;\n    // int&& e = x;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2,
-        3
+        3,
+        7
        ],
        "cue": "An lvalue reference"
       },
@@ -893,7 +913,7 @@
       {
        "lines": [
         5,
-        6
+        8
        ],
        "cue": "An rvalue reference"
       },
@@ -905,21 +925,21 @@
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "turns x"
       }
      ],
      "notes": [
       {
-       "line": 3,
+       "line": 7,
        "inside": true,
        "text": "error: 5 is a temporary",
        "tone": "bad",
        "cue": "binds only lvalues"
       },
       {
-       "line": 6,
+       "line": 8,
        "inside": true,
        "text": "error: x is an lvalue",
        "tone": "bad",
@@ -930,7 +950,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Inside take, s has type rvalue reference to string. We write string a equals s. Copy or move? Pause and predict.",
-     "q": "`void take(string&& s) { string a = s; }` Copy or move?",
+     "q": "`void take(string&& s)` runs `string a = s;`. Copy or move?",
      "options": [
       "move",
       "copy",
@@ -946,7 +966,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void take(string&& s) {\n    string a = s;             // copies\n    string b = std::move(s);  // moves\n}"
+       "code": "void take(string&& s) {\n    string a = s;             // copies\n    string b = std::move(s);  // moves\n}\nint main() { take(string(\"hi\")); }"
       }
      ],
      "steps": [
@@ -961,6 +981,10 @@
         2
        ],
        "cue": "has a name"
+      },
+      {
+       "lines": [],
+       "cue": "Type and category"
       },
       {
        "lines": [
@@ -1012,14 +1036,14 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void take(const T&) { cout << \"copy\\n\"; }\nvoid take(T&&)      { cout << \"move\\n\"; }\ntemplate <class X>\nvoid wrap(X&& a) { take(a); }\nT t;\nwrap(t);\nwrap(T());"
+       "code": "struct T {};\nvoid take(const T&) { cout << \"copy\\n\"; }\nvoid take(T&&)      { cout << \"move\\n\"; }\ntemplate <class X> void wrap(X&& a) { take(a); }\nint main() { T t; wrap(t); wrap(T()); }"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "cue": "Two overloads"
       },
@@ -1031,19 +1055,22 @@
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "A named t"
       },
       {
        "lines": [
-        7
+        5
        ],
        "cue": "a temporary"
       }
      ],
      "output": {
       "cmd": "./wrap",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "copy\ncopy",
       "cue": "prints copy again",
       "tone": "bad"
@@ -1154,44 +1181,47 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "template <class X>\nvoid wrap(X&& a) {\n    take(std::forward<X>(a));\n}\nT t;\nwrap(t);\nwrap(T());"
+       "code": "struct T {};\nvoid take(const T&) { cout << \"copy\\n\"; }\nvoid take(T&&)      { cout << \"move\\n\"; }\ntemplate <class X>\nvoid wrap(X&& a) {\n    take(std::forward<X>(a));\n}\nint main() { T t; wrap(t); wrap(T()); }"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        4,
+        5
        ],
        "cue": "X and and"
       },
       {
        "lines": [
-        2
+        5
        ],
        "cue": "It accepts"
       },
       {
        "lines": [
-        3
+        6
        ],
        "cue": "s t d forward"
       },
       {
        "lines": [
-        3
+        6
        ],
        "cue": "casts back"
       },
       {
        "lines": [
-        6,
-        7
+        8
        ],
-       "cue": "copy, then move"
+       "cue": "Now it prints"
       }
      ],
      "output": {
-      "cmd": "./wrap",
+      "cmd": "./fwd",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "copy\nmove",
       "cue": "copy, then move",
       "tone": "good"
@@ -1216,10 +1246,17 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "template <class T, class... A>\nunique_ptr<T> my_make_unique(A&&... a) {\n    return unique_ptr<T>(\n        new T(std::forward<A>(a)...));\n}\nvoid f(vector<int>&& v);\ntemplate <class T> void g(const T&& x);"
+       "code": "template <class T, class... A>\nunique_ptr<T> my_make_unique(A&&... a) {\n    return unique_ptr<T>(\n        new T(std::forward<A>(a)...));\n}\nvoid f(vector<int>&& v);\ntemplate <class T> void g(const T&& x);\nint main() { auto p = my_make_unique<string>(3, 'x'); cout << *p; }"
       }
      ],
      "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "forward casts"
+      },
       {
        "lines": [
         1,
@@ -1240,6 +1277,13 @@
         7
        ],
        "cue": "Trap"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "a forwarding reference"
       }
      ],
      "notes": [
@@ -1257,7 +1301,16 @@
        "tone": "bad",
        "cue": "is not"
       }
-     ]
+     ],
+     "output": {
+      "cmd": "./make",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "xxx",
+      "cue": "Forward each argument once",
+      "tone": "good"
+     }
     }
    ]
   },
@@ -1284,8 +1337,8 @@
      "say": "T announces every constructor. Make returns a temporary. Named returns a local variable. Naively each could build an object, then copy or move it out. But the output is just ctor, ctor. Both calls were elided.",
      "panels": [
       {
-       "file": "main.cpp",
-       "code": "struct T {\n  T()         { cout << \"ctor\\n\"; }\n  T(const T&) { cout << \"copy\\n\"; }\n  T(T&&)      { cout << \"move\\n\"; } };\nT make()  { return T(); }\nT named() { T t; return t; }\nT a = make();\nT b = named();"
+       "file": "count.cpp",
+       "code": "struct T {\n  T()         { cout << \"ctor\\n\"; }\n  T(const T&) { cout << \"copy\\n\"; }\n  T(T&&)      { cout << \"move\\n\"; } };\nT make()  { return T(); }\nT named() { T t; return t; }\nint main() { T a = make(); T b = named(); }"
       }
      ],
      "steps": [
@@ -1312,21 +1365,24 @@
       },
       {
        "lines": [
-        7,
-        8
+        5,
+        6
        ],
        "cue": "Naively each could"
       },
       {
        "lines": [
-        7,
-        8
+        5,
+        6
        ],
        "cue": "copy or move it out"
       }
      ],
      "output": {
-      "cmd": "g++ -std=c++17 e.cpp && ./a.out",
+      "cmd": "./count",
+      "setup": {
+       "count.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "ctor\nctor",
       "cue": "ctor, ctor",
       "tone": "good"
@@ -1391,11 +1447,20 @@
        "fade": true,
        "cue": "nothing to move"
       }
+     ],
+     "notes": [
+      {
+       "x": 1250,
+       "y": 720,
+       "text": "temporary: plain RVO",
+       "tone": "good",
+       "cue": "plain R V O"
+      }
      ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. A function declares two locals, x and y, and returns one or the other by a flag. Can the compiler build both in the caller's slot? Pause and predict.",
+     "say": "Your turn. Two locals, and a flag picks which one returns. Can both be built in the caller's slot? Pause and predict.",
      "q": "`T pick(bool c)` returns local x or y by flag. What runs?",
      "options": [
       "both elided",
@@ -1403,7 +1468,8 @@
       "a copy runs",
       "compile error"
      ],
-     "answer": "a move runs"
+     "answer": "a move runs",
+     "optCue": "Can both"
     },
     {
      "type": "code",
@@ -1412,13 +1478,13 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct T { T() {}\n  T(T&&) { cout << \"move\"; } };\nT pick(bool c) {\n    T x, y;\n    if (c) return x;\n    return y;\n}\npick(true);"
+       "code": "struct T { T() {}\n  T(T&&) { cout << \"move\"; } };\nT pick(bool c) {\n    T x, y;\n    if (c) return x;\n    return y;\n}\nint main() { pick(true); }"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        2
        ],
        "cue": "A move runs"
       },
@@ -1451,6 +1517,9 @@
      ],
      "output": {
       "cmd": "./pick",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "move",
       "cue": "pick prints move",
       "tone": "good"
@@ -1463,7 +1532,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct NoMove {\n    NoMove() = default;\n    NoMove(NoMove&&) = delete;\n};\nNoMove f() { return NoMove(); }\nNoMove g() { NoMove n; return n; }\nT bad() { T t; return std::move(t); }"
+       "code": "struct NoMove {\n    NoMove() = default;\n    NoMove(NoMove&&) = delete;\n};\nNoMove f() { return NoMove(); }\n// NoMove g() { NoMove n; return n; }\n// NoMove h() { NoMove n;\n//   return std::move(n); }\nint main() { f(); }"
       }
      ],
      "steps": [
@@ -1471,7 +1540,8 @@
        "lines": [
         1,
         2,
-        3
+        3,
+        4
        ],
        "cue": "Since C plus plus seventeen"
       },
@@ -1489,6 +1559,13 @@
       },
       {
        "lines": [
+        2,
+        3
+       ],
+       "cue": "can't move"
+      },
+      {
+       "lines": [
         6
        ],
        "cue": "only allowed"
@@ -1501,7 +1578,8 @@
       },
       {
        "lines": [
-        7
+        7,
+        8
        ],
        "cue": "return s t d move"
       }
@@ -1517,16 +1595,16 @@
       {
        "line": 6,
        "inside": true,
-       "text": "error: move deleted",
+       "text": "error: move is deleted",
        "tone": "bad",
        "cue": "so g fails"
       },
       {
-       "line": 7,
+       "line": 8,
        "inside": true,
        "text": "blocks NRVO",
        "tone": "bad",
-       "cue": "a local blocks it"
+       "cue": "blocks it"
       }
      ]
     }
@@ -1558,13 +1636,13 @@
        "file": "implicit.cpp",
        "label": "implicit",
        "tone": "warn",
-       "code": "class Array {\npublic:\n  Array(int size);\n};\nprint(10);     // compiles\nArray a = 5;   // compiles"
+       "code": "class Array {\npublic:\n  Array(int size) {}\n};\nvoid print(Array) {}\nint main() {\n  print(10);     // compiles\n  Array a = 5;   // compiles\n}"
       },
       {
        "file": "explicit.cpp",
        "label": "explicit",
        "tone": "good",
-       "code": "class Array {\npublic:\n  explicit Array(int size);\n};\nprint(10);     // error\nArray a = 5;   // error\nArray b(5);    // ok"
+       "code": "class Array {\npublic:\n  explicit Array(int size) {}\n};\nvoid print(Array) {}\nint main() {\n  // print(10);     // error\n  // Array a = 5;   // error\n  Array b(5);    // ok\n}"
       }
      ],
      "steps": [
@@ -1577,16 +1655,21 @@
       },
       {
        "lines": [
-        5,
-        6
+        7
        ],
        "cue": "print of ten",
        "panel": 0
       },
       {
        "lines": [
-        5,
-        6
+        8
+       ],
+       "cue": "so does a equals five",
+       "panel": 0
+      },
+      {
+       "lines": [
+        8
        ],
        "cue": "temporary array",
        "panel": 0
@@ -1600,15 +1683,15 @@
       },
       {
        "lines": [
-        5,
-        6
+        7,
+        8
        ],
        "cue": "both fail",
        "panel": 1
       },
       {
        "lines": [
-        7
+        9
        ],
        "cue": "parentheses still works",
        "panel": 1
@@ -1661,40 +1744,61 @@
    "title": "Interview drill",
    "scenes": [
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Three constructors? Default takes nothing, parameterized takes values, copy takes a const reference. Is c equals b a copy? Only if c is new. Default constructor? Gone once you declare any other.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Three constructors?",
-       "default: none; parameterized: values; copy: `const T&`"
-      ],
-      [
-       "`c = b` a copy?",
-       "only if `c` is new; else assignment"
-      ],
-      [
-       "Default constructor?",
-       "gone once you declare any other"
-      ]
-     ],
-     "cues": [
-      "Three constructors",
-      "Is c equals b",
-      "Default constructor"
-     ],
+     "type": "code",
+     "head": "Three constructors: which one runs?",
      "covers": [
       "q61"
-     ]
+     ],
+     "say": "Three constructors. Default takes nothing, parameterized takes values, copy takes a const reference. A is default, B seven, C copies B. This prints default, param seven, copy.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T {\n  T() { cout << \"default \"; }\n  T(int i) { cout << \"param\" << i << \" \"; }\n  T(const T& o) { cout << \"copy\"; } };\nint main() { T a; T b(7); T c = b; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Default takes nothing"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "parameterized takes values"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "copy takes a const reference"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "C copies B"
+      }
+     ],
+     "output": {
+      "cmd": "./ctors",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "default param7 copy",
+      "cue": "This prints",
+      "tone": "good"
+     }
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "When is a destructor called? Locals at the brace, in reverse. Heap objects at delete. Temporaries? At the semicolon. After an exception? Unwinding destroys the locals.",
+     "head": "Destructors: when each one runs",
+     "covers": [
+      "q62"
+     ],
+     "say": "Destructors? Locals at the brace, reversed. Heap objects at delete. Temporaries at the semicolon. Globals and statics after main returns. After an exception? Unwinding destroys the locals.",
      "heads": [
       "They ask",
       "You say"
@@ -1709,54 +1813,59 @@
        "at the semicolon"
       ],
       [
+       "Globals and statics?",
+       "after main returns"
+      ],
+      [
        "After an exception?",
-       "unwinding destroys locals"
+       "unwinding destroys the locals"
       ]
      ],
      "cues": [
-      "When is a destructor",
+      "Destructors",
       "Temporaries",
+      "Globals and statics",
       "After an exception"
-     ],
-     "covers": [
-      "q62"
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Can a constructor be virtual? No: no object, no v pointer yet. Need the effect? A virtual clone. Destructors should be virtual.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Virtual constructor?",
-       "no: no object or vptr yet"
-      ],
-      [
-       "Need the effect?",
-       "virtual `clone()` or a factory"
-      ],
-      [
-       "Virtual destructor?",
-       "yes, in any polymorphic base"
-      ]
-     ],
-     "cues": [
-      "Can a constructor",
-      "Need the effect",
-      "Destructors should"
-     ],
+     "type": "code",
+     "head": "Virtual constructor? No, and why",
      "covers": [
       "q63"
-     ]
+     ],
+     "say": "Can a constructor be virtual? No, no object, no v pointer yet. Base builds first. So this prints Base. Need the effect? A virtual clone. Destructors should be virtual.",
+     "panels": [
+      {
+       "file": "vptr.cpp",
+       "code": "struct Base {\n  Base() { hello(); }\n  virtual void hello() {\n    cout << \"Base\"; } };\nstruct Derived : Base {\n  void hello() override {\n    cout << \"Derived\"; } };\nint main() { Derived d; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Base builds first"
+      }
+     ],
+     "output": {
+      "cmd": "./vptr",
+      "setup": {
+       "vptr.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "Base",
+      "cue": "prints Base",
+      "tone": "good"
+     }
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "What is a move constructor? It steals the pointers and empties the source. Why noexcept? Otherwise vector copies on growth. Generated? Only if you declare no copy operations.",
+     "head": "Move constructor: what it steals",
+     "covers": [
+      "q64"
+     ],
+     "say": "What is a move constructor? It steals the pointers. Why noexcept? Otherwise vector copies on growth. Generated? Only if you declare no copy, move, or destructor.",
      "heads": [
       "They ask",
       "You say"
@@ -1764,7 +1873,7 @@
      "rows": [
       [
        "Move constructor?",
-       "`T(T&&)`: steal pointers, empty the source"
+       "`T(T&&)`: steals the pointers"
       ],
       [
        "Why `noexcept`?",
@@ -1772,22 +1881,22 @@
       ],
       [
        "Generated?",
-       "only if no copy operations declared"
+       "only if no copy, move, or destructor is declared"
       ]
      ],
      "cues": [
       "What is a move",
       "Why noexcept",
       "Generated"
-     ],
-     "covers": [
-      "q64"
      ]
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Copy versus move? A copy duplicates, O of n. A move transfers, O of one. After a move, the source is valid but unspecified. Moving a const object copies.",
+     "head": "Copy versus move: cost and state",
+     "covers": [
+      "q65"
+     ],
+     "say": "Copy versus move? Copy is O of n. Move is O of one. After a move, the source is valid but unspecified, here empty. Moving a const object copies.",
      "heads": [
       "They ask",
       "You say"
@@ -1799,7 +1908,7 @@
       ],
       [
        "After a move?",
-       "valid but unspecified"
+       "valid but unspecified (here empty)"
       ],
       [
        "Move a `const`?",
@@ -1810,53 +1919,68 @@
       "Copy versus move",
       "After a move",
       "Moving a const"
-     ],
-     "covers": [
-      "q65"
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "What does s t d move do? A cast to an rvalue reference. Nothing runs. Return s t d move of a local? No, it blocks elision.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What does `std::move` do?",
-       "casts to rvalue reference; no code runs"
-      ],
-      [
-       "`return std::move(local)`?",
-       "no: it blocks NRVO"
-      ]
-     ],
-     "cues": [
-      "What does s t d",
-      "Return s t d move"
-     ],
+     "type": "code",
+     "head": "std::move: a cast, nothing else",
      "covers": [
       "q66"
-     ]
+     ],
+     "say": "What does s t d move do? A cast to an rvalue reference. Nothing runs by itself. The move constructor steals, so here s is empty.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    string s = \"hi\";\n    string t = std::move(s);\n    cout << t << \" [\" << s << \"]\";\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A cast"
+      },
+      {
+       "lines": [],
+       "cue": "Nothing runs"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "The move constructor steals"
+      }
+     ],
+     "output": {
+      "cmd": "./move",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "hi []",
+      "cue": "here s is empty",
+      "tone": "good"
+     }
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Lvalues and rvalues? An lvalue has a name and address. An rvalue is a temporary, or marked with s t d move. A named rvalue reference is itself an lvalue.",
+     "head": "Lvalues and rvalues: which side",
+     "covers": [
+      "q67"
+     ],
+     "say": "Lvalues and rvalues? An lvalue has a name and an address. An rvalue is a temporary, or a std move cast. A named rvalue reference is itself an lvalue.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
       [
-       "lvalue and rvalue?",
-       "lvalue: named, has an address"
+       "Lvalue or rvalue?",
+       "lvalue: has a name and an address"
       ],
       [
        "rvalue?",
-       "temporary, or cast by `std::move`"
+       "a temporary, or a cast by `std::move`"
       ],
       [
        "Named `T&&`?",
@@ -1867,15 +1991,15 @@
       "Lvalues and rvalues",
       "An rvalue is",
       "A named"
-     ],
-     "covers": [
-      "q67"
      ]
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Perfect forwarding? Passing an argument on with its category intact. It needs a forwarding reference, plus std forward. It powers make unique and emplace back.",
+     "head": "Perfect forwarding: keep the category",
+     "covers": [
+      "q68"
+     ],
+     "say": "Perfect forwarding? Pass an argument on with its category intact. It needs a forwarding reference and std forward. It powers make unique and emplace back.",
      "heads": [
       "They ask",
       "You say"
@@ -1883,11 +2007,11 @@
      "rows": [
       [
        "Perfect forwarding?",
-       "pass lvalues as lvalues, rvalues as rvalues"
+       "lvalues stay lvalues, rvalues stay rvalues"
       ],
       [
-       "What's needed?",
-       "`T&&` with T deduced, plus `std::forward<T>`"
+       "What is needed?",
+       "`T&&`, T deduced, plus `std::forward<T>`"
       ],
       [
        "Where is it used?",
@@ -1898,71 +2022,79 @@
       "Perfect forwarding",
       "It needs",
       "It powers"
-     ],
-     "covers": [
-      "q68"
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Copy elision? The compiler builds the result in the caller's slot, no copy or move. A returned temporary: guaranteed since C plus plus seventeen. Named local: optional. Return by name.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Copy elision?",
-       "build the result in place; no copy or move"
-      ],
-      [
-       "RVO versus NRVO?",
-       "temporary: guaranteed in C++17; named: optional"
-      ],
-      [
-       "Best practice?",
-       "return the local by name"
-      ]
-     ],
-     "cues": [
-      "Copy elision",
-      "A returned temporary",
-      "Return by name"
-     ],
+     "type": "code",
+     "head": "Copy elision: no copy, no move",
      "covers": [
       "q69"
-     ]
+     ],
+     "say": "Copy elision? The compiler builds the result in the caller's slot. No copy, no move. Since C plus plus seventeen, a returned temporary is guaranteed. Here it prints ctor once. Named locals are optional.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T {\n  T() { cout << \"ctor\\n\"; }\n  T(const T&) { cout << \"copy\\n\"; }\n  T(T&&) { cout << \"move\\n\"; } };\nT make() { return T(); }\nint main() { T a = make(); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "builds the result"
+      },
+      {
+       "lines": [],
+       "cue": "No copy, no move"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "a returned temporary"
+      }
+     ],
+     "output": {
+      "cmd": "./elide",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
+      "text": "ctor",
+      "cue": "prints ctor once",
+      "tone": "good"
+     }
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Explicit versus implicit? A one argument constructor is also a silent conversion. Explicit forbids it. Prefer explicit, unless the conversion is natural, like string from a literal.",
+     "head": "explicit: stop silent conversions",
+     "covers": [
+      "q70"
+     ],
+     "say": "Explicit versus implicit? A one argument constructor is a silent conversion. Explicit forbids that. Direct initialization and explicit casts still work. Prefer explicit, unless the conversion is natural, like string.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
       [
-       "`explicit`?",
-       "runs only when you name the type"
+       "Explicit versus implicit?",
+       "implicit: a silent conversion"
       ],
       [
-       "Why use it?",
-       "stops `print(10)` building an `Array`"
+       "What does explicit do?",
+       "direct-init or explicit cast, never implicit"
       ],
       [
        "When implicit?",
-       "only natural conversions, like `string`"
+       "natural conversions only, like `string`"
       ]
      ],
      "cues": [
       "Explicit versus implicit",
-      "Prefer explicit",
-      "like string"
-     ],
-     "covers": [
-      "q70"
+      "Explicit forbids",
+      "Prefer explicit"
      ]
     }
    ],
@@ -1974,23 +2106,23 @@
     {
      "type": "compare",
      "head": "Practice before your interview",
-     "say": "Do these next. One: write a class that prints in all five special members. Predict every line first. Two: add a Buffer move constructor, and watch vector copy until noexcept. Three: write a forwarding wrapper. Count copies with and without forward.",
+     "say": "Do these next. One: a class that prints in all five special members. Two: a Buffer move constructor, and watch vector copy until noexcept. Three: a forwarding wrapper. Count copies with and without forward.",
      "heads": [
-      "Do next",
+      "Solve next",
       "Why"
      ],
      "rows": [
       [
-       "Tracer with all five special members",
-       "predict every print before running"
+       "Tracer: all five special members",
+       "predict every print before you run it"
       ],
       [
-       "`Buffer` with `noexcept` move",
-       "watch `vector` stop copying"
+       "Buffer: noexcept move constructor",
+       "watch vector stop copying on growth"
       ],
       [
-       "Forwarding wrapper, with and without `forward`",
-       "see the lost rvalue"
+       "Forwarding wrapper: count the copies",
+       "with and without std::forward"
       ]
      ],
      "cues": [
@@ -2001,16 +2133,16 @@
     },
     {
      "type": "take",
-     "say": "So say this. A move steals the pointers and leaves the source empty. S t d move is only a cast. The move constructor steals. The compiler elides copies on return. So return by name.",
+     "say": "So say this. A move steals the pointers. The source is valid but unspecified, here empty. S t d move is a cast. Nothing runs. Return by name, and elision beats moving.",
      "lines": [
-      "A move steals; the source stays valid.",
+      "Moved-from: valid but unspecified (here empty).",
       "`std::move` is a cast. Nothing runs.",
       "Return by name. Elision beats moving."
      ],
      "cues": [
-      "move steals",
-      "only a cast",
-      "return by name"
+      "valid but unspecified",
+      "is a cast",
+      "Return by name"
      ]
     }
    ],
