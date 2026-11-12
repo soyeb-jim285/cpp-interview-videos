@@ -252,11 +252,11 @@
     {
      "type": "code",
      "head": "Prevent it: give it an owner",
-     "say": "Prevention is ownership. Replace the raw pointer with a vector. Its destructor frees the memory on every exit, a return or an exception. For a single object, make unique. No new, no delete, no leak. Two shared pointers can point at each other, so neither count reaches zero. A weak pointer breaks that cycle.",
+     "say": "Prevention is ownership. Replace the raw pointer with a vector. Its destructor frees the memory on every exit, a return or an exception. For a single object, make unique. No new, no delete, no leak.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void work(bool fail) {\n    vector<char> d(100);\n    if (fail) return;\n}\n\nauto w = make_unique<Widget>();"
+       "code": "void work(bool fail) {\n    vector<char> d(100);\n    if (fail) return;\n}\nstruct Widget {};\nvoid owner() {\n    auto w = make_unique<Widget>();\n}"
       }
      ],
      "steps": [
@@ -268,17 +268,9 @@
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "make unique"
-      },
-      {
-       "lines": [],
-       "cue": "Two shared pointers"
-      },
-      {
-       "lines": [],
-       "cue": "A weak pointer"
       }
      ],
      "notes": [
@@ -288,6 +280,98 @@
        "text": "d freed here",
        "tone": "good",
        "cue": "on every exit"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Cycles leak, weak pointers break them",
+     "say": "Shared pointers can leak too. A shared pointer counts its owners, and frees the object at zero. Make shared builds the object and its count together. Now let a and b hold each other. Each count is two, so neither reaches zero. A weak pointer watches without owning. Make the link weak, and the cycle breaks.",
+     "items": [
+      {
+       "id": "a",
+       "x": 1150,
+       "y": 300,
+       "w": 300,
+       "h": 130,
+       "label": "object a",
+       "text": "count 1",
+       "cue": "Make shared builds"
+      },
+      {
+       "id": "b",
+       "x": 1150,
+       "y": 620,
+       "w": 300,
+       "h": 130,
+       "label": "object b",
+       "text": "count 1",
+       "cue": "its count together"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "a",
+       "to": "b",
+       "tone": "bad",
+       "cue": "let a and b"
+      },
+      {
+       "from": "b",
+       "to": "a",
+       "tone": "bad",
+       "bend": -60,
+       "cue": "hold each other"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a",
+       "text": "count 2",
+       "cue": "Each count is two"
+      },
+      {
+       "id": "b",
+       "text": "count 2",
+       "cue": "neither reaches zero"
+      },
+      {
+       "id": "a1",
+       "tone": "good",
+       "cue": "A weak pointer watches"
+      },
+      {
+       "id": "a",
+       "text": "count 1",
+       "cue": "and the cycle breaks"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Node {\n  shared_ptr<Node> next;\n};\nvoid cycle() {\n  auto a = make_shared<Node>();\n  auto b = make_shared<Node>();\n  a->next = b;\n  b->next = a;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A shared pointer counts"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "builds the object"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "hold each other"
       }
      ]
     }
@@ -389,8 +473,9 @@
      "changes": [
       {
        "id": "blk",
-       "kill": true,
-       "cue": "Delete p"
+       "cue": "Delete p",
+       "text": "freed",
+       "tone": "dim"
       },
       {
        "id": "p",
@@ -563,7 +648,7 @@
     {
      "type": "compare",
      "head": "Wild versus dangling",
-     "say": "The answer is wild, because it was never set. Wild: never valid. Dangling: valid until the object died. Example: an unset local, versus a copy after delete. Catch it: dash Wall warns on the easy wild cases, and sanitizers catch both.",
+     "say": "The answer is wild, because it was never set. Wild: never valid. Dangling: valid until the object died. Example: an unset local, versus a copy after delete. Catch it: dash Wall warns. So q is dangling, w is wild.",
      "heads": [
       "",
       "Wild",
@@ -733,6 +818,12 @@
      "steps": [
       {
        "lines": [
+        4
+       ],
+       "cue": "Address Sanitizer stops"
+      },
+      {
+       "lines": [
         3
        ],
        "cue": "where the memory was freed"
@@ -747,7 +838,7 @@
      "output": {
       "cmd": "g++ -g -fsanitize=address uaf.cpp && ./a.out 2>&1 | sh f",
       "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 1\n    #0 in read() uaf.cpp:4\nfreed by thread T0 here:\n    #1 in read() uaf.cpp:3",
-      "cue": "exact line",
+      "cue": "Formally it is undefined",
       "setup": {
        "uaf.cpp": "int read();\nint main() { return read(); }\n#line 0\n",
        "f": "grep -E \"ERROR|READ|freed by|#0 .* in read|#1 .* in read\" | head -5 | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
@@ -822,9 +913,9 @@
       "input": "one Buffer, b1",
       "output": "one destructor, one free"
      },
-     "say": "Here's the problem. Buffer owns one hundred bytes, and frees them in its destructor. One object, so one free. Simple, so far.",
+     "say": "Our next puzzle. Buffer owns one hundred bytes, and frees them in its destructor. One object, so one free.",
      "cues": {
-      "example": "One object",
+      "example": "Buffer owns",
       "output": "one free"
      }
     },
@@ -875,7 +966,7 @@
     {
      "type": "diagram",
      "head": "Copying an owner",
-     "say": "b1 owns a block of one hundred bytes. Buffer b2 equals b1 uses the compiler's copy constructor, which copies the pointer, not the array. Now two objects think they own one block. At the end, b2 is destroyed first and frees the array. Then b1 deletes the same address again.",
+     "say": "b1 owns a block of one hundred bytes. Buffer b2 equals b1 runs the copy constructor, which copies one object into another. The compiler's default copies the pointer, not the array. Now two objects think they own one block. At the end, b2 is destroyed first and frees the array. Then b1 deletes the same address again.",
      "items": [
       {
        "id": "blk",
@@ -1047,25 +1138,34 @@
      "panels": [
       {
        "file": "buffer.cpp",
-       "code": "struct Buffer {\n    char* data;\n    Buffer() : data(new char[100]) {}\n    Buffer(const Buffer& o)\n        : data(new char[100]) {\n        copy(o.data, o.data + 100, data);\n    }\n    ~Buffer() { delete[] data; }\n};"
+       "code": "struct Buffer { char* data;\n Buffer() : data(new char[100]) {}\n Buffer(const Buffer& o) : data(new char[100]) {\n  copy(o.data, o.data + 100, data); }\n Buffer& operator=(const Buffer& o) {\n  if (this != &o) copy(o.data, o.data + 100, data);\n  return *this; }\n ~Buffer() { delete[] data; }\n};"
       }
      ],
      "steps": [
       {
        "lines": [
-        5
+        3,
+        4
        ],
        "cue": "allocates a fresh block"
       },
       {
        "lines": [
-        6
+        4
        ],
        "cue": "copies the bytes"
       },
       {
        "lines": [
-        8
+        5,
+        6,
+        7
+       ],
+       "cue": "matching assignment operator"
+      },
+      {
+       "lines": [
+        5
        ],
        "cue": "rule of three"
       }
@@ -1274,7 +1374,7 @@
     {
      "type": "code",
      "head": "ASan: the report",
-     "say": "Compile with dash g and the sanitizer flag, then run. Address Sanitizer stops at the bad write. A heap buffer overflow, a write of four bytes, in overflow, line three.",
+     "say": "Compile with dash g and the sanitizer flag, then run. Address Sanitizer needs that rebuild, every time. It stops at the bad write. A heap buffer overflow, a write of four bytes, in overflow, line three.",
      "panels": [
       {
        "file": "bug.cpp",
@@ -1282,6 +1382,10 @@
       }
      ],
      "steps": [
+      {
+       "lines": [],
+       "cue": "needs that rebuild"
+      },
       {
        "lines": [
         3
@@ -1302,8 +1406,8 @@
     },
     {
      "type": "quiz",
-     "say": "Suppose you cannot rebuild the program. Which tool can still check the binary? Pause and predict.",
-     "q": "No rebuild possible. Which tool still checks the binary?",
+     "say": "Address Sanitizer needs a rebuild, and you cannot rebuild this program. Which tool can still check the binary? Pause and predict.",
+     "q": "ASan needs a rebuild. Which tool still checks the unchanged binary?",
      "options": [
       "AddressSanitizer",
       "Valgrind",
