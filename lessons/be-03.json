@@ -1225,7 +1225,7 @@
       },
       {
        "x": 1380,
-       "y": 640,
+       "y": 770,
        "text": "aborted: code retries",
        "tone": "warn",
        "cue": "must retry it"
