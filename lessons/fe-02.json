@@ -68,20 +68,24 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Three timers, one loop, and the output is three, three, three. You'll predict the exact print order of any async snippet. Most candidates can't.",
+     "say": "Three timers, one loop. You expect zero, one, two. It prints three, three, three. By the end, you'll predict the print order of any async snippet.",
      "lines": [
       {
        "text": "3 timers, 1 loop",
        "cue": "Three timers"
       },
       {
+       "text": "Expect 0, 1, 2",
+       "cue": "You expect"
+      },
+      {
        "text": "Prints 3, 3, 3",
-       "cue": "three, three, three",
+       "cue": "It prints",
        "accent": true
       },
       {
        "text": "Predict any print order.",
-       "cue": "predict the exact"
+       "cue": "predict the print order"
       }
      ]
     },
@@ -105,13 +109,55 @@
      "title": "Why does this loop print 3, 3, 3?",
      "statement": "A loop schedules three timers. Each one logs the counter. You expect 0, 1, 2. Explain what prints and fix it.",
      "example": {
-      "input": "`var` loop, 3 timers, each logs `i`",
-      "output": "expected 0, 1, 2; printed 3, 3, 3"
+      "input": "var loop, 3 timers log i",
+      "output": "expect 0, 1, 2; get 3, 3, 3"
      },
-     "say": "Here is the problem. For example, three timers in a var loop. We want zero, one, two, but we get three, three, three.",
+     "say": "A classic interview puzzle. A var loop schedules three timers, and each one logs i. You expect zero, one, two. You get three, three, three. Why?",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "A var loop",
+      "output": "You expect"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The bug, in three lines",
+     "say": "Here's that loop. Var i counts from zero to two. Each pass schedules a timer that logs i. A timer of zero still waits until the loop is done. Run it, and you get three, three, three.",
+     "panels": [
+      {
+       "file": "app.js",
+       "label": "bug",
+       "tone": "bad",
+       "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Var i counts"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "schedules a timer"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "runs after the loop",
+       "tone": "warn",
+       "cue": "still waits"
+      }
+     ],
+     "output": {
+      "cmd": "node app.js",
+      "text": "3\n3\n3",
+      "tone": "bad",
+      "cue": "three, three, three"
      }
     },
     {
@@ -162,6 +208,12 @@
         3
        ],
        "cue": "returns a small function"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Normally count"
       },
       {
        "lines": [
@@ -305,20 +357,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Change var to let, and run it again. Same loop, same three timers. What prints? Pause and predict.",
+     "say": "Now change one word. Var becomes let. Same loop, same three timers. What prints this time?",
      "q": "Same loop, but `let i`. What do the three timers print?",
      "options": [
       "3, 3, 3",
       "0, 1, 2",
-      "0, 0, 0",
-      "undefined x3"
+      "1, 2, 3",
+      "0, 0, 0"
      ],
      "answer": "0, 1, 2"
     },
     {
      "type": "code",
      "head": "`let` gives each pass its own `i`",
-     "say": "Zero, one, two. With let, every pass gets a fresh i, so each callback closes over its own box. That is block scope. Var is scoped to the whole function, let to the block. Run it, and the timers print zero, one, two.",
+     "say": "Zero, one, two. With let, every pass gets a fresh i, so each callback closes over its own box. That is block scope: let lives inside the braces. Var is scoped to the whole function, so all three share one i. Run it: zero, one, two. Puzzle solved.",
      "panels": [
       {
        "file": "app.js",
@@ -339,6 +391,13 @@
        "cue": "closes over its own box"
       },
       {
+       "lines": [
+        1,
+        3
+       ],
+       "cue": "lives inside the braces"
+      },
+      {
        "lines": [],
        "cue": "Run it"
       }
@@ -350,12 +409,19 @@
        "text": "new i each pass",
        "tone": "good",
        "cue": "block scope"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "var: one i for the function",
+       "tone": "warn",
+       "cue": "Var is scoped"
       }
      ],
      "output": {
       "cmd": "node app.js",
       "text": "0\n1\n2",
-      "cue": "timers print"
+      "cue": "Run it"
      }
     }
    ]
@@ -368,13 +434,13 @@
      "title": "Why does a detached method fail?",
      "statement": "A method returns this.name. Called as u.hi() it works. Copy it to f and call f(), and it breaks.",
      "example": {
-      "input": "`u.hi()` vs `const f = u.hi; f()`",
+      "input": "u.hi() vs const f = u.hi; f()",
       "output": "'Ada' vs TypeError"
      },
-     "say": "Here is the problem. For example, call u dot hi, then copy the method and call it bare. We want one answer and one crash.",
+     "say": "Same method, two calls. Call u dot hi, and you get Ada. Copy it into f, call f, and it crashes. Why?",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "Call u dot hi",
+      "output": "it crashes"
      }
     },
     {
@@ -406,36 +472,36 @@
     {
      "type": "code",
      "head": "A detached method loses `this`",
-     "say": "Here is the class. A dot call, u dot hi, works: Ada. Copy the method to f and call it bare, and this is lost. Inside a class that means undefined, so it throws a type error. Bind locks this to u. Now it works again.",
+     "say": "A dot call, u dot hi, works: Ada. Copy the method to f and call it bare. Now this is lost. In a class, that means undefined, so it throws a type error. Bind locks this to u, and it works again.",
      "panels": [
       {
        "file": "app.js",
-       "code": "class User {\n  name = 'Ada';\n  hi() { return this.name; }\n}\nconst u = new User();\nconsole.log(u.hi());\nconst f = u.hi;\ntry { f(); } catch (e) { console.log(e.name); }\nconsole.log(u.hi.bind(u)());"
+       "code": "class User { name = 'Ada'; hi() { return this.name; } }\nconst u = new User();\nconsole.log(u.hi());\nconst f = u.hi;\ntry { f(); } catch (e) { console.log(e.name); }\nconsole.log(u.hi.bind(u)());"
       }
      ],
      "steps": [
       {
        "lines": [
-        6
+        3
        ],
        "cue": "A dot call"
       },
       {
        "lines": [
-        7,
-        8
+        4,
+        5
        ],
        "cue": "call it bare"
       },
       {
        "lines": [
-        8
+        5
        ],
        "cue": "throws a type error"
       },
       {
        "lines": [
-        9
+        6
        ],
        "cue": "Bind locks"
       }
@@ -444,11 +510,12 @@
       "cmd": "node app.js",
       "text": "Ada\nTypeError\nAda",
       "cue": "works again"
-     }
+     },
+     "hold": 2.5
     },
     {
      "type": "quiz",
-     "say": "Your turn. Object h has the name Bo, and it borrows the method from u. What does h dot hi return? Pause and predict.",
+     "say": "Here's a twist. Object h is named Bo, and it borrows u's method. What does h dot hi return?",
      "q": "`const h = { name: 'Bo', hi: u.hi }`. What does `h.hi()` return?",
      "options": [
       "Ada",
@@ -461,10 +528,10 @@
     {
      "type": "compare",
      "head": "`this`, in four kinds of call",
-     "say": "Bo. This is decided by the call, not by where the method was written. A dot call: this is the object before the dot. A bare call: this is lost. Bind: this is locked. Arrow functions have no this of their own, they use the one around them.",
+     "say": "Bo. This is decided by the call, not where the method was written. A dot call: this is the object before the dot. A bare call: this is lost, which is why f crashed. Bind: this is locked. Arrow functions have no this of their own, they use the one around them.",
      "heads": [
       "The call",
-      "`this` is"
+      "this is"
      ],
      "rows": [
       [
@@ -504,10 +571,10 @@
       "input": "log 1, timer logs 2, then logs 3, log 4",
       "output": "1, 4, 3, 2"
      },
-     "say": "Here is the problem. For example, four lines: log one, timer, promise, log four. We want the order.",
+     "say": "Four lines, and they don't print top to bottom. A log, a timer, a promise, another log. The real order is one, four, three, two. Here's why.",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "A log, a timer",
+      "output": "The real order"
      }
     },
     {
@@ -535,6 +602,54 @@
        "cue": "normal line holds"
       }
      ]
+    },
+    {
+     "type": "code",
+     "head": "The snippet",
+     "say": "Here's the snippet. A log helper that prints on one line. Log one. A timer of zero, which still waits its turn. A promise callback. Then log four. Run it: one, four, three, two. Now watch why.",
+     "panels": [
+      {
+       "file": "app.js",
+       "code": "const log = x => process.stdout.write(x + ' ');\nlog(1);\nsetTimeout(() => log(2), 0);\nPromise.resolve().then(() => log(3));\nlog(4);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A log helper"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Log one"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A timer of zero"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "A promise callback"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Then log four"
+      }
+     ],
+     "output": {
+      "cmd": "node app.js",
+      "text": "1 4 3 2",
+      "cue": "Run it"
+     }
     },
     {
      "type": "diagram",
@@ -600,6 +715,12 @@
       },
       {
        "id": "tsk",
+       "glow": true,
+       "tone": "warn",
+       "cue": "browser holds the timer"
+      },
+      {
+       "id": "tsk",
        "text": "timer(2)",
        "tone": "good",
        "cue": "task queue"
@@ -653,56 +774,8 @@
      ]
     },
     {
-     "type": "code",
-     "head": "The snippet, for real",
-     "say": "Now the real code. A log helper that prints on one line. Log one. A timer of zero, which still waits for the task queue. A promise callback, a microtask. Then log four. Run it: one, four, three, two.",
-     "panels": [
-      {
-       "file": "app.js",
-       "code": "const log = x => process.stdout.write(x + ' ');\nlog(1);\nsetTimeout(() => log(2), 0);\nPromise.resolve().then(() => log(3));\nlog(4);"
-      }
-     ],
-     "steps": [
-      {
-       "lines": [
-        1
-       ],
-       "cue": "A log helper"
-      },
-      {
-       "lines": [
-        2
-       ],
-       "cue": "Log one"
-      },
-      {
-       "lines": [
-        3
-       ],
-       "cue": "A timer of zero"
-      },
-      {
-       "lines": [
-        4
-       ],
-       "cue": "A promise callback"
-      },
-      {
-       "lines": [
-        5
-       ],
-       "cue": "Then log four"
-      }
-     ],
-     "output": {
-      "cmd": "node app.js",
-      "text": "1 4 3 2",
-      "cue": "Run it"
-     }
-    },
-    {
      "type": "quiz",
-     "say": "Your turn. Add a second promise then, right after the first. It logs five. Where does five land? Pause and predict.",
+     "say": "Quick check. Add a second then, right after the first, and it logs five. Where does five land?",
      "q": "Script: log 1, timer logs 2, then logs 3, then logs 5, log 4. Order?",
      "options": [
       "1 4 3 5 2",
@@ -710,12 +783,13 @@
       "1 3 5 4 2",
       "1 4 2 3 5"
      ],
-     "answer": "1 4 3 5 2"
+     "answer": "1 4 3 5 2",
+     "pause": 5
     },
     {
      "type": "diagram",
      "head": "The loop, step by step",
-     "say": "One, four, three, five, two. Both promise callbacks sit in the microtask queue, and the stack is empty. First three runs, and prints. Then five runs, and prints. The microtask queue is empty. Only now does the timer run, and two prints.",
+     "say": "One, four, three, five, two. Both promise callbacks sit in the microtask queue, and the stack is empty. First three runs, and prints. Then five runs, and prints. The microtask queue is empty. Only now does the timer run, and two prints. That's the rule that solves our puzzle: sync code, all microtasks, then one task.",
      "items": [
       {
        "id": "stk",
@@ -793,6 +867,12 @@
        "id": "con",
        "text": "1 4 3 5 2",
        "cue": "two prints"
+      },
+      {
+       "id": "con",
+       "glow": true,
+       "tone": "good",
+       "cue": "solves our puzzle"
       }
      ]
     },
@@ -891,16 +971,16 @@
    "scenes": [
     {
      "type": "problem",
-     "title": "Load a user when the server fails",
-     "statement": "Fetch a user from an API. When the server answers 404, the code must not crash. Return a safe value.",
+     "title": "Survive a 404, and stay fast",
+     "statement": "Fetch a user. When the server answers 404, the code must not crash. And two independent calls must not wait on each other.",
      "example": {
-      "input": "`fetch('/u/7')` answers 404",
-      "output": "error caught: `HTTP 404`"
+      "input": "fetch('/u/7') answers 404",
+      "output": "caught; both in ~100 ms"
      },
-     "say": "Here is the problem. For example, fetch user seven, and the server answers four oh four. We want the error caught, not a crash.",
+     "say": "Real servers fail. Fetch user seven, and the server answers four oh four. You want that error caught, not a crash. And two calls shouldn't take twice as long.",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "Fetch user seven",
+      "output": "error caught"
      }
     },
     {
@@ -930,7 +1010,7 @@
     {
      "type": "code",
      "head": "Errors: try and catch",
-     "say": "Await pauses this function until the promise settles. A rejection becomes a normal throw, so try and catch just works. One trap: fetch only rejects when the network fails. A four oh four still resolves. So check res dot ok, and throw yourself. The catch then handles both.",
+     "say": "Await pauses this function until the promise settles. A rejection becomes a normal throw, so try and catch just works. One trap: fetch only rejects when the network fails. A four oh four still resolves. So check res dot ok, and throw yourself. The catch then handles both. That solves the four oh four problem.",
      "panels": [
       {
        "file": "app.js",
@@ -983,24 +1063,33 @@
       },
       "text": "HTTP 404",
       "cue": "handles both"
-     }
+     },
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "rejection lands here",
+       "tone": "info",
+       "cue": "A rejection becomes"
+      }
+     ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. Two independent calls take a hundred milliseconds each. You await one, then the other. How long in total? Pause and predict.",
+     "say": "Two independent calls, a hundred milliseconds each. You await A, then await B. Think about whether B starts before A finishes. How long in total?",
      "q": "Await call A (100 ms), then call B (100 ms). Total time?",
      "options": [
       "~100 ms",
       "~200 ms",
-      "~300 ms",
-      "~50 ms"
+      "~150 ms",
+      "it never finishes"
      ],
      "answer": "~200 ms"
     },
     {
      "type": "code",
      "head": "One by one, or together",
-     "say": "About two hundred. The second call does not even start until the first finishes. The fix: start both, and wait together with promise dot all. It finishes when the slowest does. Serial two hundred, together a hundred.",
+     "say": "About two hundred. The second call does not even start until the first finishes. The fix: start both, and wait together with promise dot all. It finishes when the slowest does. Serial two hundred, together a hundred. Slow calls, solved.",
      "panels": [
       {
        "file": "app.mjs",
@@ -1040,7 +1129,7 @@
      "output": {
       "cmd": "node app.mjs",
       "text": "serial 200\ntogether 100",
-      "cue": "Serial two hundred",
+      "cue": "together a hundred",
       "approx": true
      }
     },
@@ -1094,7 +1183,7 @@
      "covers": [
       "fe03"
      ],
-     "say": "What is a closure? A function plus the variables it was created with. Why use one? Private state and memoization. Downside? Kept variables can leak. Var versus let? Function scoped versus block scoped. Arrow versus normal this? Arrows use the outer one.",
+     "say": "What is a closure? A function plus the variables it was created with. Why use one? Private state, memoization. Downside? Kept variables can leak. Var versus let? Function versus block scope. How does this work? The call sets it: dot, bare, or bind. Arrow versus normal? Arrows use the outer this. Normal follows the call.",
      "heads": [
       "They ask",
       "You say"
@@ -1102,62 +1191,72 @@
      "rows": [
       [
        "What is a closure?",
-       "a function + the variables it was created with"
+       "a function + its captured variables"
       ],
       [
        "Why use one? Downside?",
-       "private state, memoization; kept variables can leak"
+       "private state, memoization; may leak memory"
       ],
       [
        "`var` vs `let`?",
        "function scoped vs block scoped"
       ],
       [
+       "How does `this` work?",
+       "dot: the object · bare: lost · bind: locked"
+      ],
+      [
        "Arrow vs normal `this`?",
-       "arrow uses the outer `this`; normal follows the call"
+       "arrow: the outer `this` · normal: the call"
       ]
      ],
      "cues": [
       "What is a closure",
       "Why use one",
       "Var versus let",
+      "How does this work",
       "Arrow versus normal"
      ]
     },
     {
-     "type": "compare",
+     "type": "flow",
      "head": "Say it in 20 seconds",
      "covers": [
       "fe02"
      ],
-     "say": "Is JavaScript async? Single threaded. The browser waits, the loop runs callbacks. Order? Sync code, then all microtasks, then one task. Examples? Then and await versus timers and clicks. Common mistake? Thinking timeout zero is immediate.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Is JavaScript async?",
-       "single thread; browser waits, loop runs callbacks"
-      ],
-      [
-       "Order?",
-       "sync code, all microtasks, then one task"
-      ],
-      [
-       "Examples?",
-       "microtask: `then`, `await`. task: timers, clicks"
-      ],
-      [
-       "Common mistake?",
-       "`setTimeout(f, 0)` is not immediate"
-      ]
-     ],
-     "cues": [
-      "Is JavaScript async",
-      "Order",
-      "Examples",
-      "Common mistake"
+     "say": "Is JavaScript async? One thread, but the browser waits on timers and network. The order? Sync code first. Then all microtasks, like then and await. Then one task, like a timer or a click. Common mistake? Thinking set timeout zero is immediate.",
+     "items": [
+      {
+       "label": "async?",
+       "text": "One thread",
+       "sub": "browser waits",
+       "cue": "One thread"
+      },
+      {
+       "label": "1st",
+       "text": "Sync code",
+       "cue": "Sync code first"
+      },
+      {
+       "label": "2nd",
+       "text": "Microtasks",
+       "sub": "then, await",
+       "tone": "warn",
+       "cue": "all microtasks"
+      },
+      {
+       "label": "3rd",
+       "text": "One task",
+       "sub": "timer, click",
+       "cue": "one task, like"
+      },
+      {
+       "label": "trap",
+       "text": "timeout 0",
+       "sub": "not immediate",
+       "tone": "bad",
+       "cue": "Common mistake"
+      }
      ]
     },
     {
@@ -1232,7 +1331,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. A closure is a function plus the variables it was created with. Run sync code, then every microtask, then one task. And await turns a rejection into a throw, so use try and catch.",
+     "say": "So say this. A closure is a function plus its variables. Run sync code, then every microtask, then one task. And await turns a rejection into a throw, so use try and catch.",
      "lines": [
       "A closure is a function plus its variables.",
       "Sync code, all microtasks, then one task.",
