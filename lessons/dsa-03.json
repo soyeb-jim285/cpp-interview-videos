@@ -341,7 +341,10 @@
      "output": {
       "cmd": "./sol",
       "text": "true\nfalse",
-      "cue": "prints true"
+      "cue": "prints true",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nbool pairSum(const vector<int>& a, int t);\nint main() { cout << boolalpha << pairSum({1,3,4,6,8,11},10) << \"\\n\" << pairSum({1,3,4,6,8,11},100) << \"\\n\"; }\n"
+      }
      }
     },
     {
@@ -499,7 +502,10 @@
       "cmd": "./sol  # a = {5}, t = 10",
       "text": "true",
       "tone": "bad",
-      "cue": "Prints true"
+      "cue": "Prints true",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nbool bad(const vector<int>& a, int t);\nint main() { cout << boolalpha << bad({5},10) << \"\\n\"; }\n"
+      }
      }
     },
     {
@@ -550,7 +556,10 @@
      "output": {
       "cmd": "./sol  # {1, 1, 2, 2, 2, 3}",
       "text": "3\n1 2 3",
-      "cue": "becomes one, two, three"
+      "cue": "becomes one, two, three",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint dedupe(vector<int>& a);\nint main() { vector<int> a{1,1,2,2,2,3}; int n = dedupe(a); cout << n << \"\\n\"; for (int i = 0; i < n; i++) cout << a[i] << ' '; cout << \"\\n\"; }\n"
+      }
      }
     }
    ]
@@ -797,7 +806,10 @@
      "output": {
       "cmd": "./sol  # k = 3",
       "text": "9",
-      "cue": "prints nine"
+      "cue": "prints nine",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint maxSum(const vector<int>& a, int k);\nint main() { cout << maxSum({2,1,5,1,3,2},3) << \"\\n\"; }\n"
+      }
      }
     },
     {
@@ -1308,7 +1320,10 @@
      "output": {
       "cmd": "./sol  # \"abcabcbb\"",
       "text": "3",
-      "cue": "prints three"
+      "cue": "prints three",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint longest(const string& s);\nint main() { cout << longest(\"abcabcbb\") << \"\\n\"; }\n"
+      }
      }
     },
     {
@@ -1579,19 +1594,19 @@
        "file": "sol.cpp",
        "label": "bug",
        "tone": "bad",
-       "code": "vector<int> a = {1, -1, 6};\ncout << shortest(a, 6);"
+       "code": "int main() {\n    vector<int> a = {1, -1, 6};\n    cout << shortest(a, 6);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "grows to one"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "Then it shrinks"
       },
@@ -1602,14 +1617,14 @@
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "want 1, got 3",
        "tone": "bad",
        "cue": "Wrong answer"
       },
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "fix: prefix sums + deque",
        "tone": "good",
@@ -1620,7 +1635,10 @@
       "cmd": "./sol",
       "text": "3",
       "tone": "bad",
-      "cue": "Three"
+      "cue": "Three",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint shortest(const vector<int>& a, int t) {\n    int l = 0, sum = 0, best = INT_MAX;\n    for (int r = 0; r < (int)a.size(); r++) {\n        sum += a[r];\n        while (sum >= t) {\n            best = min(best, r - l + 1);\n            sum -= a[l++];\n        }\n    }\n    return best;\n}\n"
+      }
      }
     },
     {
