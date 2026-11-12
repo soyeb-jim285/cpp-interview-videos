@@ -372,7 +372,7 @@
     {
      "type": "diagram",
      "head": "What each one binds to",
-     "say": "Here is x, holding five. P is its own variable, holding x's address. It can be null, and re-pointed. R is not a new variable, just another name for x. That is an l value reference. An l value is anything with a name, so you can take its address. A temporary is an unnamed value. And rr binds to the temporary ten, keeping it alive as long as rr lives.",
+     "say": "Here is x, holding five. P is its own variable, holding x's address. It can be null, and re-pointed. R is not a new variable, just another name for x. That is an l value reference. An l value is anything with a name, so you can take its address. A temporary is an unnamed value. And rr binds to the temporary five, keeping it alive as long as rr lives.",
      "items": [
       {
        "id": "x",
@@ -425,10 +425,10 @@
        "y": 680,
        "w": 300,
        "h": 110,
-       "text": "10",
+       "text": "5",
        "size": 56,
        "tone": "ghost",
-       "cue": "temporary ten"
+       "cue": "temporary five"
       }
      ],
      "arrows": [
@@ -649,6 +649,12 @@
       }
      ],
      "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Everything you observe"
+      },
       {
        "lines": [
         6
@@ -1025,7 +1031,7 @@
     {
      "type": "diagram",
      "head": "Two things to lock",
-     "say": "Only the second. P2 locks the pointer, not the int. Each declaration has two things to lock: the pointer, and the int. Const left of the star locks the int. Const right of it locks the pointer. So p1 locks the value. P2, the pointer. P3, both.",
+     "say": "Only the first compiles. P2 locks the pointer, not the int. Each declaration has two things to lock: the pointer, and the int. Const left of the star locks the int. Const right of it locks the pointer. So p1 locks the value. P2, the pointer. P3, both.",
      "items": [
       {
        "id": "dec",
@@ -1900,7 +1906,7 @@
      "cues": [
       "Return a pointer to a local",
       "Instead",
-      "Dereference null"
+      "Prevent it"
      ],
      "covers": [
       "q41",
