@@ -1,0 +1,1152 @@
+{
+ "id": "swe-03",
+ "track": "SWE",
+ "num": 3,
+ "title": "OOP, SOLID & Patterns You Actually Use",
+ "covers": [
+  "sw03",
+  "sw04"
+ ],
+ "caps": [
+  [
+   "Liskov",
+   "Liskov"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "The if chain that grows",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Your checkout has a forty line if chain, and a new payment method is due Monday. By the end you'll turn it into clean classes, and name the pattern while you do it.",
+     "lines": [
+      {
+       "text": "40-line if / elif chain",
+       "cue": "forty line"
+      },
+      {
+       "text": "New payment method: Monday",
+       "cue": "due Monday"
+      },
+      {
+       "text": "Clean classes. Named pattern.",
+       "cue": "clean classes",
+       "accent": "Named pattern"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The wall socket",
+     "say": "Think of a wall socket. A lamp plugs in. A laptop plugs in. Tomorrow you buy a kettle, and it plugs in too. Nobody rewires the wall. The socket is an interface, and good object oriented design gives your code sockets like that.",
+     "items": [
+      {
+       "label": "plugs in",
+       "text": "lamp",
+       "cue": "A lamp"
+      },
+      {
+       "label": "plugs in",
+       "text": "laptop",
+       "cue": "A laptop"
+      },
+      {
+       "label": "tomorrow",
+       "text": "kettle",
+       "tone": "good",
+       "cue": "a kettle"
+      },
+      {
+       "label": "never changes",
+       "text": "the socket",
+       "tone": "warn",
+       "cue": "Nobody rewires"
+      },
+      {
+       "label": "it is an",
+       "text": "interface",
+       "tone": "good",
+       "cue": "good object oriented"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The smell",
+     "say": "Here's our checkout. It works, and prints paypal fifty. But every new method means editing this function again, and risking the old branches. Most candidates stop here and call it done. That is the smell: one function that must change for every new rule.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def pay(method, amount):\n    if method == \"card\":\n        return f\"card {amount}\"\n    elif method == \"paypal\":\n        return f\"paypal {amount}\"\n    # ...36 more lines\nprint(pay(\"paypal\", 50))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "editing this function"
+      },
+      {
+       "lines": [],
+       "cue": "Most candidates"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "must change for every"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "new rule = edit here",
+       "tone": "bad",
+       "cue": "risking the old"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "paypal 50",
+      "cue": "prints paypal fifty"
+     }
+    },
+    {
+     "type": "code",
+     "head": "One class per rule",
+     "say": "Now each rule is its own class. The base class is the socket: it promises a pay method. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\""
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "The base class"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "Card keeps"
+      },
+      {
+       "lines": [
+        9,
+        10,
+        11
+       ],
+       "cue": "PayPal keeps"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "the socket",
+       "tone": "warn",
+       "cue": "promises a pay"
+      },
+      {
+       "line": 1,
+       "inside": true,
+       "text": "strategy",
+       "tone": "good",
+       "cue": "That's the strategy"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Checkout stays the same",
+     "say": "Checkout takes any strategy and calls pay. It never asks which one. Hand it a card: card fifty. Hand it PayPal: paypal fifty. Same checkout, different behavior, and no if chain.",
+     "items": [
+      {
+       "id": "co",
+       "x": 160,
+       "y": 420,
+       "w": 380,
+       "h": 140,
+       "label": "one function",
+       "text": "checkout",
+       "tone": "blue",
+       "cue": "Checkout takes"
+      },
+      {
+       "id": "card",
+       "x": 1000,
+       "y": 280,
+       "w": 320,
+       "h": 130,
+       "text": "Card",
+       "cue": "Hand it a card"
+      },
+      {
+       "id": "pp",
+       "x": 1000,
+       "y": 600,
+       "w": 320,
+       "h": 130,
+       "text": "PayPal",
+       "cue": "Hand it PayPal"
+      },
+      {
+       "id": "out",
+       "x": 1460,
+       "y": 440,
+       "w": 340,
+       "h": 130,
+       "label": "result",
+       "text": "...",
+       "size": 44,
+       "tone": "warn",
+       "cue": "calls pay"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "co",
+       "to": "card",
+       "label": "pay(50)",
+       "cue": "calls pay"
+      },
+      {
+       "from": "co",
+       "to": "pp",
+       "label": "pay(50)",
+       "cue": "Hand it PayPal"
+      }
+     ],
+     "changes": [
+      {
+       "id": "out",
+       "text": "card 50",
+       "tone": "good",
+       "cue": "card fifty"
+      },
+      {
+       "id": "out",
+       "text": "paypal 50",
+       "tone": "good",
+       "cue": "paypal fifty"
+      },
+      {
+       "id": "co",
+       "glow": true,
+       "tone": "good",
+       "cue": "no if chain"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Product asks for a third method, crypto. You write a Crypto class with a pay method. Which existing code has to change?",
+     "q": "You add `class Crypto(PaymentStrategy)`. What existing code changes?",
+     "options": [
+      "checkout()",
+      "Card",
+      "Nothing",
+      "The base class"
+     ],
+     "answer": 2,
+     "pause": 5
+    },
+    {
+     "type": "diagram",
+     "head": "Open to extension",
+     "say": "Nothing. Crypto just plugs into the same socket, and checkout runs it unchanged. That is open closed: open to extension, closed to modification. You add code instead of editing code that already works.",
+     "items": [
+      {
+       "id": "co",
+       "x": 160,
+       "y": 420,
+       "w": 380,
+       "h": 140,
+       "label": "untouched",
+       "text": "checkout",
+       "tone": "blue",
+       "cue": "checkout runs"
+      },
+      {
+       "id": "card",
+       "x": 1000,
+       "y": 240,
+       "w": 320,
+       "h": 120,
+       "text": "Card",
+       "tone": "dim"
+      },
+      {
+       "id": "pp",
+       "x": 1000,
+       "y": 440,
+       "w": 320,
+       "h": 120,
+       "text": "PayPal",
+       "tone": "dim"
+      },
+      {
+       "id": "cr",
+       "x": 1000,
+       "y": 640,
+       "w": 320,
+       "h": 120,
+       "text": "Crypto",
+       "tone": "good",
+       "cue": "Crypto just plugs"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "co",
+       "to": "card"
+      },
+      {
+       "from": "co",
+       "to": "pp"
+      },
+      {
+       "from": "co",
+       "to": "cr",
+       "tone": "good",
+       "cue": "same socket"
+      }
+     ],
+     "notes": [
+      {
+       "x": 160,
+       "y": 700,
+       "text": "+1 class, 0 edits",
+       "tone": "good",
+       "cue": "add code instead"
+      }
+     ],
+     "changes": [
+      {
+       "id": "co",
+       "glow": true,
+       "tone": "good",
+       "cue": "unchanged"
+      },
+      {
+       "id": "cr",
+       "glow": true,
+       "tone": "good",
+       "cue": "open closed"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "SOLID, one habit at a time",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "SOLID on our checkout",
+     "say": "Five letters, each one line. Single responsibility: the checkout charges, a mailer emails. Open closed: add a class, don't edit. Liskov: a subclass works anywhere its parent does. Interface segregation: small interfaces, not one giant one. Dependency inversion: depend on the socket, not the details.",
+     "heads": [
+      "Letter",
+      "One line"
+     ],
+     "rows": [
+      [
+       "S: Single responsibility",
+       "one reason to change"
+      ],
+      [
+       "O: Open/closed",
+       "extend by adding, not editing"
+      ],
+      [
+       "L: Liskov",
+       "subclass works where parent does"
+      ],
+      [
+       "I: Interface segregation",
+       "small interfaces, not one giant one"
+      ],
+      [
+       "D: Dependency inversion",
+       "depend on the socket, not details"
+      ]
+     ],
+     "cues": [
+      "Single responsibility",
+      "Open closed",
+      "Liskov",
+      "Interface segregation",
+      "Dependency inversion"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Breaking Liskov",
+     "say": "Here's the habit candidates break. A Penguin is a Bird, so we subclass. But Penguin's fly raises an error. Migrate takes birds and calls fly on each. Pass it a penguin, and the parent's promise breaks.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class Bird:\n    def fly(self): return \"flap\"\nclass Penguin(Bird):\n    def fly(self): raise NotImplementedError\ndef migrate(birds):\n    return [b.fly() for b in birds]\nmigrate([Bird(), Penguin()])"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "A Penguin is a Bird"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "fly raises"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "Migrate takes"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Pass it a penguin"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "breaks Bird",
+       "tone": "bad",
+       "cue": "promise breaks"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "NotImplementedError",
+      "tone": "bad",
+      "cue": "promise breaks"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Which principle did that Penguin break? Pause and pick.",
+     "q": "Penguin.fly() raises. Which principle is broken?",
+     "options": [
+      "Single responsibility",
+      "Open/closed",
+      "Liskov",
+      "Dependency inversion"
+     ],
+     "answer": 2,
+     "pause": 4
+    },
+    {
+     "type": "diagram",
+     "head": "The fix: split the family",
+     "say": "Liskov. A penguin can't stand in for a flying bird. The fix: Bird no longer promises to fly. Only FlyingBird does. Sparrow inherits from it. Penguin doesn't, so migrate never receives one.",
+     "items": [
+      {
+       "id": "bird",
+       "x": 740,
+       "y": 250,
+       "w": 440,
+       "h": 120,
+       "text": "Bird",
+       "sub": "no fly()",
+       "cue": "Bird no longer"
+      },
+      {
+       "id": "fb",
+       "x": 300,
+       "y": 520,
+       "w": 440,
+       "h": 120,
+       "text": "FlyingBird",
+       "sub": "has fly()",
+       "tone": "good",
+       "cue": "Only FlyingBird"
+      },
+      {
+       "id": "sp",
+       "x": 300,
+       "y": 760,
+       "w": 440,
+       "h": 120,
+       "text": "Sparrow",
+       "tone": "good",
+       "cue": "Sparrow inherits"
+      },
+      {
+       "id": "pg",
+       "x": 1180,
+       "y": 520,
+       "w": 440,
+       "h": 120,
+       "text": "Penguin",
+       "tone": "warn",
+       "cue": "Penguin doesn't"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "bird",
+       "to": "fb",
+       "cue": "Only FlyingBird"
+      },
+      {
+       "from": "fb",
+       "to": "sp",
+       "cue": "Sparrow inherits"
+      },
+      {
+       "from": "bird",
+       "to": "pg",
+       "cue": "Penguin doesn't"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The four pillars",
+     "say": "Interviewers also ask for the four pillars. Encapsulation: hide the data behind methods. Abstraction: expose only what callers need. Inheritance: reuse a parent. Polymorphism: one call, many behaviors, like pay.",
+     "items": [
+      {
+       "label": "hide data",
+       "text": "encapsulate",
+       "cue": "Encapsulation"
+      },
+      {
+       "label": "show less",
+       "text": "abstract",
+       "cue": "Abstraction"
+      },
+      {
+       "label": "reuse parent",
+       "text": "inherit",
+       "cue": "Inheritance"
+      },
+      {
+       "label": "one call",
+       "text": "polymorph",
+       "tone": "good",
+       "cue": "Polymorphism"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Judgment calls",
+     "say": "Inheritance or composition? Prefer composition: hold a part instead of being one. When to inherit? Only for a true is a relationship. Is SOLID always right? No. Wait for the second case before abstracting.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Inheritance or composition?",
+       "prefer composition"
+      ],
+      [
+       "When to inherit?",
+       "only for a true is-a"
+      ],
+      [
+       "Is SOLID always right?",
+       "no: wait for the 2nd case first"
+      ]
+     ],
+     "cues": [
+      "Inheritance or",
+      "When to inherit",
+      "Is SOLID"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A factory picks the strategy",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "Who builds the strategy?",
+     "say": "A config file says paypal. It's a string. A factory turns it into a PayPal object. Skip it, and the if chain returns.",
+     "items": [
+      {
+       "label": "config",
+       "text": "\"paypal\"",
+       "cue": "A config file"
+      },
+      {
+       "label": "factory",
+       "text": "make_payment",
+       "tone": "warn",
+       "cue": "A factory"
+      },
+      {
+       "label": "object",
+       "text": "PayPal()",
+       "tone": "good",
+       "cue": "PayPal object"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Factory: one place that picks",
+     "say": "A factory is a function that decides which object to build. Give it a name like paypal and it looks it up in a dict, then builds the strategy. Callers never know which concrete class they got. All the choosing lives in one place.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def make_payment(kind):\n    table = {\"card\": Card, \"paypal\": PayPal}\n    return table[kind]()\n\nprint(checkout(make_payment(\"paypal\"), 50))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "decides which object"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "looks it up"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "then builds"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Callers never know"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "paypal 50",
+      "cue": "one place"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Predict. A customer picks bitcoin, which isn't in the dict. We call make payment with bitcoin. What happens?",
+     "q": "`make_payment(\"bitcoin\")` with that table. Result?",
+     "options": [
+      "KeyError",
+      "None",
+      "Card()",
+      "\"paypal 50\""
+     ],
+     "answer": 0,
+     "pause": 5
+    },
+    {
+     "type": "code",
+     "head": "Fail loudly",
+     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, catch it and raise a ValueError with a friendlier message.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def make_payment(kind):\n    table = {\"card\": Card, \"paypal\": PayPal}\n    return table[kind]()\n\nmake_payment(\"bitcoin\")"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "names the missing key"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "stops the program"
+      },
+      {
+       "lines": [],
+       "cue": "In real code"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py 2>&1 | tail -1",
+      "text": "KeyError: 'bitcoin'",
+      "tone": "bad",
+      "cue": "A KeyError"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Observers and injection",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "Observer: publish, react",
+     "say": "Now a payment succeeds. Email, stock and analytics all care. The order shouldn't know them. Observer: the order keeps a list of subscribers, and when it's paid, it calls each one. It never knows who's listening.",
+     "items": [
+      {
+       "id": "ord",
+       "x": 160,
+       "y": 420,
+       "w": 380,
+       "h": 140,
+       "label": "subject",
+       "text": "Order",
+       "tone": "blue",
+       "cue": "The order"
+      },
+      {
+       "id": "em",
+       "x": 1100,
+       "y": 260,
+       "w": 340,
+       "h": 120,
+       "text": "email",
+       "cue": "Email"
+      },
+      {
+       "id": "st",
+       "x": 1100,
+       "y": 460,
+       "w": 340,
+       "h": 120,
+       "text": "stock",
+       "cue": "stock"
+      },
+      {
+       "id": "an",
+       "x": 1100,
+       "y": 660,
+       "w": 340,
+       "h": 120,
+       "text": "analytics",
+       "tone": "dim",
+       "cue": "analytics all"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ord",
+       "to": "em",
+       "cue": "calls each one"
+      },
+      {
+       "from": "ord",
+       "to": "st",
+       "cue": "calls each one"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ord",
+       "text": "PAID",
+       "tone": "good",
+       "cue": "it's paid"
+      },
+      {
+       "id": "em",
+       "glow": true,
+       "tone": "good",
+       "cue": "calls each one"
+      },
+      {
+       "id": "st",
+       "glow": true,
+       "tone": "good",
+       "cue": "calls each one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Observer in nine lines",
+     "say": "The order keeps a list. Subscribe adds a function to it. When the order is paid, it loops over the list and calls each one. Subscribe an email function, pay, and the email goes out.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class Order:\n    def __init__(self): self.subs = []\n    def subscribe(self, fn): self.subs.append(fn)\n    def paid(self):\n        for fn in self.subs: fn(self)\n\no = Order()\no.subscribe(lambda o: print(\"email sent\"))\no.paid()"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "keeps a list"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Subscribe adds"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "loops over"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "Subscribe an email"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "email sent",
+      "cue": "email goes out"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Predict. Email and stock already subscribe. Marketing wants analytics too. Which existing code in Order changes?",
+     "q": "Add an analytics subscriber. What changes inside `Order`?",
+     "options": [
+      "paid()",
+      "Nothing",
+      "subscribe()",
+      "the email function"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "diagram",
+     "head": "Add a listener, edit nothing",
+     "say": "Nothing. Analytics just subscribes, and the next paid call reaches it. The cost is hidden coupling: you can't see who reacts by reading Order. Forget to unsubscribe, and dead listeners keep getting calls.",
+     "items": [
+      {
+       "id": "ord",
+       "x": 160,
+       "y": 420,
+       "w": 380,
+       "h": 140,
+       "label": "unchanged",
+       "text": "Order",
+       "tone": "blue",
+       "cue": "Nothing"
+      },
+      {
+       "id": "em",
+       "x": 1100,
+       "y": 260,
+       "w": 340,
+       "h": 120,
+       "text": "email"
+      },
+      {
+       "id": "st",
+       "x": 1100,
+       "y": 460,
+       "w": 340,
+       "h": 120,
+       "text": "stock"
+      },
+      {
+       "id": "an",
+       "x": 1100,
+       "y": 660,
+       "w": 340,
+       "h": 120,
+       "text": "analytics",
+       "tone": "good",
+       "cue": "Analytics just"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ord",
+       "to": "em"
+      },
+      {
+       "from": "ord",
+       "to": "st"
+      },
+      {
+       "from": "ord",
+       "to": "an",
+       "tone": "good",
+       "cue": "reaches it"
+      }
+     ],
+     "notes": [
+      {
+       "x": 160,
+       "y": 700,
+       "text": "who listens? invisible",
+       "tone": "warn",
+       "cue": "hidden coupling"
+      }
+     ],
+     "changes": [
+      {
+       "id": "an",
+       "glow": true,
+       "tone": "good",
+       "cue": "reaches it"
+      },
+      {
+       "id": "em",
+       "tone": "bad",
+       "cue": "Forget to unsubscribe"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Dependency injection",
+     "say": "Last pattern. Dependency injection: a class receives what it needs instead of building it. Checkout takes its gateway in the constructor. In production, pass the real one. In a test, pass a fake that answers at once.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\n\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\""
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "a class receives"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "takes its gateway"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "pass the real"
+      },
+      {
+       "lines": [
+        7,
+        8,
+        9
+       ],
+       "cue": "a fake that answers"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "passed in",
+       "tone": "good",
+       "cue": "in the constructor"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Why inject? Speed and safety",
+     "say": "Run the same checkout twice. The real gateway sleeps half a second, standing in for a network call, and it would charge a real card. The fake answers in no time. Same code, fast and safe.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "for g in (RealGateway(), FakeGateway()):\n    t = time.perf_counter()\n    assert Checkout(g).run(50) == \"ok\"\n    print(type(g).__name__, round(\n        time.perf_counter() - t, 3), \"s\")"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "same checkout twice"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "sleeps half a second"
+      },
+      {
+       "lines": [],
+       "cue": "would charge a real"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Same code, fast"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "RealGateway 0.5 s\nFakeGateway 0.0 s",
+      "cue": "answers in no time"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw03"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "SOLID, with an example? An if chain becomes one class per rule. Liskov? A subclass works wherever its parent does. Inherit or compose? Compose unless truly is a. Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Always right? No. Wait for a second case.",
+     "rows": [
+      [
+       "SOLID, with an example?",
+       "if chain → class per rule"
+      ],
+      [
+       "Liskov in one line?",
+       "subclass works wherever parent does"
+      ],
+      [
+       "Inheritance or composition?",
+       "compose; inherit for true is-a"
+      ],
+      [
+       "Four pillars?",
+       "encapsulation, abstraction, inheritance, polymorphism"
+      ],
+      [
+       "Is SOLID always right?",
+       "no: wait for the 2nd case"
+      ]
+     ],
+     "cues": [
+      "SOLID, with",
+      "Liskov",
+      "Inherit or compose",
+      "Four pillars",
+      "Always right"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw04"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Strategy versus an if chain? Swap behavior without editing old code. Why a factory? Creation logic lives in one place. Observer risk? Hidden coupling, forgotten unsubscribes. Why inject? A fake makes tests fast and safe. And say where you used one.",
+     "rows": [
+      [
+       "Strategy vs if chain?",
+       "swap behavior, edit nothing old"
+      ],
+      [
+       "Why a factory?",
+       "creation logic in one place"
+      ],
+      [
+       "Observer risk?",
+       "hidden coupling, forgotten unsubscribes"
+      ],
+      [
+       "Why inject?",
+       "fake dependency: fast, safe tests"
+      ]
+     ],
+     "cues": [
+      "Strategy versus",
+      "Why a factory",
+      "Observer risk",
+      "Why inject"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these this week",
+     "say": "Three exercises. Find an if chain in your own code and turn it into strategies. Add an observer so one event triggers two reactions. Write a test with a fake gateway and time it.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Refactor one `if/elif` chain into classes",
+       "feel open/closed"
+      ],
+      [
+       "Make one event notify two listeners",
+       "see observer's reach"
+      ],
+      [
+       "Test checkout with a fake gateway, time it",
+       "see why inject"
+      ]
+     ],
+     "cues": [
+      "Find an if chain",
+      "Add an observer",
+      "Write a test"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Depend on small interfaces, not details. Strategy swaps behavior, a factory picks it, injection hands it in. Observer lets many react to one event. Always name where you used it.",
+     "lines": [
+      "Small interfaces, not details; extend, don't edit.",
+      "Strategy swaps, factory picks, injection hands in.",
+      "Observer: many react to one event."
+     ],
+     "cues": [
+      "Depend on small",
+      "Strategy swaps",
+      "Observer lets"
+     ]
+    }
+   ]
+  }
+ ]
+}
