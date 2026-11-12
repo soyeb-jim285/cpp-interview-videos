@@ -127,7 +127,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "def calc_invoice(amount, gold=False):\n    total = amount * 1.08\n    if gold:\n        total = total * 0.9\n    if total < 50:\n        total += 4.99\n    return round(total, 2)\nfor a in (0, 1, 99.99):\n    print(a, calc_invoice(a))"
+       "code": "def calc_invoice(amount, gold=False):\n    total = amount * 1.08\n    if gold: total = total * 0.9\n    if total < 50: total += 4.99\n    return round(total, 2)\nfor a in (0, 1, 99.99):\n    print(a, calc_invoice(a))"
       }
      ],
      "steps": [
@@ -139,35 +139,33 @@
       },
       {
        "lines": [
-        3,
-        4
+        3
        ],
        "cue": "ten percent off"
       },
       {
        "lines": [
-        5,
-        6
+        4
        ],
        "cue": "adds shipping"
       },
       {
        "lines": [
-        8,
-        9
+        6,
+        7
        ],
        "cue": "Run it and record"
       },
       {
        "lines": [
-        9
+        7
        ],
        "cue": "One gives"
       },
       {
        "lines": [
-        8,
-        9
+        6,
+        7
        ],
        "cue": "Ninety nine ninety nine gives"
       }
@@ -725,7 +723,7 @@
      "panels": [
       {
        "file": "test_app.py",
-       "code": "def checkout(mailer):\n    mailer.send(\"receipt\")\n    mailer.send(\"receipt\")\nmailer = Mock()\ncheckout(mailer)\ntry:\n    mailer.send.assert_called_once_with(\"receipt\")\nexcept AssertionError as e:\n    print(e)"
+       "code": "def checkout(mailer):\n    mailer.send(\"receipt\")\n    mailer.send(\"receipt\")\nmailer = Mock()\ncheckout(mailer)\ntry:\n    mailer.send.assert_called_once_with(\"receipt\")\nexcept AssertionError as e: print(e)"
       }
      ],
      "steps": [

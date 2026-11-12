@@ -663,7 +663,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void print(int x)    { cout << \"int: \" << x << '\\n'; }\nvoid print(double x) { cout << \"double: \" << x << '\\n'; }\nvoid print(const string& s) { cout << \"string: \" << s << '\\n'; }\nint main() {\n    print(42);\n    print(3.14);\n    print(string(\"hi\"));\n}"
+       "code": "void print(int x)    { cout << \"int: \" << x << '\\n'; }\nvoid print(double x) { cout << \"double: \" << x << '\\n'; }\nvoid print(const string& s) { cout << \"string: \" << s << '\\n'; }\nint main() {\n    print(42);\n    print(3.14);\n    print(string(\"hi\")); }"
       }
      ],
      "steps": [

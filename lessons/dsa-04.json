@@ -1381,48 +1381,48 @@
      "panels": [
       {
        "file": "snippet.cpp",
-       "code": "vector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';"
+       "code": "vector<pair<string, int>> v = {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';"
       }
      ],
      "steps": [
       {
        "lines": [
+        2,
         3,
         4,
-        5,
-        6
+        5
        ],
        "cue": "Stable sort, with"
       },
       {
        "lines": [
-        3
+        2
        ],
        "cue": "Plain sort makes"
       },
       {
        "lines": [
-        5
+        4
        ],
        "cue": "keeps equal items"
       },
       {
        "lines": [
-        2
+        1
        ],
        "cue": "Bob stays ahead"
       },
       {
        "lines": [
-        7,
-        8
+        6,
+        7
        ],
        "cue": "Amy"
       }
      ],
      "notes": [
       {
-       "line": 3,
+       "line": 2,
        "inside": true,
        "text": "sort: ties in any order",
        "tone": "warn",
@@ -1435,7 +1435,7 @@
       "tone": "good",
       "cue": "Bob stays ahead",
       "setup": {
-       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint main() {\nvector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';\n}\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint main() {\nvector<pair<string, int>> v = {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';\n}\n"
       }
      }
     },

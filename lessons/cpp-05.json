@@ -100,7 +100,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void work() {\n    FILE* f = fopen(\"log.txt\", \"w\");\n    puts(\"open\");\n    throw 1;\n    fclose(f);\n}\nint main() {\n    try { work(); } catch (int) { puts(\"caught\"); }\n}",
+       "code": "void work() {\n    FILE* f = fopen(\"log.txt\", \"w\");\n    puts(\"open\");\n    throw 1;\n    fclose(f);\n}\nint main() { try { work(); } catch (int) { puts(\"caught\"); } }",
        "label": "bug",
        "tone": "bad"
       }
@@ -152,31 +152,31 @@
      "panels": [
       {
        "file": "file.cpp",
-       "code": "class File {\n    FILE* f;\npublic:\n    File(const char* n) : f(fopen(n, \"w\")) { puts(\"open\"); }\n    ~File() { fclose(f); puts(\"close\"); }\n    File(const File&) = delete;\n};\nvoid work() { File log(\"log.txt\"); throw 1; }"
+       "code": "class File { FILE* f;\npublic:\n    File(const char* n) : f(fopen(n, \"w\")) { puts(\"open\"); }\n    ~File() { fclose(f); puts(\"close\"); }\n    File(const File&) = delete;\n};\nvoid work() { File log(\"log.txt\"); throw 1; }"
       }
      ],
      "steps": [
       {
        "lines": [
-        4
+        3
        ],
        "cue": "The constructor opens"
       },
       {
        "lines": [
-        5
+        4
        ],
        "cue": "The destructor closes"
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "Copying is deleted"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "Now work just makes"
       }
@@ -1005,7 +1005,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int main() {\n    weak_ptr<int> w;\n    {\n        auto s = make_shared<int>(42); w = s;\n        if (auto p = w.lock()) cout << *p << '\\n';\n    }\n    if (auto p = w.lock()) cout << *p << '\\n';\n    else cout << \"expired\\n\";\n}"
+       "code": "int main() {\n    weak_ptr<int> w;\n    {\n        auto s = make_shared<int>(42); w = s;\n        if (auto p = w.lock()) cout << *p << '\\n';\n    }\n    if (auto p = w.lock()) cout << *p << '\\n'; else cout << \"expired\\n\";\n}"
       }
      ],
      "steps": [
@@ -1042,8 +1042,7 @@
       },
       {
        "lines": [
-        7,
-        8
+        7
        ],
        "cue": "lock fails"
       }

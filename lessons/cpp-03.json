@@ -676,25 +676,25 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct Point {\n    int x, y;\n    Point(int a, int b) : x(a), y(b) { puts(\"built\"); }\n};\nint main() {\n    void* raw = malloc(sizeof(Point));\n    Point* p = new Point(1, 2);\n    printf(\"%d %d\\n\", p->x, p->y);\n}"
+       "code": "struct Point { int x, y;\n    Point(int a, int b) : x(a), y(b) { puts(\"built\"); }\n};\nint main() {\n    void* raw = malloc(sizeof(Point));\n    Point* p = new Point(1, 2);\n    printf(\"%d %d\\n\", p->x, p->y);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        2
        ],
        "cue": "constructor prints built"
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "Malloc for a Point"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "New runs it once"
       }
@@ -1003,7 +1003,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct Bad {\n    Bad() { throw 1; }\n    void* operator new(size_t n)\n        { puts(\"alloc\"); return malloc(n); }\n    void operator delete(void* p) { puts(\"free\"); free(p); }\n};\nint main() {\n    try { new Bad; } catch (int) { puts(\"caught\"); }\n}"
+       "code": "struct Bad {\n    Bad() { throw 1; }\n    void* operator new(size_t n)\n        { puts(\"alloc\"); return malloc(n); }\n    void operator delete(void* p) { puts(\"free\"); free(p); }\n};\nint main() { try { new Bad; } catch (int) { puts(\"caught\"); } }"
       }
      ],
      "steps": [

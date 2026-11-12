@@ -630,31 +630,31 @@
      "panels": [
       {
        "file": "copy.cpp",
-       "code": "struct T {\n    T() {}\n    T(const T&)            { cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { cout << \"copy assign\\n\"; return *this; }\n};\nT a;\nT b = a;\nT c(a);\nc = b;"
+       "code": "struct T { T() {}\n    T(const T&)            { cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { cout << \"copy assign\\n\"; return *this; }\n};\nT a; T b = a;\nT c(a);\nc = b;"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        2
        ],
        "cue": "copy constructor"
       },
       {
        "lines": [
-        7
+        5
        ],
        "cue": "even with an equals"
       },
       {
        "lines": [
-        8
+        6
        ],
        "cue": "c of a"
       },
       {
        "lines": [
-        9
+        7
        ],
        "cue": "c already exists"
       }

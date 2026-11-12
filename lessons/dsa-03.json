@@ -294,7 +294,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "bool pairSum(const vector<int>& a, int t) {\n    int l = 0, r = (int)a.size() - 1;\n    while (l < r) {\n        int s = a[l] + a[r];\n        if (s == t) return true;\n        if (s < t) l++; else r--;\n    }\n    return false;\n}"
+       "code": "bool pairSum(const vector<int>& a, int t) {\n    int l = 0, r = (int)a.size() - 1;\n    while (l < r) {\n        int s = a[l] + a[r]; if (s == t) return true;\n        if (s < t) l++; else r--;\n    }\n    return false;\n}"
       }
      ],
      "steps": [
@@ -318,20 +318,20 @@
       },
       {
        "lines": [
-        5
+        4
        ],
        "cue": "Equal to the target"
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "Too small"
       }
      ],
      "notes": [
       {
-       "line": 6,
+       "line": 5,
        "inside": true,
        "text": "O(n) time, O(1) memory",
        "tone": "good",
@@ -918,7 +918,7 @@
        "cue": "Sliding:"
       }
      ],
-     "hold": 1.0
+     "hold": 1
     }
    ]
   },

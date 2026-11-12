@@ -918,11 +918,11 @@
     {
      "type": "code",
      "head": "Double free, caught",
-     "say": "Here is the whole class. The destructor deletes the array. The copy in copyIt shares it. Address Sanitizer reports attempting double free, in the destructor on line four, called from line nine.",
+     "say": "Here is the whole class. The destructor deletes the array. The copy in copyIt shares it. Address Sanitizer reports attempting double free, in the destructor on line four, called from line six.",
      "panels": [
       {
        "file": "buffer.cpp",
-       "code": "struct Buffer {\n    char* data;\n    Buffer() : data(new char[100]) {}\n    ~Buffer() { delete[] data; }\n};\nvoid copyIt() {\n    Buffer b1;\n    Buffer b2 = b1;\n}"
+       "code": "struct Buffer {\n    char* data;\n    Buffer() : data(new char[100]) {}\n    ~Buffer() { delete[] data; }\n};\nvoid copyIt() { Buffer b1; Buffer b2 = b1; }"
       }
      ],
      "steps": [
@@ -934,14 +934,14 @@
       },
       {
        "lines": [
-        8
+        6
        ],
        "cue": "The copy in copyIt"
       }
      ],
      "output": {
       "cmd": "g++ -g -fsanitize=address buffer.cpp && ./a.out 2>&1 | sh f",
-      "text": "ERROR: AddressSanitizer: attempting double-free\n    #1 in Buffer::~Buffer() buffer.cpp:4\n    #2 in copyIt() buffer.cpp:9",
+      "text": "ERROR: AddressSanitizer: attempting double-free\n    #1 in Buffer::~Buffer() buffer.cpp:4\n    #2 in copyIt() buffer.cpp:6",
       "cue": "attempting double free",
       "setup": {
        "buffer.cpp": "void copyIt();\nint main() { copyIt(); }\n#line 0\n",

@@ -157,7 +157,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct P {\n  P(int, int) { cout << \"ctor\\n\"; }\n  P(P&&) noexcept { cout << \"move\\n\"; }\n};\nvector<P> v;\nv.reserve(2);\nv.push_back(P(1, 2));\nv.emplace_back(1, 2);"
+       "code": "struct P {\n  P(int, int) { cout << \"ctor\\n\"; }\n  P(P&&) noexcept { cout << \"move\\n\"; }\n};\nvector<P> v; v.reserve(2);\nv.push_back(P(1, 2));\nv.emplace_back(1, 2);"
       }
      ],
      "steps": [
@@ -170,25 +170,25 @@
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "finished object"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "built, then moved in"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "builds the element in place"
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "reserve first"
       }

@@ -246,7 +246,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]\ndef probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1)\nprint(random.choices(toks, probs(2), k=5))"
+       "code": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]\ndef probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1); print(random.choices(toks, probs(2), k=5))"
       }
      ],
      "steps": [
@@ -271,8 +271,7 @@
       },
       {
        "lines": [
-        8,
-        9
+        8
        ],
        "cue": "sample five times"
       },
