@@ -1441,14 +1441,16 @@
        "text": "t is b",
        "tone": "good",
        "cue": "right there"
-      },
-      {
-       "id": "a0",
-       "fade": true,
-       "cue": "nothing to move"
       }
      ],
      "notes": [
+      {
+       "x": 300,
+       "y": 640,
+       "text": "nothing to move",
+       "tone": "good",
+       "cue": "nothing to move"
+      },
       {
        "x": 1250,
        "y": 720,
