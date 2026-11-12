@@ -15,7 +15,7 @@ for q in "$@"; do
     spec="scripts/$q.json"; dest=out
   fi
   mkdir -p "$dest"
-  "${PY:-.venv/bin/python}" tts.py "$spec" 2>&1 | grep -vi warn || true
+  "${PY:-.venv/bin/python}" tts.py "$spec" > "out/$q.tts.log" 2>&1 || { grep -vi warn "out/$q.tts.log" | tail -20; echo "TTS failed for $q" >&2; exit 1; }
   mkdir -p "$q"; cp -n hf/hyperframes.json hf/package.json "$q/"
   node build.mjs "$spec"
   slug=$(node -e "const s=require('./$spec');console.log(s.short.toLowerCase().replace(/[^a-z0-9+]+/g,'-').replace(/\+/g,'p').replace(/^-|-$/g,''))")

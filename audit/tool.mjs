@@ -7,6 +7,8 @@ import { execFileSync } from "node:child_process";
 const [mode, ...a] = process.argv.slice(2);
 const MIN_GAP = 1.5, GAP = 6, PER = 12, fmt = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, "0")}`;
 
+// "p0 .ln, p0-l3, a1-p" -> "code, line 3, arrow"
+const nice = (w) => [...new Set(w.split(", ").map((x) => x.replace(/^p\d+-l(\d+)$/, "line $1").replace(/^p\d+( \.ln)?$/, "code").replace(/^a\d+(-\w)?$/, "arrow").replace(/^f(\d+)$/, "step $1").replace(/^cmp \.r(\d+)$/, "row $1").replace(/^cmp \.ch$/, "headers").replace(/^(cn|cd)(-fg)?(\d*)$/, "countdown").replace(/^qz \.opt$/, "options").replace(/^qq$/, "question").replace(/^out( \.ol)?$/, "output")))].join(", ");
 if (mode === "plan") {
   const [id, lesson, out] = a;
   const spec = JSON.parse(fs.readFileSync(`build/${id}.json`, "utf8"));
@@ -20,15 +22,16 @@ if (mode === "plan") {
     const mine = rv.filter((r) => r.scene === s.i);
     let last = -9;
     const picks = [];
-    for (const r of mine) if (r.t - last >= MIN_GAP) { picks.push({ t: Math.min(r.t + 0.7, end - 0.4), what: r.what }); last = r.t; }
-    const ts = [...picks.map((p) => p.t), end];
-    const flags = [];
-    for (let k = 0; k < picks.length; k++) {
-      const next = k + 1 < picks.length ? mine.find((r) => r.t > picks[k].t + 0.5 && r.t - picks[k].t >= MIN_GAP)?.t ?? end : end;
-      if (next - picks[k].t > GAP) { const m = (picks[k].t + next) / 2; picks.push({ t: m, what: `mid (gap ${(next - picks[k].t).toFixed(1)}s)` }); flags.push(`GAP ${fmt(picks[k].t)}-${fmt(next)}`); }
-    }
-    picks.sort((x, y) => x.t - y.t);
-    for (const p of picks) tiles.push({ scene: s.i, type: sc.type, t: +p.t.toFixed(2), what: p.what });
+    for (const r of mine) if (r.t - last >= MIN_GAP) { picks.push({ r: r.t, what: r.what }); last = r.t; }
+    const flags = [], extra = [];
+    picks.forEach((p, k) => {
+      const next = picks[k + 1]?.r ?? end;
+      if (next - p.r > GAP) { extra.push({ r: (p.r + next) / 2 - 0.7, what: `mid (gap ${(next - p.r).toFixed(1)}s)` }); flags.push(`GAP ${fmt(p.r)}-${fmt(next)}`); }
+    });
+    picks.push(...extra);
+    picks.sort((x, y) => x.r - y.r);
+    for (const p of picks) p.t = Math.min(p.r + 0.7, end - 0.4);
+    for (const p of picks) tiles.push({ scene: s.i, type: sc.type, t: +p.t.toFixed(2), what: nice(p.what) });
     const say = (sc.say ?? sc.title ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
     md += `| ${s.i} | ${sc.type} | ${fmt(s.t0)} | ${s.d.toFixed(1)}s | ${say} | ${mine.map((r) => `${r.t.toFixed(1)}: ${r.what}`).join("; ")}${flags.length ? " **" + flags.join(", ") + "**" : ""} |\n`;
   }
@@ -41,11 +44,12 @@ if (mode === "plan") {
 } else if (mode === "sheets") {
   const [out] = a;
   const tiles = JSON.parse(fs.readFileSync(`${out}/tiles.json`, "utf8"));
+  const mmss = (t) => `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
   const name = (t) => `${out}/frames/at-${String(+t.toFixed(3))}s.png`;
   let n = 0;
   for (let k = 0; k < tiles.length; k += PER) {
     const args = [];
-    for (const t of tiles.slice(k, k + PER)) args.push("-label", `S${t.scene} ${t.type} @${t.t}s: ${t.what}`.slice(0, 70), name(t.t));
+    for (const t of tiles.slice(k, k + PER)) args.push("-label", `s${t.scene} ${t.type} · ${mmss(t.t)} · ${t.what}`.slice(0, 64), name(t.t));
     const f = `${out}/sheet-${String(++n).padStart(2, "0")}.png`;
     execFileSync("montage", ["-pointsize", "16", "-background", "#222", "-fill", "white", ...args, "-tile", "3x4", "-geometry", "640x360+4+4", f]);
   }

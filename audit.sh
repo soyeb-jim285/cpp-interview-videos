@@ -10,7 +10,7 @@ id=$(basename "$f" .json)
 node flatten.mjs "$f"
 node validate.mjs "build/$id.json"
 [ -n "${AUDIT_SKIP_COVERAGE:-}" ] || node coverage.mjs --lesson "$f"
-"${PY:-.venv/bin/python}" tts.py "build/$id.json" 2>&1 | grep -vi warn || true
+"${PY:-.venv/bin/python}" tts.py "build/$id.json" > "build/$id.tts.log" 2>&1 || { grep -vi warn "build/$id.tts.log" | tail -20; echo "TTS failed" >&2; exit 1; }
 mkdir -p "$id"; cp -n hf/hyperframes.json hf/package.json "$id/"
 node build.mjs "build/$id.json"
 out=audit/out/$id; rm -rf "$out"
