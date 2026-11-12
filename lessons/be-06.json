@@ -1,0 +1,1373 @@
+{
+ "id": "be-06",
+ "track": "Backend",
+ "num": 6,
+ "title": "Scaling, SQL vs NoSQL & CAP",
+ "covers": [
+  "be05",
+  "be11",
+  "be12"
+ ],
+ "caps": [
+  [
+   "Big O",
+   "Big-O"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Add servers, not hope",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "One server handles a thousand requests a second, then it falls over. You'll take it to a hundred thousand, defend every database choice, and answer the C A P question.",
+     "lines": [
+      {
+       "text": "1 server = 1,000 requests/s",
+       "cue": "One server"
+      },
+      {
+       "text": "Then it falls over.",
+       "cue": "falls over"
+      },
+      {
+       "text": "Take it to 100,000.",
+       "cue": "hundred thousand"
+      },
+      {
+       "text": "Defend every choice.",
+       "cue": "defend every",
+       "accent": "every choice"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Scale one server to a hundred thousand requests a second. Choose a database and defend it. And answer what happens when the network splits.",
+     "lines": [
+      "Scale 1,000 to 100,000 requests/s",
+      "Choose and defend a database",
+      "Answer the CAP split question"
+     ],
+     "cues": [
+      "Scale one server",
+      "Choose a database",
+      "answer what happens"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "One server, 100,000 req/s",
+     "statement": "One app server maxes out at 1,000 requests a second. Traffic is 100,000. Scale it without logging users out.",
+     "example": {
+      "input": "1 server, 1,000 req/s",
+      "output": "100,000 req/s served"
+     },
+     "note": "users stay logged in",
+     "say": "Here is the problem. One server tops out at a thousand requests a second. For example, traffic is a hundred thousand. We want to serve all of it. And users must stay logged in.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to serve",
+      "note": "stay logged in"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "One server vs the traffic",
+     "unit": "req/s",
+     "say": "Here's why this matters. Interviewers love scaling, because it tests whether you measure first. One server tops out near a thousand requests a second. Your traffic is a hundred thousand. The order you fix things in is the answer.",
+     "bars": [
+      {
+       "label": "One server",
+       "value": 1000,
+       "tone": "bad",
+       "cue": "One server tops"
+      },
+      {
+       "label": "Traffic",
+       "value": 100000,
+       "tone": "warn",
+       "cue": "Your traffic is"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A shop with a long line",
+     "say": "A shop has a long line. You can hire a faster cashier, or open more checkouts. A faster cashier hits a limit. More checkouts keep growing, but share one warehouse. In your system, the warehouse is the database.",
+     "items": [
+      {
+       "label": "problem",
+       "text": "long line",
+       "tone": "bad",
+       "cue": "long line"
+      },
+      {
+       "label": "option 1: vertical",
+       "text": "faster cashier",
+       "sub": "hits a limit",
+       "tone": "blue",
+       "cue": "faster cashier"
+      },
+      {
+       "label": "option 2: horizontal",
+       "text": "more checkouts",
+       "sub": "keeps growing",
+       "tone": "good",
+       "cue": "more checkouts"
+      },
+      {
+       "label": "the catch",
+       "text": "one warehouse",
+       "sub": "= the database",
+       "tone": "warn",
+       "cue": "one warehouse"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Vertical vs horizontal",
+     "say": "Vertical means a bigger machine, horizontal means more machines. Good: vertical is simple, horizontal has no single point of failure. Limit: vertical hits a hardware ceiling, horizontal adds moving parts. Needs: horizontal needs a stateless app behind a load balancer.",
+     "heads": [
+      "Vertical: bigger box",
+      "Horizontal: more boxes"
+     ],
+     "rowHeads": [
+      "Good",
+      "Limit",
+      "Needs"
+     ],
+     "rows": [
+      [
+       "simple, no code changes",
+       "no single point of failure"
+      ],
+      [
+       "hardware ceiling, can die",
+       "more moving parts"
+      ],
+      [
+       "nothing",
+       "stateless app + load balancer"
+      ]
+     ],
+     "cues": [
+      "Good",
+      "Limit",
+      "Needs"
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Load balancer, identical copies",
+     "say": "The load balancer spreads requests across identical copies of the app. Add a third copy, and capacity grows by a thousand requests a second. One copy dies, and traffic simply goes to the others.",
+     "items": [
+      {
+       "id": "lb",
+       "x": 140,
+       "y": 420,
+       "w": 300,
+       "h": 150,
+       "label": "Load balancer",
+       "text": "round robin",
+       "size": 32,
+       "tone": "blue",
+       "cue": "The load balancer"
+      },
+      {
+       "id": "p1",
+       "x": 700,
+       "y": 230,
+       "w": 300,
+       "h": 120,
+       "text": "App 1",
+       "size": 36,
+       "tone": "good",
+       "cue": "identical copies"
+      },
+      {
+       "id": "p2",
+       "x": 700,
+       "y": 440,
+       "w": 300,
+       "h": 120,
+       "text": "App 2",
+       "size": 36,
+       "tone": "good",
+       "cue": "identical copies"
+      },
+      {
+       "id": "p3",
+       "x": 700,
+       "y": 650,
+       "w": 300,
+       "h": 120,
+       "text": "App 3",
+       "size": 36,
+       "tone": "ghost",
+       "cue": "Add a third"
+      },
+      {
+       "id": "cap",
+       "x": 1380,
+       "y": 440,
+       "w": 380,
+       "h": 150,
+       "label": "capacity (req/s)",
+       "text": "2000",
+       "size": 56,
+       "tone": "warn",
+       "cue": "capacity grows"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "lb",
+       "to": "p1",
+       "cue": "identical copies"
+      },
+      {
+       "from": "lb",
+       "to": "p2",
+       "cue": "identical copies"
+      },
+      {
+       "from": "lb",
+       "to": "p3",
+       "cue": "Add a third"
+      }
+     ],
+     "changes": [
+      {
+       "id": "p3",
+       "tone": "good",
+       "cue": "Add a third"
+      },
+      {
+       "id": "cap",
+       "count": [
+        2000,
+        3000
+       ],
+       "cue": "capacity grows"
+      },
+      {
+       "id": "p2",
+       "kill": true,
+       "cue": "copy dies"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Why stateless matters",
+     "say": "Here's stateless, by breaking it. Each server keeps sessions in its own memory. Ana logs in on server A. The balancer sends her next request to server B. B has never heard of her. She's logged out.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class Server:\n    def __init__(self):\n        self.sessions = {}\n    def login(self, u): self.sessions[u] = \"ok\"\n    def whoami(self, u): return self.sessions.get(u, \"logged out\")\na, b = Server(), Server()\na.login(\"ana\")\nprint(b.whoami(\"ana\"))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "its own memory"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Ana logs in"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "next request to server B"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "logged out",
+      "tone": "bad",
+      "cue": "She's logged out"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. How do you fix it? Where should the session live, so that any server can read it? Pause and predict.",
+     "q": "Where should sessions live so any server works?",
+     "options": [
+      "Server A's memory",
+      "Shared Redis",
+      "Each server's disk",
+      "A bigger server"
+     ],
+     "answer": "Shared Redis"
+    },
+    {
+     "type": "diagram",
+     "head": "State lives outside the app",
+     "say": "A shared store, like Redis. Now any server can read Ana's session. Sessions and cache live in Redis, durable data lives in the database. Kill a server and nobody is logged out.",
+     "items": [
+      {
+       "id": "lb",
+       "x": 140,
+       "y": 420,
+       "w": 300,
+       "h": 150,
+       "label": "Load balancer",
+       "text": "round robin",
+       "size": 32,
+       "tone": "blue"
+      },
+      {
+       "id": "p1",
+       "x": 700,
+       "y": 230,
+       "w": 300,
+       "h": 120,
+       "text": "App 1",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "p2",
+       "x": 700,
+       "y": 440,
+       "w": 300,
+       "h": 120,
+       "text": "App 2",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "p3",
+       "x": 700,
+       "y": 650,
+       "w": 300,
+       "h": 120,
+       "text": "App 3",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "rd",
+       "x": 1380,
+       "y": 230,
+       "w": 380,
+       "h": 150,
+       "label": "Shared state",
+       "text": "Redis",
+       "sub": "sessions, cache",
+       "size": 38,
+       "tone": "warn",
+       "cue": "A shared store"
+      },
+      {
+       "id": "db",
+       "x": 1380,
+       "y": 650,
+       "w": 380,
+       "h": 150,
+       "label": "Database",
+       "text": "Postgres",
+       "size": 38,
+       "tone": "blue",
+       "cue": "durable data"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "lb",
+       "to": "p1"
+      },
+      {
+       "from": "lb",
+       "to": "p2"
+      },
+      {
+       "from": "lb",
+       "to": "p3"
+      },
+      {
+       "from": "p1",
+       "to": "rd",
+       "cue": "read Ana's session"
+      },
+      {
+       "from": "p3",
+       "to": "db",
+       "cue": "durable data"
+      }
+     ],
+     "changes": [
+      {
+       "id": "rd",
+       "glow": true,
+       "tone": "good",
+       "cue": "read Ana's session"
+      },
+      {
+       "id": "p1",
+       "kill": true,
+       "cue": "Kill a server"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The database is the bottleneck",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "One database, many servers",
+     "statement": "Every app server hits one database. Reads and writes pile up on one machine.",
+     "example": {
+      "input": "10,000 queries/s reach 1 database",
+      "output": "the database keeps up"
+     },
+     "note": "reads must be fresh enough",
+     "say": "New problem. A hundred app servers now share one database. For example, ten thousand queries a second reach it. We want it to keep up. And reads must stay fresh enough.",
+     "cues": {
+      "example": "For example",
+      "output": "We want it",
+      "note": "fresh enough"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Replicas, and replica lag",
+     "say": "App servers are easy to copy. The database is not. Writes go to one primary, which copies them to read replicas. A user posts a comment and refreshes. The replica hasn't caught up, so the comment is gone. That's replica lag. For your own fresh writes, read from the primary.",
+     "items": [
+      {
+       "id": "ap",
+       "x": 160,
+       "y": 440,
+       "w": 300,
+       "h": 140,
+       "text": "App servers",
+       "size": 34,
+       "tone": "blue",
+       "cue": "App servers"
+      },
+      {
+       "id": "pr",
+       "x": 810,
+       "y": 250,
+       "w": 380,
+       "h": 150,
+       "label": "Primary",
+       "text": "writes",
+       "size": 38,
+       "tone": "warn",
+       "cue": "one primary"
+      },
+      {
+       "id": "rp",
+       "x": 810,
+       "y": 640,
+       "w": 380,
+       "h": 150,
+       "label": "Read replica",
+       "text": "reads",
+       "size": 38,
+       "tone": "good",
+       "cue": "read replicas"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ap",
+       "to": "pr",
+       "cue": "one primary"
+      },
+      {
+       "from": "pr",
+       "to": "rp",
+       "label": "copies",
+       "cue": "copies them"
+      },
+      {
+       "from": "ap",
+       "to": "rp",
+       "cue": "refreshes"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1250,
+       "y": 680,
+       "text": "lag: a moment behind",
+       "tone": "bad",
+       "cue": "replica lag"
+      },
+      {
+       "x": 1250,
+       "y": 290,
+       "text": "fresh? read from primary",
+       "tone": "good",
+       "cue": "read from the primary"
+      }
+     ],
+     "changes": [
+      {
+       "id": "pr",
+       "text": "comment",
+       "tone": "good",
+       "cue": "posts a comment"
+      },
+      {
+       "id": "rp",
+       "text": "not yet",
+       "tone": "bad",
+       "cue": "hasn't caught up"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Sharding by user id",
+     "say": "The primary can't keep up? You shard. Split rows across databases by a key. Here the key is user id, and the rule is user id modulo four. Seven goes to database three. Twelve goes to zero. Why user id? Millions of values, spread evenly.",
+     "panels": [
+      {
+       "file": "shard.py",
+       "code": "def shard(user_id):\n    return user_id % 4\nfor uid in [7, 12, 1001]:\n    print(uid, \"goes to db\", shard(uid))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Split rows"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Here the key"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "modulo four"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Seven goes"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "same user, same shard",
+       "tone": "good",
+       "cue": "Why user id"
+      }
+     ],
+     "output": {
+      "cmd": "python shard.py",
+      "text": "7 goes to db 3\n12 goes to db 0\n1001 goes to db 1",
+      "cue": "Twelve goes"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. You grow from four shards to five, and the rule becomes user id modulo five. Roughly what share of users stay on the same shard? Pause and predict.",
+     "q": "4 shards to 5, with user_id % N. Share that stay?",
+     "options": [
+      "about 80%",
+      "about 50%",
+      "about 20%",
+      "all of them"
+     ],
+     "answer": "about 20%"
+    },
+    {
+     "type": "chart",
+     "head": "Adding one shard",
+     "unit": "%",
+     "say": "About twenty percent. The chart counts users who stay on their shard. The other eighty percent move. That's why shard counts are painful. Consistent hashing moves fewer.",
+     "bars": [
+      {
+       "label": "Stay",
+       "value": 20,
+       "tone": "good",
+       "cue": "About twenty percent"
+      },
+      {
+       "label": "Move",
+       "value": 80,
+       "tone": "bad",
+       "cue": "other eighty percent"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Order of attack",
+     "say": "So the order of attack. First, measure to find the bottleneck. Then cheap wins: indexes, a cache, queues, a C D N. Next, scale out the stateless app tier. Then read replicas. Shard last, because it adds permanent complexity.",
+     "items": [
+      {
+       "label": "1",
+       "text": "Measure",
+       "sub": "find the bottleneck",
+       "cue": "First, measure"
+      },
+      {
+       "label": "2",
+       "text": "Cache",
+       "sub": "index, queue, CDN",
+       "cue": "cheap wins"
+      },
+      {
+       "label": "3",
+       "text": "Scale out",
+       "sub": "stateless app",
+       "cue": "scale out"
+      },
+      {
+       "label": "4",
+       "text": "Replicas",
+       "sub": "split reads",
+       "cue": "read replicas"
+      },
+      {
+       "label": "5",
+       "text": "Shard",
+       "sub": "last resort",
+       "tone": "warn",
+       "cue": "Shard last"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Whiteboard math",
+     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache absorbs ninety percent. Of the rest, eight thousand are reads, spread over four replicas. Two thousand writes hit the primary. Past that, shard four ways.",
+     "heads": [
+      "Layer",
+      "100,000 req/s"
+     ],
+     "rows": [
+      [
+       "100 app servers",
+       "1,000 each handles it all"
+      ],
+      [
+       "Cache absorbs 90%",
+       "10,000 reach the database"
+      ],
+      [
+       "4 read replicas",
+       "8,000 reads: 2,000 each"
+      ],
+      [
+       "Primary",
+       "2,000 writes; shard: 500 each"
+      ]
+     ],
+     "cues": [
+      "A hundred servers",
+      "A cache",
+      "four replicas",
+      "Two thousand writes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "SQL or NoSQL?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Mongo or Postgres?",
+     "statement": "Pick a database for orders, and another for billions of event logs. Defend both picks.",
+     "example": {
+      "input": "orders; billions of event logs",
+      "output": "a pick and a reason each"
+     },
+     "note": "start from access patterns",
+     "say": "New problem. Pick a database for orders, and one for billions of event logs. For example, both. We want a pick and a reason for each. Start from access patterns.",
+     "cues": {
+      "example": "For example",
+      "output": "We want a pick",
+      "note": "access patterns"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Two ways to store an order",
+     "say": "Mongo or Postgres? Start from access patterns, not favorites. Two ways to store orders. S Q L is linked spreadsheets: an orders sheet and an items sheet, joined by id. A document store keeps a folder per order, items inside.",
+     "items": [
+      {
+       "id": "s1",
+       "x": 140,
+       "y": 330,
+       "w": 660,
+       "h": 140,
+       "label": "SQL: linked spreadsheets",
+       "text": "orders sheet",
+       "size": 38,
+       "tone": "blue",
+       "cue": "S Q L is"
+      },
+      {
+       "id": "s2",
+       "x": 140,
+       "y": 600,
+       "w": 660,
+       "h": 140,
+       "text": "items sheet",
+       "size": 38,
+       "tone": "blue",
+       "cue": "an items sheet"
+      },
+      {
+       "id": "d1",
+       "x": 1060,
+       "y": 330,
+       "w": 700,
+       "h": 410,
+       "label": "Document store: a folder per order",
+       "text": "order 7, items inside",
+       "size": 40,
+       "tone": "warn",
+       "cue": "A document store"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "s1",
+       "to": "s2",
+       "label": "joined by id",
+       "cue": "joined by id"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Same order, two shapes",
+     "say": "In S Q L, you join two tables to rebuild order seven. You get one row per item. In a document store, order seven is stored whole, items nested inside. One lookup reads it. Which product sold best across all orders? Easy in S Q L, awkward in documents.",
+     "panels": [
+      {
+       "file": "order.sql",
+       "code": "SELECT o.id, i.sku, i.qty\nFROM orders o\nJOIN order_items i\n  ON i.order_id = o.id\nWHERE o.id = 7;"
+      },
+      {
+       "file": "order.json",
+       "code": "{\"id\": 7, \"user\": 3,\n \"items\": [\n  {\"sku\": \"A1\", \"qty\": 2},\n  {\"sku\": \"B9\", \"qty\": 1}\n ]}"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "join two tables"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "stored whole"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "nested inside"
+      },
+      {
+       "lines": [],
+       "cue": "Which product"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 shop.db < order.sql",
+      "text": "7|A1|2\n7|B9|1",
+      "cue": "one row per item"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "How to choose",
+     "say": "Compare on five things. Shape: tables or documents. Relationships: joins are natural in S Q L. Transactions: strong across rows in S Q L. Scaling: S Q L goes up first, then replicas. Schema: enforced by the database, or by your code.",
+     "heads": [
+      "SQL (Postgres)",
+      "NoSQL (Mongo, Dynamo)"
+     ],
+     "rowHeads": [
+      "Shape",
+      "Relations",
+      "Transactions",
+      "Scaling",
+      "Schema"
+     ],
+     "rows": [
+      [
+       "tables, fixed columns",
+       "documents, keys, flexible"
+      ],
+      [
+       "joins are natural",
+       "duplicate, or look up in code"
+      ],
+      [
+       "strong, multi-row",
+       "often per item, varies"
+      ],
+      [
+       "up first, then replicas",
+       "built to spread across nodes"
+      ],
+      [
+       "enforced by the database",
+       "enforced by your code"
+      ]
+     ],
+     "cues": [
+      "Shape",
+      "Relationships",
+      "Transactions",
+      "Scaling",
+      "Schema"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A bank moves fifty dollars from one account to another. Both changes happen, or neither. Which store is the best default? Pause and predict.",
+     "q": "Money moves between accounts, all or nothing. Best default?",
+     "options": [
+      "Postgres",
+      "Document store",
+      "Redis cache",
+      "Log files"
+     ],
+     "answer": "Postgres"
+    },
+    {
+     "type": "compare",
+     "head": "Match data to store",
+     "say": "Postgres. Money needs all or nothing transactions. Event logs, billions of rows read by key, fit a document or wide column store. Carts and sessions are one lookup by key. Odd extra fields beside normal tables? Postgres has a JSONB type.",
+     "heads": [
+      "Data",
+      "Pick",
+      "Because"
+     ],
+     "rows": [
+      [
+       "Orders, payments",
+       "Postgres",
+       "joins, transactions"
+      ],
+      [
+       "Event logs",
+       "Document store",
+       "append, huge, key access"
+      ],
+      [
+       "Carts, sessions",
+       "Key-value",
+       "one lookup by key"
+      ],
+      [
+       "Odd extra fields",
+       "Postgres JSONB",
+       "no second database"
+      ]
+     ],
+     "cues": [
+      "Postgres.",
+      "Event logs",
+      "Carts and sessions",
+      "Odd extra"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When the network splits",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "The network splits",
+     "statement": "Two data centers lose contact, and a user reads from one of them. Answer with stale data, or refuse?",
+     "example": {
+      "input": "link down; x=2 written on A; read on B",
+      "output": "x=1 (stale) or an error"
+     },
+     "note": "you must pick one",
+     "say": "Last problem. Two data centers lose contact. For example, a write lands on A, and a read lands on B. We want a clear answer: stale, or an error. You must pick one.",
+     "cues": {
+      "example": "For example",
+      "output": "We want a clear",
+      "note": "pick one"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Two bank branches",
+     "say": "Two bank branches share one account, balance one hundred. The phone line between them goes down. A customer withdraws forty at branch A. Branch B can't know. Someone asks B for the balance. Guess one hundred, or say come back later? That dilemma is the C A P theorem.",
+     "items": [
+      {
+       "id": "ba",
+       "x": 200,
+       "y": 380,
+       "w": 420,
+       "h": 170,
+       "label": "Branch A",
+       "text": "balance 100",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Two bank branches"
+      },
+      {
+       "id": "bb",
+       "x": 1300,
+       "y": 380,
+       "w": 420,
+       "h": 170,
+       "label": "Branch B",
+       "text": "balance 100",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Two bank branches"
+      },
+      {
+       "id": "qq",
+       "x": 1300,
+       "y": 700,
+       "w": 420,
+       "h": 110,
+       "text": "balance?",
+       "size": 40,
+       "tone": "warn",
+       "cue": "asks B"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ba",
+       "to": "bb",
+       "label": "phone line",
+       "tone": "good",
+       "cue": "phone line"
+      },
+      {
+       "from": "qq",
+       "to": "bb",
+       "cue": "asks B"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a0",
+       "tone": "bad",
+       "cue": "goes down"
+      },
+      {
+       "id": "ba",
+       "text": "balance 60",
+       "cue": "withdraws forty"
+      },
+      {
+       "id": "qq",
+       "text": "guess: 100",
+       "cue": "Guess one hundred"
+      },
+      {
+       "id": "qq",
+       "text": "come back later",
+       "tone": "good",
+       "cue": "come back later"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A partition: B must choose",
+     "say": "Same thing with data. Replica A and replica B hold x, which is one. The link breaks. That's a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it. Now a read arrives at B. B has exactly two choices.",
+     "items": [
+      {
+       "id": "ra",
+       "x": 200,
+       "y": 330,
+       "w": 400,
+       "h": 170,
+       "label": "Replica A",
+       "text": "x = 1",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Replica A"
+      },
+      {
+       "id": "rb",
+       "x": 1320,
+       "y": 330,
+       "w": 400,
+       "h": 170,
+       "label": "Replica B",
+       "text": "x = 1",
+       "size": 48,
+       "tone": "blue",
+       "cue": "replica B"
+      },
+      {
+       "id": "wr",
+       "x": 200,
+       "y": 700,
+       "w": 300,
+       "h": 120,
+       "text": "write x = 2",
+       "size": 34,
+       "tone": "warn",
+       "cue": "A write arrives"
+      },
+      {
+       "id": "rd",
+       "x": 1320,
+       "y": 700,
+       "w": 300,
+       "h": 120,
+       "text": "read x",
+       "size": 34,
+       "tone": "warn",
+       "cue": "a read arrives"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ra",
+       "to": "rb",
+       "label": "partition",
+       "tone": "bad",
+       "cue": "The link breaks"
+      },
+      {
+       "from": "wr",
+       "to": "ra",
+       "cue": "A write arrives"
+      },
+      {
+       "from": "rd",
+       "to": "rb",
+       "cue": "a read arrives"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ra",
+       "text": "x = 2",
+       "tone": "good",
+       "cue": "A accepts it"
+      },
+      {
+       "id": "rb",
+       "glow": true,
+       "tone": "warn",
+       "cue": "two choices"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. During the partition, B refuses to answer rather than risk a stale value. Which side of C A P did B choose? Pause and predict.",
+     "q": "During a partition, B refuses to answer. It chose...",
+     "options": [
+      "Availability (AP)",
+      "Consistency (CP)",
+      "Both",
+      "Neither"
+     ],
+     "answer": "Consistency (CP)"
+    },
+    {
+     "type": "compare",
+     "head": "B has two choices",
+     "say": "Consistency. B gives up availability to avoid a wrong answer. Choice one: B says x is one. Choice two: B waits until healed. Result: stale but up, or never stale with failed requests. Examples: Cassandra leans available, Zookeeper and etcd lean consistent.",
+     "heads": [
+      "Answer: stay available (AP)",
+      "Refuse: stay consistent (CP)"
+     ],
+     "rowHeads": [
+      "B says",
+      "Result",
+      "Examples"
+     ],
+     "rows": [
+      [
+       "x is one, best knowledge",
+       "error, or wait until healed"
+      ],
+      [
+       "stale, but service is up",
+       "never stale, some requests fail"
+      ],
+      [
+       "Cassandra, Dynamo style",
+       "Zookeeper, etcd, ledgers"
+      ]
+     ],
+     "cues": [
+      "Choice one",
+      "Result",
+      "Examples"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Eventual consistency, healed",
+     "say": "Availability-first systems offer eventual consistency. Each value carries a timestamp. A holds two at time five. B still says one. After the link heals, merge keeps the newest. Both now say two. Fine for likes and feeds, wrong for balances.",
+     "panels": [
+      {
+       "file": "merge.py",
+       "code": "def merge(p, q):\n    return max(p, q, key=lambda v: v[1])\na, b = (1, 0), (1, 0)\na = (2, 5)\nprint(\"B says\", b[0])\nm = merge(a, b)\na, b = m, m\nprint(\"healed\", a[0], b[0])"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "A holds two"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "B still says one"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "merge keeps"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Both now say two"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "last write wins",
+       "tone": "warn",
+       "cue": "newest"
+      }
+     ],
+     "output": {
+      "cmd": "python merge.py",
+      "text": "B says 1\nhealed 2 2",
+      "cue": "Fine for likes"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "CAP myths in interviews",
+     "say": "Pick any two of three? No. In a partition you choose consistency or availability. Is eventual consistency bad? Fine for feeds, not balances. Conflicting writes? Last write wins can drop one. Version vectors detect it.",
+     "heads": [
+      "Myth or question",
+      "Truth"
+     ],
+     "rows": [
+      [
+       "Pick any two of three?",
+       "Partitions happen: choose C or A during one"
+      ],
+      [
+       "Eventual consistency is bad?",
+       "Fine for feeds, not balances"
+      ],
+      [
+       "Conflicting writes?",
+       "Last write wins, or version vectors"
+      ]
+     ],
+     "cues": [
+      "Pick any two",
+      "Is eventual",
+      "Conflicting writes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be11"
+     ],
+     "say": "How do you scale a service? Measure, cache, go stateless, add replicas. Shard last. Why stateless? Any server can serve any request. Shard key? Many values, even spread, like user id.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How do you scale it?",
+       "Measure, cache, scale out, replicas, shard last"
+      ],
+      [
+       "Why stateless?",
+       "Any server can serve any request"
+      ],
+      [
+       "Shard key?",
+       "Many values, even spread: user id"
+      ]
+     ],
+     "cues": [
+      "How do you scale",
+      "Why stateless",
+      "Shard key"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be05"
+     ],
+     "say": "Which database? Postgres first. Move to No S Q L for scale or key access. Can Postgres store J S O N? Yes, JSONB. The mistake: choosing No S Q L because it's trendy.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Which database?",
+       "Postgres first; NoSQL for scale, key access"
+      ],
+      [
+       "JSON in Postgres?",
+       "Yes, the JSONB type"
+      ],
+      [
+       "Common mistake?",
+       "NoSQL because it's trendy"
+      ]
+     ],
+     "cues": [
+      "Which database",
+      "Can Postgres",
+      "The mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be12"
+     ],
+     "say": "Explain C A P. Partitions happen, so during one you choose consistency or availability. Eventual consistency? Replicas converge once writes stop. Fine for likes, not balances. Conflicting writes? Last write wins, or version vectors.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Explain CAP.",
+       "In a partition: consistent or available"
+      ],
+      [
+       "Eventual consistency?",
+       "Replicas converge; fine for likes"
+      ],
+      [
+       "Conflicting writes?",
+       "Last write wins, version vectors"
+      ]
+     ],
+     "cues": [
+      "Explain C A P",
+      "Eventual consistency",
+      "Conflicting writes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Build these next",
+     "say": "Three exercises. Run two copies of a small web app, and move the sessions into Redis. Count how many ids move from four shards to five. Then explain C A P to a friend, using two bank branches.",
+     "heads": [
+      "Build next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Two app copies, shared sessions",
+       "feel stateless in practice"
+      ],
+      [
+       "Count ids moving 4 to 5 shards",
+       "see the 80% for yourself"
+      ],
+      [
+       "Explain CAP with two branches",
+       "say it out loud"
+      ]
+     ],
+     "cues": [
+      "Run two copies",
+      "Count how many",
+      "explain C A P"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Measure first, then cache, stateless servers, replicas, and shard last. Start with Postgres, and choose NoSQL for access patterns. In a partition, pick consistency or availability.",
+     "lines": [
+      "Measure; cache, scale out, replicas; shard last.",
+      "Postgres first; NoSQL for the access pattern.",
+      "In a partition: consistent or available."
+     ],
+     "cues": [
+      "Measure first",
+      "Start with Postgres",
+      "In a partition"
+     ]
+    }
+   ]
+  }
+ ]
+}

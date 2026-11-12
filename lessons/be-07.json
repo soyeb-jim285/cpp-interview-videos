@@ -1,0 +1,1332 @@
+{
+ "id": "be-07",
+ "track": "Backend",
+ "num": 7,
+ "title": "System Design & Debugging Production",
+ "covers": [
+  "be14",
+  "be15"
+ ],
+ "caps": [
+  [
+   "bit dot ly",
+   "bit.ly"
+  ],
+  [
+   "three oh two",
+   "302"
+  ],
+  [
+   "three oh one",
+   "301"
+  ],
+  [
+   "N plus one",
+   "N+1"
+  ],
+  [
+   "p ninety nine",
+   "p99"
+  ],
+  [
+   "p fifty",
+   "p50"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Design bit.ly in ten minutes",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "An interviewer says: design bit dot ly. You have ten minutes. By the end, you'll answer in five steps with real numbers, then debug a slow endpoint like a senior engineer.",
+     "lines": [
+      {
+       "text": "Design bit.ly. 10 minutes.",
+       "cue": "design bit dot ly"
+      },
+      {
+       "text": "Five steps. Real numbers.",
+       "cue": "five steps"
+      },
+      {
+       "text": "Then debug it like a senior.",
+       "cue": "debug a slow endpoint",
+       "accent": "senior"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Design bit dot ly with real numbers. Find a slow step with a trace. Fix it, then verify.",
+     "lines": [
+      "Design bit.ly with real numbers",
+      "Find a slow step with a trace",
+      "Fix it, then verify"
+     ],
+     "cues": [
+      "Design bit dot ly",
+      "Find a slow step",
+      "Fix it"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Design bit.ly",
+     "statement": "Design a URL shortener: create short links, and redirect each one to its long URL.",
+     "example": {
+      "input": "100M new links a month, reads 100x writes",
+      "output": "a design in 10 minutes"
+     },
+     "say": "Here is the problem. Design a short link service. For example, a hundred million new links a month, and reads a hundred times writes. We want a design in ten minutes.",
+     "cues": {
+      "example": "For example",
+      "output": "We want a design"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A coat check ticket",
+     "say": "Think of a coat check. You hand over a huge coat, and get a small ticket. Later, you show the ticket and get the coat back. The coat is the long U R L. The ticket is the short code.",
+     "items": [
+      {
+       "label": "you hand over",
+       "text": "huge coat",
+       "tone": "blue",
+       "cue": "hand over a huge"
+      },
+      {
+       "label": "you get",
+       "text": "small ticket",
+       "tone": "warn",
+       "cue": "small ticket"
+      },
+      {
+       "label": "later",
+       "text": "ticket back",
+       "sub": "coat returned",
+       "tone": "good",
+       "cue": "show the ticket"
+      },
+      {
+       "label": "so",
+       "text": "ticket = code",
+       "sub": "coat = long URL",
+       "cue": "The coat is"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Five steps you can repeat",
+     "say": "Use five steps. Numbers first. Then the short code. Then the boxes. Then the read path. Then scale and trade-offs.",
+     "items": [
+      {
+       "label": "1",
+       "text": "Numbers",
+       "tone": "warn",
+       "cue": "Numbers first"
+      },
+      {
+       "label": "2",
+       "text": "Code",
+       "cue": "short code"
+      },
+      {
+       "label": "3",
+       "text": "Boxes",
+       "cue": "the boxes"
+      },
+      {
+       "label": "4",
+       "text": "Read path",
+       "cue": "read path"
+      },
+      {
+       "label": "5",
+       "text": "Scale",
+       "tone": "good",
+       "cue": "Then scale"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Step one is numbers. A hundred million new links a month, and a month has about two and a half million seconds. About how many writes per second? Pause and predict.",
+     "q": "100M links a month ÷ 2.6M seconds. Writes per second?",
+     "options": [
+      "4",
+      "40",
+      "400",
+      "4,000"
+     ],
+     "answer": "40"
+    },
+    {
+     "type": "diagram",
+     "head": "Back-of-envelope numbers",
+     "say": "About forty. A hundred million divided by two and a half million seconds is forty writes a second. Reads are a hundred times more: four thousand a second. Five years is six billion links. At five hundred bytes each, that's three terabytes.",
+     "items": [
+      {
+       "id": "mo",
+       "x": 160,
+       "y": 440,
+       "w": 340,
+       "h": 150,
+       "label": "new links",
+       "text": "100M / month",
+       "size": 36,
+       "tone": "blue",
+       "cue": "hundred million"
+      },
+      {
+       "id": "wr",
+       "x": 800,
+       "y": 250,
+       "w": 320,
+       "h": 150,
+       "label": "writes / s",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "forty writes"
+      },
+      {
+       "id": "rd",
+       "x": 800,
+       "y": 640,
+       "w": 320,
+       "h": 150,
+       "label": "reads / s",
+       "text": "0",
+       "size": 56,
+       "tone": "good",
+       "cue": "Reads are"
+      },
+      {
+       "id": "st",
+       "x": 1400,
+       "y": 440,
+       "w": 340,
+       "h": 150,
+       "label": "5 years, TB",
+       "text": "0",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Five years"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "mo",
+       "to": "wr",
+       "cue": "forty writes"
+      },
+      {
+       "from": "mo",
+       "to": "rd",
+       "cue": "Reads are"
+      },
+      {
+       "from": "mo",
+       "to": "st",
+       "cue": "Five years"
+      }
+     ],
+     "changes": [
+      {
+       "id": "wr",
+       "count": [
+        0,
+        40
+       ],
+       "cue": "forty writes a second"
+      },
+      {
+       "id": "rd",
+       "count": [
+        0,
+        4000
+       ],
+       "dur": 1.5,
+       "cue": "four thousand"
+      },
+      {
+       "id": "st",
+       "count": [
+        0,
+        3
+       ],
+       "cue": "three terabytes"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Numbers make decisions",
+     "say": "These numbers make the decisions. Forty writes a second? One primary is plenty. Four thousand reads? Cache the hot links, add replicas. Three terabytes? One database to start. Sharding before doing this math is the classic mistake.",
+     "heads": [
+      "Number",
+      "Decision"
+     ],
+     "rows": [
+      [
+       "40 writes/s",
+       "one primary is plenty"
+      ],
+      [
+       "4,000 reads/s",
+       "cache hot links + replicas"
+      ],
+      [
+       "3 TB in 5 years",
+       "one database to start"
+      ]
+     ],
+     "cues": [
+      "Forty writes",
+      "Four thousand",
+      "Three terabytes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Make the short code",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Short codes",
+     "statement": "Turn a database row id into a short, unique code.",
+     "example": {
+      "input": "row id 125",
+      "output": "code 21"
+     },
+     "note": "7 characters at most",
+     "say": "New problem. Turn a row id into a short, unique code. For example, row id one twenty five. We want the code two, one. Seven characters at most.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the code",
+      "note": "Seven characters"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "More symbols, shorter codes",
+     "say": "Think of a combination lock. Ten digits per wheel is ten options. Add lowercase letters, and it's thirty six. Add uppercase, and each wheel has sixty two. Seven wheels of sixty two: three and a half trillion codes.",
+     "items": [
+      {
+       "label": "digits",
+       "text": "10 symbols",
+       "cue": "Ten digits"
+      },
+      {
+       "label": "plus a to z",
+       "text": "36 symbols",
+       "tone": "blue",
+       "cue": "lowercase letters"
+      },
+      {
+       "label": "plus A to Z",
+       "text": "62 symbols",
+       "tone": "good",
+       "cue": "uppercase"
+      },
+      {
+       "label": "7 characters",
+       "text": "3.5 trillion",
+       "sub": "62 to the 7th",
+       "tone": "warn",
+       "cue": "Seven wheels"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Row 125 becomes code 21",
+     "say": "Take row id one twenty five. Divide by sixty two: two, remainder one. The remainder is the last character, one. Two is below sixty two, so it's the first character. The code is two, one.",
+     "items": [
+      {
+       "id": "n",
+       "x": 160,
+       "y": 440,
+       "w": 260,
+       "h": 150,
+       "label": "row id",
+       "text": "125",
+       "size": 56,
+       "tone": "blue",
+       "cue": "row id one"
+      },
+      {
+       "id": "dv",
+       "x": 560,
+       "y": 440,
+       "w": 340,
+       "h": 150,
+       "label": "divide by 62",
+       "text": "2 r 1",
+       "size": 48,
+       "tone": "warn",
+       "cue": "Divide by sixty two"
+      },
+      {
+       "id": "c1",
+       "x": 1040,
+       "y": 300,
+       "w": 260,
+       "h": 140,
+       "label": "last char",
+       "text": "1",
+       "size": 56,
+       "tone": "good",
+       "cue": "last character"
+      },
+      {
+       "id": "c2",
+       "x": 1040,
+       "y": 620,
+       "w": 260,
+       "h": 140,
+       "label": "first char",
+       "text": "2",
+       "size": 56,
+       "tone": "good",
+       "cue": "first character"
+      },
+      {
+       "id": "cd",
+       "x": 1480,
+       "y": 440,
+       "w": 260,
+       "h": 150,
+       "label": "short code",
+       "text": "?",
+       "size": 56,
+       "tone": "blue",
+       "cue": "The code is"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n",
+       "to": "dv",
+       "cue": "Divide by sixty two"
+      },
+      {
+       "from": "dv",
+       "to": "c1",
+       "cue": "last character"
+      },
+      {
+       "from": "dv",
+       "to": "c2",
+       "cue": "first character"
+      },
+      {
+       "from": "c1",
+       "to": "cd",
+       "cue": "The code is"
+      },
+      {
+       "from": "c2",
+       "to": "cd",
+       "cue": "The code is"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cd",
+       "text": "21",
+       "tone": "good",
+       "cue": "two, one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Base 62 in Python",
+     "say": "In code, the alphabet is digits, then lowercase, then uppercase. Divmod gives quotient and remainder. Each remainder becomes a character, put in front. One twenty five prints two, one. The biggest seven character code is all capital Z.",
+     "panels": [
+      {
+       "file": "short.py",
+       "code": "ALPHABET = string.digits + string.ascii_letters\ndef encode(n):\n    s = \"\"\n    while n:\n        n, r = divmod(n, 62)\n        s = ALPHABET[r] + s\n    return s or \"0\"\nprint(encode(125), encode(62**7 - 1))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "the alphabet is"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Divmod gives"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "put in front"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "One twenty five"
+      }
+     ],
+     "output": {
+      "cmd": "python short.py",
+      "text": "21 ZZZZZZZ",
+      "cue": "capital Z"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We'll store six billion links in five years. How many codes fit in just six characters? Pause and predict.",
+     "q": "How many codes fit in 6 base-62 characters?",
+     "options": [
+      "about 57 million",
+      "about 57 billion",
+      "about 3.5 trillion",
+      "about 3,800"
+     ],
+     "answer": "about 57 billion"
+    },
+    {
+     "type": "compare",
+     "head": "Counter or random code?",
+     "say": "About fifty seven billion. Seven characters leaves room to spare. Counter or random? Collisions: a counter never collides, random needs a check and retry. Guessable: counter codes are sequential, random ones are not. The catch: one counter is a bottleneck, so hand each server a range of ids.",
+     "heads": [
+      "Counter + base 62",
+      "Random code"
+     ],
+     "rowHeads": [
+      "Collisions",
+      "Guessable",
+      "The catch"
+     ],
+     "rows": [
+      [
+       "never",
+       "check, retry on a clash"
+      ],
+      [
+       "yes, sequential",
+       "hard to guess"
+      ],
+      [
+       "one counter: hand out id ranges",
+       "extra lookup on every write"
+      ]
+     ],
+     "cues": [
+      "Collisions",
+      "Guessable",
+      "The catch"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The redirect path",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Redirect fast",
+     "statement": "Serve 4,000 redirects a second quickly, and still be able to count every click.",
+     "example": {
+      "input": "GET /21, 4,000 times a second",
+      "output": "the long URL, in milliseconds"
+     },
+     "note": "every click countable",
+     "say": "New problem. Redirects must be fast. For example, a browser asks for slash twenty one, four thousand times a second. We want the long U R L back in milliseconds. And every click must be countable.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the long",
+      "note": "every click"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "Database reads per second",
+     "unit": "reads/s",
+     "say": "Reads outnumber writes a hundred to one. That's four thousand reads a second. Popular links repeat, so assume nine in ten are cache hits. Only four hundred reach the database.",
+     "bars": [
+      {
+       "label": "All reads",
+       "value": 4000,
+       "tone": "blue",
+       "cue": "four thousand reads"
+      },
+      {
+       "label": "Cache hits",
+       "value": 3600,
+       "tone": "good",
+       "cue": "nine in ten"
+      },
+      {
+       "label": "DB reads",
+       "value": 400,
+       "tone": "warn",
+       "cue": "Only four hundred"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The read path",
+     "say": "The browser asks the app servers for slash twenty one. The server checks the cache first. Most reads hit there. On a miss, it reads the database, indexed by code. Then it replies with a redirect to the long U R L.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 140,
+       "y": 420,
+       "w": 260,
+       "h": 130,
+       "text": "Browser",
+       "size": 34,
+       "tone": "blue",
+       "cue": "The browser asks"
+      },
+      {
+       "id": "sv",
+       "x": 560,
+       "y": 400,
+       "w": 300,
+       "h": 170,
+       "label": "App servers",
+       "text": "stateless",
+       "size": 34,
+       "tone": "good",
+       "cue": "app servers"
+      },
+      {
+       "id": "ch",
+       "x": 1080,
+       "y": 260,
+       "w": 360,
+       "h": 130,
+       "label": "Cache (Redis)",
+       "text": "code to URL",
+       "size": 32,
+       "tone": "warn",
+       "cue": "checks the cache"
+      },
+      {
+       "id": "db",
+       "x": 1080,
+       "y": 640,
+       "w": 360,
+       "h": 150,
+       "label": "Database",
+       "text": "id, code, url",
+       "sub": "unique index on code",
+       "size": 32,
+       "tone": "blue",
+       "cue": "On a miss"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "sv",
+       "label": "GET /21",
+       "cue": "app servers"
+      },
+      {
+       "from": "sv",
+       "to": "ch",
+       "cue": "checks the cache"
+      },
+      {
+       "from": "sv",
+       "to": "db",
+       "cue": "On a miss"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ch",
+       "glow": true,
+       "tone": "good",
+       "cue": "hit there"
+      },
+      {
+       "id": "cl",
+       "text": "gets 302",
+       "tone": "good",
+       "cue": "replies with a redirect"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "What the redirect looks like",
+     "say": "A real handler would look up the code first. Here the URL is fixed. Three oh two means found, go here. The Location header holds the long U R L. Curl shows what the browser sees.",
+     "panels": [
+      {
+       "file": "server.py",
+       "code": "LONG = \"https://example.com/a/very/long/path\"\nclass H(BaseHTTPRequestHandler):\n    def do_GET(self):\n        self.send_response(302)\n        self.send_header(\"Location\", LONG)\n        self.end_headers()"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Here the URL is fixed"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Three oh two"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The Location header"
+      }
+     ],
+     "output": {
+      "cmd": "curl -si localhost:8000/21",
+      "text": "HTTP/1.0 302 Found\nLocation: https://example.com/a/very/long/path",
+      "cue": "Curl shows"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A short link answers with three oh one, moved permanently. One user clicks it five times. How many clicks does your server see? Pause and predict.",
+     "q": "Short link uses 301. One user clicks it 5 times. Server sees?",
+     "options": [
+      "5 clicks",
+      "usually 1 click",
+      "0 clicks",
+      "10 clicks"
+     ],
+     "answer": "usually 1 click"
+    },
+    {
+     "type": "compare",
+     "head": "301 vs 302",
+     "say": "Usually one. Browsers cache a three oh one, and skip your server next time. Browser: three oh one is cached, three oh two is asked again. Analytics: three oh one misses repeat clicks. Use: three oh two when you need counts.",
+     "heads": [
+      "301 Moved Permanently",
+      "302 Found"
+     ],
+     "rowHeads": [
+      "Browser",
+      "Analytics",
+      "Use when"
+     ],
+     "rows": [
+      [
+       "caches the redirect",
+       "asks every time"
+      ],
+      [
+       "misses repeat clicks",
+       "counts every click"
+      ],
+      [
+       "link never changes",
+       "you want click counts"
+      ]
+     ],
+     "cues": [
+      "Browser:",
+      "Analytics",
+      "Use:"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Step 5: when it grows",
+     "say": "Now scale. Reads dominate, so cache and add replicas. If one database gets too big, shard by a hash of the code. If the counter is busy, hand out id ranges. Abuse? Rate limit and expire old links.",
+     "items": [
+      {
+       "label": "reads dominate",
+       "text": "cache, replicas",
+       "tone": "good",
+       "cue": "Reads dominate"
+      },
+      {
+       "label": "database too big",
+       "text": "shard by hash",
+       "tone": "blue",
+       "cue": "too big"
+      },
+      {
+       "label": "counter busy",
+       "text": "id ranges",
+       "tone": "warn",
+       "cue": "counter is busy"
+      },
+      {
+       "label": "abuse",
+       "text": "rate limit",
+       "sub": "expire old links",
+       "tone": "bad",
+       "cue": "Abuse"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups they ask",
+     "say": "Same long U R L twice? Store both, or look up and reuse the code. Custom alias? The unique index rejects a clash. Click analytics? Log each click to a queue, and count it asynchronously.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Same long URL twice?",
+       "store both, or look up and reuse"
+      ],
+      [
+       "Custom alias?",
+       "unique index rejects a clash"
+      ],
+      [
+       "Click analytics?",
+       "log to a queue, count async"
+      ]
+     ],
+     "cues": [
+      "Same long",
+      "Custom alias",
+      "Click analytics"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Measure before you guess",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Checkout is slow",
+     "statement": "The pager says checkout is slow. Find the cause with evidence, not guesses.",
+     "example": {
+      "input": "p99 of POST /checkout is 2 s",
+      "output": "cause found, p99 back to 150 ms"
+     },
+     "note": "the dashboard average looks fine",
+     "say": "New problem. It's two in the morning and checkout is slow. For example, p ninety nine is two seconds. We want the cause, and p ninety nine back to a hundred fifty milliseconds. The average looks fine.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the cause",
+      "note": "average looks fine"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Think of a doctor",
+     "say": "Don't guess. A doctor checks vitals first, then the history, then orders a scan. Production has the same three: metrics, logs, and traces.",
+     "items": [
+      {
+       "label": "vitals",
+       "text": "Metrics",
+       "sub": "how bad, since when",
+       "tone": "warn",
+       "cue": "vitals first"
+      },
+      {
+       "label": "history",
+       "text": "Logs",
+       "sub": "what happened",
+       "tone": "blue",
+       "cue": "the history"
+      },
+      {
+       "label": "the scan",
+       "text": "Traces",
+       "sub": "where exactly",
+       "tone": "good",
+       "cue": "orders a scan"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A hundred requests came in. Ninety eight took one hundred twenty milliseconds. Two took two seconds each. What was the average response time? Pause and predict.",
+     "q": "98 requests at 120 ms, 2 at 2,000 ms. Average?",
+     "options": [
+      "120 ms",
+      "about 160 ms",
+      "1,000 ms",
+      "2,000 ms"
+     ],
+     "answer": "about 160 ms"
+    },
+    {
+     "type": "code",
+     "head": "Average vs p99",
+     "say": "About one fifty eight, so the dashboard looks fine. Now sort the times. The p ninety nine is the time ninety nine percent of requests finish within. Here it's two thousand. One user in fifty waits two seconds. The average hides them.",
+     "panels": [
+      {
+       "file": "stats.py",
+       "code": "t = [120] * 98 + [2000] * 2\nprint(sum(t) / len(t))\nprint(sorted(t)[98])"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "About one fifty eight"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Now sort"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "p ninety nine is"
+      }
+     ],
+     "output": {
+      "cmd": "python stats.py",
+      "text": "157.6\n2000",
+      "cue": "Here it's two thousand"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "Same data, three numbers",
+     "unit": "ms",
+     "say": "Look at all three. The median is one twenty. The average is one fifty eight. The p ninety nine is two thousand. So alert on percentiles.",
+     "bars": [
+      {
+       "label": "Median",
+       "value": 120,
+       "tone": "good",
+       "cue": "median"
+      },
+      {
+       "label": "Average",
+       "value": 158,
+       "tone": "warn",
+       "cue": "average is"
+      },
+      {
+       "label": "p99",
+       "value": 2000,
+       "tone": "bad",
+       "cue": "p ninety nine is"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Find the slow step",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which step is slow?",
+     "statement": "Metrics say checkout is slow. Find the one step that eats the time.",
+     "example": {
+      "input": "one request, 2,000 ms in total",
+      "output": "the single slow step"
+     },
+     "note": "then fix it and verify",
+     "say": "Next problem. Metrics say it's slow. For example, one request takes two thousand milliseconds. We want the one step that eats the time. Then we fix it, and verify.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the one",
+      "note": "Then we fix"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "A trace of POST /checkout",
+     "say": "A trace says where, timing each step. Here, two thousand milliseconds in total. Auth takes twenty. J S O N takes a hundred. But one S Q L query takes eighteen hundred.",
+     "items": [
+      {
+       "id": "rq",
+       "x": 160,
+       "y": 240,
+       "w": 1560,
+       "h": 100,
+       "text": "POST /checkout   2000 ms",
+       "size": 36,
+       "tone": "blue",
+       "cue": "two thousand milliseconds"
+      },
+      {
+       "id": "au",
+       "x": 160,
+       "y": 400,
+       "w": 200,
+       "h": 120,
+       "text": "auth",
+       "sub": "20 ms",
+       "size": 32,
+       "tone": "good",
+       "cue": "Auth takes"
+      },
+      {
+       "id": "sq",
+       "x": 380,
+       "y": 400,
+       "w": 1000,
+       "h": 120,
+       "text": "SQL: orders by user",
+       "sub": "1800 ms",
+       "size": 36,
+       "tone": "bad",
+       "cue": "one S Q L query"
+      },
+      {
+       "id": "js",
+       "x": 1400,
+       "y": 400,
+       "w": 200,
+       "h": 120,
+       "text": "JSON",
+       "sub": "100 ms",
+       "size": 32,
+       "tone": "good",
+       "cue": "J S O N takes"
+      },
+      {
+       "id": "ot",
+       "x": 1620,
+       "y": 400,
+       "w": 100,
+       "h": 120,
+       "text": "...",
+       "sub": "80",
+       "size": 32,
+       "tone": "dim",
+       "cue": "J S O N takes"
+      }
+     ],
+     "changes": [
+      {
+       "id": "sq",
+       "glow": true,
+       "tone": "bad",
+       "cue": "eighteen hundred"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Ask the database for its plan",
+     "say": "Ask the database to explain its plan. Before: SCAN. It reads every row to find one user. An index works like a book's index: jump to the page, don't read every page. After creating one, the plan says SEARCH using the index.",
+     "panels": [
+      {
+       "file": "plan.sql",
+       "label": "before",
+       "tone": "bad",
+       "code": "EXPLAIN QUERY PLAN\nSELECT * FROM orders\nWHERE user_id = 42;"
+      },
+      {
+       "file": "plan.sql",
+       "label": "after",
+       "tone": "good",
+       "code": "CREATE INDEX idx_user\n  ON orders(user_id);\nEXPLAIN QUERY PLAN\nSELECT * FROM orders\nWHERE user_id = 42;"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Before"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "An index works"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "After creating"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 shop.db < plan.sql",
+      "text": "SCAN orders\nSEARCH orders USING INDEX idx_user (user_id=?)",
+      "cue": "SEARCH using the index"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A different trace: two hundred queries, nine milliseconds each, about eighteen hundred in total. Would an index be the best fix? Pause and predict.",
+     "q": "200 queries at 9 ms each. Best fix?",
+     "options": [
+      "Add an index",
+      "Join or batch",
+      "Add servers",
+      "Restart the app"
+     ],
+     "answer": "Join or batch"
+    },
+    {
+     "type": "compare",
+     "head": "Symptom to cause",
+     "say": "Join or batch them. Each query is already fast. Many small queries: N plus one. One query for the orders, then one per order. One slow query: a missing index, so read the plan. Waiting with the C P U idle: a lock, or a slow downstream call. C P U high: profile the hot loop.",
+     "heads": [
+      "Symptom in the trace",
+      "Usual cause"
+     ],
+     "rows": [
+      [
+       "Many small queries",
+       "N+1: join or batch"
+      ],
+      [
+       "One slow query",
+       "missing index: read the plan"
+      ],
+      [
+       "Waiting, CPU idle",
+       "lock or slow downstream call"
+      ],
+      [
+       "CPU high",
+       "hot loop: profile it"
+      ]
+     ],
+     "cues": [
+      "Many small",
+      "One slow",
+      "Waiting with",
+      "C P U high"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The method, in order",
+     "say": "So the method. Confirm with metrics: p ninety nine, when it started, what changed. Locate with a trace. Explain with logs, tied together by a request id, and the query plan. Fix with one change. Verify the p ninety nine really dropped.",
+     "items": [
+      {
+       "label": "1",
+       "text": "Confirm",
+       "sub": "p99, when, what changed",
+       "tone": "warn",
+       "cue": "Confirm with"
+      },
+      {
+       "label": "2",
+       "text": "Locate",
+       "sub": "trace: which step",
+       "tone": "blue",
+       "cue": "Locate with"
+      },
+      {
+       "label": "3",
+       "text": "Explain",
+       "sub": "logs, plan",
+       "cue": "Explain with"
+      },
+      {
+       "label": "4",
+       "text": "Fix",
+       "sub": "one change",
+       "cue": "Fix with"
+      },
+      {
+       "label": "5",
+       "text": "Verify",
+       "sub": "p99 drops",
+       "tone": "good",
+       "cue": "Verify"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Buy time while you hunt",
+     "say": "While you hunt, buy time. Roll back, if a deploy started it. Add a cache, if slow reads rarely change. Scale out, if load is the cause.",
+     "heads": [
+      "Quick move",
+      "When"
+     ],
+     "rows": [
+      [
+       "Roll back",
+       "a deploy started it"
+      ],
+      [
+       "Add a cache",
+       "slow reads that rarely change"
+      ],
+      [
+       "Scale out",
+       "load is the cause"
+      ]
+     ],
+     "cues": [
+      "Roll back",
+      "Add a cache",
+      "Scale out"
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "/checkout p99 after the index",
+     "unit": "ms",
+     "say": "We added the index. The p ninety nine falls from two thousand milliseconds to one fifty. Verified in the metrics, not guessed.",
+     "bars": [
+      {
+       "label": "Before",
+       "value": 2000,
+       "tone": "bad",
+       "cue": "We added the index"
+      },
+      {
+       "label": "After",
+       "value": 150,
+       "tone": "good",
+       "cue": "to one fifty"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be14"
+     ],
+     "say": "Design bit dot ly. Numbers first, base sixty two counter, database and cache. Why three oh two? Browsers cache three oh one, so you miss clicks. Analytics? Log clicks to a queue.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Design bit.ly",
+       "numbers, base 62 counter, DB + cache"
+      ],
+      [
+       "Why 302?",
+       "301 is cached: missed clicks"
+      ],
+      [
+       "Analytics?",
+       "log to a queue, count async"
+      ]
+     ],
+     "cues": [
+      "Design bit",
+      "Why three oh two",
+      "Analytics"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be15"
+     ],
+     "say": "Slow endpoint? Confirm with p ninety nine, trace, read the plan, fix, verify. Can't reproduce it? Use production traces and a request id. Mitigate? Roll back, cache, or scale.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Slow endpoint?",
+       "metrics, trace, logs/plan, fix one, verify"
+      ],
+      [
+       "Can't reproduce?",
+       "production traces + request id"
+      ],
+      [
+       "Quick relief?",
+       "roll back, cache, or scale out"
+      ]
+     ],
+     "cues": [
+      "Slow endpoint",
+      "Can't reproduce",
+      "Mitigate"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Build these next",
+     "say": "Three exercises. Write encode and decode for base sixty two, and round trip a thousand ids. Size a service with fifty million posts a month. Run explain on your slowest query, add an index, and compare.",
+     "heads": [
+      "Build next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Base 62 encode + decode",
+       "round trip 1,000 ids"
+      ],
+      [
+       "Size 50M posts / month",
+       "practice the numbers step"
+      ],
+      [
+       "EXPLAIN, add index, EXPLAIN",
+       "watch SCAN become SEARCH"
+      ]
+     ],
+     "cues": [
+      "Write encode",
+      "Size a service",
+      "Run explain"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Do the numbers, encode a counter, cache reads, redirect with three oh two. In production, confirm with metrics, locate with a trace. Fix one thing, verify.",
+     "lines": [
+      "Numbers, base 62 counter, cache, 302.",
+      "Confirm with p99, locate with a trace.",
+      "Fix one thing, then verify the numbers."
+     ],
+     "cues": [
+      "Do the numbers",
+      "In production",
+      "Fix one thing"
+     ]
+    }
+   ]
+  }
+ ]
+}

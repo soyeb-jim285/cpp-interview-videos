@@ -1,0 +1,1467 @@
+{
+ "id": "be-05",
+ "track": "Backend",
+ "num": 5,
+ "title": "Caching & Message Queues",
+ "covers": [
+  "be07",
+  "be10"
+ ],
+ "caps": [
+  [
+   "set e x",
+   "SETEX"
+  ],
+  [
+   "two oh two",
+   "202"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Check Redis first",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "A product page takes two hundred milliseconds to load. By the end, you'll make it take two, and handle a payment message that arrives twice without charging twice.",
+     "lines": [
+      {
+       "text": "Product page: 200 ms",
+       "cue": "A product page"
+      },
+      {
+       "text": "Make it 2 ms.",
+       "cue": "make it take two",
+       "accent": true
+      },
+      {
+       "text": "Payment arrives twice. Charged once.",
+       "cue": "arrives twice"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Check Redis before the database. Keep cached data fresh. And survive a payment message that arrives twice.",
+     "lines": [
+      "Check Redis before the database",
+      "Keep cached data fresh",
+      "Charge once, even if delivered twice"
+     ],
+     "cues": [
+      "Check Redis",
+      "Keep cached",
+      "survive a payment"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Slow product page",
+     "statement": "A product page reads the database on every view. Make repeat views fast without serving wrong data.",
+     "example": {
+      "input": "product page, 200 ms database read",
+      "output": "about 2 ms on repeat views"
+     },
+     "note": "60 s of staleness is fine",
+     "say": "Here is the problem. A product page reads the database on every view. For example, two hundred milliseconds each time. We want about two on repeat views. Sixty seconds of staleness is fine.",
+     "cues": {
+      "example": "For example",
+      "output": "We want about two",
+      "note": "Sixty seconds"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "One product page read",
+     "unit": "ms",
+     "say": "Here's why this matters. One product page reads from the database in two hundred milliseconds. Redis, which keeps data in memory, answers in about two. That's a hundred times faster, and every hit spares your database.",
+     "bars": [
+      {
+       "label": "Postgres",
+       "value": 200,
+       "tone": "bad",
+       "cue": "two hundred milliseconds"
+      },
+      {
+       "label": "Redis",
+       "value": 2,
+       "tone": "good",
+       "cue": "answers in about two"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A cache is a sticky note",
+     "say": "You need one phone number all day. The library across town has it, but the drive takes five minutes. A sticky note on your monitor has it in five seconds. So the cache is the sticky note, and the database is the library.",
+     "items": [
+      {
+       "label": "you need",
+       "text": "phone number",
+       "cue": "phone number"
+      },
+      {
+       "label": "the database",
+       "text": "library",
+       "sub": "5 minutes away",
+       "tone": "bad",
+       "cue": "library across town"
+      },
+      {
+       "label": "the cache: Redis",
+       "text": "sticky note",
+       "sub": "5 seconds",
+       "tone": "good",
+       "cue": "sticky note on"
+      },
+      {
+       "label": "so",
+       "text": "cache = note",
+       "tone": "blue",
+       "cue": "So the cache"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Cache-aside: check, miss, fill",
+     "say": "The app asks Redis first. Redis is empty, so that's a miss. The app reads the database, which costs two hundred milliseconds. Then it saves a copy in Redis, with a sixty second T T L. The next request finds the copy: a hit, two milliseconds. This is cache-aside: the app manages the cache itself.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 440,
+       "w": 300,
+       "h": 140,
+       "text": "App",
+       "cue": "The app asks"
+      },
+      {
+       "id": "rd",
+       "x": 810,
+       "y": 250,
+       "w": 340,
+       "h": 150,
+       "label": "Redis",
+       "text": "empty",
+       "tone": "warn",
+       "cue": "Redis is empty"
+      },
+      {
+       "id": "db",
+       "x": 810,
+       "y": 640,
+       "w": 340,
+       "h": 150,
+       "label": "Postgres",
+       "text": "$100",
+       "cue": "reads the database"
+      },
+      {
+       "id": "ms",
+       "x": 1420,
+       "y": 440,
+       "w": 300,
+       "h": 150,
+       "label": "time (ms)",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "reads the database"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "rd",
+       "cue": "asks Redis first"
+      },
+      {
+       "from": "app",
+       "to": "db",
+       "cue": "reads the database"
+      },
+      {
+       "from": "db",
+       "to": "rd",
+       "tone": "good",
+       "bend": 90,
+       "cue": "saves a copy"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1180,
+       "y": 290,
+       "text": "TTL: 60 s",
+       "tone": "warn",
+       "cue": "sixty second"
+      }
+     ],
+     "changes": [
+      {
+       "id": "rd",
+       "text": "miss",
+       "tone": "bad",
+       "cue": "that's a miss"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        200
+       ],
+       "cue": "two hundred milliseconds"
+      },
+      {
+       "id": "rd",
+       "text": "$100",
+       "tone": "good",
+       "cue": "saves a copy"
+      },
+      {
+       "id": "ms",
+       "text": "2",
+       "tone": "good",
+       "cue": "two milliseconds"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Cache-aside in code",
+     "say": "In code, build a key, like product colon seven. Ask Redis. On a hit, return at once. On a miss, read the database, then save the price with set e x for sixty seconds. The loop calls it twice: a miss, then a hit.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def get_product(pid):\n    key = f\"product:{pid}\"\n    price = r.get(key)\n    if price:\n        return \"hit 2 ms\", price\n    price = db_read(pid)\n    r.setex(key, 60, price)\n    return \"miss 200 ms\", price\nfor _ in range(2): print(*get_product(7))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "build a key"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Ask Redis"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "On a hit"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "read the database"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "set e x"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "The loop"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "expires in 60 s",
+       "tone": "warn",
+       "cue": "for sixty seconds"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "miss 200 ms $100\nhit 2 ms $100",
+      "cue": "a miss, then a hit"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same product, cold cache. Three requests arrive within ten seconds. How many of them read the database? Pause and predict.",
+     "q": "Cold cache, 3 requests in 10 s. Database reads?",
+     "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "chart",
+     "head": "Three requests, one database read",
+     "unit": "ms",
+     "say": "One. The first request misses and fills Redis. The second hits. So does the third. Two hundred milliseconds, then two, then two.",
+     "bars": [
+      {
+       "label": "Request 1",
+       "value": 200,
+       "tone": "bad",
+       "cue": "The first request"
+      },
+      {
+       "label": "Request 2",
+       "value": 2,
+       "tone": "good",
+       "cue": "The second hits"
+      },
+      {
+       "label": "Request 3",
+       "value": 2,
+       "tone": "good",
+       "cue": "the third"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The catch: stale data",
+     "say": "Now the catch. Someone changes the price in the database to ninety dollars. Redis still holds one hundred. The next user hits the cache and sees the old price. That's stale data. It lasts until the T T L expires, at most sixty seconds.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 440,
+       "w": 300,
+       "h": 140,
+       "text": "App"
+      },
+      {
+       "id": "rd",
+       "x": 810,
+       "y": 250,
+       "w": 340,
+       "h": 150,
+       "label": "Redis",
+       "text": "$100",
+       "tone": "good"
+      },
+      {
+       "id": "db",
+       "x": 810,
+       "y": 640,
+       "w": 340,
+       "h": 150,
+       "label": "Postgres",
+       "text": "$100"
+      },
+      {
+       "id": "ms",
+       "x": 1420,
+       "y": 440,
+       "w": 300,
+       "h": 150,
+       "label": "stale for (s)",
+       "text": "0",
+       "size": 56,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "rd",
+       "cue": "hits the cache"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1180,
+       "y": 290,
+       "text": "stale: old price",
+       "tone": "bad",
+       "cue": "That's stale data"
+      }
+     ],
+     "changes": [
+      {
+       "id": "db",
+       "text": "$90",
+       "tone": "warn",
+       "cue": "ninety dollars"
+      },
+      {
+       "id": "rd",
+       "glow": true,
+       "tone": "bad",
+       "cue": "still holds"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        60
+       ],
+       "dur": 1.5,
+       "tone": "bad",
+       "cue": "at most sixty"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Invalidate or expire",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Stale sale price",
+     "statement": "The price changed in the database, but the cache still holds the old one. Fix freshness, and survive a hot key expiring.",
+     "example": {
+      "input": "database $90, Redis $100",
+      "output": "users see $90"
+     },
+     "note": "1,000 requests when a hot key expires",
+     "say": "New problem. The price changed in the database, but Redis still holds the old one. For example, ninety against one hundred. We want users to see ninety. And a hot key expiring must not flatten the database.",
+     "cues": {
+      "example": "For example",
+      "output": "We want users",
+      "note": "hot key expiring"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two cures for stale data",
+     "say": "Picture a sale that ends at midnight. Redis keeps showing the sale price all morning. Cure one: peel the sticky note off when the number changes. That's invalidation. Cure two: stamp every note with an expiry date. That's the T T L, your safety net if a peel is ever missed.",
+     "items": [
+      {
+       "label": "problem",
+       "text": "stale price",
+       "tone": "bad",
+       "sub": "sale ended",
+       "cue": "sale price"
+      },
+      {
+       "label": "cure 1",
+       "text": "delete key",
+       "sub": "when data changes",
+       "tone": "blue",
+       "cue": "Cure one"
+      },
+      {
+       "label": "cure 2",
+       "text": "set a TTL",
+       "sub": "expires by itself",
+       "tone": "good",
+       "cue": "Cure two"
+      },
+      {
+       "label": "why both",
+       "text": "safety net",
+       "sub": "if a delete is missed",
+       "tone": "warn",
+       "cue": "safety net"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Invalidation in code",
+     "say": "Here's invalidation. Write the new price to the database first. Then delete the cached key. We read before the change and get a hit with the old price. After set price, the next read misses, reloads, and shows ninety dollars.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def set_price(pid, price):\n    db_write(pid, price)\n    r.delete(f\"product:{pid}\")\n\nprint(*get_product(7))\nset_price(7, \"$90\")\nprint(*get_product(7))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "database first"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "delete the cached key"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "read before"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "After set price"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "next read misses"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "next read refills",
+       "tone": "good",
+       "cue": "delete the cached key"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "hit 2 ms $100\nmiss 200 ms $90",
+      "cue": "shows ninety dollars"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A hot product's key expires at noon. Refilling takes two hundred milliseconds, and one thousand requests arrive in that window. How many reach the database? Pause and predict.",
+     "q": "Hot key expires; 1,000 requests in 200 ms. DB reads?",
+     "options": [
+      "1",
+      "about 10",
+      "about 1,000",
+      "0"
+     ],
+     "answer": "about 1,000"
+    },
+    {
+     "type": "diagram",
+     "head": "Cache stampede",
+     "say": "About a thousand. Every request misses at the same moment, so every one runs the same query. That's a cache stampede, and the database Redis protected gets flattened. Fix one: let a single request refill while the rest wait. Fix two: add random jitter to each T T L, so keys don't all expire together.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 160,
+       "y": 440,
+       "w": 340,
+       "h": 140,
+       "text": "1,000 requests",
+       "size": 32,
+       "tone": "blue"
+      },
+      {
+       "id": "rd",
+       "x": 810,
+       "y": 250,
+       "w": 340,
+       "h": 150,
+       "label": "Redis",
+       "text": "expired",
+       "tone": "bad"
+      },
+      {
+       "id": "db",
+       "x": 810,
+       "y": 640,
+       "w": 340,
+       "h": 150,
+       "label": "Postgres",
+       "text": "busy",
+       "tone": "warn"
+      },
+      {
+       "id": "ct",
+       "x": 1420,
+       "y": 440,
+       "w": 300,
+       "h": 150,
+       "label": "same query runs",
+       "text": "0",
+       "size": 56,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "rd",
+       "cue": "misses at the same"
+      },
+      {
+       "from": "cl",
+       "to": "db",
+       "cue": "runs the same query"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1200,
+       "y": 700,
+       "text": "one request refills",
+       "tone": "good",
+       "cue": "Fix one"
+      },
+      {
+       "x": 1200,
+       "y": 780,
+       "text": "TTL plus random jitter",
+       "tone": "good",
+       "cue": "Fix two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ct",
+       "count": [
+        0,
+        1000
+       ],
+       "cue": "every one runs"
+      },
+      {
+       "id": "db",
+       "tone": "bad",
+       "cue": "flattened"
+      },
+      {
+       "id": "rd",
+       "text": "staggered",
+       "tone": "good",
+       "cue": "so keys don't"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "More cache questions",
+     "say": "Four quick ones. No T T L and no delete? Stale forever. If Redis goes down, fall back to the database. What to cache? Slow, popular, rarely changing data. Data that must be exact, read from the database.",
+     "heads": [
+      "Question",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "No TTL, no delete?",
+       "Stale forever. Always set a TTL"
+      ],
+      [
+       "Redis goes down?",
+       "Fall back to the database"
+      ],
+      [
+       "What to cache?",
+       "Read often, slow, rarely changes"
+      ],
+      [
+       "Must be exact?",
+       "Read the database"
+      ]
+     ],
+     "cues": [
+      "No T T L",
+      "Redis goes down",
+      "What to cache",
+      "must be exact"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Do slow work later",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Checkout hangs",
+     "statement": "Checkout sends an email and builds an invoice before replying, so the page hangs. Reply fast, do the work later.",
+     "example": {
+      "input": "checkout waits for email + invoice",
+      "output": "instant reply, work done later"
+     },
+     "note": "traffic spikes at noon",
+     "say": "New problem. Checkout waits for the email and the invoice before it replies. For example, the page just hangs. We want an instant reply, with the work done later. And noon spikes must not hurt.",
+     "cues": {
+      "example": "For example",
+      "output": "We want an instant",
+      "note": "noon spikes"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A queue is a ticket rail",
+     "say": "Picture checkout. You send an email and make an invoice, and the page hangs. A waiter pins a ticket on the rail and returns to the floor. Cooks take tickets at their own pace. The rail is the message queue.",
+     "items": [
+      {
+       "label": "checkout",
+       "text": "email, invoice",
+       "sub": "page hangs",
+       "tone": "bad",
+       "cue": "send an email"
+      },
+      {
+       "label": "waiter",
+       "text": "your API",
+       "sub": "answers fast",
+       "tone": "blue",
+       "cue": "A waiter pins"
+      },
+      {
+       "label": "ticket rail",
+       "text": "queue",
+       "sub": "tickets wait",
+       "tone": "warn",
+       "cue": "the rail"
+      },
+      {
+       "label": "cooks",
+       "text": "workers",
+       "sub": "one ticket each",
+       "tone": "good",
+       "cue": "Cooks take"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Queue between API and workers",
+     "say": "The API accepts the order, drops a job on the queue, and answers right away. A worker takes it and sends the email. A spike just makes the queue longer. Start more workers, and the backlog drains.",
+     "items": [
+      {
+       "id": "api",
+       "x": 160,
+       "y": 440,
+       "w": 300,
+       "h": 140,
+       "label": "API",
+       "text": "POST order",
+       "size": 34,
+       "tone": "blue",
+       "cue": "The API accepts"
+      },
+      {
+       "id": "qu",
+       "x": 700,
+       "y": 420,
+       "w": 420,
+       "h": 180,
+       "label": "Queue",
+       "text": "0",
+       "size": 56,
+       "sub": "jobs waiting",
+       "tone": "warn",
+       "cue": "on the queue"
+      },
+      {
+       "id": "w1",
+       "x": 1380,
+       "y": 260,
+       "w": 380,
+       "h": 130,
+       "label": "Worker",
+       "text": "send email",
+       "size": 34,
+       "tone": "good",
+       "cue": "A worker takes"
+      },
+      {
+       "id": "w2",
+       "x": 1380,
+       "y": 640,
+       "w": 380,
+       "h": 130,
+       "label": "Worker",
+       "text": "make invoice",
+       "size": 34,
+       "tone": "ghost",
+       "cue": "more workers"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "api",
+       "to": "qu",
+       "cue": "drops a job"
+      },
+      {
+       "from": "qu",
+       "to": "w1",
+       "cue": "A worker takes"
+      },
+      {
+       "from": "qu",
+       "to": "w2",
+       "cue": "more workers"
+      }
+     ],
+     "changes": [
+      {
+       "id": "qu",
+       "text": "1",
+       "cue": "drops a job"
+      },
+      {
+       "id": "qu",
+       "count": [
+        1,
+        5
+       ],
+       "cue": "queue longer"
+      },
+      {
+       "id": "w2",
+       "tone": "good",
+       "cue": "more workers"
+      },
+      {
+       "id": "qu",
+       "count": [
+        5,
+        0
+       ],
+       "cue": "backlog drains"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Respond now, work later",
+     "say": "In code, a real broker, a separate service, holds the queue. This in-memory one stands in for it. Checkout puts the order on the queue and returns two oh two Accepted. The worker runs later and sends the email.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "q = Queue()\ndef checkout(order):\n    q.put(order)\n    return \"202 Accepted\"\ndef worker():\n    order = q.get()\n    print(\"emailing\", order)\nprint(checkout(42))\nworker()"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "in-memory one"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "puts the order"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "two oh two Accepted"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "worker runs later"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "202 Accepted\nemailing 42",
+      "cue": "sends the email"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Every worker crashes for an hour, and orders keep arriving. The queue is durable, so it stores jobs safely. What happens to the jobs? Pause and predict.",
+     "q": "All workers down for an hour. What happens to jobs?",
+     "options": [
+      "They are lost",
+      "They wait in queue",
+      "Checkout errors",
+      "They run twice"
+     ],
+     "answer": "They wait in queue"
+    },
+    {
+     "type": "diagram",
+     "head": "Workers down: jobs wait",
+     "say": "They wait. The queue keeps every job while the workers are down. Six hundred pile up, and the API never slows. Workers return, and the backlog drains to zero. Nothing was lost. But a job can now run more than once.",
+     "items": [
+      {
+       "id": "api",
+       "x": 160,
+       "y": 440,
+       "w": 300,
+       "h": 140,
+       "label": "API",
+       "text": "POST order",
+       "size": 34,
+       "tone": "blue"
+      },
+      {
+       "id": "qu",
+       "x": 700,
+       "y": 420,
+       "w": 420,
+       "h": 180,
+       "label": "Queue",
+       "text": "0",
+       "size": 56,
+       "sub": "jobs waiting",
+       "tone": "warn"
+      },
+      {
+       "id": "w1",
+       "x": 1380,
+       "y": 260,
+       "w": 380,
+       "h": 130,
+       "label": "Worker",
+       "text": "send email",
+       "size": 34,
+       "tone": "good"
+      },
+      {
+       "id": "w2",
+       "x": 1380,
+       "y": 640,
+       "w": 380,
+       "h": 130,
+       "label": "Worker",
+       "text": "make invoice",
+       "size": 34,
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "api",
+       "to": "qu"
+      },
+      {
+       "from": "qu",
+       "to": "w1"
+      },
+      {
+       "from": "qu",
+       "to": "w2"
+      }
+     ],
+     "changes": [
+      {
+       "id": "w1",
+       "tone": "bad",
+       "cue": "workers are down"
+      },
+      {
+       "id": "w2",
+       "tone": "bad",
+       "cue": "workers are down"
+      },
+      {
+       "id": "qu",
+       "count": [
+        0,
+        600
+       ],
+       "dur": 1.5,
+       "cue": "Six hundred pile"
+      },
+      {
+       "id": "w1",
+       "tone": "good",
+       "cue": "Workers return"
+      },
+      {
+       "id": "w2",
+       "tone": "good",
+       "cue": "Workers return"
+      },
+      {
+       "id": "qu",
+       "count": [
+        600,
+        0
+       ],
+       "dur": 1.5,
+       "cue": "drains to zero"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The payment that arrives twice",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Event delivered twice",
+     "statement": "A payment_succeeded event can be delivered twice. Charge the customer exactly once.",
+     "example": {
+      "input": "event evt_9 delivered 2 times",
+      "output": "1 charge"
+     },
+     "note": "the worker may crash before the ack",
+     "say": "Last problem. A payment event can arrive twice. For example, event nine, delivered two times. We want one charge. And the worker may crash at any moment.",
+     "cues": {
+      "example": "For example",
+      "output": "We want one charge",
+      "note": "may crash"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Where duplicates come from",
+     "say": "Here's a favorite interview trap. The queue hands payment event nine to a worker. The worker charges the card. Then it crashes before sending the ack, the receipt that says done. No ack, so the queue assumes failure and delivers event nine again. That's at least once delivery: nothing is lost, but duplicates happen.",
+     "items": [
+      {
+       "id": "q9",
+       "x": 160,
+       "y": 420,
+       "w": 340,
+       "h": 170,
+       "label": "Queue",
+       "text": "evt_9",
+       "size": 44,
+       "tone": "warn",
+       "cue": "hands payment event"
+      },
+      {
+       "id": "wk",
+       "x": 760,
+       "y": 420,
+       "w": 340,
+       "h": 170,
+       "label": "Worker",
+       "text": "working",
+       "size": 40,
+       "tone": "good",
+       "cue": "to a worker"
+      },
+      {
+       "id": "cd",
+       "x": 1380,
+       "y": 260,
+       "w": 340,
+       "h": 140,
+       "label": "Card",
+       "text": "charged",
+       "size": 40,
+       "tone": "blue",
+       "cue": "charges the card"
+      },
+      {
+       "id": "ak",
+       "x": 1380,
+       "y": 640,
+       "w": 340,
+       "h": 140,
+       "text": "ack",
+       "sub": "never sent",
+       "size": 40,
+       "tone": "bad",
+       "cue": "sending the ack"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "q9",
+       "to": "wk",
+       "cue": "to a worker"
+      },
+      {
+       "from": "wk",
+       "to": "cd",
+       "cue": "charges the card"
+      },
+      {
+       "from": "wk",
+       "to": "ak",
+       "tone": "bad",
+       "cue": "sending the ack"
+      },
+      {
+       "from": "q9",
+       "to": "wk",
+       "bend": 90,
+       "tone": "warn",
+       "cue": "delivers event nine again"
+      }
+     ],
+     "changes": [
+      {
+       "id": "wk",
+       "text": "crashed",
+       "tone": "bad",
+       "cue": "crashes before"
+      },
+      {
+       "id": "q9",
+       "glow": true,
+       "tone": "warn",
+       "cue": "No ack"
+      },
+      {
+       "id": "cd",
+       "text": "charged twice?",
+       "tone": "bad",
+       "cue": "duplicates happen"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Idempotent consumer",
+     "say": "The fix is an idempotent consumer: doing it twice equals doing it once. Every message carries a unique event id. Insert that id into a processed table, with the id as primary key. If the insert fails to add a row, we've seen it, so skip the charge. Only then ack. Event nine arrives twice, and charge prints once.",
+     "panels": [
+      {
+       "file": "worker.py",
+       "code": "SQL = \"INSERT INTO processed(id) VALUES (?) ON CONFLICT DO NOTHING\"\ndef handle(msg):\n    with db:\n        n = db.execute(SQL, (msg[\"id\"],)).rowcount\n        if n == 1:\n            print(\"charge\", msg[\"order\"])\n    ack(msg)\nhandle(evt)\nhandle(evt)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "idempotent consumer"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "unique event id"
+      },
+      {
+       "lines": [
+        1,
+        4
+       ],
+       "cue": "Insert that id"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "skip the charge"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Only then ack"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "arrives twice"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "0 on a duplicate",
+       "tone": "warn",
+       "cue": "If the insert"
+      }
+     ],
+     "output": {
+      "cmd": "python worker.py",
+      "text": "charge 42",
+      "cue": "charge prints once"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Change handle to ack first, then do the work, and say the worker crashes right after the ack, before charging. What happens to event nine? Pause and predict.",
+     "q": "Ack first, crash before charging. Event nine is...",
+     "options": [
+      "charged twice",
+      "never charged",
+      "charged once",
+      "retried"
+     ],
+     "answer": "never charged"
+    },
+    {
+     "type": "diagram",
+     "head": "Ack first: the payment vanishes",
+     "say": "Never charged. The ack told the queue the job was done, so it deleted event nine. The worker died before charging, so no retry ever comes. That's at most once delivery, and it loses payments. So ack after the work.",
+     "items": [
+      {
+       "id": "q9",
+       "x": 160,
+       "y": 420,
+       "w": 340,
+       "h": 170,
+       "label": "Queue",
+       "text": "evt_9",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "wk",
+       "x": 760,
+       "y": 420,
+       "w": 340,
+       "h": 170,
+       "label": "Worker",
+       "text": "got it",
+       "size": 40,
+       "tone": "good"
+      },
+      {
+       "id": "cd",
+       "x": 1380,
+       "y": 260,
+       "w": 340,
+       "h": 140,
+       "label": "Card",
+       "text": "waiting",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "ak",
+       "x": 1380,
+       "y": 640,
+       "w": 340,
+       "h": 140,
+       "text": "ack",
+       "sub": "sent first",
+       "size": 40,
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "q9",
+       "to": "wk"
+      },
+      {
+       "from": "wk",
+       "to": "cd"
+      },
+      {
+       "from": "wk",
+       "to": "ak",
+       "tone": "good",
+       "cue": "The ack told"
+      }
+     ],
+     "notes": [
+      {
+       "x": 500,
+       "y": 700,
+       "text": "at most once: loses payments",
+       "tone": "bad",
+       "cue": "at most once"
+      }
+     ],
+     "changes": [
+      {
+       "id": "q9",
+       "kill": true,
+       "cue": "deleted event nine"
+      },
+      {
+       "id": "wk",
+       "text": "crashed",
+       "tone": "bad",
+       "cue": "worker died"
+      },
+      {
+       "id": "cd",
+       "text": "never charged",
+       "tone": "bad",
+       "cue": "no retry"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Delivery guarantees",
+     "say": "At most once: ack first, and a crash loses the job. At least once: ack after the work, and a crash means a duplicate. Exactly once across systems is not possible. It's at least once, plus dedupe.",
+     "heads": [
+      "Crash means",
+      "Use it for"
+     ],
+     "rowHeads": [
+      "At most once",
+      "At least once",
+      "Exactly once"
+     ],
+     "rows": [
+      [
+       "job lost",
+       "metrics, where one loss is fine"
+      ],
+      [
+       "duplicate",
+       "the default, plus dedupe"
+      ],
+      [
+       "hard across systems",
+       "= at least once + dedupe"
+      ]
+     ],
+     "cues": [
+      "At most once",
+      "At least once",
+      "Exactly once"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Dedupe in three places",
+     "say": "Three places to defend. Your own database: a processed table, in one transaction. An outside payment provider: send the event id as an idempotency key. A message that keeps failing: retry with growing waits, then park it in a dead letter queue.",
+     "heads": [
+      "Where",
+      "Defend with"
+     ],
+     "rows": [
+      [
+       "Your own database",
+       "processed table, one transaction"
+      ],
+      [
+       "Outside payment API",
+       "idempotency key = event id"
+      ],
+      [
+       "Message that keeps failing",
+       "backoff, then dead letter queue"
+      ]
+     ],
+     "cues": [
+      "Your own database",
+      "outside payment provider",
+      "keeps failing"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be07"
+     ],
+     "say": "How does caching work? Check Redis, fill on a miss, set a T T L. Stale data? Delete the key on every update. Stampede? Let one request refill, and add random jitter.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does caching work?",
+       "Cache-aside: check Redis, on a miss fill it, with a TTL"
+      ],
+      [
+       "Stale data?",
+       "Delete the key on update; TTL is the safety net"
+      ],
+      [
+       "Stampede?",
+       "One request refills; add TTL jitter"
+      ]
+     ],
+     "cues": [
+      "How does caching",
+      "Stale data",
+      "Stampede"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be10"
+     ],
+     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? Delivery is at least once, so dedupe on event id in a processed table. Exactly once? Not across systems. Ack after the work.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why a queue?",
+       "Answer fast, work later, absorb spikes"
+      ],
+      [
+       "Duplicates?",
+       "At least once; dedupe on event id"
+      ],
+      [
+       "Exactly once?",
+       "At least once + idempotent consumer"
+      ]
+     ],
+     "cues": [
+      "Why a queue",
+      "Duplicates",
+      "Exactly once"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Build these next",
+     "say": "Three exercises. Cache your slowest endpoint for sixty seconds, and log hit or miss. Send one payment event twice and prove only one charge happens. Kill a worker mid job and watch the message come back.",
+     "heads": [
+      "Build next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Cache one endpoint, TTL 60 s",
+       "see hit and miss numbers"
+      ],
+      [
+       "Send one event twice",
+       "prove a single charge"
+      ],
+      [
+       "Kill a worker mid job",
+       "watch the retry arrive"
+      ]
+     ],
+     "cues": [
+      "Cache your slowest",
+      "Send one payment",
+      "Kill a worker"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Cache-aside: check Redis, fill it on a miss. Set a T T L, and delete on change. Queues deliver at least once, so dedupe on event id.",
+     "lines": [
+      "Check Redis; on a miss, fill it.",
+      "Set a TTL; delete the key on change.",
+      "Queues deliver at least once: dedupe on id."
+     ],
+     "cues": [
+      "Cache-aside",
+      "Set a T T L",
+      "Queues deliver"
+     ]
+    }
+   ]
+  }
+ ]
+}
