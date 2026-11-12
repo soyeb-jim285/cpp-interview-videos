@@ -19,7 +19,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Your checkout is a forty line if chain, and a new payment method is due Monday. How do you add it without breaking the others? By the end you'll know, and name the pattern.",
+     "say": "Your checkout is a forty line if chain, and a new payment method is due Monday. How do you add it without breaking the others? By the end, checkout takes it with zero edits, and you'll name the pattern.",
      "lines": [
       {
        "text": "40-line if / elif chain",
@@ -33,6 +33,10 @@
        "text": "Add it. Break nothing.",
        "cue": "without breaking",
        "accent": "Break nothing"
+      },
+      {
+       "text": "Name the pattern",
+       "cue": "name the pattern"
       }
      ]
     },
@@ -68,34 +72,83 @@
      }
     },
     {
-     "type": "flow",
+     "type": "diagram",
      "head": "The wall socket",
      "say": "Think of a wall socket. A lamp plugs in. A laptop plugs in. Tomorrow you buy a kettle, and it plugs in too. Nobody rewires the wall. The socket is an interface, and good object oriented design gives your code sockets like that.",
      "items": [
       {
-       "label": "plugs in",
-       "text": "lamp",
+       "id": "sock",
+       "x": 740,
+       "y": 340,
+       "w": 440,
+       "h": 170,
+       "text": "Socket",
+       "sub": "one fixed shape",
+       "size": 52,
+       "tone": "blue",
+       "cue": "wall socket"
+      },
+      {
+       "id": "d1",
+       "x": 160,
+       "y": 680,
+       "w": 400,
+       "h": 140,
+       "text": "Lamp",
+       "size": 44,
        "cue": "A lamp"
       },
       {
-       "label": "plugs in",
-       "text": "laptop",
+       "id": "d2",
+       "x": 760,
+       "y": 680,
+       "w": 400,
+       "h": 140,
+       "text": "Laptop",
+       "size": 44,
        "cue": "A laptop"
       },
       {
+       "id": "d3",
+       "x": 1360,
+       "y": 680,
+       "w": 400,
+       "h": 140,
+       "text": "Kettle",
        "label": "tomorrow",
-       "text": "kettle",
+       "size": 44,
        "tone": "good",
        "cue": "a kettle"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "d1",
+       "to": "sock",
+       "cue": "A lamp"
       },
       {
-       "label": "never changes",
-       "text": "the socket",
+       "from": "d2",
+       "to": "sock",
+       "cue": "A laptop"
+      },
+      {
+       "from": "d3",
+       "to": "sock",
+       "tone": "good",
+       "cue": "a kettle"
+      }
+     ],
+     "changes": [
+      {
+       "id": "sock",
+       "glow": true,
        "tone": "warn",
+       "text": "never rewired",
        "cue": "Nobody rewires"
       },
       {
-       "label": "it is an",
+       "id": "sock",
        "text": "interface",
        "tone": "good",
        "cue": "good object oriented"
@@ -154,49 +207,56 @@
     {
      "type": "code",
      "head": "One class per rule",
-     "say": "That's our answer to the problem. Each rule is its own class. The base class is the socket: it promises a pay method. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
+     "say": "That's our answer to the problem. Each rule is its own class. The base class is the socket. A B C marks it abstract: every subclass must supply pay, or Python refuses to build it. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
      "panels": [
       {
        "file": "app.py",
-       "code": "class PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\""
+       "code": "from abc import ABC, abstractmethod\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\""
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
         2,
-        3
+        3,
+        4
        ],
        "cue": "The base class"
       },
       {
        "lines": [
-        5,
+        1,
+        3
+       ],
+       "cue": "A B C marks"
+      },
+      {
+       "lines": [
         6,
-        7
+        7,
+        8
        ],
        "cue": "Card keeps"
       },
       {
        "lines": [
-        9,
         10,
-        11
+        11,
+        12
        ],
        "cue": "PayPal keeps"
       }
      ],
      "notes": [
       {
-       "line": 3,
+       "line": 4,
        "inside": true,
        "text": "the socket",
        "tone": "warn",
-       "cue": "promises a pay"
+       "cue": "must supply pay"
       },
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "strategy",
        "tone": "good",
@@ -256,7 +316,7 @@
        "from": "co",
        "to": "card",
        "label": "pay(50)",
-       "cue": "calls pay"
+       "cue": "Hand it a card"
       },
       {
        "from": "co",
@@ -302,7 +362,7 @@
     {
      "type": "diagram",
      "head": "Open to extension",
-     "say": "Nothing. Crypto just plugs into the same socket, and checkout runs it unchanged. That is open closed: open to extension, closed to modification. That answers our problem: add code, edit nothing.",
+     "say": "Nothing. Crypto just plugs into the same socket, and checkout runs it unchanged. That is open closed: open to extension, closed to modification. That answers our problem: add a class, and checkout never changes.",
      "items": [
       {
        "id": "co",
@@ -312,8 +372,7 @@
        "h": 140,
        "label": "untouched",
        "text": "checkout",
-       "tone": "blue",
-       "cue": "checkout runs"
+       "tone": "blue"
       },
       {
        "id": "card",
@@ -364,7 +423,7 @@
       {
        "x": 160,
        "y": 700,
-       "text": "+1 class, 0 edits",
+       "text": "+1 class, 0 edits to checkout",
        "tone": "good",
        "cue": "That answers"
       }
@@ -398,41 +457,41 @@
       "output": "an answer with an example"
      },
      "note": "Never recite without an example",
-     "say": "Here's the problem. The interviewer says: explain SOLID, with an example. For example, we use our checkout. The answer: five one-liners, each tied to code. Never recite without an example.",
+     "say": "The interviewer leans in: explain SOLID, with an example. We'll use our checkout. You want five one-liners, each tied to that code. Never recite without an example.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
+      "example": "We'll use our checkout",
+      "output": "five one-liners",
       "note": "Never recite"
      }
     },
     {
      "type": "compare",
      "head": "SOLID on our checkout",
-     "say": "Five letters, each one line. Single responsibility: the checkout charges, a mailer emails. Open closed: add a class, don't edit. Liskov: a subclass works anywhere its parent does. Interface segregation: small interfaces, not one giant one. Dependency inversion: depend on the socket, not the details.",
+     "say": "Five letters, each on our code. Single responsibility: a strategy only charges, and a separate mailer sends receipts. Open closed: add Crypto, never edit checkout. Liskov: any strategy works wherever the base does. Interface segregation: our base asks for pay and nothing else. Dependency inversion: checkout depends on the socket, never on Card.",
      "heads": [
       "Letter",
-      "One line"
+      "On our checkout"
      ],
      "rows": [
       [
        "S: Single responsibility",
-       "one reason to change"
+       "a strategy charges; a mailer sends receipts"
       ],
       [
        "O: Open/closed",
-       "extend by adding, not editing"
+       "add Crypto, never edit checkout"
       ],
       [
        "L: Liskov",
-       "subclass works where parent does"
+       "any strategy works where the base does"
       ],
       [
        "I: Interface segregation",
-       "small interfaces, not one giant one"
+       "the base asks for pay() and nothing else"
       ],
       [
        "D: Dependency inversion",
-       "depend on the socket, not details"
+       "checkout depends on the base, not Card"
       ]
      ],
      "cues": [
@@ -445,8 +504,8 @@
     },
     {
      "type": "code",
-     "head": "Breaking Liskov",
-     "say": "Here's the habit candidates break. A Penguin is a Bird, so we subclass. But Penguin's fly raises an error. Migrate takes birds and calls fly on each. Pass it a penguin, and the parent's promise breaks.",
+     "head": "The Penguin problem",
+     "say": "Here's the habit candidates break. A Penguin is a Bird, so we subclass. But Penguin's fly raises an error. Migrate takes birds and calls fly on each. Pass it a penguin, and the program crashes.",
      "panels": [
       {
        "file": "app.py",
@@ -486,16 +545,16 @@
       {
        "line": 4,
        "inside": true,
-       "text": "breaks Bird",
+       "text": "raises",
        "tone": "bad",
-       "cue": "promise breaks"
+       "cue": "program crashes"
       }
      ],
      "output": {
       "cmd": "python app.py 2>&1 | tail -1",
       "text": "NotImplementedError",
       "tone": "bad",
-      "cue": "promise breaks"
+      "cue": "program crashes"
      }
     },
     {
@@ -506,10 +565,10 @@
       "Single responsibility",
       "Open/closed",
       "Liskov",
-      "Dependency inversion"
+      "Interface segregation"
      ],
      "answer": 2,
-     "pause": 4
+     "pause": 6
     },
     {
      "type": "diagram",
@@ -646,11 +705,11 @@
       "output": "a PayPal() object"
      },
      "note": "Callers must not know the classes",
-     "say": "Here's the problem. Config gives us a string. For example, paypal. We need the matching object. And callers shouldn't know which class it is.",
+     "say": "Config hands us the string paypal. We need the object, and callers must stay ignorant of the class.",
      "cues": {
-      "example": "For example",
-      "output": "We need the matching",
-      "note": "And callers"
+      "example": "the string paypal",
+      "output": "We need the object",
+      "note": "callers must stay"
      }
     },
     {
@@ -738,7 +797,7 @@
     {
      "type": "code",
      "head": "Fail loudly",
-     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, raise a friendlier ValueError. That's who picks: the factory.",
+     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, raise a friendlier ValueError. The table is the one place you edit for a new method. That is the price of the factory. That's who picks: the factory.",
      "panels": [
       {
        "file": "app.py",
@@ -761,6 +820,19 @@
       {
        "lines": [],
        "cue": "In real code"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The table is the one place"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "price of the factory"
       }
      ],
      "output": {
@@ -787,9 +859,9 @@
       "output": "no edits to Order; test in ms"
      },
      "note": "Two problems, two patterns",
-     "say": "Here's the problem. When an order is paid, email and stock must react. For example, add analytics later. We want zero edits to Order, and tests in milliseconds.",
+     "say": "A paid order has to tell email and stock, and later analytics too. And tests must never charge a real card. We want zero edits to Order, and tests in milliseconds.",
      "cues": {
-      "example": "For example",
+      "example": "later analytics",
       "output": "We want zero",
       "note": "in milliseconds"
      }
@@ -1067,19 +1139,22 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "for g in (RealGateway(), FakeGateway()):\n    t = time.perf_counter()\n    assert Checkout(g).run(50) == \"ok\"\n    print(type(g).__name__, round(\n        time.perf_counter() - t, 3), \"s\")"
+       "code": "class RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\n        return \"ok\"\nfor g in (RealGateway(), FakeGateway()):\n    t = time.perf_counter()\n    assert Checkout(g).run(50) == \"ok\"\n    print(type(g).__name__, round(time.perf_counter() - t, 3), \"s\")"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        5
        ],
        "cue": "same checkout twice"
       },
       {
        "lines": [
-        3
+        1,
+        2,
+        3,
+        4
        ],
        "cue": "sleeps half a second"
       },
@@ -1089,7 +1164,7 @@
       },
       {
        "lines": [
-        3
+        7
        ],
        "cue": "Same code, fast"
       }
@@ -1098,7 +1173,7 @@
       "cmd": "python app.py",
       "approx": true,
       "setup": {
-       "app.py": "import time\n\nclass Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\n\nclass RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\n        return \"ok\"\n\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\"\n\n"
+       "app.py": "import time\n\nclass Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\n\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\"\n\n"
       },
       "text": "RealGateway 0.5 s\nFakeGateway 0.0 s",
       "cue": "answers in no time"
@@ -1111,8 +1186,80 @@
    "kind": "drill",
    "scenes": [
     {
+     "type": "flow",
+     "head": "Explain OOP, aloud",
+     "covers": [
+      "sw03"
+     ],
+     "say": "Explain object oriented design? I build the system from objects that hide their data behind methods. Callers see only what they need. A child class can reuse a parent. And one call, like pay, behaves differently per class. Those are the four pillars.",
+     "items": [
+      {
+       "label": "hide data",
+       "text": "encapsulate",
+       "cue": "hide their data"
+      },
+      {
+       "label": "show less",
+       "text": "abstract",
+       "cue": "Callers see only"
+      },
+      {
+       "label": "reuse parent",
+       "text": "inherit",
+       "cue": "reuse a parent"
+      },
+      {
+       "label": "one call",
+       "text": "polymorph",
+       "tone": "good",
+       "cue": "one call, like pay"
+      }
+     ]
+    },
+    {
      "type": "compare",
-     "head": "Say it in 25 seconds",
+     "head": "SOLID, with an example",
+     "covers": [
+      "sw03"
+     ],
+     "heads": [
+      "Letter",
+      "You say"
+     ],
+     "say": "Single responsibility: a strategy charges, and a mailer sends receipts. Open closed: I add Crypto without editing checkout. Liskov: any strategy works wherever the base does. Interface segregation: the base asks only for pay. Dependency inversion: checkout depends on the interface, not on Card.",
+     "rows": [
+      [
+       "S: single responsibility",
+       "a strategy charges; a mailer sends receipts"
+      ],
+      [
+       "O: open/closed",
+       "I add Crypto without editing checkout"
+      ],
+      [
+       "L: Liskov",
+       "any strategy works where the base does"
+      ],
+      [
+       "I: interface segregation",
+       "the base asks only for pay()"
+      ],
+      [
+       "D: dependency inversion",
+       "checkout depends on the interface, not Card"
+      ]
+     ],
+     "cues": [
+      "Single responsibility",
+      "Open closed",
+      "Liskov",
+      "Interface segregation",
+      "Dependency inversion"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The follow-ups",
      "covers": [
       "sw03"
      ],
@@ -1120,35 +1267,25 @@
       "They ask",
       "You say"
      ],
-     "say": "SOLID, with an example? An if chain becomes one class per rule. Liskov? A subclass works wherever its parent does. Inherit or compose? I compose, unless it's truly an is a. Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Always right? No, I wait for a second case.",
+     "say": "Liskov? A subclass must work wherever its parent does. A flightless penguin breaks that. Inherit or compose? I compose, unless it's truly an is a. Is SOLID always right? No. I wait for a second case before I add classes.",
      "rows": [
       [
-       "SOLID, with an example?",
-       "An if chain becomes a class per rule."
-      ],
-      [
-       "Liskov in one line?",
-       "A subclass works wherever its parent does."
+       "Liskov?",
+       "works wherever the parent does; not Penguin"
       ],
       [
        "Inheritance or composition?",
        "I compose, unless it is truly is-a."
       ],
       [
-       "Four pillars?",
-       "Encapsulation, abstraction, inheritance, polymorphism."
-      ],
-      [
        "Is SOLID always right?",
-       "No, I wait for a second case."
+       "No. I wait for a second case first."
       ]
      ],
      "cues": [
-      "SOLID, with",
       "Liskov",
       "Inherit or compose",
-      "Four pillars",
-      "Always right"
+      "Is SOLID"
      ]
     },
     {
@@ -1157,7 +1294,7 @@
      "covers": [
       "sw04"
      ],
-     "say": "Strategy lets me swap behavior without editing old code. A factory keeps creation logic in one place. Observer lets many react to one event, with some hidden coupling. Injection hands in a fake, so tests are fast and safe. And I always name where I used one.",
+     "say": "Strategy lets me swap behavior without editing old code. A factory keeps creation in one place. Observer lets many listeners react to one event, at the cost of hidden coupling. Injection hands in a fake, so tests run fast and never charge a card.",
      "items": [
       {
        "label": "swap",
@@ -1179,14 +1316,78 @@
        "label": "hand in",
        "text": "injection",
        "sub": "fakes in tests",
+       "tone": "good",
        "cue": "Injection hands"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Where I used them",
+     "covers": [
+      "sw04"
+     ],
+     "say": "Which have you actually used? Name a real one. In our checkout, I used strategy for payment methods, so crypto was one new class. A factory built it from the config string. And I injected a fake gateway, so tests ran in milliseconds.",
+     "items": [
+      {
+       "id": "co",
+       "x": 160,
+       "y": 420,
+       "w": 380,
+       "h": 140,
+       "text": "checkout",
+       "tone": "blue",
+       "cue": "In our checkout"
       },
       {
-       "label": "always",
-       "text": "example",
-       "sub": "say where",
+       "id": "st",
+       "x": 1100,
+       "y": 240,
+       "w": 420,
+       "h": 130,
+       "text": "strategy",
+       "sub": "crypto = 1 class",
        "tone": "good",
-       "cue": "name where"
+       "cue": "strategy for payment"
+      },
+      {
+       "id": "fa",
+       "x": 1100,
+       "y": 460,
+       "w": 420,
+       "h": 130,
+       "text": "factory",
+       "sub": "from config",
+       "tone": "good",
+       "cue": "A factory built"
+      },
+      {
+       "id": "fk",
+       "x": 1100,
+       "y": 680,
+       "w": 420,
+       "h": 130,
+       "text": "fake gateway",
+       "sub": "tests in ms",
+       "tone": "good",
+       "cue": "fake gateway"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "co",
+       "to": "st",
+       "cue": "strategy for payment"
+      },
+      {
+       "from": "co",
+       "to": "fa",
+       "cue": "A factory built"
+      },
+      {
+       "from": "co",
+       "to": "fk",
+       "cue": "fake gateway"
       }
      ]
     }
