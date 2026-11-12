@@ -17,7 +17,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Throw an exception in the middle of a function, and your cleanup line never runs. By the end, you'll write C plus plus that can't leak, even when exceptions fly, and pick the right smart pointer in one sentence.",
+     "say": "Throw an exception, and your cleanup line never runs. By the end, you'll write C plus plus that can't leak, and pick the right smart pointer in one sentence.",
      "lines": [
       {
        "text": "throw 1;  // cleanup skipped",
@@ -43,7 +43,7 @@
      "kicker": "Today",
      "say": "Today you will do three things. Tie cleanup to a destructor, so exceptions cannot skip it. Pick between unique, shared and weak pointers. And break the cycle that leaks even smart pointers.",
      "lines": [
-      "RAII: acquire in constructor, free in destructor",
+      "RAII (Resource Acquisition Is Initialization): acquire in constructor, free in destructor",
       "Pick unique, shared or weak",
       "Break the cycle that leaks shared_ptr"
      ],
@@ -90,6 +90,12 @@
        "sub": "destructor releases",
        "tone": "good",
        "cue": "The destructor is the closing"
+      },
+      {
+       "label": "caught throw",
+       "text": "still closes",
+       "tone": "good",
+       "cue": "caught throw"
       }
      ]
     },
@@ -284,14 +290,14 @@
      "notes": [
       {
        "x": 1050,
-       "y": 640,
+       "y": 730,
        "text": "uncaught: no unwinding promise",
        "tone": "warn",
        "cue": "One fine print"
       },
       {
        "x": 1050,
-       "y": 760,
+       "y": 850,
        "text": "uncaught: terminate() is called",
        "tone": "warn",
        "cue": "unwinding is not guaranteed"
@@ -321,7 +327,7 @@
       ],
       [
        "thread joins",
-       "`jthread` (C++20)"
+       "`jthread` (C++20, joins in its destructor)"
       ]
      ],
      "cues": [
@@ -432,7 +438,7 @@
     },
     {
      "type": "quiz",
-     "say": "Quick one. A raw pointer is eight bytes on this machine. How big are a unique pointer and a shared pointer? Pause and predict.",
+     "say": "A raw pointer is eight bytes here. How big are a unique pointer and a shared pointer? Pause and predict.",
      "q": "sizeof of unique_ptr<int> and shared_ptr<int>, 64-bit?",
      "options": [
       "8 and 8",
@@ -470,6 +476,12 @@
         4
        ],
        "cue": "a control block"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Use unique by default"
       }
      ],
      "output": {
@@ -664,7 +676,7 @@
     },
     {
      "type": "quiz",
-     "say": "Twist time. Now b takes a by move, not by copy. What does b's use count print? Pause and predict.",
+     "say": "Now b takes a by move, not by copy. What does b's use count print? Pause and predict.",
      "q": "`auto b = std::move(a);` What is b.use_count()?",
      "options": [
       "0",
@@ -1180,7 +1192,7 @@
       ]
      ],
      "cues": [
-      "What is R A I I",
+      "Resource acquisition",
       "Why does it work",
       "Examples"
      ],
@@ -1246,8 +1258,8 @@
      ],
      "cues": [
       "What is reference counting",
-      "The rules",
-      "Cost and trap"
+      "A copy adds one",
+      "A control block"
      ],
      "covers": [
       "q31"
