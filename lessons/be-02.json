@@ -59,18 +59,18 @@
  ],
  "chapters": [
   {
-   "title": "Scan a million rows or four?",
+   "title": "Scan a million rows or 4 steps?",
    "scenes": [
     {
      "type": "hook",
-     "say": "Finding one user among a million rows should not mean reading all of them. By the end, you'll make it read four, and spot the hidden fifty one queries behind a blog page.",
+     "say": "Finding one user among a million rows should not mean reading all of them. By the end, you'll make it take four steps, and spot the hidden fifty one queries behind a blog page.",
      "lines": [
       {
        "text": "Find 1 user in 1,000,000",
        "cue": "Finding one user"
       },
       {
-       "text": "Read 4 rows, not 1,000,000",
+       "text": "Find it in 4 steps, not 1,000,000 reads",
        "cue": "By the end"
       },
       {
@@ -83,9 +83,9 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Make a lookup read four rows instead of a million. Know when an index backfires. And spot and fix the hidden fifty one queries.",
+     "say": "Three things today. Make a lookup take four steps, not a million reads. Know when an index backfires. And spot and fix the hidden fifty one queries.",
      "lines": [
-      "Read 4 rows, not a million",
+      "Find a row in 4 steps, not a scan",
       "Know when an index backfires",
       "Spot and fix the N+1 queries"
      ],
@@ -101,29 +101,29 @@
      "statement": "A users table has a million rows. Finding one user by email takes far too long.",
      "example": {
       "input": "1,000,000 users, find one email",
-      "output": "read about 4 rows, not 1,000,000"
+      "output": "about 4 steps, not 1,000,000 row checks"
      },
-     "say": "Here's the problem. A million rows, and finding one email is slow. For example, one email among a million users. We want to read about four rows, not a million.",
+     "say": "Every login looks up a user by email. With a million users, each login crawls. The fix is called an index. We want about four steps, not a million.",
      "cues": {
-      "example": "For example",
-      "output": "We want to read"
+      "example": "a million users",
+      "output": "We want about four"
      }
     },
     {
      "type": "chart",
      "head": "Same lookup, a million users",
-     "unit": "ms",
-     "say": "Same lookup, a million users, on my laptop. Scanning every row takes seventy milliseconds. With an index, three hundredths. Two thousand times faster, same answer.",
+     "unit": "µs",
+     "say": "Same lookup, a million users, on one machine. Scanning every row takes seventy two thousand microseconds, about seventy milliseconds. With an index, thirty microseconds. More than two thousand times faster, same answer.",
      "bars": [
       {
        "label": "Scan",
-       "value": 72,
+       "value": 72000,
        "tone": "bad",
        "cue": "Scanning every row"
       },
       {
        "label": "Index",
-       "value": 0.03,
+       "value": 30,
        "tone": "good",
        "cue": "With an index"
       }
@@ -165,7 +165,7 @@
     {
      "type": "diagram",
      "head": "A B-tree finding user 50",
-     "say": "The catalog is usually a B tree: keys kept sorted. We want user fifty. The root page holds thirty and sixty. Below it sit three children, one for each range. Fifty is between thirty and sixty, so we take the middle one. It holds forty and fifty, plus a pointer to the row. Real pages hold hundreds of keys, so ten million rows need only three or four steps down.",
+     "say": "We want user fifty. The catalog is usually a B tree: keys kept sorted. The root page holds thirty and sixty. A page is one block of disk, a few kilobytes. Below it sit three children, one per range. Fifty is between thirty and sixty, so we take the middle one. It holds forty and fifty, plus a pointer to the row. Real pages hold hundreds of keys, so ten million rows need three or four steps.",
      "items": [
       {
        "id": "find",
@@ -251,12 +251,51 @@
      ],
      "notes": [
       {
+       "x": 1170,
+       "y": 385,
+       "text": "page: one disk block",
+       "tone": "info",
+       "cue": "one block of disk"
+      },
+      {
        "x": 1240,
        "y": 760,
        "text": "10M rows: 3 or 4 steps",
        "tone": "good",
        "cue": "ten million rows"
       }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Why a B-tree, not a hash?",
+     "say": "Why a B tree, and not a hash? Equality works in both. Ranges need sorted order, and a hash has none. Order by wants sorted output, and the tree already has it.",
+     "heads": [
+      "Need",
+      "B-tree",
+      "Hash index"
+     ],
+     "rows": [
+      [
+       "equality `=`",
+       "fast",
+       "fast"
+      ],
+      [
+       "range `>`",
+       "fast",
+       "no help"
+      ],
+      [
+       "`ORDER BY`",
+       "already sorted",
+       "no order"
+      ]
+     ],
+     "cues": [
+      "Equality",
+      "Ranges",
+      "Order by"
      ]
     },
     {
@@ -333,7 +372,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. The index is on email only. One of these filters cannot use it. Which one? Pause and predict.",
+     "say": "Your turn. The index is on email only, sorted by the raw text. One of these filters cannot use it. Which one? Pause and predict.",
      "q": "Index on `email`. Which filter can NOT use it?",
      "options": [
       "`email = 'a@b.com'`",
@@ -393,21 +432,21 @@
     {
      "type": "problem",
      "title": "When does an index backfire?",
-     "statement": "Indexes speed up reads, but every write pays for them. Which indexes help, and which hurt?",
+     "statement": "Indexes speed up reads, but every write pays for them. Which indexes earn their cost?",
      "example": {
-      "input": "orders table, 3 indexes, 1 insert",
-      "output": "index only what you filter, join, sort"
+      "input": "users table, 3 indexes, 1 insert",
+      "output": "index selective columns you filter, join, sort"
      },
-     "say": "Next problem. Indexes speed up reads, but every write pays for them. For example, a table with three indexes and one insert. We want to know which indexes earn their cost.",
+     "say": "So should you index everything? Reads get faster, but every write pays. Take a users table with three indexes and one insert. Which indexes earn their cost?",
      "cues": {
-      "example": "For example",
-      "output": "We want to know"
+      "example": "a users table",
+      "output": "Which indexes earn"
      }
     },
     {
      "type": "diagram",
      "head": "Every index is extra work",
-     "say": "Picture a team that indexes every column, to be safe. Now one insert arrives. The row goes into the table. It also goes into the email index. And into the name index. One insert, three writes. Every extra index repeats it, and costs disk too.",
+     "say": "One insert arrives. This team indexes every column, to be safe. The row goes into the table. Then the email index. Then name. Then city. One insert, four writes. Every extra index repeats it, and costs disk too.",
      "items": [
       {
        "id": "w",
@@ -418,12 +457,12 @@
        "text": "1 INSERT",
        "size": 42,
        "tone": "blue",
-       "cue": "one insert arrives"
+       "cue": "One insert arrives"
       },
       {
        "id": "t",
        "x": 760,
-       "y": 260,
+       "y": 200,
        "w": 360,
        "h": 110,
        "text": "table",
@@ -433,24 +472,35 @@
       {
        "id": "i1",
        "x": 760,
-       "y": 470,
+       "y": 380,
        "w": 360,
        "h": 110,
        "text": "index: email",
        "size": 34,
        "tone": "warn",
-       "cue": "email index"
+       "cue": "the email index"
       },
       {
        "id": "i2",
        "x": 760,
-       "y": 680,
+       "y": 560,
        "w": 360,
        "h": 110,
        "text": "index: name",
        "size": 34,
        "tone": "warn",
-       "cue": "name index"
+       "cue": "Then name"
+      },
+      {
+       "id": "i3",
+       "x": 760,
+       "y": 740,
+       "w": 360,
+       "h": 110,
+       "text": "index: city",
+       "size": 34,
+       "tone": "warn",
+       "cue": "Then city"
       },
       {
        "id": "c",
@@ -462,7 +512,7 @@
        "text": "1",
        "size": 56,
        "tone": "bad",
-       "cue": "One insert, three writes"
+       "cue": "One insert, four"
       }
      ],
      "arrows": [
@@ -474,12 +524,17 @@
       {
        "from": "w",
        "to": "i1",
-       "cue": "email index"
+       "cue": "the email index"
       },
       {
        "from": "w",
        "to": "i2",
-       "cue": "name index"
+       "cue": "Then name"
+      },
+      {
+       "from": "w",
+       "to": "i3",
+       "cue": "Then city"
       }
      ],
      "changes": [
@@ -487,10 +542,16 @@
        "id": "c",
        "count": [
         1,
-        3
+        4
        ],
        "dur": 1,
-       "cue": "three writes"
+       "cue": "four writes"
+      },
+      {
+       "id": "c",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Every extra index"
       }
      ]
     },
@@ -498,7 +559,7 @@
      "type": "chart",
      "head": "Rows an index lookup must fetch",
      "unit": "rows",
-     "say": "Filter by email: one row comes back. Filter by city, one of fifty: a million divided by fifty, twenty thousand rows. Filter by country, two values: half a million. An index helps little there.",
+     "say": "Filter by email: one row comes back. That's selective: few rows match. Filter by city, one of fifty: a million divided by fifty, twenty thousand rows. Filter by country, two values: half a million. An index barely helps.",
      "bars": [
       {
        "label": "email",
@@ -556,19 +617,19 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A composite index on country, then city. You filter only by city. Does the database use it? Pause and predict.",
+     "say": "Try this one. A composite index on country, then city. You filter only by city. Does the database use it?",
      "q": "Index on `(country, city)`. Query: `WHERE city = 'city7'`. Used?",
      "options": [
       "Yes, fast search",
       "No: full table scan",
-      "Error"
+      "Yes, but slower"
      ],
      "answer": 1
     },
     {
      "type": "code",
      "head": "Skip the leftmost column",
-     "say": "No: a full scan. The index starts with country, and this filter skips it. So put the column you always filter by first.",
+     "say": "No: normally a full scan. The index starts with country, and this filter skips it. Put the column you always filter by first.",
      "panels": [
       {
        "file": "query.sql",
@@ -610,46 +671,14 @@
      }
     },
     {
-     "type": "compare",
-     "head": "Why a B-tree, not a hash?",
-     "say": "Why a B tree? Equality works in both. Ranges need sorted order, and a hash has none. Order by wants sorted output. So index what you filter, join or sort on.",
-     "heads": [
-      "Need",
-      "B-tree",
-      "Hash index"
-     ],
-     "rows": [
-      [
-       "equality `=`",
-       "fast",
-       "fast"
-      ],
-      [
-       "range `>`",
-       "fast",
-       "no help"
-      ],
-      [
-       "`ORDER BY`",
-       "already sorted",
-       "no order"
-      ]
-     ],
-     "cues": [
-      "Equality",
-      "Ranges",
-      "Order by"
-     ]
-    },
-    {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. An index costs writes, so index what you filter, join or sort on.",
+     "say": "So which indexes earn their cost? Every index costs writes, so index selective columns you filter, join or sort on.",
      "lines": [
-      "Index only what you query"
+      "Index selective columns you filter, join, sort"
      ],
      "cues": [
-      "An index costs"
+      "Every index costs"
      ]
     }
    ]
@@ -665,10 +694,10 @@
       "input": "50 posts, each shows its author",
       "output": "2 queries instead of 51"
      },
-     "say": "Next problem. A blog page shows fifty posts with author names, and it is slow. For example, fifty posts, each with an author. We want two queries, not fifty one.",
+     "say": "Users wait a tenth of a second on this blog page, for nothing. Fifty posts, each with its author. Two queries should do it, not fifty one.",
      "cues": {
-      "example": "For example",
-      "output": "We want two"
+      "example": "Fifty posts, each",
+      "output": "Two queries should"
      }
     },
     {
@@ -708,7 +737,7 @@
     {
      "type": "diagram",
      "head": "One blog page, many queries",
-     "say": "Here's what the page does. First, one query loads fifty posts. That's one. Then, for each post, it asks for the author. Post one, post two, all the way to fifty. That's fifty one queries. At two milliseconds a round trip, that's a hundred and two milliseconds.",
+     "say": "Watch the blog page. First, one query loads fifty posts. That's one. Then, for each post, it asks for the author. Post one, post two, all the way to fifty. That's fifty one queries. At two milliseconds a round trip, that's a hundred and two milliseconds.",
      "items": [
       {
        "id": "app",
@@ -718,7 +747,7 @@
        "h": 140,
        "text": "blog page",
        "tone": "blue",
-       "cue": "the page does"
+       "cue": "Watch the blog page"
       },
       {
        "id": "q1",
@@ -808,7 +837,7 @@
     {
      "type": "code",
      "head": "The bug, in code",
-     "say": "Here it is as code. One query loads the posts. Then a loop asks for each author, one at a time. That loop body runs fifty times. The print shows how many queries ran: fifty one.",
+     "say": "In Python, one query loads the posts. Then a loop asks for each author, one at a time. That loop body runs fifty times. The print shows how many queries ran: fifty one.",
      "panels": [
       {
        "file": "app.py",
@@ -820,7 +849,7 @@
        "lines": [
         1
        ],
-       "cue": "One query loads"
+       "cue": "one query loads"
       },
       {
        "lines": [
@@ -858,7 +887,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Those fifty posts have only ten different authors. A batched in query fetches the authors all at once. How many queries now? Pause and predict.",
+     "say": "Predict this before I show you. Those fifty posts have only ten different authors. A batched in query fetches the authors all at once. How many queries now?",
      "q": "50 posts, 10 distinct authors. Batched `IN` fix: how many queries?",
      "options": [
       "1",
@@ -866,7 +895,8 @@
       "11",
       "51"
      ],
-     "answer": "2"
+     "answer": "2",
+     "optCue": "How many queries now"
     },
     {
      "type": "code",
@@ -999,7 +1029,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. Join or batch, and the fifty one queries become one or two.",
+     "say": "So the fifty one queries were a loop in disguise. Join or batch, and they become one or two.",
      "lines": [
       "Join or batch: 1 or 2 queries"
      ],
@@ -1020,16 +1050,16 @@
       "input": "slow page, cause unknown",
       "output": "find it, fix one thing, measure"
      },
-     "say": "Last problem. A page is slow, and someone says add an index. For example, a slow page with no known cause. We want to find the real cause, fix one thing, and measure.",
+     "say": "A teammate says the page is slow: add an index. A wrong index slows writes. A slow page, cause unknown. Find it, fix one thing, measure.",
      "cues": {
-      "example": "For example",
-      "output": "We want to find"
+      "example": "A slow page, cause",
+      "output": "Find it, fix"
      }
     },
     {
      "type": "flow",
      "head": "Slow page? Follow the order",
-     "say": "A teammate says the page is slow, so add an index. Wait. First, count the queries per request. Fifty identical ones means N plus one. Next, read the plan of the slowest query. Fix one thing. Then measure again.",
+     "say": "Here's the order. First, count the queries per request. Fifty identical ones means N plus one. Next, read the plan of the slowest query. Fix one thing. Then measure again.",
      "items": [
       {
        "label": "1",
@@ -1062,7 +1092,7 @@
     {
      "type": "compare",
      "head": "Read the plan",
-     "say": "On Postgres, explain analyze runs the query and prints its plan. A Seq Scan on a big table with a filter is the red flag. An Index Scan means the tree is working. And estimated rows far from actual rows means out of date statistics, so run analyze.",
+     "say": "On Postgres, explain analyze runs the query and prints its plan. A Seq Scan on a big table with a filter is the red flag. An Index Scan means the tree is working. Each step shows estimated rows, a guess from statistics: stored counts of each column's values. Far from actual rows? The stats are stale, so run analyze.",
      "heads": [
       "Plan says",
       "It means"
@@ -1077,32 +1107,37 @@
        "the sorted tree is in use"
       ],
       [
-       "estimated rows far from actual",
-       "stale statistics: `ANALYZE`"
+       "estimated rows",
+       "guess from statistics: column counts"
+      ],
+      [
+       "estimate far from actual",
+       "stale statistics: run `ANALYZE`"
       ]
      ],
      "cues": [
       "A Seq Scan",
       "An Index Scan",
-      "estimated rows"
+      "estimated rows",
+      "Far from actual"
      ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. A table has twenty rows, and the plan shows a Seq Scan. Should you add an index? Pause and predict.",
+     "say": "Quick one. A table has twenty rows, and the plan shows a Seq Scan. Should you add an index? Pause and predict.",
      "q": "20-row table, plan shows Seq Scan. Add an index?",
      "options": [
-      "Yes, always",
-      "No: scanning is fine",
-      "Yes, on every column"
+      "Yes: Seq Scan is a bug",
+      "No: one page is enough",
+      "Yes, index the id"
      ],
      "answer": 1
     },
     {
      "type": "chart",
-     "head": "Pages read on a 20-row table",
+     "head": "Disk pages read on a 20-row table",
      "unit": "pages",
-     "say": "No. Twenty rows fit on one page, so a scan reads one. An index reads its own page, then the table page: at least two. Tiny tables don't need one. Measure first.",
+     "say": "No. Twenty rows fit in one disk page, so a scan reads one. An index reads its own page, then the table page: at least two. Tiny tables don't need one. Measure first.",
      "bars": [
       {
        "label": "Seq Scan",
@@ -1121,7 +1156,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. Count the queries, read the plan, fix one thing, measure.",
+     "say": "That's where to start. Count the queries, read the plan, fix one thing, measure.",
      "lines": [
       "Count, read, fix one, measure"
      ],
@@ -1145,29 +1180,29 @@
       "They ask",
       "You say"
      ],
-     "say": "How does an index help? Sorted B tree: a few steps, not a scan. When do indexes hurt? Every write updates every index. Composite index? Leftmost column first. How do you check? Explain, before and after.",
+     "say": "How does an index help? A sorted B tree: about four steps, not a scan. When do indexes hurt? Every write updates every index, and uses disk. A composite on country, city? It helps country, not city alone. How do you check? Run explain before and after.",
      "rows": [
       [
        "How does an index help?",
-       "Sorted B-tree: a few steps, no full scan"
+       "A sorted B-tree: about 4 steps, not a scan"
       ],
       [
        "When do indexes hurt?",
-       "Slower writes, more space"
+       "Every write updates every index and uses disk"
       ],
       [
-       "Composite index?",
-       "Leftmost column first"
+       "Composite `(country, city)`?",
+       "Helps country, not city alone"
       ],
       [
        "How do you check?",
-       "`EXPLAIN` before and after"
+       "Run `EXPLAIN` before and after"
       ]
      ],
      "cues": [
       "How does an index",
       "When do indexes hurt",
-      "Composite index",
+      "A composite on",
       "How do you check"
      ]
     },
@@ -1181,30 +1216,48 @@
       "They ask",
       "You say"
      ],
-     "say": "What's N plus one? A query per row: fifty one for fifty posts. The fix? A join, or one batched in query. Spotting it? Count queries per request. Is Seq Scan always bad? No, not on tiny tables. Measure first.",
+     "say": "What's N plus one? One query per row: fifty one queries for fifty posts. How do you spot it? Count the queries per request. The fix? A join, or one batched in query. Is a join always better? No: it repeats the author on every row.",
      "rows": [
       [
        "What is N+1?",
-       "A query per row: 51 for 50 posts"
-      ],
-      [
-       "The fix?",
-       "JOIN, or one batched `IN` query"
+       "One query per row: 51 queries for 50 posts"
       ],
       [
        "How do you spot it?",
-       "Count queries per request"
+       "Count the queries per request"
       ],
       [
-       "Is Seq Scan always bad?",
-       "No: tiny tables. Measure first"
+       "The fix?",
+       "A JOIN, or one batched `IN` query"
+      ],
+      [
+       "Is a JOIN always better?",
+       "No: it repeats the author on every row"
       ]
      ],
      "cues": [
       "What's N plus one",
+      "How do you spot",
       "The fix",
-      "Spotting it",
-      "Is Seq Scan"
+      "Is a join always"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "How do you read a plan?",
+     "covers": [
+      "be06"
+     ],
+     "say": "How do you read a query plan? Run explain analyze. A Seq Scan on a big table is a red flag. Tiny ones are fine. An Index Scan means the index is doing its job. Estimated rows far from actual? Stale stats, so run analyze.",
+     "lines": [
+      "Seq Scan on a big table: red flag. Tiny: fine.",
+      "Index Scan: the index is doing its job.",
+      "Estimate far from actual rows: run ANALYZE."
+     ],
+     "cues": [
+      "A Seq Scan",
+      "An Index Scan",
+      "estimated rows"
      ]
     }
    ]
