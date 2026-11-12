@@ -71,7 +71,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "You click, and a database row shows on screen. By the end, you'll trace every hop between, and design an API that survives a retry.",
+     "say": "You click, and a database row shows on screen. What happened in between? You'll trace every hop, and design an API that survives a retry.",
      "lines": [
       {
        "text": "One click.",
@@ -79,7 +79,7 @@
       },
       {
        "text": "Six hops to the database.",
-       "cue": "every hop"
+       "cue": "What happened in between"
       },
       {
        "text": "Retry? No double charge.",
@@ -87,6 +87,35 @@
        "accent": true
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Trace a request from click to database. Design REST routes with honest status codes. And make retries safe with an idempotency key.",
+     "lines": [
+      "Trace a request from click to database",
+      "Design REST routes with honest codes",
+      "Make retries safe with idempotency"
+     ],
+     "cues": [
+      "Trace a request",
+      "Design REST",
+      "make retries"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "What happens when you call an API?",
+     "statement": "A browser calls an endpoint and gets JSON back. Name every hop in between, and find where the time goes.",
+     "example": {
+      "input": "GET https://example.com/users/42",
+      "output": "DNS, TLS, balancer, app, DB, 200"
+     },
+     "say": "Here's the problem. A browser calls an endpoint and gets JSON back. For example, get users forty two. We want every hop named, and to know where the time goes.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
     },
     {
      "type": "flow",
@@ -298,7 +327,7 @@
      "type": "chart",
      "head": "Where 240 ms went",
      "unit": "ms",
-     "say": "Eighty five: two forty minus one fifty five. DNS cost twenty. Connecting and encrypting cost a hundred thirty five, the biggest slice. The server needed eighty five. Blame the network or the code? Now you know.",
+     "say": "Eighty five: two forty minus one fifty five. This chart splits the time by stage. DNS cost twenty. Connecting and encrypting cost a hundred thirty five, the biggest slice. The server needed eighty five. Blame the network or the code? Now you know.",
      "bars": [
       {
        "label": "DNS",
@@ -402,6 +431,20 @@
   {
    "title": "Nouns in paths, honest codes",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Design the API for orders",
+     "statement": "Design the URLs, methods and status codes of an orders service so any client can guess them.",
+     "example": {
+      "input": "create, read, replace, delete an order",
+      "output": "nouns in paths, honest status codes"
+     },
+     "say": "Here's the problem. Design the URLs, methods and codes for an orders service. For example, create, read, replace, delete. We want nouns in paths and honest codes.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
     {
      "type": "diagram",
      "head": "A filing cabinet",
@@ -724,6 +767,20 @@
   {
    "title": "Retries that don't double-charge",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "A retry that double-charges",
+     "statement": "A client times out and retries a POST that actually worked. Don't create two orders.",
+     "example": {
+      "input": "POST /orders twice, one purchase",
+      "output": "exactly one order"
+     },
+     "say": "Here's the problem. A client times out, and retries a post that actually worked. For example, post orders twice for one purchase. We want exactly one order.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
     {
      "type": "diagram",
      "head": "One purchase, two orders",

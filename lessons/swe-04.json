@@ -24,7 +24,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "You inherit a two hundred line function with no tests, and your manager says clean it up. By the end, you'll change it without breaking anything, then design a task a machine can grade.",
+     "say": "A two hundred line function has no tests, and your manager says clean it up. By the end, you'll change it without breaking anything, then design a task a machine can grade.",
      "lines": [
       {
        "text": "200 lines. Zero tests.",
@@ -40,6 +40,35 @@
        "accent": true
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Pin down legacy code with tests, then refactor it. Keep your tests fast and reliable. And write a verifier that cheats can't beat.",
+     "lines": [
+      "Pin legacy code with tests, then refactor",
+      "Keep tests fast and reliable",
+      "Write a verifier cheats can't beat"
+     ],
+     "cues": [
+      "Pin down",
+      "Keep your tests",
+      "write a verifier"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Clean up code with no tests",
+     "statement": "A 200-line function has no tests. Restructure it without changing what it does.",
+     "example": {
+      "input": "calc_invoice(), 200 lines, 0 tests",
+      "output": "same results, cleaner code"
+     },
+     "say": "Here's the problem. A two hundred line function has no tests. Change it safely. For example, calc invoice, with zero tests. The goal: the same results, but cleaner code.",
+     "cues": {
+      "example": "For example",
+      "output": "The goal"
+     }
     },
     {
      "type": "flow",
@@ -227,6 +256,20 @@
   {
    "title": "One tiny step, then run",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Is my tiny step safe?",
+     "statement": "You change one line while refactoring. How do you learn in seconds that nothing else changed?",
+     "example": {
+      "input": "helper typo: 1.08 becomes 1.8",
+      "output": "a red test within seconds"
+     },
+     "say": "Here's the problem. You change one line. Did anything else change? For example, a typo in a tax helper. The goal: a red test, right away.",
+     "cues": {
+      "example": "For example",
+      "output": "The goal"
+     }
+    },
     {
      "type": "diagram",
      "head": "The safe loop",
@@ -479,6 +522,20 @@
   {
    "title": "Tests you can trust",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does a test fail at midnight?",
+     "statement": "A test passes all day and fails once at midnight. Make the whole suite fast and reliable.",
+     "example": {
+      "input": "a test that reads the real clock",
+      "output": "same result on every run"
+     },
+     "say": "Here's the problem. A test passes all day and fails once at midnight. For example, a test that reads the real clock. The goal: the same result on every run, on every machine.",
+     "cues": {
+      "example": "For example",
+      "output": "The goal"
+     }
+    },
     {
      "type": "diagram",
      "head": "The test pyramid",
@@ -770,6 +827,22 @@
    "title": "A verifier nobody can fool",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Grade code by machine",
+     "statement": "Design a task a program can grade pass or fail, with no way to cheat.",
+     "example": {
+      "input": "[[1,3],[2,6],[8,10]]",
+      "output": "[[1,6],[8,10]]"
+     },
+     "note": "50 hidden cases",
+     "say": "Here's the problem. Design a task a program can grade, with no way to cheat. For example, merge overlapping intervals. This input must give this output, on fifty hidden cases.",
+     "cues": {
+      "example": "For example",
+      "output": "this output",
+      "note": "on fifty"
+     }
+    },
+    {
      "type": "flow",
      "head": "A driving test",
      "say": "A verifier says pass or fail. Think of a driving test. The examiner follows a fixed checklist, the same for everyone. The route is a surprise, so you can't memorize it. And any good driver passes, not only one who drives exactly like the examiner.",
@@ -1023,7 +1096,7 @@
      "type": "chart",
      "head": "Passing by luck",
      "unit": "of 50",
-     "say": "The real solution passes fifty. The cheater passes five, only the empty cases, where an empty answer is right.",
+     "say": "Here's how many of the fifty cases each one passes. The real solution passes fifty. The cheater passes five, only the empty cases, where an empty answer is right.",
      "bars": [
       {
        "label": "Real",

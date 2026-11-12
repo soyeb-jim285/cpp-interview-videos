@@ -76,7 +76,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "A build broke somewhere in the last hundred commits. By the end, you'll find the culprit in seven tries, then tell that hunt as a story that lands the offer.",
+     "say": "A build broke somewhere in the last hundred commits, and you don't know which. By the end, you'll find the culprit in seven tries, then tell that hunt as a story that lands the offer.",
      "lines": [
       {
        "text": "100 commits. One broke it.",
@@ -92,6 +92,36 @@
        "accent": true
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Find the bad commit by halving history. Merge or rebase a branch, and fix a conflict. And tell your bug story in ninety seconds.",
+     "lines": [
+      "Find the bad commit by halving history",
+      "Merge or rebase, and fix a conflict",
+      "Tell a bug story in 90 seconds"
+     ],
+     "cues": [
+      "Find the bad",
+      "Merge or rebase",
+      "tell your bug"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Which commit broke the build?",
+     "statement": "The last release worked and today's build fails. A hundred commits sit between. Find the first bad one.",
+     "example": {
+      "input": "100 commits: first good, last bad",
+      "output": "the culprit, in 7 tests"
+     },
+     "note": "too many diffs to read",
+     "say": "Here's the problem. Today's build fails, and the last release worked. For example, a hundred commits between, first good, last bad. We want the culprit, in seven tests.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
     },
     {
      "type": "flow",
@@ -128,7 +158,7 @@
      "type": "chart",
      "head": "Hunting through 100 commits",
      "unit": "tests",
-     "say": "Say commit one worked, and commit one hundred is broken. Checking one by one could take ninety eight tests. Halving the range takes seven.",
+     "say": "This chart counts tests. Commit one worked, commit one hundred broke. Checking one by one could take ninety eight tests. Halving the range takes seven.",
      "bars": [
       {
        "label": "One by one",
@@ -397,6 +427,20 @@
   {
    "title": "Reproduce, then shrink",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "A bug that fails only sometimes",
+     "statement": "A test fails now and then with no code change. Make it fail on demand, then shrink it.",
+     "example": {
+      "input": "flaky test: ids built from the clock",
+      "output": "fails every run, then a fix"
+     },
+     "say": "Here's the problem. A test fails now and then, with no code change. For example, a flaky test whose ids come from the clock. We want it to fail every run, so we can fix it.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
     {
      "type": "code",
      "head": "Shrink the input by halves",
@@ -686,6 +730,20 @@
   {
    "title": "Merge or rebase",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Combine my branch with main",
+     "statement": "Main moved on while you worked. Bring your two commits and the new ones together, readably.",
+     "example": {
+      "input": "main: M1 M2 M3; feature: F1 F2",
+      "output": "one history with all five commits"
+     },
+     "say": "Here's the problem. Main moved on while you worked. For example, main has three commits, yours has two. We want one history with all five.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
     {
      "type": "diagram",
      "head": "Your branch and main",
@@ -1122,6 +1180,20 @@
    "title": "Tell it in ninety seconds",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Tell me about a hard bug",
+     "statement": "The interviewer says: tell me about a hard bug you fixed. You get about ninety seconds.",
+     "example": {
+      "input": "the bug hunt: 100 commits, found in 7",
+      "output": "a story with a result they remember"
+     },
+     "say": "Here's the problem. The interviewer says, tell me about a hard bug you fixed. For example, our bisect hunt, a hundred commits, found in seven. We want a story with a result they remember.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
      "type": "flow",
      "head": "S.T.A.R. for the bisect hunt",
      "say": "Tell it with S T A R, using your own real story. Mine's made up. Situation: the checkout test failed after a hundred commits. Task: find the cause before release. Action: I froze the clock, then bisected in seven runs. Result: a counter fix, plus a test.",
@@ -1157,7 +1229,7 @@
      "type": "chart",
      "head": "Where the 90 seconds go",
      "unit": "sec",
-     "say": "Ninety seconds is short. Situation, about fifteen. Task, ten. Action, forty five, because that's where you show how you think. Result, twenty, ending on a number.",
+     "say": "This chart splits the ninety seconds. Situation, about fifteen. Task, ten. Action, forty five, because that's where you show how you think. Result, twenty, ending on a number.",
      "bars": [
       {
        "label": "Situation",
