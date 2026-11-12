@@ -69,20 +69,20 @@
      "statement": "A 5×5 maze: a dot is floor, a hash is a wall. Moving up, down, left or right, what is the fewest steps from top left to bottom right?",
      "example": {
       "input": ".....\n##.#.\n.....\n.###.\n.....",
-      "output": "8 steps"
+      "output": "?"
      },
      "note": "Moves: up, down, left, right. Never through a wall.",
      "cues": {
       "example": "five by five maze",
-      "output": "The answer is eight",
+      "output": "Fewest steps",
       "note": "Moves: up"
      },
-     "say": "You're standing top left in a five by five maze, and the exit is bottom right. Fewest steps? The answer is eight. Moves: up, down, left, right. Never through a wall."
+     "say": "You're standing top left in a five by five maze, and the exit is bottom right. Fewest steps? Moves: up, down, left, right. Never through a wall. Let's find out how."
     },
     {
      "type": "flow",
      "head": "Two ways to explore",
-     "say": "A graph is nodes joined by edges. A grid is one: each cell touches four neighbors. Two ways to explore. Breadth first search spreads like ripples in a pond, nearest first, using a queue. Depth first search follows one tunnel to its end, then backs up.",
+     "say": "A graph is nodes joined by edges. A grid is one: each cell touches up to four neighbors. Two ways to explore. Breadth first search spreads like ripples in a pond, nearest first, using a queue. Depth first search follows one tunnel to its end, then backs up.",
      "items": [
       {
        "label": "graph",
@@ -92,7 +92,7 @@
       {
        "label": "grid",
        "text": "5×5 cells",
-       "sub": "4 neighbors each",
+       "sub": "up to 4 neighbors",
        "cue": "A grid is one"
       },
       {
@@ -704,7 +704,7 @@
     {
      "type": "diagram",
      "head": "Still eight",
-     "say": "Eight. Knock out that wall and the left column gets closer: two, three, four. The bottom row gets closer too: five, six, seven. But the exit stays at eight. On a five by five grid you need four steps down and four across. Walls only add distance, never remove it.",
+     "say": "Eight. Knock out that wall and the left column gets closer: two, three, four. The bottom row gets closer too: five, six, seven. But the exit stays at eight. On a five by five grid you need four steps down and four across. Adding a wall can only keep a distance or lengthen it. It never shortens one.",
      "items": [
       {
        "id": "m00",
@@ -1021,7 +1021,7 @@
        "id": "m11",
        "glow": true,
        "tone": "bad",
-       "cue": "Walls only add"
+       "cue": "Adding a wall"
       },
       {
        "id": "m44",
@@ -1033,7 +1033,7 @@
     {
      "type": "compare",
      "head": "Three BFS mistakes",
-     "say": "Three mistakes. Marking visited on pop, not push: cells enter the queue many times. Checking the wall before the bounds: you read outside the grid. Using depth first for fewest steps: not the shortest. That solves our maze.",
+     "say": "Three mistakes. Marking visited on pop, not push: cells enter the queue many times. Checking the wall before the edges: you read off the grid. Using depth first for fewest steps: not the shortest. That solves our maze.",
      "heads": [
       "Mistake",
       "What goes wrong",
@@ -1048,7 +1048,7 @@
       [
        "check wall, then bounds",
        "reads off the grid",
-       "bounds first"
+       "check the edges first"
       ],
       [
        "DFS for fewest steps",
@@ -1073,15 +1073,15 @@
      "statement": "A grid of 1s (land) and 0s (water). Land touching up, down, left or right forms one island. How many islands?",
      "example": {
       "input": "11000 / 10010 / 00110 / 00001",
-      "output": "3"
+      "output": "?"
      },
      "note": "Diagonal neighbors do not touch.",
      "cues": {
       "example": "grid of ones",
-      "output": "islands? Three",
-      "note": "Touching ones form"
+      "output": "How many islands",
+      "note": "Diagonal neighbors"
      },
-     "say": "Look at this grid of ones and zeros. How many islands? Three. Touching ones form an island, meaning up, down, left, or right."
+     "say": "Look at this grid of ones and zeros. How many islands? Touching ones form an island, meaning up, down, left, or right. Diagonal neighbors don't count. Image blobs and map regions use this same count."
     },
     {
      "type": "flow",
@@ -1514,7 +1514,7 @@
     {
      "type": "code",
      "head": "Scan the grid",
-     "say": "Now the scan. For every cell, if it's a one, we found a new island. Count it, then sink the whole island with the search. Every cell is visited at most once, so the cost is O of rows times columns. On our grid it prints three.",
+     "say": "Now the scan. For every cell, if it's a one, we found a new island. Count it, then sink the whole island with the search. Every cell is visited at most once, so the cost is O of rows times columns. On our grid it prints three. That solves the island count.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1847,7 +1847,7 @@
     {
      "type": "compare",
      "head": "BFS or DFS?",
-     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges. That counts any islands.",
+     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges. Sink-and-count fits any grid.",
      "heads": [
       "Question",
       "Use"
@@ -2131,11 +2131,11 @@
     {
      "type": "code",
      "head": "Kahn: count and seed",
-     "say": "First, count the arrows pointing into each course: its indegree. Here g of u lists the courses that need u. Then queue every course with indegree zero. Those are the ones ready to take.",
+     "say": "First, count the arrows pointing into each course: its indegree. Here g of node lists the courses that need that node. Then queue every course with indegree zero. Those are the ones ready to take.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "vector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n), order;\n    for (int u = 0; u < n; u++)\n        for (int v : g[u]) indeg[v]++;\n    queue<int> q;\n    for (int u = 0; u < n; u++)\n        if (indeg[u] == 0) q.push(u);"
+       "code": "vector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n), order;\n    for (int node = 0; node < n; node++)\n        for (int v : g[node]) indeg[v]++;\n    queue<int> q;\n    for (int node = 0; node < n; node++)\n        if (indeg[node] == 0) q.push(node);"
       }
      ],
      "steps": [
@@ -2148,7 +2148,7 @@
       },
       {
        "lines": [],
-       "cue": "g of u lists"
+       "cue": "g of node lists"
       },
       {
        "lines": [
@@ -2167,7 +2167,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "    while (!q.empty()) {\n        int u = q.front();  q.pop();\n        order.push_back(u);\n        for (int v : g[u]) {\n            indeg[v]--;\n            if (indeg[v] == 0) q.push(v);\n        }\n    }\n    return order;\n}"
+       "code": "    while (!q.empty()) {\n        int node = q.front();  q.pop();\n        order.push_back(node);\n        for (int v : g[node]) {\n            indeg[v]--;\n            if (indeg[v] == 0) q.push(v);\n        }\n    }\n    return order;\n}"
       }
      ],
      "steps": [
@@ -2231,14 +2231,14 @@
       "0 2 1 3",
       "1 0 2 3",
       "0 3 1 2",
-      "3 0 1 2"
+      "0 1 3 2"
      ],
      "answer": "0 2 1 3"
     },
     {
      "type": "diagram",
      "head": "Many valid orders",
-     "say": "Zero, two, one, three is valid. Zero goes first, because nothing precedes it. Two goes next: its only prerequisite, zero, is done. Then one, for the same reason. Three comes last, after both. One and two can swap, since neither needs the other. So several orders are valid, and Kahn's queue picks one.",
+     "say": "Zero, two, one, three is valid. Zero goes first, because nothing precedes it. Then one, since its only prerequisite is done. Then two, for the same reason. Two and one can swap. Three comes last, after both. One, zero, two, three fails: zero must come first. Three too early breaks the rest. Kahn's queue gives zero, one, two, three.",
      "items": [
       {
        "id": "n0",
@@ -2362,24 +2362,36 @@
        "cue": "Zero goes first"
       },
       {
-       "id": "n2",
-       "tone": "good",
-       "cue": "Two goes next"
-      },
-      {
-       "id": "out",
-       "text": "0 2",
-       "cue": "Two goes next"
-      },
-      {
        "id": "n1",
        "tone": "good",
        "cue": "Then one"
       },
       {
        "id": "out",
-       "text": "0 2 1",
+       "text": "0 1",
        "cue": "Then one"
+      },
+      {
+       "id": "n2",
+       "tone": "good",
+       "cue": "Then two"
+      },
+      {
+       "id": "out",
+       "text": "0 1 2",
+       "cue": "Then two"
+      },
+      {
+       "id": "n1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "can swap"
+      },
+      {
+       "id": "n2",
+       "glow": true,
+       "tone": "warn",
+       "cue": "can swap"
       },
       {
        "id": "n3",
@@ -2388,26 +2400,20 @@
       },
       {
        "id": "out",
-       "text": "0 2 1 3",
+       "text": "0 1 2 3",
        "cue": "Three comes last"
       },
       {
-       "id": "n1",
+       "id": "n3",
        "glow": true,
-       "tone": "warn",
-       "cue": "can swap"
-      },
-      {
-       "id": "n2",
-       "glow": true,
-       "tone": "warn",
-       "cue": "can swap"
+       "tone": "bad",
+       "cue": "Three too early"
       },
       {
        "id": "out",
        "glow": true,
        "tone": "good",
-       "cue": "picks one"
+       "cue": "Kahn's queue gives"
       }
      ]
     },
@@ -2621,7 +2627,7 @@
     {
      "type": "code",
      "head": "Both cases, end to end",
-     "say": "Here it is end to end. With our four arrows, the order is zero, one, two, three. Then we add the arrow from three to zero, and call again. Zero of four courses finish. Fewer than n means a cycle.",
+     "say": "Here it is end to end. With our four arrows, the order is zero, one, two, three. Then we add the arrow from three to zero, and call again. Zero of four courses finish. Fewer than n means a cycle. That solves both cases.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -2660,7 +2666,7 @@
      "output": {
       "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n), order;\n    for (int u = 0; u < n; u++)\n        for (int v : g[u]) indeg[v]++;\n    queue<int> q;\n    for (int u = 0; u < n; u++)\n        if (indeg[u] == 0) q.push(u);\n    while (!q.empty()) {\n        int u = q.front();  q.pop();\n        order.push_back(u);\n        for (int v : g[u]) {\n            indeg[v]--;\n            if (indeg[v] == 0) q.push(v);\n        }\n    }\n    return order;\n}\nvector<vector<int>> g = {{1, 2}, {3}, {3}, {}};\n"
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n), order;\n    for (int node = 0; node < n; node++)\n        for (int v : g[node]) indeg[v]++;\n    queue<int> q;\n    for (int node = 0; node < n; node++)\n        if (indeg[node] == 0) q.push(node);\n    while (!q.empty()) {\n        int node = q.front();  q.pop();\n        order.push_back(node);\n        for (int v : g[node]) {\n            indeg[v]--;\n            if (indeg[v] == 0) q.push(v);\n        }\n    }\n    return order;\n}\nvector<vector<int>> g = {{1, 2}, {3}, {3}, {}};\n"
       },
       "text": "0 1 2 3\n0 of 4 done",
       "cue": "Zero of four"
@@ -2669,7 +2675,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Follow ups. Alphabetically smallest order? Use a min heap instead of the queue. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n. That orders any courses.",
+     "say": "Follow ups. Alphabetically smallest order? Use a min heap, which pops the smallest first. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n. Same trick, any task list.",
      "heads": [
       "They ask",
       "You say"
@@ -2677,7 +2683,7 @@
      "rows": [
       [
        "Smallest order alphabetically?",
-       "min-heap instead of the queue"
+       "min-heap: pops the smallest course first"
       ],
       [
        "Another way?",
@@ -2711,7 +2717,7 @@
      "covers": [
       "cp09"
      ],
-     "say": "How do they work? B F S: queue, nearest first. D F S: stack, deep. What is D F S for? Connected areas, cycles, reachability. Shortest path? B F S, if unweighted. Dijkstra if weighted. Cost? O of V plus E. Deep recursion crashes? Use an explicit stack.",
+     "say": "How do they work? B F S: nearest cells first. D F S dives deep. What is D F S for? Areas, cycles, reachability. Shortest path? B F S if unweighted, or Dijkstra's method for weighted edges. Cost? O of V plus E. Deep recursion? Use an explicit stack.",
      "heads": [
       "They ask",
       "You say"
@@ -2719,15 +2725,15 @@
      "rows": [
       [
        "How do BFS and DFS work?",
-       "BFS: queue, nearest first · DFS: stack, deep, then back up"
+       "BFS uses a queue. DFS uses a stack."
       ],
       [
        "What is DFS used for?",
-       "connected areas, cycles, reachability"
+       "Connected areas, cycles, reachability"
       ],
       [
        "Shortest path?",
-       "BFS, if unweighted (Dijkstra if weighted)"
+       "BFS if unweighted, Dijkstra if weighted"
       ],
       [
        "Cost?",
@@ -2735,7 +2741,7 @@
       ],
       [
        "Recursion too deep?",
-       "explicit stack, or BFS"
+       "An explicit stack instead of recursion"
       ]
      ],
      "cues": [
@@ -2752,7 +2758,7 @@
      "covers": [
       "cp16"
      ],
-     "say": "What is a topological sort? An order where every prerequisite comes first. How do you compute it? Kahn: queue indegree zero, pop, decrement. Detect a cycle? The order is shorter than n. Cost? O of V plus E.",
+     "say": "What is a topological sort? An order where every prerequisite comes first. How do you compute it? Kahn's method. Queue the zero-indegree courses, pop, and decrement. Detect a cycle? The order is shorter than n. Cost? O of V plus E.",
      "heads": [
       "They ask",
       "You say"
@@ -2764,11 +2770,11 @@
       ],
       [
        "How to compute it?",
-       "Kahn: queue indegree 0, pop, decrement"
+       "Kahn: queue the zero-indegree courses first"
       ],
       [
        "Detect a cycle?",
-       "order shorter than n"
+       "fewer than n courses in the order"
       ],
       [
        "Cost?",
@@ -2799,15 +2805,15 @@
      "rows": [
       [
        "LeetCode 200 · Number of Islands",
-       "today's DFS, sink and count"
+       "DFS: sink each island, then count it"
       ],
       [
        "LeetCode 1091 · Shortest Path in Binary Matrix",
-       "BFS layers, eight directions"
+       "BFS by layers, all eight directions"
       ],
       [
        "LeetCode 207 · Course Schedule",
-       "Kahn: order shorter than n"
+       "Kahn: a short order means a cycle"
       ]
      ],
      "cues": [
