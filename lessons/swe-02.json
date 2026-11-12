@@ -139,7 +139,7 @@
     {
      "type": "diagram",
      "head": "What does each one share?",
-     "say": "Now the real thing. One process owns its memory. Inside it, threads are separate lines of execution. Each has its own stack, but all share the heap. Sharing is cheap, and that causes race conditions. A second process has completely separate memory. Safer, but talking across is slower.",
+     "say": "Now the real thing. One process owns its memory. Inside it, threads are separate lines of execution. Each has its own stack, for its local variables. All share the heap, where objects live. Sharing is cheap, and that causes race conditions. A second process has completely separate memory. Safer, but talking across is slower.",
      "items": [
       {
        "id": "pa",
@@ -159,7 +159,8 @@
        "h": 140,
        "label": "thread 1",
        "text": "own stack",
-       "cue": "separate lines"
+       "cue": "separate lines",
+       "sub": "local variables"
       },
       {
        "id": "t2",
@@ -169,7 +170,8 @@
        "h": 140,
        "label": "thread 2",
        "text": "own stack",
-       "cue": "Each has"
+       "cue": "Each has",
+       "sub": "local variables"
       },
       {
        "id": "heap",
@@ -178,7 +180,7 @@
        "w": 340,
        "h": 160,
        "text": "shared heap",
-       "sub": "all threads see it",
+       "sub": "objects live here",
        "tone": "warn",
        "cue": "share the heap"
       },
@@ -245,19 +247,19 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "def run(kind):\n    global x\n    x = 0\n    w = kind(target=bump)\n    w.start(); w.join()\n    print(kind.__name__, x)\n\nrun(Thread)\nrun(Process)"
+       "code": "def run(kind):\n    global x\n    x = 0\n    w = kind(target=bump)\n    w.start(); w.join()\n    print(kind.__name__, x)\nrun(Thread)\nrun(Process)"
       }
      ],
      "steps": [
       {
        "lines": [
-        8
+        7
        ],
        "cue": "A thread shares"
       },
       {
        "lines": [
-        9
+        8
        ],
        "cue": "A process got"
       },
@@ -382,7 +384,7 @@
     {
      "type": "chart",
      "head": "More workers, fewer rounds",
-     "unit": "seconds",
+     "unit": "s",
      "say": "Total time. One worker takes a hundred. Ten workers take ten. Twenty take five, since a hundred over twenty is five rounds. But asyncio does it in about one second, with no extra threads.",
      "bars": [
       {
@@ -693,18 +695,17 @@
     {
      "type": "code",
      "head": "Four CPU-heavy jobs",
-     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads: no faster, they just share the mic. Four processes each get their own interpreter, and finish much sooner.",
+     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads, from a thread pool: no faster, they just share the mic. Four processes, from a process pool, each get their own interpreter, and finish much sooner.",
      "panels": [
       {
        "file": "app.py",
-       "code": "def crunch(n):\n    return sum(i * i for i in range(n))\n\ndef run(how):\n    t = time.perf_counter()\n    how(crunch, [1_000_000] * 4)\n    print(how.__name__, round(\n        time.perf_counter() - t, 1), \"s\")"
+       "code": "def crunch(n): return sum(i * i for i in range(n))\ndef threads(f, j): return list(ThreadPoolExecutor(4).map(f, j))\ndef processes(f, j): return list(ProcessPoolExecutor(4).map(f, j))\ndef run(how):\n    t = time.perf_counter()\n    how(crunch, [1_000_000] * 4)\n    print(how.__name__, round(time.perf_counter() - t, 1), \"s\")"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        1
        ],
        "cue": "Four jobs"
       },
@@ -712,20 +713,20 @@
        "lines": [
         4,
         5,
-        6
+        6,
+        7
        ],
        "cue": "One by one"
       },
       {
        "lines": [
-        6
+        2
        ],
        "cue": "Four threads"
       },
       {
        "lines": [
-        7,
-        8
+        3
        ],
        "cue": "Four processes"
       }
@@ -734,8 +735,8 @@
       "cmd": "python run.py",
       "approx": true,
       "setup": {
-       "app.py": "import time\n\n",
-       "run.py": "import multiprocessing as mp\nmp.set_start_method(\"fork\")\nfrom concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor\nimport app\n\ndef sequential(f, jobs):\n    for j in jobs: f(j)\ndef threads(f, jobs):\n    with ThreadPoolExecutor(4) as p: list(p.map(f, jobs))\ndef processes(f, jobs):\n    with ProcessPoolExecutor(4) as p: list(p.map(f, jobs))\n\nfor how in (sequential, threads, processes):\n    app.run(how)\n"
+       "app.py": "import time\nfrom concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor\n\n",
+       "run.py": "import multiprocessing as mp\nmp.set_start_method(\"fork\")\nimport app\n\ndef sequential(f, jobs):\n    for j in jobs: f(j)\n\nfor how in (sequential, app.threads, app.processes):\n    app.run(how)\n"
       },
       "text": "sequential 1.8 s\nthreads 2.2 s\nprocesses 1.0 s",
       "cue": "about two seconds"
@@ -757,7 +758,7 @@
     {
      "type": "compare",
      "head": "Which one do I pick?",
-     "say": "Processes, then async. Pure crunching needs real parallel cores, and each process has its own GIL. Waiting on network or disk? Async or threads: cheap, thousands can wait. Need separate memory for safety? Processes again. That's why threads failed.",
+     "say": "Processes, then async. Pure crunching needs real parallel cores, and each process has its own GIL. Waiting on network or disk? Async: thousands can wait. Threads: fine for tens. Need separate memory for safety? Processes again. That's why threads failed.",
      "heads": [
       "Your work",
       "Use"
@@ -769,7 +770,7 @@
       ],
       [
        "waiting on network or disk",
-       "async or threads"
+       "async (thousands); threads (tens)"
       ],
       [
        "need isolation",
@@ -806,7 +807,7 @@
     {
      "type": "diagram",
      "head": "A race condition",
-     "say": "Even with the GIL, shared data breaks. The counter is five. Thread one reads five. Thread two reads five, before one writes. Both write six. Two adds, but the counter moved once. The result depends on timing. That's a race condition.",
+     "say": "Even with the GIL, shared data breaks. The counter is five. Thread one reads five. Thread two reads five, before one writes. Both write six. Two adds, but the counter moved once, so the total can come up short. That's a race condition.",
      "items": [
       {
        "id": "cnt",
@@ -1368,19 +1369,19 @@
     },
     {
      "type": "chart",
-     "head": "A million squares: bytes",
-     "unit": "bytes",
-     "say": "Here we compare memory, with get size of. The list of a million squares: over eight million bytes. The generator for the same million: two hundred eight.",
+     "head": "A million squares: memory",
+     "unit": "MB",
+     "say": "Here we compare memory, with get size of. The list of a million squares: about eight point four megabytes. The generator for the same million: two hundred eight bytes, close to zero.",
      "bars": [
       {
        "label": "list",
-       "value": 8448728,
+       "value": 8.4,
        "tone": "bad",
        "cue": "The list of"
       },
       {
        "label": "generator",
-       "value": 208,
+       "value": 0,
        "tone": "good",
        "cue": "The generator for"
       }
@@ -1394,7 +1395,7 @@
      "panels": [
       {
        "file": "deco.py",
-       "code": "def logged(fn):\n    @functools.wraps(fn)\n    def wrapper(*a, **kw):\n        print(\"calling\", fn.__name__)\n        return fn(*a, **kw)\n    return wrapper\n@logged\ndef work(x): return x * 2\nprint(work(21), work.__name__)"
+       "code": "def logged(fn):\n    @functools.wraps(fn)\n    def wrapper(*a, **kw):\n        print(\"calling\", fn.__name__, end=\": \")\n        return fn(*a, **kw)\n    return wrapper\n@logged\ndef work(x): return x * 2\nprint(work(21), work.__name__)"
       }
      ],
      "steps": [
@@ -1431,7 +1432,7 @@
       "setup": {
        "deco.py": "import functools\n"
       },
-      "text": "calling work\n42 work",
+      "text": "calling work: 42 work",
       "cue": "original name"
      }
     },
@@ -1487,11 +1488,15 @@
       "They ask",
       "You say"
      ],
-     "say": "Process, thread, async? Own memory, shared memory, one thread. Race condition? Timing decides the result, so I use a lock. GIL? One thread runs Python at a time. Deadlock? Two threads wait on each other. Pick? Async for waiting, processes for crunching.",
+     "say": "Process, thread, async? A process owns its memory, threads share it, async is one thread. Trade off? Processes are safe but slow, threads fast but racy, async cheap, never blocking. A race condition? Timing decides the result, so I use a lock. The GIL? Only one thread runs Python at a time. Deadlock? Two threads wait on each other forever. Which to pick? Async for waiting, processes for crunching.",
      "rows": [
       [
        "Process, thread, async?",
-       "Own memory, shared, one thread."
+       "Own memory, shared memory, one thread"
+      ],
+      [
+       "Trade-off?",
+       "Safe but slow; fast but racy; never block"
       ],
       [
        "Race condition?",
@@ -1512,10 +1517,11 @@
      ],
      "cues": [
       "Process, thread",
-      "Race condition",
-      "GIL",
+      "Trade off",
+      "A race condition",
+      "The GIL",
       "Deadlock",
-      "Pick"
+      "Which to pick"
      ]
     },
     {
@@ -1524,11 +1530,12 @@
      "covers": [
       "sw09"
      ],
-     "say": "Assignment never copies, names share objects. A default list is built once, so I default to None. The GIL hurts threads on crunching but not waiting, so processes for crunching. A generator makes values on demand. A decorator wraps a function.",
+     "say": "Assignment never copies: two names can share one object. A default list is built once, so I default to None. A lambda in a loop sees the final i. Freeze it: i equals i. Is checks same object, equals checks same value. Use is for None.",
      "items": [
       {
        "label": "names",
        "text": "no copy",
+       "sub": "shared object",
        "cue": "Assignment never"
       },
       {
@@ -1538,17 +1545,35 @@
        "cue": "A default list"
       },
       {
-       "label": "GIL",
-       "text": "processes",
-       "sub": "for CPU work",
-       "cue": "The GIL"
+       "label": "lambda",
+       "text": "i=i",
+       "sub": "late binding",
+       "cue": "A lambda in"
       },
       {
-       "label": "lazy",
-       "text": "generator",
-       "sub": "on demand",
-       "cue": "A generator"
+       "label": "is vs ==",
+       "text": "is None",
+       "sub": "== for values",
+       "cue": "Is checks"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Say it",
+     "covers": [
+      "sw09"
+     ],
+     "say": "The GIL lets one thread run Python at a time, so processes crunch. A generator makes values on demand, so a million cost almost no memory. A decorator wraps a function, and I add functools wraps so it keeps its name.",
+     "lines": [
+      "GIL: one thread at a time. Processes to crunch.",
+      "Generator: values on demand, almost no memory.",
+      "Decorator wraps a function; add functools.wraps."
+     ],
+     "cues": [
+      "The GIL",
+      "A generator",
+      "A decorator"
      ]
     }
    ]
