@@ -77,11 +77,11 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Interviewers love one question: what happens when a vector is full? Start with where elements live. Then you watch it grow, and what breaks. Then you pick a tree or a hash table.",
+     "say": "Interviewers love one question: what happens when a vector is full? Start with where elements live. Then you watch it grow, and what breaks. Then you pick a tree, a hash table, or a set.",
      "lines": [
       "Where a vector keeps its elements",
       "Watch it grow, and what breaks",
-      "Tree or hash table: choose with numbers"
+      "Tree, hash table, or set: choose with numbers"
      ],
      "cues": [
       "Start with where elements live",
