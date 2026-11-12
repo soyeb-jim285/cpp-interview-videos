@@ -1,0 +1,1661 @@
+{
+ "id": "fe-05",
+ "track": "Frontend",
+ "num": 5,
+ "title": "Shipping Safely: Accessibility, Web Vitals, Security",
+ "covers": [
+  "fe11",
+  "fe12"
+ ],
+ "caps": [
+  [
+   "Largest Contentful Paint",
+   "Largest Contentful Paint"
+  ],
+  [
+   "html for",
+   "htmlFor"
+  ],
+  [
+   "aria live",
+   "aria-live"
+  ],
+  [
+   "tab index",
+   "tabIndex"
+  ],
+  [
+   "inner H T M L",
+   "innerHTML"
+  ],
+  [
+   "[Tt]ext content",
+   "textContent"
+  ],
+  [
+   "dangerously set innerHTML",
+   "dangerouslySetInnerHTML"
+  ],
+  [
+   "Same site",
+   "SameSite"
+  ],
+  [
+   "same site",
+   "SameSite"
+  ],
+  [
+   "Access Control Allow Origin",
+   "Access-Control-Allow-Origin"
+  ],
+  [
+   "onerror",
+   "onerror"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "A form without a mouse",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Put your mouse in a drawer. Can you still sign up? A clickable div says no. By the end you'll fix it, and block the three attacks interviewers always ask about.",
+     "lines": [
+      {
+       "text": "No mouse. Can you sign up?",
+       "cue": "mouse in a drawer"
+      },
+      {
+       "text": "A clickable div: no.",
+       "cue": "div says no"
+      },
+      {
+       "text": "Fix it. Then block 3 attacks.",
+       "cue": "block the three",
+       "accent": "block 3 attacks"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Make a form work without a mouse. Cut a page load from four seconds to two. And stop X S S, C S R F and C O R S mistakes.",
+     "lines": [
+      "Make a form usable without a mouse",
+      "Speed up the hero image: LCP 4.1 s to 2.3 s",
+      "Stop XSS, CSRF and CORS mistakes"
+     ],
+     "cues": [
+      "Make a form",
+      "Cut a page",
+      "stop X S S"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "A signup form that fails users",
+     "statement": "The signup form is a clickable div with a placeholder-only input. Keyboard and screen reader users cannot use it.",
+     "example": {
+      "input": "Tab to \"Sign up\", press Enter",
+      "output": "button focused, errors announced"
+     },
+     "say": "Try our signup form with only a keyboard. Tab to Sign up, press enter, and nothing happens. The goal: the button reached, the field named, every error announced.",
+     "cues": {
+      "example": "Tab to Sign up",
+      "output": "The goal"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "What a screen reader hears",
+     "say": "Think of an audio guide reading your page aloud. That is a screen reader. For a div with a click handler, it says group. No name, no role, and the keyboard cannot reach it. Use a real button, and it says: Sign up, button. Enter and space work for free.",
+     "items": [
+      {
+       "id": "p1",
+       "x": 160,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "label": "your page",
+       "text": "div onClick",
+       "size": 38,
+       "tone": "bad",
+       "cue": "a div with"
+      },
+      {
+       "id": "s1",
+       "x": 720,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "label": "screen reader says",
+       "text": "group",
+       "size": 44,
+       "tone": "bad",
+       "cue": "it says group"
+      },
+      {
+       "id": "k1",
+       "x": 1280,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "label": "keyboard",
+       "text": "Tab skips it",
+       "size": 38,
+       "tone": "bad",
+       "cue": "keyboard cannot"
+      },
+      {
+       "id": "p2",
+       "x": 160,
+       "y": 640,
+       "w": 440,
+       "h": 150,
+       "text": "button",
+       "size": 44,
+       "tone": "good",
+       "cue": "real button"
+      },
+      {
+       "id": "s2",
+       "x": 720,
+       "y": 640,
+       "w": 440,
+       "h": 150,
+       "text": "Sign up, button",
+       "size": 38,
+       "tone": "good",
+       "cue": "Sign up, button"
+      },
+      {
+       "id": "k2",
+       "x": 1280,
+       "y": 640,
+       "w": 440,
+       "h": 150,
+       "text": "Tab, then Enter",
+       "size": 38,
+       "tone": "good",
+       "cue": "Enter and space"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p1",
+       "to": "s1",
+       "tone": "bad",
+       "cue": "it says group"
+      },
+      {
+       "from": "p2",
+       "to": "s2",
+       "tone": "good",
+       "cue": "Sign up, button"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Bug and fix: native elements",
+     "say": "On the left, the bug. A div takes no focus and has no role. A placeholder vanishes as you type. It is not a label. Right side, the fix. A label, connected by html for and id, names the field. A real button gives focus, a role, and keyboard activation.",
+     "panels": [
+      {
+       "file": "before.tsx",
+       "label": "bug",
+       "tone": "bad",
+       "code": "<div onClick={go}>\n  Sign up\n</div>\n<input placeholder=\"Email\" />"
+      },
+      {
+       "file": "after.tsx",
+       "label": "fix",
+       "tone": "good",
+       "code": "<label htmlFor=\"email\">\n  Email\n</label>\n<input id=\"email\" />\n<button onClick={go}>\n  Sign up\n</button>"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "A div takes"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        4
+       ],
+       "cue": "A placeholder vanishes"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "A label, connected"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "real button gives"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Focus order and live errors",
+     "say": "Now press Tab. Focus should move email, then password, then Sign up, in reading order, with a visible outline. Never remove it. When validation fails, write the message into an aria live region that is already on the page. The screen reader announces it, and focus stays put.",
+     "panels": [
+      {
+       "file": "Form.tsx",
+       "code": "<p id=\"err\" aria-live=\"polite\">\n  {error}\n</p>"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "aria live region"
+      }
+     ],
+     "items": [
+      {
+       "id": "t1",
+       "x": 1010,
+       "y": 300,
+       "w": 230,
+       "h": 110,
+       "label": "Tab order",
+       "text": "Email",
+       "size": 36,
+       "tone": "blue",
+       "cue": "move email"
+      },
+      {
+       "id": "t2",
+       "x": 1280,
+       "y": 300,
+       "w": 230,
+       "h": 110,
+       "text": "Password",
+       "size": 36,
+       "tone": "blue",
+       "cue": "then password"
+      },
+      {
+       "id": "t3",
+       "x": 1550,
+       "y": 300,
+       "w": 230,
+       "h": 110,
+       "text": "Sign up",
+       "size": 36,
+       "tone": "blue",
+       "cue": "then Sign up"
+      },
+      {
+       "id": "sr",
+       "x": 1010,
+       "y": 620,
+       "w": 770,
+       "h": 150,
+       "label": "screen reader announces",
+       "text": "Enter a valid email",
+       "size": 40,
+       "tone": "warn",
+       "cue": "announces it"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t1",
+       "to": "t2",
+       "cue": "then password"
+      },
+      {
+       "from": "t2",
+       "to": "t3",
+       "cue": "then Sign up"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1010,
+       "y": 450,
+       "text": "never remove the outline",
+       "tone": "warn",
+       "cue": "Never remove it"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t1",
+       "glow": true,
+       "tone": "good",
+       "cue": "move email"
+      },
+      {
+       "id": "t2",
+       "glow": true,
+       "tone": "good",
+       "cue": "then password"
+      },
+      {
+       "id": "t3",
+       "glow": true,
+       "tone": "good",
+       "cue": "then Sign up"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A div with a click handler sits next to a real button. You press Tab, then Enter. What works? Pause and predict.",
+     "q": "A `<div onClick>` and a `<button>`. You press Tab, then Enter.",
+     "options": [
+      "Both react",
+      "Only the button",
+      "Only the div",
+      "Neither"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Only the button takes focus",
+     "say": "Only the button. Tab skips the div, because a div cannot take focus. The button gets focus, and Enter clicks it. You can patch a div with tab index, a role, and key handlers. Or write button, and get all of it for free.",
+     "items": [
+      {
+       "id": "tb",
+       "x": 760,
+       "y": 330,
+       "w": 400,
+       "h": 140,
+       "label": "you press",
+       "text": "Tab, Enter",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "dv",
+       "x": 200,
+       "y": 650,
+       "w": 520,
+       "h": 150,
+       "label": "div onClick",
+       "text": "ignored",
+       "size": 44,
+       "tone": "bad",
+       "cue": "skips the div"
+      },
+      {
+       "id": "bt",
+       "x": 1200,
+       "y": 650,
+       "w": 520,
+       "h": 150,
+       "label": "button",
+       "text": "focused",
+       "size": 44,
+       "tone": "good",
+       "cue": "The button gets"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "tb",
+       "to": "dv",
+       "tone": "bad",
+       "cue": "skips the div"
+      },
+      {
+       "from": "tb",
+       "to": "bt",
+       "tone": "good",
+       "cue": "The button gets"
+      }
+     ],
+     "notes": [
+      {
+       "x": 200,
+       "y": 830,
+       "text": "div + tabIndex + role + keys",
+       "tone": "warn",
+       "cue": "tab index"
+      }
+     ],
+     "changes": [
+      {
+       "id": "dv",
+       "kill": true,
+       "cue": "cannot take focus"
+      },
+      {
+       "id": "bt",
+       "text": "clicked",
+       "tone": "good",
+       "cue": "Enter clicks it"
+      },
+      {
+       "id": "bt",
+       "glow": true,
+       "tone": "good",
+       "cue": "for free"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The rest of the checklist",
+     "heads": [
+      "Detail",
+      "Rule"
+     ],
+     "say": "Four more details. Never write outline none without a replacement, or keyboard users lose their place. Text contrast: W C A G double A wants four point five to one. Alt text describes purpose, and stays empty if decorative. ARIA only fills gaps: native element first. Test with the keyboard, a screen reader, and axe.",
+     "rows": [
+      [
+       "`outline: none`",
+       "always add a `:focus-visible` style"
+      ],
+      [
+       "text contrast",
+       "WCAG AA: 4.5 to 1, large text 3 to 1"
+      ],
+      [
+       "image `alt`",
+       "purpose; empty `alt=\"\"` if decorative"
+      ],
+      [
+       "ARIA",
+       "native element first; ARIA fills gaps"
+      ],
+      [
+       "testing",
+       "keyboard, screen reader, axe"
+      ]
+     ],
+     "cues": [
+      "outline none",
+      "Text contrast",
+      "Alt text",
+      "ARIA only",
+      "Test with"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "LCP from 4.1 s to 2.3 s",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "A hero image that shows late",
+     "statement": "On a phone, the big hero image appears after 4.1 seconds. Google wants Largest Contentful Paint under 2.5 seconds.",
+     "example": {
+      "input": "LCP 4.1 s",
+      "output": "LCP under 2.5 s"
+     },
+     "say": "Your laptop says instant. A phone says the hero image is late: Largest Contentful Paint of four point one seconds. Google wants it under two point five.",
+     "cues": {
+      "example": "Largest Contentful Paint of",
+      "output": "under two point five"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Core Web Vitals: a restaurant",
+     "say": "Core Web Vitals are three numbers. Think restaurant. L C P: the main dish arrives, under two and a half seconds. I N P: the waiter answers your wave, under two hundred milliseconds. C L S: the table jumping while you eat, under zero point one.",
+     "items": [
+      {
+       "label": "LCP: main dish",
+       "text": "under 2.5 s",
+       "sub": "biggest item painted",
+       "tone": "good",
+       "cue": "main dish"
+      },
+      {
+       "label": "INP: the waiter",
+       "text": "under 200 ms",
+       "sub": "click to next paint",
+       "tone": "blue",
+       "cue": "answers your wave"
+      },
+      {
+       "label": "CLS: table jumps",
+       "text": "under 0.1",
+       "sub": "layout shift score",
+       "tone": "warn",
+       "cue": "table jumping"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Our hero image, in seconds",
+     "unit": "s",
+     "say": "Here are our numbers. Before: four point one seconds. The limit: two point five. After one fix: two point three.",
+     "bars": [
+      {
+       "label": "Before",
+       "value": 4.1,
+       "tone": "bad",
+       "cue": "Before"
+      },
+      {
+       "label": "Limit",
+       "value": 2.5,
+       "tone": "warn",
+       "cue": "The limit"
+      },
+      {
+       "label": "After",
+       "value": 2.3,
+       "tone": "good",
+       "cue": "After one fix"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "When does the browser see the hero?",
+     "say": "Why so slow? A script set the hero image. The browser had to download the page, then the script, run it, and only then ask for the image. With a preload, it asks right after the page arrives. The image starts about two seconds earlier.",
+     "items": [
+      {
+       "id": "h1",
+       "x": 160,
+       "y": 330,
+       "w": 340,
+       "h": 130,
+       "label": "no preload",
+       "text": "page arrives",
+       "size": 36,
+       "cue": "download the page"
+      },
+      {
+       "id": "j1",
+       "x": 600,
+       "y": 330,
+       "w": 340,
+       "h": 130,
+       "text": "script runs",
+       "size": 36,
+       "cue": "run it"
+      },
+      {
+       "id": "i1",
+       "x": 1040,
+       "y": 330,
+       "w": 340,
+       "h": 130,
+       "text": "image asked",
+       "size": 36,
+       "tone": "bad",
+       "cue": "only then"
+      },
+      {
+       "id": "p1",
+       "x": 1480,
+       "y": 330,
+       "w": 300,
+       "h": 130,
+       "text": "LCP 4.1 s",
+       "size": 36,
+       "tone": "bad",
+       "cue": "only then"
+      },
+      {
+       "id": "h2",
+       "x": 160,
+       "y": 660,
+       "w": 340,
+       "h": 130,
+       "label": "with preload",
+       "text": "page arrives",
+       "size": 36,
+       "cue": "With a preload"
+      },
+      {
+       "id": "i2",
+       "x": 600,
+       "y": 660,
+       "w": 340,
+       "h": 130,
+       "text": "image asked",
+       "size": 36,
+       "tone": "good",
+       "cue": "right after"
+      },
+      {
+       "id": "p2",
+       "x": 1040,
+       "y": 660,
+       "w": 340,
+       "h": 130,
+       "text": "LCP 2.3 s",
+       "size": 36,
+       "tone": "good",
+       "cue": "about two seconds earlier"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "h1",
+       "to": "j1",
+       "cue": "run it"
+      },
+      {
+       "from": "j1",
+       "to": "i1",
+       "cue": "only then"
+      },
+      {
+       "from": "i1",
+       "to": "p1",
+       "tone": "bad",
+       "cue": "only then"
+      },
+      {
+       "from": "h2",
+       "to": "i2",
+       "tone": "good",
+       "cue": "right after"
+      },
+      {
+       "from": "i2",
+       "to": "p2",
+       "tone": "good",
+       "cue": "about two seconds earlier"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix: preload and size the image",
+     "say": "The fix is in the head. Preload says: fetch this image now, at high priority. Give the image tag a width and a height, so the browser reserves its box early. And write alt text.",
+     "panels": [
+      {
+       "file": "index.html",
+       "code": "<link rel=\"preload\" as=\"image\"\n      href=\"/hero.avif\"\n      fetchpriority=\"high\">\n\n<img src=\"/hero.avif\"\n     width=\"1200\" height=\"600\"\n     alt=\"Mountain lake at dawn\">"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Preload says"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "a width and a height"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "alt text"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "reserves the box",
+       "tone": "good",
+       "cue": "reserves its box"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Take away the width and height. The browser has no idea how tall the image is. When it finally loads, what happens to the text below? Pause and predict.",
+     "q": "`<img src='hero.jpg'>` has no width or height. Text below, after it loads?",
+     "options": [
+      "Stays where it was",
+      "Jumps down",
+      "Is covered by it",
+      "Blocks the load"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Late content pushes your text",
+     "say": "It jumps down. Same story with an ad. You are reading a paragraph. The ad slot above is empty, so it takes no room. Then the ad loads, two hundred fifty pixels tall, and shoves your text down. That is layout shift. The fix: reserve the space up front.",
+     "items": [
+      {
+       "id": "hd",
+       "x": 360,
+       "y": 230,
+       "w": 800,
+       "h": 110,
+       "text": "Headline",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "slot",
+       "x": 360,
+       "y": 380,
+       "w": 800,
+       "h": 70,
+       "text": "ad slot: empty",
+       "size": 32,
+       "tone": "ghost",
+       "cue": "ad slot above"
+      },
+      {
+       "id": "para",
+       "x": 360,
+       "y": 480,
+       "w": 800,
+       "h": 200,
+       "text": "You are reading this paragraph",
+       "size": 40,
+       "tone": "blue",
+       "cue": "reading a paragraph"
+      },
+      {
+       "id": "ad",
+       "x": 360,
+       "y": 380,
+       "w": 800,
+       "h": 250,
+       "text": "ad, 250 px tall",
+       "size": 44,
+       "tone": "warn",
+       "cue": "the ad loads"
+      },
+      {
+       "id": "fx",
+       "x": 1280,
+       "y": 380,
+       "w": 480,
+       "h": 250,
+       "label": "the fix",
+       "text": "min-height: 250px",
+       "size": 36,
+       "tone": "good",
+       "cue": "reserve the space"
+      }
+     ],
+     "changes": [
+      {
+       "id": "slot",
+       "fade": true,
+       "cue": "the ad loads"
+      },
+      {
+       "id": "para",
+       "move": [
+        360,
+        660
+       ],
+       "tone": "bad",
+       "cue": "shoves your text"
+      },
+      {
+       "id": "fx",
+       "glow": true,
+       "tone": "good",
+       "cue": "up front"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Slow vital, likely cause",
+     "heads": [
+      "Vital is bad",
+      "Look at"
+     ],
+     "say": "Which vital is bad tells you where to look. Slow L C P? Preload the hero and compress images. Slow I N P? Break long scripts into small tasks. High C L S? Reserve space for images and ads. And never lazy load the hero image. That delays it.",
+     "rows": [
+      [
+       "slow LCP",
+       "preload hero; compress images"
+      ],
+      [
+       "slow INP",
+       "split long scripts into small tasks"
+      ],
+      [
+       "high CLS",
+       "set image sizes; reserve ad space"
+      ],
+      [
+       "`loading=\"lazy\"` on hero",
+       "delays LCP: lazy only below the fold"
+      ]
+     ],
+     "cues": [
+      "Slow L C P",
+      "Slow I N P",
+      "High C L S",
+      "never lazy load"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Block XSS and CSRF",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "A comment that runs code",
+     "statement": "Users post comments and you render them. One comment is an image tag with a script on its error handler.",
+     "example": {
+      "input": "<img src=x onerror=steal()>",
+      "output": "shown as harmless text"
+     },
+     "say": "Imagine a comment box. A user posts an image tag with a script on its error handler. The goal: plain text, never run.",
+     "cues": {
+      "example": "A user posts",
+      "output": "The goal"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Cross-site scripting in four steps",
+     "say": "Cross site scripting, X S S, in four steps. An attacker posts the comment. Your server saves it as is. A victim opens the page. The browser reads the comment as H T M L. The script runs, as the victim, on your site.",
+     "items": [
+      {
+       "label": "attacker",
+       "text": "Posts comment",
+       "sub": "script inside",
+       "tone": "warn",
+       "cue": "attacker posts"
+      },
+      {
+       "label": "your server",
+       "text": "Saves it",
+       "sub": "no escaping",
+       "cue": "saves it as is"
+      },
+      {
+       "label": "victim",
+       "text": "Opens page",
+       "sub": "parsed as HTML",
+       "tone": "blue",
+       "cue": "victim opens"
+      },
+      {
+       "label": "result",
+       "text": "Script runs",
+       "sub": "as the victim",
+       "tone": "bad",
+       "cue": "script runs"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Text, not HTML",
+     "say": "Inner H T M L parses the string, so the script runs. Text content treats it as plain text. Or escape the angle brackets yourself, and it prints harmless text. React escapes for you, unless you reach for dangerously set inner H T M L. Add a Content Security Policy header as a second layer.",
+     "panels": [
+      {
+       "file": "comment.js",
+       "code": "const c = '<img src=x onerror=steal()>';\nel.innerHTML = c;\nel.textContent = c;\nconst esc = (s) => s\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\nconsole.log(esc(c));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "parses the string"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "plain text"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "cue": "escape the angle"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "dangerously set"
+      },
+      {
+       "lines": [],
+       "cue": "Content Security Policy"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "script runs",
+       "tone": "bad",
+       "cue": "script runs"
+      }
+     ],
+     "output": {
+      "cmd": "node comment.js",
+      "setup": {
+       "comment.js": "const el = {};"
+      },
+      "text": "&lt;img src=x onerror=steal()&gt;",
+      "cue": "prints harmless text"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A comment contains bold tags around the word hi. We set text content to it. What does the user see? Pause and predict.",
+     "q": "`el.textContent = '<b>hi</b>'` What does the user see?",
+     "options": [
+      "hi, in bold",
+      "the tags, as text",
+      "nothing",
+      "an error"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "innerHTML vs textContent",
+     "say": "The tags, as text. Text content never parses. Inner H T M L would show hi in bold, and with an onerror attribute, it would run code. Same string, two very different pages.",
+     "items": [
+      {
+       "id": "str",
+       "x": 160,
+       "y": 470,
+       "w": 440,
+       "h": 140,
+       "label": "the string",
+       "text": "<b>hi</b>",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "ih",
+       "x": 1180,
+       "y": 290,
+       "w": 560,
+       "h": 140,
+       "label": "innerHTML parses it",
+       "text": "hi in bold, code runs",
+       "size": 36,
+       "tone": "bad",
+       "cue": "Inner H T M L would"
+      },
+      {
+       "id": "tc",
+       "x": 1180,
+       "y": 650,
+       "w": 560,
+       "h": 140,
+       "label": "textContent shows it",
+       "text": "<b>hi</b> as text",
+       "size": 38,
+       "tone": "good",
+       "cue": "The tags, as text"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "str",
+       "to": "tc",
+       "tone": "good",
+       "cue": "The tags, as text"
+      },
+      {
+       "from": "str",
+       "to": "ih",
+       "tone": "bad",
+       "cue": "Inner H T M L would"
+      }
+     ],
+     "changes": [
+      {
+       "id": "tc",
+       "glow": true,
+       "tone": "good",
+       "cue": "never parses"
+      },
+      {
+       "id": "ih",
+       "glow": true,
+       "tone": "bad",
+       "cue": "show hi in bold"
+      },
+      {
+       "id": "ih",
+       "kill": true,
+       "cue": "run code"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "CSRF: a forged transfer",
+     "say": "Cross site request forgery, C S R F. You log in to your bank, which sets a cookie. Later you open evil dot com, which quietly submits a form to the bank. The browser attaches your cookie, so the bank sees you. Money moves.",
+     "items": [
+      {
+       "label": "1",
+       "text": "You log in",
+       "sub": "bank sets a cookie",
+       "tone": "blue",
+       "cue": "log in"
+      },
+      {
+       "label": "2",
+       "text": "Open evil.com",
+       "sub": "hidden form to bank",
+       "tone": "bad",
+       "cue": "evil dot com"
+      },
+      {
+       "label": "3",
+       "text": "Cookie rides",
+       "sub": "bank sees you",
+       "tone": "warn",
+       "cue": "attaches your cookie"
+      },
+      {
+       "label": "4",
+       "text": "Money moves",
+       "sub": "you never clicked",
+       "tone": "bad",
+       "cue": "Money moves"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The attack, and the cookie defense",
+     "say": "Here is the attack. A hidden form on evil dot com posts to the bank. The browser adds your cookie. The defense starts with the cookie. Same site lax: the browser skips the cookie on a cross site post. Add a C S R F token, a secret the attacker cannot read.",
+     "panels": [
+      {
+       "file": "evil.html",
+       "code": "<form action=\"https://bank.com/pay\"\n      method=\"POST\">\n  <input name=\"to\" value=\"attacker\">\n</form>\n\nSet-Cookie: sid=abc; HttpOnly;\n            SameSite=Lax"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "hidden form"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Same site lax"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Add a C S R F token"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "cookie rides along",
+       "tone": "bad",
+       "cue": "adds your cookie"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "XSS vs CSRF, and the classic mistakes",
+     "heads": [
+      "Attack or mistake",
+      "Defense"
+     ],
+     "say": "X S S runs attacker script on your site: escape output and add a policy. C S R F forges requests: same site cookies and tokens. A token in local storage? Any X S S can read it, so use an HttpOnly cookie. And never change data on a GET.",
+     "rows": [
+      [
+       "XSS: script runs on your site",
+       "escape output, CSP header"
+      ],
+      [
+       "CSRF: forged request, your cookie",
+       "SameSite cookie + CSRF token"
+      ],
+      [
+       "token in `localStorage`",
+       "any XSS reads it: HttpOnly cookie"
+      ],
+      [
+       "changing data on a GET",
+       "Lax still sends GET: use POST"
+      ]
+     ],
+     "cues": [
+      "X S S runs",
+      "C S R F forges",
+      "local storage",
+      "never change data"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "CORS: who may read",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "The browser blocks my API call",
+     "statement": "Your page on app.com calls api.com. The console says the request was blocked by CORS.",
+     "example": {
+      "input": "fetch from app.com to api.com",
+      "output": "script can read the response"
+     },
+     "say": "Ever seen blocked by C O R S in your console? Your page on app dot com calls api dot com. We want the script to read the response.",
+     "cues": {
+      "example": "app dot com calls",
+      "output": "read the response"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Same-origin policy and the opt-in",
+     "say": "An origin is scheme, host, and port. By default, a page on app dot com cannot read responses from api dot com. The server opts in with a header, Access Control Allow Origin. If it names the page, the browser lets the script read the response. If not, the browser blocks it.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 300,
+       "w": 520,
+       "h": 150,
+       "label": "Browser on app.com",
+       "text": "fetch api.com",
+       "size": 40,
+       "tone": "blue",
+       "cue": "app dot com"
+      },
+      {
+       "id": "api",
+       "x": 1240,
+       "y": 300,
+       "w": 520,
+       "h": 150,
+       "label": "Server api.com",
+       "text": "Allow-Origin: app.com",
+       "size": 32,
+       "tone": "good",
+       "cue": "The server"
+      },
+      {
+       "id": "ok",
+       "x": 1240,
+       "y": 660,
+       "w": 520,
+       "h": 150,
+       "label": "script can read it?",
+       "text": "?",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "api",
+       "label": "GET /orders",
+       "cue": "app dot com"
+      },
+      {
+       "from": "api",
+       "to": "ok",
+       "tone": "good",
+       "label": "header matches",
+       "cue": "names the page"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ok",
+       "text": "yes, read it",
+       "tone": "good",
+       "cue": "lets the script"
+      },
+      {
+       "id": "api",
+       "text": "no header",
+       "tone": "bad",
+       "cue": "If not"
+      },
+      {
+       "id": "ok",
+       "text": "blocked",
+       "tone": "bad",
+       "cue": "browser blocks it"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The preflight question",
+     "say": "Some requests get a question first. A put, or a custom header, is not simple. So the browser sends an options request, the preflight. It asks: may app dot com use put? The server answers with allow headers. Only then does the real request go.",
+     "panels": [
+      {
+       "file": "preflight.http",
+       "code": "OPTIONS /orders HTTP/1.1\nOrigin: https://app.com\nAccess-Control-Request-Method: PUT\n\nHTTP/1.1 204 No Content\nAccess-Control-Allow-Origin: https://app.com\nAccess-Control-Allow-Methods: PUT\nAccess-Control-Allow-Headers: content-type"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A put"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "options request"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "may app dot com"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "answers with allow"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The server sends no CORS headers at all. A simple GET from app dot com goes out. What does your script see? Pause and predict.",
+     "q": "api.com sends no CORS headers. A GET from app.com goes out. Script sees?",
+     "options": [
+      "The response body",
+      "A CORS error, no body",
+      "A 403 from api.com",
+      "An empty 200"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Sent, answered, then withheld",
+     "say": "A CORS error and no body. The request did reach the server, and the server answered. The browser withheld the answer, because the header is missing. That is why curl works while the browser fails. And the fix lives on the server.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 300,
+       "w": 520,
+       "h": 150,
+       "label": "Browser on app.com",
+       "text": "fetch api.com",
+       "size": 40,
+       "tone": "blue",
+       "cue": "The request"
+      },
+      {
+       "id": "api",
+       "x": 1240,
+       "y": 300,
+       "w": 520,
+       "h": 150,
+       "label": "Server api.com",
+       "text": "no CORS header",
+       "size": 36,
+       "tone": "warn",
+       "cue": "The server"
+      },
+      {
+       "id": "ok",
+       "x": 1240,
+       "y": 660,
+       "w": 520,
+       "h": 150,
+       "label": "script can read it?",
+       "text": "?",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "api",
+       "label": "GET /orders",
+       "cue": "did reach the server"
+      },
+      {
+       "from": "api",
+       "to": "ok",
+       "tone": "dim",
+       "label": "200 OK + body",
+       "cue": "server answered"
+      }
+     ],
+     "notes": [
+      {
+       "x": 400,
+       "y": 700,
+       "text": "curl would print the body",
+       "tone": "warn",
+       "cue": "curl works"
+      }
+     ],
+     "changes": [
+      {
+       "id": "api",
+       "glow": true,
+       "cue": "did reach the server"
+      },
+      {
+       "id": "ok",
+       "text": "blocked",
+       "tone": "bad",
+       "cue": "withheld the answer"
+      },
+      {
+       "id": "api",
+       "text": "add the header",
+       "tone": "good",
+       "cue": "lives on the server"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "CORS mistakes",
+     "heads": [
+      "Mistake",
+      "Reality"
+     ],
+     "say": "Three mistakes. Fixing C O R S in React? Impossible, the server sends headers. A star origin with cookies? Rejected, so name the origin. And C O R S as security? It protects browsers. You still need authentication.",
+     "rows": [
+      [
+       "fix CORS in React code",
+       "impossible: the server sends headers"
+      ],
+      [
+       "`Allow-Origin: *` with cookies",
+       "rejected: name the exact origin"
+      ],
+      [
+       "CORS as API security",
+       "protects browsers; still need auth"
+      ]
+     ],
+     "cues": [
+      "Fixing C O R S",
+      "star origin",
+      "as security"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe11"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Accessibility basics? Semantic H T M L first: real buttons, labels, alt text. Everything works by keyboard, with visible focus. ARIA only fills gaps. How do you test? Keyboard only, a screen reader, and axe or Lighthouse.",
+     "rows": [
+      [
+       "Accessibility basics?",
+       "semantic HTML, labels, alt text"
+      ],
+      [
+       "Keyboard and ARIA?",
+       "all by keyboard, visible focus; ARIA fills gaps"
+      ],
+      [
+       "How do you test?",
+       "keyboard, screen reader, axe or Lighthouse"
+      ]
+     ],
+     "cues": [
+      "Accessibility basics",
+      "Everything works",
+      "How do you test"
+     ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "fe11"
+     ],
+     "pause": 5,
+     "say": "Self-test. Normal body text, W C A G double A. What contrast ratio do you need? Pause and answer.",
+     "q": "WCAG AA contrast for normal text?",
+     "answer": "4.5 to 1"
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe11"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Contrast? W C A G double A: four point five to one. Alt text? Purpose, empty if decorative. Common mistake? Clickable divs, and outline none.",
+     "rows": [
+      [
+       "Color contrast?",
+       "WCAG AA: 4.5 to 1 normal text"
+      ],
+      [
+       "Alt text?",
+       "describe purpose; empty if decorative"
+      ],
+      [
+       "Common mistake?",
+       "clickable divs; `outline: none`"
+      ]
+     ],
+     "cues": [
+      "Contrast",
+      "Alt text",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe12"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Core Web Vitals, one by one. L C P? Under two and a half seconds: preload the hero. I N P? Under two hundred milliseconds: split big scripts. C L S? Under zero point one: set sizes, reserve space.",
+     "rows": [
+      [
+       "LCP?",
+       "< 2.5 s: preload the hero image"
+      ],
+      [
+       "INP?",
+       "< 200 ms: split big scripts"
+      ],
+      [
+       "CLS?",
+       "< 0.1: set sizes, reserve space"
+      ]
+     ],
+     "cues": [
+      "L C P",
+      "I N P",
+      "C L S"
+     ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "fe12"
+     ],
+     "pause": 5,
+     "say": "Self-test. Before the real request, the browser sends a preflight. Which HTTP method does it use? Pause and answer.",
+     "q": "Which HTTP method is the CORS preflight?",
+     "answer": "OPTIONS"
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe12"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "X S S versus C S R F? X S S runs script. Escape output, add a policy. C S R F forges requests: same site cookies and tokens.",
+     "rows": [
+      [
+       "XSS vs CSRF?",
+       "script on your site vs forged request"
+      ],
+      [
+       "XSS defense?",
+       "escape output, CSP header"
+      ],
+      [
+       "CSRF defense?",
+       "SameSite cookie + CSRF token"
+      ]
+     ],
+     "cues": [
+      "X S S versus",
+      "Escape output",
+      "C S R F forges"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe12"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What is C O R S? Browsers block cross origin reads unless opted in. Why a preflight? The browser asks first with options, for non simple requests. Fix a C O R S error? The server sends the right headers.",
+     "rows": [
+      [
+       "What is CORS?",
+       "browser blocks cross-origin reads unless opted in"
+      ],
+      [
+       "Why a preflight?",
+       "OPTIONS first for non-simple requests"
+      ],
+      [
+       "Fix a CORS error?",
+       "server sends the headers"
+      ]
+     ],
+     "cues": [
+      "What is C O R S",
+      "Why a preflight",
+      "Fix a C O R S"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these before your interview",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "say": "Three exercises. Unplug your mouse, and sign up on your form. Run Lighthouse, and preload the hero. Then try posting an image tag with onerror in a comment box.",
+     "rows": [
+      [
+       "Sign up on your own form with Tab only",
+       "finds the clickable divs"
+      ],
+      [
+       "Run Lighthouse; preload the hero image",
+       "watch LCP fall"
+      ],
+      [
+       "Post `<img src=x onerror=...>` in your comment box",
+       "proves your escaping works"
+      ]
+     ],
+     "cues": [
+      "Unplug your mouse",
+      "Run Lighthouse",
+      "try posting"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Native elements first, keyboard everywhere, test with a screen reader. Vitals: L C P, I N P, C L S, each with one fix. Escape output, use same site cookies, and let the server set C O R S.",
+     "lines": [
+      "Native HTML first. Keyboard works everywhere.",
+      "LCP, INP, CLS: preload, split, reserve space.",
+      "Escape output. SameSite cookies. Server sets CORS."
+     ],
+     "cues": [
+      "Native elements",
+      "Vitals",
+      "Escape output"
+     ]
+    }
+   ]
+  }
+ ]
+}
