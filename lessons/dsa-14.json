@@ -87,10 +87,10 @@
       "input": "2^100 mod 1,000,000,007",
       "output": "976371285"
      },
-     "say": "Here is the problem. Contest answers get astronomically large, so you print the remainder. For example, two to the hundredth. The answer starts nine seven six, three seven one, two eight five.",
+     "say": "Imagine a thirty one digit answer. Contests want its remainder mod one billion seven. For two to the hundredth: nine seven six, three seven one, two eight five.",
      "cues": {
-      "example": "For example",
-      "output": "The answer starts"
+      "example": "For two to",
+      "output": "nine seven six"
      }
     },
     {
@@ -272,10 +272,10 @@
       "input": "3^13 mod 7",
       "output": "3, in five multiplications"
      },
-     "say": "Next problem. Three to the thirteenth, mod seven. The answer is three, in five multiplications, not twelve.",
+     "say": "Three to the thirteenth, mod seven. The slow way takes twelve multiplications. The fast way takes five, and gives three.",
      "cues": {
-      "example": "Three to the",
-      "output": "The answer is three"
+      "example": "Three to the thirteenth",
+      "output": "The fast way"
      }
     },
     {
@@ -453,7 +453,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Dividing mod a prime means multiplying by an inverse, and Fermat says the inverse of a is a to the p minus two. What is the inverse of three mod seven? Pause and predict.",
+     "say": "Your turn. Fermat says the inverse of a is a to the p minus two. What is the inverse of three mod seven? Pause and predict.",
      "q": "Inverse of 3 mod 7 (3 · x ≡ 1)?",
      "options": [
       "2",
@@ -462,7 +462,8 @@
       "6"
      ],
      "answer": 2,
-     "pause": 7
+     "pause": 7,
+     "optCue": 0.5
     },
     {
      "type": "code",
@@ -539,10 +540,10 @@
       "output": "2 3 5 7 11 13 17 19 23 29"
      },
      "note": "n up to 10,000,000",
-     "say": "Next problem. List every prime up to thirty. Ten primes, two up to twenty nine. And n can reach ten million.",
+     "say": "Which numbers up to thirty are prime? Ten of them, two up to twenty nine. And n might be ten million.",
      "cues": {
-      "example": "List every prime",
-      "output": "Ten primes",
+      "example": "up to thirty",
+      "output": "Ten of them",
       "note": "ten million"
      }
     },
@@ -1112,7 +1113,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Sieve up to one hundred. The outer loop crosses out multiples of primes only while i squared is at most one hundred. Which prime is the last one it crosses out? Pause and predict.",
+     "say": "Your turn. Sieve up to one hundred. Which prime is the last whose multiples get crossed out? Pause and predict.",
      "q": "Sieve up to 100: last prime crossed out?",
      "options": [
       "5",
@@ -1199,11 +1200,11 @@
       "output": "17, then 20"
      },
      "note": "200,000 queries on a big array",
-     "say": "Here is the problem. The array five, two, nine, one, seven. Sum the first four, then add three at index two, and sum again. Seventeen, then twenty. Two hundred thousand queries.",
+     "say": "Five, two, nine, one, seven. Sum the first four. Add three at index two. Sum again. Seventeen, then twenty. Now imagine two hundred thousand of those.",
      "cues": {
       "example": "Sum the first four",
       "output": "Seventeen, then twenty",
-      "note": "Two hundred thousand"
+      "note": "two hundred thousand"
      }
     },
     {
@@ -1527,7 +1528,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. After the update the array is five, five, nine, one, seven. Sum the first three values using the tree. What do you get? Pause and predict.",
+     "say": "Your turn. After the update the array is five, five, nine, one, seven. What is the sum of the first three? Pause and predict.",
      "q": "After the update, sum of the first 3 values?",
      "options": [
       "16",
@@ -1608,10 +1609,10 @@
       "input": "[5, 2, 9, 1]: min of positions 1 to 3",
       "output": "1"
      },
-     "say": "The problem: the array five, two, nine, one. Smallest value among positions one to three. The answer: one. Values will change.",
+     "say": "Five, two, nine, one. What's the smallest value among positions one to three? One. And the values can change.",
      "cues": {
-      "example": "five, two, nine",
-      "output": "The answer"
+      "example": "Five, two, nine, one",
+      "output": "One. And"
      }
     },
     {
@@ -1881,7 +1882,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Set position one to eight, so the array is five, eight, nine, one. What is the min of positions zero and one? Pause and predict.",
+     "say": "Your turn. After setting position one to eight, what is the min of positions zero and one? Pause and predict.",
      "q": "After update(1, 8): min of positions 0 and 1?",
      "options": [
       "1",
@@ -2120,7 +2121,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Reduce mod after every step, and use fast power for log e multiplications. A sieve lists primes in about n log log n. Fenwick and segment trees answer range queries with updates in log n.",
+     "say": "So say this. Reduce mod after every step. Fast power takes log e multiplications. A sieve lists primes in n log log n. Fenwick and segment trees take log n.",
      "lines": [
       "Mod after every step; fast power: O(log e).",
       "Sieve: all primes up to n in O(n log log n).",

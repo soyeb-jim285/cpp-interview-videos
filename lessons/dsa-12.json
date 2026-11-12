@@ -71,10 +71,10 @@
       "input": "[1,4] [3,5] [0,6] [5,7] [8,9]",
       "output": "3 meetings"
      },
-     "say": "Here is the problem. Five requests, one room. For example, one to four, three to five, and so on. The most you can book: three.",
+     "say": "One room, five requests. One to four, three to five, zero to six, five to seven, eight to nine. The most you can book: three.",
      "cues": {
-      "example": "For example",
-      "output": "three"
+      "example": "One to four",
+      "output": "The most"
      }
     },
     {
@@ -514,7 +514,7 @@
      ],
      "answer": 0,
      "pause": 6,
-     "optCue": 0.6
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -790,7 +790,7 @@
      ],
      "answer": 1,
      "pause": 6,
-     "optCue": 0.6
+     "optCue": 0.5
     },
     {
      "type": "flow",
@@ -872,10 +872,10 @@
       "input": "coins 1, 3, 4 · amount 30",
       "output": "8 coins"
      },
-     "say": "Same coins, bigger amount. Thirty. The answer is eight coins. Can we get there without trying every combination?",
+     "say": "Thirty cents this time, same coins. Eight coins is the best. Can we find that without trying every combination?",
      "cues": {
-      "example": "Same coins",
-      "output": "eight coins"
+      "example": "Thirty cents",
+      "output": "Eight coins"
      }
     },
     {
@@ -1120,10 +1120,10 @@
       "input": "coins 1, 3, 4 · up to 7",
       "output": "0 1 2 1 1 2 2 2"
      },
-     "say": "One more version. Fewest coins for every amount, zero up to seven. We want this row: zero, one, two, one, one, two, two, two.",
+     "say": "What if you want the whole row at once? Fewest coins for every amount, zero up to seven: zero, one, two, one, one, two, two, two.",
      "cues": {
       "example": "every amount",
-      "output": "this row"
+      "output": "zero, one, two"
      }
     },
     {
@@ -1425,7 +1425,7 @@
      ],
      "answer": 1,
      "pause": 6,
-     "optCue": 0.6
+     "optCue": 0.5
     },
     {
      "type": "diagram",

@@ -66,10 +66,10 @@
       "input": "weights 1, 3, 4 · values 15, 20, 30 · cap 4",
       "output": "35"
      },
-     "say": "Here is the problem. For example, weights one, three, four, capacity four. The best value is thirty five.",
+     "say": "Take each item or leave it. A thief, a four kilo bag, weights one, three, four, worth fifteen, twenty, thirty. Best haul? Thirty five.",
      "cues": {
-      "example": "For example",
-      "output": "thirty five"
+      "example": "weights one",
+      "output": "Best haul"
      }
     },
     {
@@ -237,7 +237,7 @@
     {
      "type": "code",
      "head": "Knapsack in six lines",
-     "say": "In code, one array over capacity. For each item, loop capacity from the top down, and ask: better to leave the item, or take it plus the best of what's left? It prints thirty five. Cost is items times capacity: pseudo-polynomial, since capacity is a value.",
+     "say": "In code, one array over capacity. For each item, loop capacity from the top down, and ask: better to leave the item, or take it plus the best of what's left? It prints thirty five. The cost, items times capacity, is called pseudo-polynomial: capacity is a value.",
      "panels": [
       {
        "file": "main.cpp",
@@ -277,7 +277,7 @@
        "inside": true,
        "text": "O(items × cap)",
        "tone": "info",
-       "cue": "Cost is items"
+       "cue": "is called pseudo"
       }
      ],
      "output": {
@@ -291,7 +291,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Only item A, one kilo, fifteen dollars, capacity four. This time the capacity loop runs upward, from one to four. What does dp of four end up as? Pause and predict.",
+     "say": "Your turn. One item, one kilo, fifteen dollars, capacity four, loop running upward. What does dp of four end up as? Pause and predict.",
      "q": "One item (1 kg, $15), c loops 1 up to 4. dp[4]?",
      "options": [
       "15",
@@ -305,7 +305,7 @@
     {
      "type": "code",
      "head": "Trap: capacity loop upward",
-     "say": "Sixty. Upward, dp of one is fifteen. Then dp of two reuses that cell: thirty. Then forty five, then sixty. One item, used four times. Downward avoids it. That's how the knapsack reaches thirty five.",
+     "say": "Sixty. Upward, dp of one is fifteen. Then dp of two reuses that cell: thirty. Then forty five, then sixty. One item, used four times. So downward gives thirty five.",
      "panels": [
       {
        "file": "main.cpp",
@@ -360,10 +360,10 @@
       "input": "[10, 9, 2, 5, 3, 7, 101, 18]",
       "output": "4"
      },
-     "say": "New problem. For example, ten, nine, two, five, three, seven, one hundred one, eighteen. Longest rising run? Four.",
+     "say": "Pick numbers in order, each bigger than the last. Take ten, nine, two, five, three, seven, one hundred one, eighteen. Longest run? Four.",
      "cues": {
-      "example": "For example",
-      "output": "rising run"
+      "example": "Take ten",
+      "output": "Longest run"
      }
     },
     {
@@ -831,10 +831,10 @@
       "input": "\"ABCBDAB\" and \"BDCABA\"",
       "output": "4"
      },
-     "say": "Last problem. Two strings, A B C B D A B and B D C A B A. Longest common subsequence? Four.",
+     "say": "Two strings: A B C B D A B and B D C A B A. Longest shared sequence, in order? Four.",
      "cues": {
-      "example": "A B C B D A B",
-      "output": "Longest common"
+      "example": "B D C A B A",
+      "output": "Longest shared"
      }
     },
     {
@@ -872,7 +872,7 @@
      "items": [
       {
        "id": "hr1",
-       "x": 320,
+       "x": 400,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -883,7 +883,7 @@
       },
       {
        "id": "hr2",
-       "x": 400,
+       "x": 480,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -894,7 +894,7 @@
       },
       {
        "id": "hr3",
-       "x": 480,
+       "x": 560,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -905,7 +905,7 @@
       },
       {
        "id": "hr4",
-       "x": 560,
+       "x": 640,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -916,7 +916,7 @@
       },
       {
        "id": "hr5",
-       "x": 640,
+       "x": 720,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -927,7 +927,7 @@
       },
       {
        "id": "hr6",
-       "x": 720,
+       "x": 800,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -939,7 +939,7 @@
       {
        "id": "hc1",
        "x": 240,
-       "y": 280,
+       "y": 360,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -950,7 +950,7 @@
       {
        "id": "hc2",
        "x": 240,
-       "y": 360,
+       "y": 440,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -961,7 +961,7 @@
       {
        "id": "hc3",
        "x": 240,
-       "y": 440,
+       "y": 520,
        "w": 76,
        "h": 76,
        "text": "C",
@@ -972,7 +972,7 @@
       {
        "id": "hc4",
        "x": 240,
-       "y": 520,
+       "y": 600,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -983,7 +983,7 @@
       {
        "id": "hc5",
        "x": 240,
-       "y": 600,
+       "y": 680,
        "w": 76,
        "h": 76,
        "text": "D",
@@ -994,7 +994,7 @@
       {
        "id": "hc6",
        "x": 240,
-       "y": 680,
+       "y": 760,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -1005,7 +1005,7 @@
       {
        "id": "hc7",
        "x": 240,
-       "y": 760,
+       "y": 840,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -1779,11 +1779,11 @@
     {
      "type": "diagram",
      "head": "LCS grid: rows C, B, D",
-     "say": "Row C: the C against C match gives two. Row B: two matches, reaching three. Row D: one match, D against D. Each cell reads only above, left, and diagonal.",
+     "say": "Row C: the C against C match gives two. Row B: two matches, reaching three. Row D: one match. Each cell needs only above, left, diagonal.",
      "items": [
       {
        "id": "hr1",
-       "x": 320,
+       "x": 400,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1793,7 +1793,7 @@
       },
       {
        "id": "hr2",
-       "x": 400,
+       "x": 480,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1803,7 +1803,7 @@
       },
       {
        "id": "hr3",
-       "x": 480,
+       "x": 560,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1813,7 +1813,7 @@
       },
       {
        "id": "hr4",
-       "x": 560,
+       "x": 640,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1823,7 +1823,7 @@
       },
       {
        "id": "hr5",
-       "x": 640,
+       "x": 720,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1833,7 +1833,7 @@
       },
       {
        "id": "hr6",
-       "x": 720,
+       "x": 800,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -1844,7 +1844,7 @@
       {
        "id": "hc1",
        "x": 240,
-       "y": 280,
+       "y": 360,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -1854,7 +1854,7 @@
       {
        "id": "hc2",
        "x": 240,
-       "y": 360,
+       "y": 440,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -1864,7 +1864,7 @@
       {
        "id": "hc3",
        "x": 240,
-       "y": 440,
+       "y": 520,
        "w": 76,
        "h": 76,
        "text": "C",
@@ -1874,7 +1874,7 @@
       {
        "id": "hc4",
        "x": 240,
-       "y": 520,
+       "y": 600,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -1884,7 +1884,7 @@
       {
        "id": "hc5",
        "x": 240,
-       "y": 600,
+       "y": 680,
        "w": 76,
        "h": 76,
        "text": "D",
@@ -1894,7 +1894,7 @@
       {
        "id": "hc6",
        "x": 240,
-       "y": 680,
+       "y": 760,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -1904,7 +1904,7 @@
       {
        "id": "hc7",
        "x": 240,
-       "y": 760,
+       "y": 840,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -2612,7 +2612,7 @@
      "items": [
       {
        "id": "hr1",
-       "x": 320,
+       "x": 400,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2622,7 +2622,7 @@
       },
       {
        "id": "hr2",
-       "x": 400,
+       "x": 480,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2632,7 +2632,7 @@
       },
       {
        "id": "hr3",
-       "x": 480,
+       "x": 560,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2642,7 +2642,7 @@
       },
       {
        "id": "hr4",
-       "x": 560,
+       "x": 640,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2652,7 +2652,7 @@
       },
       {
        "id": "hr5",
-       "x": 640,
+       "x": 720,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2662,7 +2662,7 @@
       },
       {
        "id": "hr6",
-       "x": 720,
+       "x": 800,
        "y": 200,
        "w": 76,
        "h": 76,
@@ -2673,7 +2673,7 @@
       {
        "id": "hc1",
        "x": 240,
-       "y": 280,
+       "y": 360,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -2683,7 +2683,7 @@
       {
        "id": "hc2",
        "x": 240,
-       "y": 360,
+       "y": 440,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -2693,7 +2693,7 @@
       {
        "id": "hc3",
        "x": 240,
-       "y": 440,
+       "y": 520,
        "w": 76,
        "h": 76,
        "text": "C",
@@ -2703,7 +2703,7 @@
       {
        "id": "hc4",
        "x": 240,
-       "y": 520,
+       "y": 600,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -2713,7 +2713,7 @@
       {
        "id": "hc5",
        "x": 240,
-       "y": 600,
+       "y": 680,
        "w": 76,
        "h": 76,
        "text": "D",
@@ -2723,7 +2723,7 @@
       {
        "id": "hc6",
        "x": 240,
-       "y": 680,
+       "y": 760,
        "w": 76,
        "h": 76,
        "text": "A",
@@ -2733,7 +2733,7 @@
       {
        "id": "hc7",
        "x": 240,
-       "y": 760,
+       "y": 840,
        "w": 76,
        "h": 76,
        "text": "B",
@@ -3558,7 +3558,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Knapsack: dp over capacity, take or leave each item, loop capacity downward. L I S: a tails list with binary search. L C S: a grid where a match means diagonal plus one.",
+     "say": "So say this. Knapsack: a dp over capacity, looped downward. L I S: a tails list with binary search. L C S: a grid, match means diagonal plus one.",
      "lines": [
       "Knapsack: dp over capacity; loop it downward.",
       "LIS: tails list + binary search, O(n log n).",

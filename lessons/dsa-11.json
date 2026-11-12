@@ -84,10 +84,10 @@
       "output": "8 subsets, [] to [1, 2, 3]"
      },
      "note": "n up to 20",
-     "say": "Here is the problem. For example, one, two, three. Eight subsets, from empty to all three. Up to twenty items.",
+     "say": "Picture three items on a shelf. Which groups can you pick? Take one, two, three. Eight groups, from none at all to all three. Up to twenty items.",
      "cues": {
-      "example": "For example",
-      "output": "Eight subsets",
+      "example": "Take one, two, three",
+      "output": "Eight groups",
       "note": "Up to twenty"
      }
     },
@@ -406,10 +406,10 @@
       "input": "[1, 2, 3]",
       "output": "6 permutations"
      },
-     "say": "New problem. For example, one, two, three. Six orderings, from one two three to three two one.",
+     "say": "Same three items, but now order counts. One, two, three. How many ways to line them up? Six.",
      "cues": {
-      "example": "For example",
-      "output": "Six orderings"
+      "example": "One, two, three",
+      "output": "Six"
      }
     },
     {
@@ -857,10 +857,10 @@
       "input": "[2, 3, 6, 7], target 7",
       "output": "[2, 2, 3] and [7]"
      },
-     "say": "Next problem. Candidates two, three, six, seven, target seven. Two combinations: two two three, and seven.",
+     "say": "Can you make seven out of two, three, six and seven, reusing numbers freely? Yes, two ways: two two three, and seven.",
      "cues": {
-      "example": "Candidates two",
-      "output": "Two combinations"
+      "example": "two, three, six and seven",
+      "output": "two ways"
      }
     },
     {
@@ -1158,9 +1158,9 @@
       "input": "[10, 20, 30], target 40",
       "output": "1 subset: {10, 30}"
      },
-     "say": "The problem: ten, twenty, thirty, target forty. Exactly one subset works: ten and thirty.",
+     "say": "You have ten, twenty and thirty. How many subsets add up to forty? Exactly one: ten and thirty.",
      "cues": {
-      "example": "ten, twenty, thirty",
+      "example": "ten, twenty and thirty",
       "output": "Exactly one"
      }
     },
@@ -1546,10 +1546,10 @@
       "output": "4"
      },
      "note": "O(1) extra memory",
-     "say": "Last problem. Four, one, two, one, two. Every number has a twin except four. And no extra memory.",
+     "say": "Four, one, two, one, two. Every number has a twin except one loner. Find it, with no extra memory.",
      "cues": {
       "example": "Four, one, two",
-      "output": "except four",
+      "output": "one loner",
       "note": "no extra memory"
      }
     },
