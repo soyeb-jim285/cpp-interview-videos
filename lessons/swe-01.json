@@ -43,22 +43,53 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Someone hands you a loop and asks for the Big O. By the end you'll answer in ten seconds, then make slow code fast without guessing. First: a loop that runs ten times for five items.",
+     "say": "What's the Big O of this loop? Why does this script take half a second? By the end: the first in ten seconds, the second fixed.",
      "lines": [
       {
-       "text": "A loop. 5 items. 10 steps.",
-       "cue": "A loop"
+       "text": "Big-O of this loop?",
+       "cue": "Big O of this loop"
       },
       {
-       "text": "Big-O in 10 seconds",
-       "cue": "answer in ten seconds",
+       "text": "Why is this script so slow?",
+       "cue": "why does this script"
+      },
+      {
+       "text": "10 seconds. Then fixed.",
+       "cue": "ten seconds",
        "accent": "10 seconds"
-      },
-      {
-       "text": "Then fix it. No guessing.",
-       "cue": "without guessing"
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you'll do three things. Say any loop's Big O in ten seconds. Spot the hidden costs. And profile slow code, then fix the biggest cost.",
+     "lines": [
+      "Say any loop's Big-O in 10 seconds.",
+      "Spot the hidden costs in a loop.",
+      "Profile slow code, fix the biggest cost."
+     ],
+     "cues": [
+      "Say any loop",
+      "Spot the hidden",
+      "profile slow code"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Big-O of a nested loop",
+     "statement": "Given a loop over n items, say its time complexity out loud, step by step.",
+     "example": {
+      "input": "for i in range(n): for j in range(i), n = 5",
+      "output": "10 steps, so O(n²)"
+     },
+     "note": "They want the method, not a guess",
+     "say": "Here's the problem. A nested loop, and the Big O? For example, i runs to n, j runs to i, n of five. The answer: ten steps, so O of n squared. They want the method.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "They want the"
+     }
     },
     {
      "type": "flow",
@@ -315,9 +346,25 @@
    "title": "The loop that lies",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Why is this loop not O(n)?",
+     "statement": "This single loop looks linear, yet it crawls on big lists. Find the hidden second loop.",
+     "example": {
+      "input": "for x in items: if x in big_list",
+      "output": "O(n·m), not O(n)"
+     },
+     "note": "items has n entries, big_list has m",
+     "say": "Here's the next problem. One loop, and it crawls. For example, for x in items, check x in a big list. The answer: O of n times m, not O of n. Items has n entries, the big list has m.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "Items has n"
+     }
+    },
+    {
      "type": "code",
      "head": "Looks linear. Is it?",
-     "say": "Here's a trap that sinks candidates. One loop over items, so they say O of n. The interviewer asks where the second loop is. It hides in the word in. On a list, in scans every element, up to m of them. The real cost is O of n times m.",
+     "say": "Let's solve it. One loop, so most candidates say O of n. Where's the second loop? It hides in the word in. On a list, in scans every element, up to m of them. The real cost is O of n times m.",
      "panels": [
       {
        "file": "app.py",
@@ -348,7 +395,7 @@
        "inside": true,
        "text": "candidate: O(n)",
        "tone": "warn",
-       "cue": "so they say"
+       "cue": "most candidates"
       },
       {
        "line": 2,
@@ -409,7 +456,7 @@
      "type": "chart",
      "head": "One lookup, worst case",
      "unit": "comparisons",
-     "say": "The list scans from the front, all ten thousand, because the match is last. The set hashes and jumps to its bucket: one. Ten thousand times less work.",
+     "say": "Here we count comparisons for one lookup. The list scans from the front, all ten thousand, because the match is last. The set hashes and jumps to its bucket: one. Ten thousand times less work.",
      "bars": [
       {
        "label": "list",
@@ -430,7 +477,7 @@
      "type": "chart",
      "head": "How fast each class blows up",
      "unit": "steps",
-     "say": "Same n, a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That jump is why nested loops fail on big inputs.",
+     "say": "Here we count steps for each class, at a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That jump is why nested loops fail on big inputs.",
      "bars": [
       {
        "label": "O(log n)",
@@ -462,6 +509,22 @@
   {
    "title": "Measure, then fix",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Why is this script slow?",
+     "statement": "A script checks 10,000 ids against a list and takes half a second. Find the cost and cut it.",
+     "example": {
+      "input": "10,000 ids, 0.5 seconds",
+      "output": "under 5 ms"
+     },
+     "note": "Without guessing",
+     "say": "Last problem. A script checks ten thousand ids against a list. For example, it takes half a second. The goal: under five milliseconds. No guessing.",
+     "cues": {
+      "example": "For example",
+      "output": "The goal",
+      "note": "no guessing"
+     }
+    },
     {
      "type": "flow",
      "head": "A slow commute",
@@ -620,7 +683,7 @@
      "type": "chart",
      "head": "Speed up the wrong part",
      "unit": "ms",
-     "say": "About the same. Load was nothing, so ten times faster saves nothing. Fixing hits drops it to under two.",
+     "say": "About the same. The chart times the script. Load was nothing, so ten times faster saves nothing. Fixing hits drops it to under two.",
      "bars": [
       {
        "label": "before",
@@ -646,7 +709,7 @@
     {
      "type": "flow",
      "head": "The loop to repeat",
-     "say": "So the loop is: measure on realistic input. Fix the biggest cost, algorithm first. Measure again. After algorithms, look at I O: fewer database calls, caching, batching.",
+     "say": "That's our answer to the problem. Measure on realistic input. Fix the biggest cost, algorithm first. Measure again. After algorithms, look at I O: fewer database calls, caching, batching.",
      "items": [
       {
        "label": "1",
