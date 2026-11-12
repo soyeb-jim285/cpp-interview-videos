@@ -70,6 +70,10 @@
        "text": "Make it 2 ms.",
        "cue": "cut that",
        "accent": true
+      },
+      {
+       "text": "Bugs fail at compile time",
+       "cue": "bugs fail at compile time"
       }
      ]
     },
@@ -97,9 +101,9 @@
       "output": "update in about 2 ms"
      },
      "note": "profiler today: 120 ms",
-     "say": "Picture a search box above ten thousand rows. You type one letter, and the list stutters. The goal: about two milliseconds. Today the profiler says a hundred twenty.",
+     "say": "Type one letter, and the list should answer in about two milliseconds. Today the profiler says a hundred twenty.",
      "cues": {
-      "example": "You type one letter",
+      "example": "Type one letter",
       "output": "about two milliseconds",
       "note": "the profiler says"
      }
@@ -378,14 +382,14 @@
     {
      "type": "problem",
      "title": "10,000 rows that really change",
-     "statement": "The filter changes the list itself, so memo has nothing to skip. Rendering all 10,000 matches still costs 120 ms.",
+     "statement": "The filter still matches all 10,000 rows, and each keystroke makes a new array, so memo cannot skip them.",
      "example": {
-      "input": "filter keeps 10,000 rows",
+      "input": "10,000 matches, new array each key",
       "output": "update in about 2 ms"
      },
-     "say": "Memo has one weakness: it skips only when props match. So suppose the filter keeps ten thousand rows, and the list changes. Can we still hit about two milliseconds?",
+     "say": "Memo has one weakness: it skips only when props match. Suppose the filter still matches ten thousand rows. Can we hit about two milliseconds?",
      "cues": {
-      "example": "the filter keeps",
+      "example": "the filter still matches",
       "output": "about two milliseconds"
      }
     },
@@ -642,7 +646,7 @@
      ],
      "cues": [
       "Memo on everything",
-      "child that is not",
+      "Use callback",
       "State held too",
       "Array index",
       "load routes lazily"
@@ -661,11 +665,13 @@
       "input": "3 components, 1 cart",
       "output": "one source of truth"
      },
-     "say": "The header badge says two items. The cart page says three. Which one is right? Three components share one cart, and we want a single source of truth.",
+     "say": "Three components share one cart. The header says two. The cart page says three. One source of truth. Which one is right?",
      "cues": {
       "example": "Three components share",
-      "output": "single source of truth"
-     }
+      "output": "One source of truth",
+      "note": "Which one is right"
+     },
+     "note": "badge 2, cart page 3"
     },
     {
      "type": "flow",
@@ -692,6 +698,13 @@
        "sub": "= every reader updates",
        "tone": "blue",
        "cue": "adds bread"
+      },
+      {
+       "label": "the parent",
+       "text": "Holds the list",
+       "sub": "= the fridge door",
+       "tone": "good",
+       "cue": "A parent component"
       }
      ]
     },
@@ -880,7 +893,7 @@
        "from": "p",
        "to": "h",
        "tone": "good",
-       "bend": -300,
+       "bend": -420,
        "label": "context",
        "cue": "Context skips"
       }
@@ -916,7 +929,7 @@
      "panels": [
       {
        "file": "cart.tsx",
-       "code": "const Ctx = createContext({ n: 0, theme: 'light' });\nfunction Header() {\n  const { n } = useContext(Ctx);\n  return <b>{n}</b>;\n}\n\ntype S = { n: number; add: () => void };\nconst useCart = create<S>()((set) => ({\n  n: 0,\n  add: () => set((s) => ({ n: s.n + 1 })),\n}));\nconst n = useCart((s) => s.n);"
+       "code": "const Ctx = createContext({ n: 0, theme: 'light' });\nfunction Header() {\n  const { n } = useContext(Ctx);\n  return <b>{n}</b>;\n}\nconst useCart = create<{ n: number }>()(() => ({ n: 0 }));\nfunction Count() {\n  const n = useCart((s) => s.n);\n  return <b>{n}</b>;\n}"
       }
      ],
      "steps": [
@@ -943,17 +956,13 @@
       },
       {
        "lines": [
-        7,
-        8,
-        9,
-        10,
-        11
+        6
        ],
        "cue": "external store"
       },
       {
        "lines": [
-        12
+        8
        ],
        "cue": "just the slice"
       }
@@ -983,7 +992,7 @@
     {
      "type": "diagram",
      "head": "Context vs a store slice",
-     "say": "Yes. Context re-renders every consumer when its value changes, even one reading a single field. Memo does not stop it. I counted: the context Header renders twice. With a store, Header reads only the count slice, so the theme flip skips it. One render.",
+     "say": "Yes. Context re-renders every consumer when its value changes, even one reading a single field. Memo does not stop it. So the context Header re-renders on every theme flip. With a store, Header reads only the count slice, so the theme flip skips it.",
      "items": [
       {
        "id": "fl",
@@ -1002,8 +1011,8 @@
        "y": 300,
        "w": 480,
        "h": 150,
-       "label": "Header via context",
-       "text": "1 render",
+       "label": "via context",
+       "text": "Header",
        "size": 44,
        "tone": "blue",
        "cue": "the context Header"
@@ -1014,8 +1023,8 @@
        "y": 640,
        "w": 480,
        "h": 150,
-       "label": "Header via store slice",
-       "text": "1 render",
+       "label": "via store slice",
+       "text": "Header",
        "size": 44,
        "tone": "blue",
        "cue": "With a store"
@@ -1044,15 +1053,15 @@
       },
       {
        "id": "cx",
-       "text": "2 renders",
+       "text": "re-renders",
        "tone": "bad",
-       "cue": "renders twice"
+       "cue": "re-renders on every"
       },
       {
        "id": "st",
-       "glow": true,
+       "text": "skipped",
        "tone": "good",
-       "cue": "One render"
+       "cue": "reads only the count slice"
       }
      ]
     },
@@ -1134,9 +1143,16 @@
       {
        "label": "delivered",
        "text": "Plain box",
-       "sub": "= types erased",
+       "sub": "= no label",
        "tone": "good",
        "cue": "delivered box"
+      },
+      {
+       "label": "runtime",
+       "text": "No check",
+       "sub": "= types erased",
+       "tone": "bad",
+       "cue": "Types are erased"
       }
      ]
     },
@@ -1181,7 +1197,7 @@
     {
      "type": "code",
      "head": "Generics: a type placeholder",
-     "say": "A generic is a type placeholder. Item of T is a box holding a value of type T. Item of string holds a pen. Item of number holds forty. And first takes an array of T and returns a T. Pass numbers, T is number. Pass strings, T is string. One function, fully typed.",
+     "say": "A generic is a type placeholder. Item of T is a box holding a value of type T. Item of string holds a pen. Item of number holds forty. And first takes an array of T and returns a T, or undefined if the list is empty. Pass numbers, T is number. Pass strings, T is string. One function, fully typed. Run it on Node twenty three point six or newer, or with tsx.",
      "panels": [
       {
        "file": "app.ts",
@@ -1212,6 +1228,12 @@
       },
       {
        "lines": [
+        5
+       ],
+       "cue": "or undefined"
+      },
+      {
+       "lines": [
         8
        ],
        "cue": "Pass numbers"
@@ -1221,7 +1243,15 @@
       "cmd": "node app.ts",
       "text": "7 a",
       "cue": "fully typed"
-     }
+     },
+     "notes": [
+      {
+       "line": 8,
+       "inside": true,
+       "text": "Node 23.6+ or tsx",
+       "cue": "Run it on Node"
+      }
+     ]
     },
     {
      "type": "code",
@@ -1392,7 +1422,7 @@
     {
      "type": "diagram",
      "head": "Utility types reshape a type",
-     "say": "Id three. Pick keeps only the id, so adding a name is an error. Utility types reshape a type for you. Partial makes every field optional, handy for an edit form. Pick keeps the fields you name. Omit drops them.",
+     "say": "Id three. Pick keeps only the id, so an object with a name is an excess property. That is an error on a literal. Utility types reshape a type for you. Partial makes every field optional, handy for an edit form. Pick keeps the fields you name. Omit drops them.",
      "items": [
       {
        "id": "u",
@@ -1404,7 +1434,7 @@
        "text": "id, name, email?",
        "size": 40,
        "tone": "blue",
-       "cue": "reshape a type"
+       "cue": "Id three"
       },
       {
        "id": "pa",
@@ -1428,7 +1458,7 @@
        "text": "id",
        "size": 38,
        "tone": "good",
-       "cue": "Pick keeps the fields"
+       "cue": "Pick keeps only"
       },
       {
        "id": "om",
@@ -1465,14 +1495,20 @@
        "id": "pi",
        "glow": true,
        "tone": "good",
-       "cue": "adding a name"
+       "cue": "excess property"
+      },
+      {
+       "id": "u",
+       "glow": true,
+       "tone": "blue",
+       "cue": "reshape a type"
       }
      ]
     },
     {
      "type": "code",
      "head": "The trap: as silences the compiler",
-     "say": "The trap. As tells the compiler to trust you. Here the data has no name, but as User says it does. It compiles, then crashes, because types are erased. Fix it by validating at the boundary, with a library like zod. Or take unknown and narrow it. Never reach for any.",
+     "say": "The trap. As tells the compiler to trust you. Here the data has no name, but as User says it does. It compiles, then throws, and the catch prints the crash. Types are erased, so nothing checks it. Fix it by validating at the boundary, with a library like zod. Or take unknown and narrow it. Never reach for any.",
      "panels": [
       {
        "file": "app.ts",
@@ -1490,7 +1526,7 @@
        "lines": [
         4
        ],
-       "cue": "then crashes"
+       "cue": "then throws"
       },
       {
        "lines": [],
@@ -1507,7 +1543,7 @@
       {
        "line": 2,
        "inside": true,
-       "text": "a promise, unchecked",
+       "text": "cast, no check",
        "tone": "bad",
        "cue": "has no name"
       }
@@ -1527,7 +1563,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Optimize React?",
      "covers": [
       "fe07"
      ],
@@ -1535,35 +1571,40 @@
       "They ask",
       "You say"
      ],
-     "say": "How do you optimize React? Profile, then memo, and virtualize huge lists. Use memo versus memo? Use memo caches a value. Memo skips a render. Memo everything? No, comparing props costs too. Common mistake? Use callback on a child that is not in memo.",
+     "say": "How do you optimize React? Profile first, then memo, and virtualize big lists. useMemo or memo? useMemo caches a value. Memo skips a render. Memo everything? No, comparing props costs too. Where does useCallback fit? It keeps a function stable for a memo child. Common mistake? useCallback on a child that is not memoized.",
      "rows": [
       [
        "How do you optimize React?",
-       "profile, then memo; virtualize big lists"
+       "Profile first, then memo, and virtualize big lists."
       ],
       [
-       "useMemo vs memo?",
-       "useMemo caches a value; memo skips a render"
+       "useMemo or memo?",
+       "useMemo caches a value; memo skips a render."
       ],
       [
        "Memo everything?",
-       "no: comparing props costs too"
+       "No, comparing props costs too."
+      ],
+      [
+       "Where does useCallback fit?",
+       "It keeps a function stable for a memo child."
       ],
       [
        "Common mistake?",
-       "useCallback on a non-memo child"
+       "useCallback on a child that is not memoized."
       ]
      ],
      "cues": [
       "How do you optimize",
-      "Use memo versus",
+      "useMemo or memo",
       "Memo everything",
+      "Where does useCallback",
       "Common mistake"
      ]
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Manage state?",
      "covers": [
       "fe08"
      ],
@@ -1571,33 +1612,33 @@
       "They ask",
       "You say"
      ],
-     "say": "How do you manage state? Keep it local, lift it when siblings share. Context for slow values, a store for fast ones. Do I need Redux? Rarely. Why does context re-render? Every consumer does when the value changes. Server data? A query cache.",
+     "say": "How do you manage state? Keep it local, and lift it when siblings share. Context or store? Context for slow values, a store for fast ones. Do I need Redux? Rarely. Context covers most apps. Why does context re-render? Every consumer does, whenever the value changes. Server data? Use a query cache, not global state.",
      "rows": [
       [
        "How do you manage state?",
-       "local; lift to the common parent"
+       "Keep it local, and lift it when siblings share."
       ],
       [
        "Context or store?",
-       "context: slow values; store: fast ones"
+       "Context for slow values, a store for fast ones."
       ],
       [
        "Do I need Redux?",
-       "rarely: local + context + small store"
+       "Rarely. Local state and context cover most apps."
       ],
       [
        "Why does context re-render?",
-       "every consumer, on any value change"
+       "Every consumer does, whenever the value changes."
       ],
       [
        "Server data?",
-       "a query cache, not global state"
+       "Use a query cache, not global state."
       ]
      ],
      "cues": [
       "How do you manage",
-      "Context for slow",
-      "Do I need",
+      "Context or store",
+      "Do I need Redux",
       "Why does context",
       "Server data"
      ]
@@ -1614,7 +1655,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Types or interfaces?",
      "covers": [
       "fe09"
      ],
@@ -1622,23 +1663,23 @@
       "They ask",
       "You say"
      ],
-     "say": "Type or interface? Interface for object shapes, type for unions and tuples. Generics? A type placeholder, so one function stays fully typed. Narrowing? Check typeof, or a shared kind field, and the compiler follows. Utility types? Partial, Pick and Omit reshape a type.",
+     "say": "Type or interface? Interface for object shapes, a type for unions and tuples. Generics? A type parameter, inferred per call, keeps the return type exact. Narrowing? Check typeof, or a shared kind field, and the compiler narrows. Utility types? Partial makes fields optional. Pick and Omit keep or drop named fields.",
      "rows": [
       [
-       "type or interface?",
-       "interface: objects; type: unions, tuples"
+       "Type or interface?",
+       "Interface for object shapes; a type for unions and tuples."
       ],
       [
        "Generics?",
-       "a type placeholder; one typed function"
+       "A type parameter, inferred per call, keeps the return type exact."
       ],
       [
        "Narrowing?",
-       "typeof or a shared kind field"
+       "Check typeof, or a shared kind field, and the compiler narrows."
       ],
       [
        "Utility types?",
-       "Partial, Pick, Omit reshape a type"
+       "Partial makes fields optional; Pick and Omit keep or drop named fields."
       ]
      ],
      "cues": [
@@ -1650,7 +1691,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Types at runtime?",
      "covers": [
       "fe09"
      ],
@@ -1658,19 +1699,19 @@
       "They ask",
       "You say"
      ],
-     "say": "Are types checked at runtime? No, they are erased, so validate external data, for example with zod. Any versus unknown? Unknown forces a check before use, any turns checking off. Common mistake? Using as to silence errors instead of narrowing.",
+     "say": "Are types checked at runtime? No. They are erased, so validate data with zod. Any versus unknown? Unknown forces a check before use, any turns checking off. Common mistake? Using as to silence errors instead of narrowing.",
      "rows": [
       [
        "Checked at runtime?",
-       "no, erased: validate data, e.g. zod"
+       "No. Types are erased, so validate data, for example with zod."
       ],
       [
-       "any vs unknown?",
-       "unknown forces a check; any switches it off"
+       "Any vs unknown?",
+       "Unknown forces a check before use; any turns checking off."
       ],
       [
        "Common mistake?",
-       "as to silence errors, not narrowing"
+       "Using as to silence errors instead of narrowing."
       ]
      ],
      "cues": [
@@ -1700,7 +1741,7 @@
       ],
       [
        "Move a cart count into a Zustand store slice",
-       "Header renders once, not twice"
+       "Header skips the theme flip"
       ],
       [
        "Turn on `strict`, replace one `as` with a check",
