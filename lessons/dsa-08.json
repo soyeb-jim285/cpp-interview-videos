@@ -42,7 +42,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Your interviewer draws six circles joined by lines and says, walk this tree. By the end, you'll walk any tree three ways, search one in log n steps, and build autocomplete.",
+     "say": "Your interviewer draws six circles joined by lines and says, walk this tree. By the end, you'll walk any tree three ways, search one fast, and build autocomplete.",
      "lines": [
       {
        "text": "Six circles.",
@@ -53,7 +53,7 @@
        "cue": "walk this tree"
       },
       {
-       "text": "Walk it 3 ways. Search in log n.",
+       "text": "Walk it 3 ways. Search it fast.",
        "cue": "three ways"
       },
       {
@@ -435,11 +435,11 @@
     {
      "type": "code",
      "head": "One function, three orders",
-     "say": "Here's the whole algorithm. A node holds a value, a left child, and a right child. If the node is empty, stop: that's the base case. Walk the left subtree. Print the node. Walk the right subtree. On our tree it prints one, three, six, eight, ten, fourteen. Move the print above both calls and you get preorder. Move it below both and you get postorder.",
+     "say": "This is the whole algorithm. A node holds a value, a left child, and a right child. If the node is empty, stop: that's the base case. Walk the left subtree. Print the node. Walk the right subtree. On our tree it prints one, three, six, eight, ten, fourteen. Move the print above both calls and you get preorder. Move it below both and you get postorder.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "void walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}\nint main() { walk(bst); }"
+       "code": "struct Node { int val; Node *left = nullptr, *right = nullptr; };\nvoid walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}\nint main() { walk(buildTree<Node>({8, 3, 10, 1, 6, 14})); }"
       }
      ],
      "steps": [
@@ -451,38 +451,38 @@
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "If the node is empty"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Walk the left subtree"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Print the node"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Walk the right subtree"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Move it below both"
       }
      ],
      "notes": [
       {
-       "line": 4,
+       "line": 5,
        "inside": true,
        "text": "up: pre · down: post",
        "tone": "warn",
@@ -492,7 +492,7 @@
      "output": {
       "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* insert(Node* n, int x) { if (!n) return new Node{x}; if (x < n->val) n->left = insert(n->left, x); else n->right = insert(n->right, x); return n; }\nNode* build(vector<int> v) { Node* r = nullptr; for (int x : v) r = insert(r, x); return r; }\nNode* bst = build({8, 3, 10, 1, 6, 14});\nNode* chain = build({1, 2, 3, 4, 5});\nvoid walk(Node* n);\n"
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\ntemplate <class N> N* put(N* n, int x) { if (!n) return new N{x}; if (x < n->val) n->left = put(n->left, x); else n->right = put(n->right, x); return n; }\ntemplate <class N> N* buildTree(vector<int> v) { N* r = nullptr; for (int x : v) r = put(r, x); return r; }\n"
       },
       "text": "1 3 6 8 10 14",
       "cue": "On our tree"
@@ -500,7 +500,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Postorder visits a node after both its children. Same tree. What prints? Pause and predict.",
+     "say": "Try this one. Postorder visits a node after both its children. Same tree. What prints? Pause and predict.",
      "q": "Postorder of 8 (left 3: 1, 6; right 10: 14)?",
      "options": [
       "1 6 3 14 10 8",
@@ -691,13 +691,19 @@
     {
      "type": "code",
      "head": "The trap: no base case",
-     "say": "Here's the classic trap. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty? That walk is our answer to the first problem.",
+     "say": "Now the bug everyone writes. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty? That walk is our answer to the first problem.",
      "panels": [
       {
        "file": "sol.cpp",
        "label": "bug",
        "tone": "bad",
        "code": "void walk(Node* n) {\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}"
+      },
+      {
+       "file": "sol.cpp",
+       "label": "fixed",
+       "tone": "good",
+       "code": "void walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}"
       }
      ],
      "steps": [
@@ -721,21 +727,15 @@
        "cue": "in practice a crash"
       },
       {
-       "lines": [],
+       "lines": [
+        2
+       ],
+       "panel": 1,
        "cue": "first line of any"
       },
       {
        "lines": [],
        "cue": "our answer to the first"
-      }
-     ],
-     "notes": [
-      {
-       "line": 2,
-       "inside": true,
-       "text": "no base case: crash",
-       "tone": "bad",
-       "cue": "Forget the base case"
       }
      ]
     }
@@ -1074,7 +1074,7 @@
     {
      "type": "code",
      "head": "Search and insert",
-     "say": "Here are search and insert. Search: if the node is empty, the key isn't there. If it matches, found. Otherwise follow one side only: smaller goes left, bigger goes right. Insert is the same walk. When it falls off the tree at an empty spot, it hangs a new node right there. Each call goes down one level, so the cost is the height of the tree.",
+     "say": "That is how we find six. Search: if the node is empty, the key isn't there. If it matches, found. Otherwise follow one side only: smaller goes left, bigger goes right. Insert is the same walk. When it falls off the tree at an empty spot, it hangs a new node right there. Each call goes down one level, so the cost is the height of the tree, its number of levels.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1142,7 +1142,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Insert one, two, three, four, five, in that order, into an empty tree. How many levels tall does it get? Pause and predict.",
+     "say": "Quick one. Insert one, two, three, four, five, in that order, into an empty tree. How many levels tall does it get? Pause and predict.",
      "q": "Insert 1, 2, 3, 4, 5 in order. How many levels?",
      "options": [
       "3",
@@ -1150,7 +1150,7 @@
       "2",
       "4"
      ],
-     "answer": "5"
+     "answer": 1
     },
     {
      "type": "diagram",
@@ -1274,7 +1274,7 @@
     {
      "type": "code",
      "head": "Height by recursion",
-     "say": "Height is a recursion too. An empty tree has depth zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
+     "say": "Height, the number of levels, is a recursion too. An empty tree has depth zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1333,19 +1333,25 @@
      "type": "chart",
      "head": "Search steps among 1,000,000 keys",
      "unit": "steps",
-     "say": "One million keys. In a balanced tree, a search takes about twenty steps. In a chain, a million steps. Red black trees stop that. That is how we found six fast.",
+     "say": "A balanced tree takes about twenty steps. A chain takes a million. Red black trees keep the worst case near forty. That is a self balancing tree.",
      "bars": [
       {
        "label": "Balanced",
        "value": 20,
        "tone": "good",
-       "cue": "a balanced tree"
+       "cue": "A balanced tree"
       },
       {
        "label": "Chain",
        "value": 1000000,
        "tone": "bad",
-       "cue": "a million steps"
+       "cue": "A chain takes"
+      },
+      {
+       "label": "Red-black (worst)",
+       "value": 40,
+       "tone": "good",
+       "cue": "Red black trees"
       }
      ]
     }
@@ -1583,11 +1589,11 @@
     {
      "type": "code",
      "head": "Trie: insert",
-     "say": "Here's insert. Each node has twenty six child slots, one per letter, and an end flag. Start at the root. For each letter, if the child slot is empty, create the node. Step into it. After the last letter, set the end flag. That's the green mark.",
+     "say": "Insert is the same walk, plus creating nodes. Each node has twenty six child slots, one per letter, and an end flag. Start at the root. For each letter, if the child slot is empty, create the node. Step into it. After the last letter, set the end flag. That's the green mark.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "struct Trie {\n    Trie* kid[26] = {};\n    bool end = false;\n    void insert(const string& w) {\n        Trie* u = this;\n        for (char ch : w) {\n            int c = ch - 'a';\n            if (!u->kid[c]) u->kid[c] = new Trie();\n            u = u->kid[c];\n        }\n        u->end = true;\n    }"
+       "code": "struct Trie {\n    Trie* kid[26] = {};\n    bool end = false;\n    void insert(const string& w) {\n        Trie* u = this;\n        for (char ch : w) {\n            if (!u->kid[ch - 'a']) u->kid[ch - 'a'] = new Trie();\n            u = u->kid[ch - 'a'];\n        }\n        u->end = true;\n    }\n};"
       }
      ],
      "steps": [
@@ -1606,20 +1612,19 @@
       },
       {
        "lines": [
-        7,
-        8
+        7
        ],
        "cue": "if the child slot is empty"
       },
       {
        "lines": [
-        9
+        8
        ],
        "cue": "Step into it"
       },
       {
        "lines": [
-        11
+        10
        ],
        "cue": "set the end flag"
       }
@@ -1685,7 +1690,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. We stored car, cat, and care. What do search of c a, and starts with of c a, return? Pause and predict.",
+     "say": "Quick check. We stored car, cat, and care. What do search for ca, and startsWith for ca, return? Pause and predict.",
      "q": "Stored car, cat, care. search(\"ca\"), startsWith(\"ca\")?",
      "options": [
       "true, true",
@@ -1746,7 +1751,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Four follow ups. Memory too big? Use map children or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits. That is autocomplete solved.",
+     "say": "Expect four follow ups. Memory too big? A map per node, or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits. That is autocomplete solved.",
      "heads": [
       "They ask",
       "You say"
@@ -1754,7 +1759,7 @@
      "rows": [
       [
        "Memory too big?",
-       "map children, or a radix tree"
+       "a map per node for children, or a radix tree that merges chains"
       ],
       [
        "Top 3 suggestions?",
@@ -1788,7 +1793,7 @@
      "covers": [
       "cp20"
      ],
-     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Prefix questions, like autocomplete. Implement it? Insert marks the end. Search needs the mark. Each is O of L. Classic bug? Forgetting the mark.",
+     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Prefix questions, like autocomplete. Implement it? Insert marks the end. Search needs the mark. Starts with: same walk, no mark check. Each is O of L. Classic bug? Forgetting the mark.",
      "heads": [
       "They ask",
       "You say"
@@ -1807,6 +1812,10 @@
        "insert marks end · search needs it · O(L)"
       ],
       [
+       "Starts with?",
+       "same walk, no end-mark check"
+      ],
+      [
        "Classic bug?",
        "forgetting the end flag"
       ]
@@ -1815,6 +1824,7 @@
       "What is a trie",
       "Versus a hash set",
       "Implement it",
+      "Starts with",
       "Classic bug"
      ]
     },
