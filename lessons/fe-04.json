@@ -56,7 +56,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "You type one letter in a search box, and ten thousand rows redraw. A hundred twenty milliseconds, every keystroke. By the end you'll cut that to about two, and type your components so bugs fail at compile time.",
+     "say": "You type one letter, and ten thousand rows redraw. A hundred twenty milliseconds, every keystroke. By the end you'll cut that to about two, and type your components so bugs fail at compile time.",
      "lines": [
       {
        "text": "1 letter, 10,000 rows redrawn",
@@ -177,7 +177,7 @@
        "y": 450,
        "w": 330,
        "h": 150,
-       "label": "profiler",
+       "label": "profiler, ms",
        "text": "0 ms",
        "size": 56,
        "tone": "warn",
@@ -324,7 +324,7 @@
        "y": 450,
        "w": 330,
        "h": 150,
-       "label": "profiler",
+       "label": "profiler, ms",
        "text": "0 ms",
        "size": 56,
        "tone": "warn"
@@ -438,7 +438,7 @@
        "y": 480,
        "w": 330,
        "h": 150,
-       "label": "profiler",
+       "label": "profiler, ms",
        "text": "120 ms",
        "size": 56,
        "tone": "warn",
@@ -495,6 +495,15 @@
         7
        ],
        "cue": "only when items"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "Memo skips a calculation"
       }
      ],
      "notes": [
@@ -665,11 +674,11 @@
       "input": "3 components, 1 cart",
       "output": "one source of truth"
      },
-     "say": "Three components share one cart. The header says two. The cart page says three. One source of truth. Which one is right?",
+     "say": "Three components share one cart. One source of truth is the rule. The header says two. The cart page says three. Which one is right?",
      "cues": {
       "example": "Three components share",
       "output": "One source of truth",
-      "note": "Which one is right"
+      "note": "The header says two"
      },
      "note": "badge 2, cart page 3"
     },
@@ -813,7 +822,7 @@
     {
      "type": "diagram",
      "head": "Step 2: prop drilling, then context",
-     "say": "Now the badge sits deep: Page, Layout, Sidebar, Toolbar, Header. Layout, Sidebar and Toolbar never use the count, yet each must pass it along. That is prop drilling. Context skips the middle. Anything under the provider reads the value directly.",
+     "say": "Now the badge sits deep: Page, Layout, Sidebar, Toolbar, Header. Layout, Sidebar and Toolbar never use the count, yet each must pass it along. That is prop drilling. Context skips the middle. Anything under a provider, a wrapper that hands the value down, reads the value directly.",
      "items": [
       {
        "id": "p",
@@ -894,8 +903,15 @@
        "to": "h",
        "tone": "good",
        "bend": -420,
-       "label": "context",
        "cue": "Context skips"
+      }
+     ],
+     "notes": [
+      {
+       "x": 760,
+       "y": 680,
+       "text": "provider: hands value down",
+       "cue": "a wrapper"
       }
      ],
      "changes": [
@@ -1161,10 +1177,10 @@
      "head": "Type or interface?",
      "heads": [
       "",
-      "`interface`",
-      "`type`"
+      "interface",
+      "type"
      ],
-     "say": "The classic question. For object shapes they are almost the same. To extend, an interface says extends. A type uses an ampersand. Only a type can name a union or a tuple. Only an interface supports declaration merging. Rule: interface for objects, type for the rest.",
+     "say": "The classic question. For object shapes they are almost the same. To extend, an interface says extends. A type uses an ampersand. Only a type can name a union or a tuple, a fixed-length list. Only interfaces support declaration merging, where same-name ones join. Rule: interface for objects, type for the rest.",
      "rows": [
       [
        "object shape",
@@ -1189,7 +1205,7 @@
      ],
      "cues": [
       "object shapes",
-      "To extend",
+      "says extends",
       "name a union",
       "declaration merging"
      ]
@@ -1249,7 +1265,7 @@
        "line": 8,
        "inside": true,
        "text": "Node 23.6+ or tsx",
-       "cue": "Run it on Node"
+       "cue": "or with tsx"
       }
      ]
     },
