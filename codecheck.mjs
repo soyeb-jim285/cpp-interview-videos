@@ -3,12 +3,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+const BWRAP = fs.existsSync("/usr/bin/bwrap");
+
 const ROOT = "/tmp/claude-1000/codecheck";
 const NET = /\b(curl|wget|ssh|scp|docker|psql|mysql|redis-cli|kubectl|nc|telnet)\b|https?:\/\/|git\s+(push|pull|fetch|clone|remote)/;
 const trim = (s) => s.split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trim();
 
 function sh(cmd, cwd) {
-  const r = spawnSync("sh", ["-c", cmd], { cwd, encoding: "utf8", timeout: 10000 });
+  // lesson-supplied commands run only inside bubblewrap: no network, read-only fs except the scratch dir
+  const r = spawnSync("/usr/bin/bwrap", ["--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp", "--bind", cwd, cwd, "--chdir", cwd,
+    "--unshare-all", "--die-with-parent", "--new-session", "sh", "-c", cmd], { encoding: "utf8", timeout: 10000 });
   if (r.error) return { err: r.error.code === "ETIMEDOUT" ? "timeout after 10s" : String(r.error) };
   return { out: r.stdout, errout: r.stderr, status: r.status };
 }
@@ -16,6 +20,7 @@ function sh(cmd, cwd) {
 export function checkScene(scene, dir) {
   const { cmd, text } = scene.output;
   if (!cmd) return ["SKIP", "no cmd"];
+  if (!BWRAP) return ["SKIP", "no sandbox"];
   if (NET.test(cmd)) return ["SKIP", "needs network/server: " + cmd];
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
@@ -25,6 +30,9 @@ export function checkScene(scene, dir) {
     if (p.file in files) notes.push(`dup file ${p.file}: last wins`);
     files[p.file] = p.code;
   }
+  // output.setup: hidden files; same name as a panel = hidden preamble prepended to that panel, else a standalone file
+  const setup = scene.output.setup || {};
+  for (const [f, code] of Object.entries(setup)) files[f] = f in files ? code + "\n" + files[f] : code;
   for (const [f, code] of Object.entries(files)) {
     fs.mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
     fs.writeFileSync(path.join(dir, f), code);
@@ -40,18 +48,22 @@ export function checkScene(scene, dir) {
       const src = cpp.find((f) => path.basename(f, path.extname(f)) === exe) || cpp[cpp.length - 1];
       if (!/\bmain\s*\(/.test(files[src])) return ["SKIP", `${src} has no main (fragment)`];
       if (cpp.length > 1) notes.push(`compiled ${src}`);
-      fs.writeFileSync(path.join(dir, "prelude.h"), "#include <bits/stdc++.h>\nusing namespace std;\n"); // ponytail: snippets assume std; no per-file include check
-      run = `g++ -std=c++17 -include prelude.h -o ${exe} ${src} && ${run}`;
+      run = `g++ -std=c++17 -o ${exe} ${src} && ${run}`;
     }
   } else if (cpp.length && /\bg\+\+/.test(cmd) && cpp.some((f) => !/\bmain\s*\(/.test(files[f])) && cpp.length === 1) return ["SKIP", "no main (fragment)"];
-  const sql = Object.keys(files).filter((f) => f.endsWith(".sql")).pop();
-  if (/^\s*sqlite3\b/.test(cmd) && !/[<"'|]/.test(cmd) && sql) run += ` < ${sql}`; // cmd gives only the db: feed the scene's .sql
+  const sqls = Object.keys(files).filter((f) => f.endsWith(".sql") && !(f in setup)).slice(-1).concat(Object.keys(setup).filter((f) => f.endsWith(".sql")));
+  if (/^\s*sqlite3\b/.test(cmd) && !/[<"'|]/.test(cmd) && sqls.length) run = `cat ${[...sqls.slice(1), sqls[0]].join(" ")} | ` + run; // cmd gives only the db: feed setup .sql then the panel .sql
   const r = sh(run, dir);
   if (r.err) return ["FAIL", r.err];
   const exp = trim(text ?? "");
   const looksErr = /error|Traceback|Exception|fatal|warning/i.test(exp);
   const got = trim(r.out + (looksErr || r.status ? (r.out && r.errout ? "\n" : "") + r.errout : ""));
   const pre = exp.endsWith("…") ? exp.slice(0, -1).trimEnd() : null;
+  if (scene.output.approx) {
+    const sk = (t) => t.replace(/-?\d+(\.\d+)?/g, "#").replace(/[ \t]+/g, " ");
+    if (r.status === 0 && sk(got) === sk(exp)) return ["PASS", "approx"];
+    return ["FAIL", `approx${r.status ? " exit " + r.status : ""}: numbers/shape differ\nexpected:\n${exp.split("\n").slice(0, 5).join("\n")}\n--- got:\n${got.split("\n").slice(0, 5).join("\n")}`];
+  }
   const ok = pre !== null ? got.startsWith(pre) : got === exp;
   if (ok) return ["PASS", notes.join("; ")];
   const f5 = (s) => s.split("\n").slice(0, 5).join("\n");

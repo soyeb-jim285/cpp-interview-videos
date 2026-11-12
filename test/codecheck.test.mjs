@@ -17,3 +17,11 @@ test("codecheck fails wrong output", () => {
   assert.equal(r.status, 1);
   assert.match(r.stdout, /FAIL[\s\S]*expected:\n22[\s\S]*got[\s\S]*21/);
 });
+
+test("setup prepends to panel; approx tolerates number changes", async () => {
+  const { checkScene } = await import("../codecheck.mjs");
+  const sc = (o) => ({ panels: [{ file: "a.py", code: "print(f(2), 0.5)" }], output: { cmd: "python a.py", ...o } });
+  assert.equal(checkScene(sc({ text: "4 0.5", setup: { "a.py": "f=lambda x:x*x" } }), "/tmp/claude-1000/codecheck/t1")[0], "PASS");
+  assert.equal(checkScene(sc({ text: "4 0.9", approx: true, setup: { "a.py": "f=lambda x:x*x" } }), "/tmp/claude-1000/codecheck/t2")[0], "PASS");
+  assert.equal(checkScene(sc({ text: "4 0.9", approx: true }), "/tmp/claude-1000/codecheck/t3")[0], "FAIL");
+});

@@ -393,7 +393,8 @@ sqlite3 :memory: < query.sql                                                    
 - The `output.text` is copied from what it printed. Quiz answers and worked-example numbers are checked the same way.
 - A deliberately broken snippet (the trap) gets a `bad` label/note; describe the error in plain words or use the
   real compiler message, never an invented one. Undefined behaviour is never shown as having a fixed output.
-- Panel code may omit `#include` and `using namespace std;` (contest style) but must compile once they are added.
+- `codecheck` compiles C++ panels as written: include your own headers (put `#include`/`using namespace std;` in the
+  panel, or in `output.setup`, see §11). A C++ panel without `main` is skipped.
 - Language per track: **DSA** C++ (`sol.cpp`, no Python); **C++** C++; **SWE** and **Backend** Python (`app.py`),
   plus SQL (`query.sql`) or shell (`run.sh`) when the topic needs it; **Frontend** TypeScript/TSX (check the logic
   as plain `.ts`); **AI Eval** Python. Use the real complexity, real HTTP status codes, real SQL.
@@ -409,7 +410,16 @@ node flatten.mjs lessons/<id>.json && node validate.mjs build/<id>.json && node 
 Green = the four commands succeed (`ok`, coverage prints nothing and exits 0, codecheck has no FAIL).
 `codecheck` runs every scene's `output.cmd` on that scene's panels and compares with `output.text`: every scene must
 PASS or SKIP; a FAIL means the shown output is not what the code produces (fix code or text). A SKIP (network, fragment
-without `main`, git) means you must have run it yourself elsewhere. Panels of one scene must be self-contained. Fix every message and rerun. Do
+without `main`, git) means you must have run it yourself elsewhere. Panels of one scene must run on their own, or use these escape hatches on `output`
+(neither is ever shown on screen):
+
+- `"setup": {"<file>": "<code>"}` hidden files written before the panels. A key equal to a panel's file name is
+  prepended to that panel's code (earlier-scene definitions, includes); any other key is its own file (a module the
+  panel imports, a data file). For `sqlite3 <db>` cmds the `.sql` setup files run first, then the panel's `.sql`.
+  Example: `"output": {"cmd": "sqlite3 app.db", "setup": {"seed.sql": "CREATE TABLE users(id INT, email TEXT);"}, "text": "..."}`
+  or `"setup": {"app.py": "from db import query"}` plus `"db.py": "def query(q): ..."`.
+- `"approx": true` for timing, profiling or random output: cmd must exit 0 and `text` must have the same lines with a
+  number in each position of stdout (values may differ). Example: `"text": "dns 0.02\ntls 0.15", "approx": true`. Fix every message and rerun. Do
 not run TTS, `build.mjs`, `make.sh` or a render; do not edit any file except `lessons/<id>.json` (scratch code files
 go in a temp dir).
 
