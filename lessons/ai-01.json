@@ -229,7 +229,7 @@
     },
     {
      "type": "take",
-     "say": "Each token gets a score. Temperature divides every score before the odds are rebuilt. At two, the big gap shrinks. Paris still leads, but by less.",
+     "say": "Each token first gets a raw score, before it becomes a probability. Temperature divides every score before the odds are rebuilt. At two, the big gap shrinks. Paris still leads, but by less.",
      "lines": [
       "Temperature divides every score",
       "At two, the big gap shrinks",
@@ -256,38 +256,67 @@
     {
      "type": "code",
      "head": "Temperature and sampling, for real",
-     "say": "About sixty. Flatter, but Paris still leads. The scores are logs of the probabilities. Divide by temperature, and turn them back into probabilities. Temperature two gives point six three for Paris. Now sample five times, drawing at random from the odds: Paris, Lyon, located, Paris, Paris. Same prompt, different answers. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
+     "say": "About sixty. Flatter, but Paris still leads. Here is the setup. The scores are logs of the probabilities.",
      "panels": [
       {
        "file": "app.py",
-       "code": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]\ndef probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1); print(random.choices(toks, probs(2), k=5))"
+       "code": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]"
       }
      ],
      "steps": [
       {
        "lines": [
+        1,
+        2
+       ],
+       "cue": "Here is the setup"
+      },
+      {
+       "lines": [
         3
        ],
        "cue": "scores are logs"
-      },
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Temperature, then sampling",
+     "say": "Divide the scores by temperature, then rebuild the odds. Temperature two gives point six three for Paris. Sample five times from the odds: Paris, Lyon, located, Paris, Paris. The seed is fixed, so these draws repeat on every run. A live model is unseeded, so its five answers differ. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1); print(random.choices(toks, probs(2), k=5))"
+      }
+     ],
+     "steps": [
       {
        "lines": [
-        5,
-        6
+        1,
+        2,
+        3
        ],
-       "cue": "Divide by temperature"
+       "cue": "Divide the scores"
       },
       {
        "lines": [
-        7
+        4
        ],
        "cue": "point six three"
       },
       {
        "lines": [
-        8
+        5
        ],
-       "cue": "sample five times"
+       "cue": "Sample five times"
+      },
+      {
+       "lines": [],
+       "cue": "The seed is fixed"
+      },
+      {
+       "lines": [],
+       "cue": "A live model"
       },
       {
        "lines": [],
@@ -295,11 +324,14 @@
       },
       {
        "lines": [],
-       "cue": "Temperature zero takes"
+       "cue": "Temperature zero"
       }
      ],
      "output": {
       "cmd": "python3 app.py",
+      "setup": {
+       "app.py": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]\n"
+      },
       "text": "[0.63, 0.11, 0.09, 0.09, 0.07]\n['Paris', 'Lyon', 'located', 'Paris', 'Paris']",
       "cue": "Paris, Lyon"
      }
@@ -439,6 +471,16 @@
        "tone": "good",
        "cue": "oldest slide off"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So you can answer it. Next-token odds, sampled, inside a window.",
+     "lines": [
+      "Next-token odds, sampled, inside a window."
+     ],
+     "cues": [
+      "Next-token odds"
      ]
     }
    ]
@@ -734,7 +776,7 @@
        "lines": [
         2
        ],
-       "cue": "a sentence"
+       "cue": "the reply"
       },
       {
        "lines": [],
@@ -1040,19 +1082,23 @@
       "They ask",
       "You say"
      ],
-     "say": "Failure modes? Hallucination, wrong sums, ignored rules, sycophancy, reward hacking. Why hallucinate? It predicts plausible text, not truth. Reduce it? Give sources, and allow the answer I don't know. Common mistake? Trusting a confident tone.",
+     "say": "Failure modes? Invented facts, wrong sums, ignored rules, caving to pushback, gaming tests. Why hallucinate? It predicts plausible text, not truth. Reduce it? Give sources, and allow the answer I don't know. How do you catch them? Check sources, compute in code, push back, use hidden tests. Common mistake? Trusting a confident tone.",
      "rows": [
       [
        "Failure modes?",
-       "hallucination, sums, rules, sycophancy, hacking"
+       "invented facts, wrong sums, ignored rules, caving, gaming tests"
       ],
       [
        "Why hallucinate?",
-       "plausible text, not truth"
+       "it predicts plausible text, not truth"
       ],
       [
        "Reduce it?",
        "give sources; allow \"I don't know\""
+      ],
+      [
+       "How do you catch them?",
+       "check sources, compute in code, push back, use hidden tests"
       ],
       [
        "Common mistake?",
@@ -1063,6 +1109,7 @@
       "Failure modes",
       "Why hallucinate",
       "Reduce it",
+      "How do you catch",
       "Common mistake"
      ]
     }
