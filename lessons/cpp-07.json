@@ -235,7 +235,7 @@
     },
     {
      "type": "diagram",
-     "head": "p + 2 means two ints, not two bytes",
+     "head": "Walking off the end",
      "say": "Forty. P starts at the second element. Two steps on is the fourth, forty. Now the edge. One past the last is legal to hold and compare, but never to read. Anything further is undefined. So is subtracting pointers from different objects.",
      "items": [
       {
@@ -339,6 +339,15 @@
        "tone": "good",
        "cue": "hold and compare"
       }
+     ],
+     "notes": [
+      {
+       "x": 1200,
+       "y": 780,
+       "text": "different arrays: UB",
+       "tone": "bad",
+       "cue": "subtracting pointers"
+      }
      ]
     }
    ]
@@ -363,7 +372,7 @@
     {
      "type": "diagram",
      "head": "What each one binds to",
-     "say": "Here is x, holding five. P is its own variable, holding x's address. It can be null, and re-pointed. R is not a new variable, just another name for x. That is an l value reference. And rr binds to the temporary ten, keeping it alive as long as rr lives.",
+     "say": "Here is x, holding five. P is its own variable, holding x's address. It can be null, and re-pointed. R is not a new variable, just another name for x. That is an l value reference. An l value is anything with a name, so you can take its address. A temporary is an unnamed value. And rr binds to the temporary ten, keeping it alive as long as rr lives.",
      "items": [
       {
        "id": "x",
@@ -439,6 +448,20 @@
        "from": "rr",
        "to": "t",
        "cue": "keeping it alive"
+      }
+     ],
+     "changes": [
+      {
+       "id": "x",
+       "glow": true,
+       "tone": "good",
+       "cue": "An l value is anything"
+      },
+      {
+       "id": "t",
+       "glow": true,
+       "tone": "info",
+       "cue": "A temporary is"
       }
      ]
     },
@@ -534,9 +557,9 @@
      "head": "Pointer, l value ref, r value ref",
      "say": "A pointer is an object holding an address. Null? Only the pointer. Re-pointing? Only the pointer. Typical use? Optional access, passing without copying, and moves.",
      "heads": [
-      "`int* p`",
-      "`int& r`",
-      "`int&& rr`"
+      "int* p",
+      "int& r",
+      "int&& rr"
      ],
      "rows": [
       [
@@ -605,13 +628,20 @@
       {
        "lines": [],
        "cue": "machine code is identical"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "hidden pointer"
       }
      ]
     },
     {
      "type": "code",
      "head": "You can only observe the object",
-     "say": "Four. Everything you observe goes to the referred object. Size of r is the size of an int. Address of r is x's address. A struct holding a reference is usually pointer sized, here eight, but the standard does not promise it.",
+     "say": "The output is 7 4 1 8. Everything you observe goes to the referred object. Size of r is the size of an int. Address of r is x's address. A struct holding a reference is usually pointer sized, here eight, but the standard does not promise it.",
      "panels": [
       {
        "file": "obs.cpp",
@@ -731,11 +761,11 @@
     {
      "type": "code",
      "head": "Two classic interview points",
-     "say": "First, in C plus plus a void pointer needs an explicit cast to become an int pointer. C allows it silently. That is why malloc's result needs a cast. Second, the compiler trusts you. Cast to double and it compiles, but using it is undefined behavior.",
+     "say": "First, in C plus plus a void pointer needs an explicit cast to become an int pointer. C allows it silently. That is why malloc's result needs a cast. Second, the compiler trusts you. Cast to double and it compiles. Size the block for that type, or the write runs past its end.",
      "panels": [
       {
        "file": "void.cpp",
-       "code": "void* raw = malloc(sizeof(int));\n// int* a = raw;            error in C++\nint* a = static_cast<int*>(raw);\n\ndouble* d = static_cast<double*>(raw);\n*d = 3.14;\n\nfree(raw);"
+       "code": "void* raw = malloc(sizeof(double));\n// int* a = raw;            error in C++\nint* a = static_cast<int*>(raw);\n\ndouble* d = static_cast<double*>(raw);\n*d = 3.14;\n\nfree(raw);"
       }
      ],
      "steps": [
@@ -763,9 +793,9 @@
       {
        "line": 6,
        "inside": true,
-       "text": "UB: wrong type",
-       "tone": "bad",
-       "cue": "undefined behavior"
+       "text": "block sized for a double",
+       "tone": "good",
+       "cue": "Size the block"
       }
      ]
     },
@@ -861,11 +891,29 @@
      "steps": [
       {
        "lines": [
+        3
+       ],
+       "cue": "Still null"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "leaked the int"
+      },
+      {
+       "lines": [
         1,
         3,
         4
        ],
        "cue": "address of q"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "writes into q itself"
       },
       {
        "lines": [
@@ -877,7 +925,7 @@
      ],
      "output": {
       "cmd": "./make",
-      "text": "7",
+      "text": "7 7",
       "cue": "more cleanly"
      }
     }
@@ -932,6 +980,10 @@
         8
        ],
        "cue": "locks both"
+      },
+      {
+       "lines": [],
+       "cue": "must be initialized"
       }
      ],
      "notes": [
@@ -1231,8 +1283,54 @@
       "cmd": "g++ -Wall -c bad.cpp",
       "text": "warning: address of local variable ‘x’ returned\nwarning: reference to local variable ‘x’ returned",
       "tone": "bad",
-      "cue": "treat warnings"
-     }
+      "cue": "so they dangle too"
+     },
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "another variable hides it",
+       "tone": "warn",
+       "cue": "warning can vanish"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Four functions, four returns",
+     "say": "Four small functions. Local address first. Then a reference to a local. Then a literal. Last, a parameter's address.",
+     "panels": [
+      {
+       "file": "four.cpp",
+       "code": "int* fromLocal() { int x = 42; return &x; }\nint& fromRef() { int x = 42; return x; }\nconst char* fromLiteral() { return \"hi\"; }\nint* fromParam(int n) { return &n; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Local address"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "reference to a local"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "a literal"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "parameter's address"
+      }
+     ]
     },
     {
      "type": "quiz",
@@ -1289,6 +1387,20 @@
      ]
     },
     {
+     "type": "problem",
+     "title": "Dereference a null pointer?",
+     "statement": "A pointer is nullptr. What does star p do, and can a try block catch the damage?",
+     "example": {
+      "input": "int* p = nullptr; int v = *p;",
+      "output": "undefined behavior, usually a segfault"
+     },
+     "say": "Now the other half. A null pointer, then a star on it. Candidates say it throws, so a try block catches it. Does it?",
+     "cues": {
+      "example": "A null pointer",
+      "output": "Candidates say"
+     }
+    },
+    {
      "type": "flow",
      "head": "From star p to segmentation fault",
      "say": "Null is address zero, and the page at zero is never mapped. So star p makes the processor fault. The operating system sends S I G S E G V: segmentation fault. On Windows, an access violation.",
@@ -1339,11 +1451,23 @@
       },
       {
        "lines": [
+        3
+       ],
+       "cue": "crash is not even guaranteed"
+      },
+      {
+       "lines": [
         3,
         4,
         5
        ],
        "cue": "may assume p is not null"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "delete the check"
       }
      ],
      "notes": [
@@ -1712,36 +1836,17 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
      "say": "What is a void pointer? An address with no type. How do you use it? Cast back with static cast. Pointer to pointer? One more arrow. Why? To change the caller's pointer, or for argv.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What is `void*`?",
-       "address with no type: no `*`, no `+`"
-      ],
-      [
-       "How do you use it?",
-       "cast back with `static_cast`"
-      ],
-      [
-       "Pointer to pointer?",
-       "one more arrow: `**pp` is the value"
-      ],
-      [
-       "Why?",
-       "change caller's pointer, `argv`"
-      ]
+     "lines": [
+      "void*: an address with no type.",
+      "Use it: cast back with static_cast.",
+      "Pointer to pointer: one more arrow, to change the caller's pointer."
      ],
      "cues": [
-      "What is a void",
-      "How do you",
-      "Pointer to pointer",
-      "Why"
+      "An address with no type",
+      "Cast back with static cast",
+      "One more arrow"
      ],
      "covers": [
       "q38",
@@ -1751,7 +1856,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "Const int star, int star const, const int star const? Read right to left. Const left of the star locks the value. Const right of it locks the pointer. And pointer to const does not make the object const.",
+     "say": "Const int star? Const left of the star locks the value. Int star const? Const right of it locks the pointer. Const int star const? Both locked. And a pointer to const does not make the object const.",
      "heads": [
       "They ask",
       "You say"
@@ -1766,50 +1871,36 @@
        "const pointer: pointer locked"
       ],
       [
+       "`const int* const`",
+       "both locked"
+      ],
+      [
        "Trap?",
        "the object itself can still change"
       ]
      ],
      "cues": [
-      "Const int star,",
-      "Const left",
-      "And pointer to const"
+      "Const int star?",
+      "Int star const?",
+      "Const int star const?",
+      "And a pointer to const"
      ],
      "covers": [
       "q40"
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Return a pointer to a local? The frame dies, so it dangles: undefined behavior. Instead? By value, a static, or a unique pointer. Dereference null? Undefined, usually a segfault, not an exception. Prevent it? Check, or use a reference.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Return `&local`?",
-       "frame dies: dangling, UB"
-      ],
-      [
-       "Instead?",
-       "by value, static, `unique_ptr`"
-      ],
-      [
-       "Dereference null?",
-       "UB: usually segfault, no exception"
-      ],
-      [
-       "Prevent it?",
-       "check, or take a reference"
-      ]
+     "type": "take",
+     "say": "Return a pointer to a local? The frame dies, so it dangles. Instead? By value, a static, or unique_ptr. Dereference null? Undefined, usually a segfault. Prevent it? Check, or use a reference.",
+     "lines": [
+      "Return &local: the frame dies, so it dangles.",
+      "Instead: by value, a static, or unique_ptr.",
+      "Null: UB, usually a segfault. Prevent it: check, or use a reference."
      ],
      "cues": [
-      "Return a pointer",
+      "Return a pointer to a local",
       "Instead",
-      "Dereference null",
-      "Prevent it"
+      "Dereference null"
      ],
      "covers": [
       "q41",
@@ -1889,7 +1980,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Adding n to a pointer moves n elements, only inside one array. Read const right to left. And never return a local's address, dereference null, or trust sizeof on a decayed array.",
+     "say": "So say this. Adding n to a pointer moves n elements, only inside one array. Read const right to left. Never return a local's address, dereference null, or trust decayed sizeof.",
      "lines": [
       "p + n moves n elements, inside one array.",
       "Read const right to left: star splits it.",
