@@ -13,7 +13,7 @@ function lessonScene(s, sc, at, panels) {
   const area = sc.type === "code" ? { w: 1600, h: sc.output ? 560 : 720, ...sc.area } : { w: 840, h: 700, ...sc.area };
   panels.forEach((p, k) => {
     const px = panelFont(p, (area.w - 40 * (panels.length - 1)) / panels.length, area);
-    if (px < 30) err(at, `[font-floor] panel ${k} code font ${px}px < 30px`);
+    if (px < 32) err(at, `[font-floor] panel ${k} code font ${px}px < 32px`);
   });
   const items = sc.type === "flow" ? sc.items.map((it) => ({ ...it, w: Math.min(340, (1600 - 70 * (sc.items.length - 1)) / sc.items.length), size: it.size || 34 })) : sc.items || [];
   for (const b of items) {
@@ -33,8 +33,9 @@ function lessonScene(s, sc, at, panels) {
     }
   }
   const all = [sc.steps, sc.notes, sc.cues, sc.items, sc.arrows, sc.changes, sc.lines, sc.bars, sc.output && [sc.output], sc.panels].flatMap((g) => named(g || []));
-  if (!all.length) return;
-  const n = sc.say.split(/\s+/).length, pos = [...new Set(all.map((c) => wordsBefore(sc.say, c)))].sort((a, b) => a - b);
+  const n = sc.say.split(/\s+/).length;
+  if (!all.length) { if (["code", "diagram", "compare", "flow", "chart"].includes(sc.type) && n > 15) err(at, `[gap] no reveal for ${n} words (max 15)`); return; }
+  const pos = [...new Set(all.map((c) => wordsBefore(sc.say, c)))].sort((a, b) => a - b);
   [0, ...pos, n].forEach((p, i, a) => { if (i && p - a[i - 1] > 15) err(at, `[gap] ${p - a[i - 1]} words between reveals (max 15, ~6 s)`); });
 }
 
@@ -49,6 +50,8 @@ function lessonRules(f, s) {
     if (new Set(c.sc.map((x) => x.type)).size < 3) err(f, `[type-variety] chapter "${c.title}" needs >= 3 distinct scene types`);
     c.sc.forEach((x, i) => { if (i >= 2 && x.type === c.sc[i - 1].type && x.type === c.sc[i - 2].type) err(f, `[type-repeat] chapter "${c.title}" has 3 consecutive ${x.type} scenes`); });
   });
+  s.chapters.forEach((c) => { if (!["teach", "drill", "recap"].includes(c.kind)) err(f, `[chapter-kind] chapter "${c.title}" has invalid kind "${c.kind}"`); });
+  if (!s.covers?.length) err(f, "[drill-covers] lesson covers is missing or empty");
   const drills = chs.filter((c) => c.kind === "drill");
   if (drills.length !== 1) err(f, `[drill-covers] need exactly one drill chapter, found ${drills.length}`);
   else {
