@@ -70,7 +70,7 @@
       },
       {
        "text": "Answer all eight, out loud.",
-       "cue": "By the end"
+       "cue": "answer all eight"
       }
      ]
     },
@@ -259,7 +259,7 @@
        "file": "legacy.c",
        "label": "C only",
        "tone": "bad",
-       "code": "int* p = malloc(sizeof(int));\nint class = 5;"
+       "code": "#include <stdlib.h>\nint main() {\n  int* p = malloc(sizeof(int));\n  int class = 5;\n}"
       },
       {
        "file": "fixed.cpp",
@@ -271,7 +271,7 @@
      "steps": [
       {
        "lines": [
-        1
+        3
        ],
        "panel": 0,
        "cue": "won't convert"
@@ -286,7 +286,7 @@
       },
       {
        "lines": [
-        2
+        4
        ],
        "panel": 0,
        "cue": "class is a keyword"
@@ -1509,7 +1509,7 @@
        "file": "bad.cpp",
        "label": "crashes",
        "tone": "bad",
-       "code": "void bad() {\n    int big[10000000];\n}"
+       "code": "void bad() {\n    int big[10000000];\n    big[0] = 1;\n    big[9999999] = 1;\n}"
       },
       {
        "file": "good.cpp",
@@ -1525,6 +1525,14 @@
        ],
        "panel": 0,
        "cue": "stack overflow"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "panel": 0,
+       "cue": "usually crashes"
       },
       {
        "lines": [
@@ -1545,6 +1553,15 @@
       {
        "lines": [],
        "cue": "Prefer the stack"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "stack: ~1-8 MB",
+       "tone": "warn",
+       "cue": "one to eight megabytes"
       }
      ]
     }
@@ -1897,7 +1914,7 @@
     {
      "type": "code",
      "head": "So which do you pick?",
-     "say": "So which do you pick? By convention, struct for plain data with no rules, like a point. Class when there's an invariant to protect. Here, balance is private, so the only way to change it is deposit, which refuses negative amounts.",
+     "say": "An invariant is a rule the object must always keep. By convention, struct for plain data with no rules, like a point. Class when there's an invariant to protect. Here, balance is private, so the only way to change it is deposit, which refuses negative amounts.",
      "panels": [
       {
        "file": "convention.cpp",
@@ -2186,7 +2203,7 @@
      "covers": [
       "q08"
      ],
-     "say": "The Tag line fails. Box is a struct, so v is public. Tag is a class, so v is private. Struct versus class: only default access. Inheritance: same default. Struct for plain data, class for invariants.",
+     "say": "The Tag line fails. Box is a struct, so v is public. Tag is a class, so v is private. Struct versus class: only default access. Inheritance: same rule, struct public, class private. Struct for plain data, class for invariants.",
      "panels": [
       {
        "file": "tag.cpp",
