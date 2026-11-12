@@ -92,7 +92,7 @@
     {
      "type": "diagram",
      "head": "Fewest roads is not cheapest",
-     "say": "Here's a map: four towns, and a travel time on each road. A to B directly takes four minutes. That's one road, so breadth first search would pick it. But A to C to B is one plus two, three minutes. Two roads, and cheaper. So counting roads is the wrong question. We count minutes. Arrows show the way we relax, out from A.",
+     "say": "Here's a map: four towns, and a travel time on each road. A to B directly takes four minutes. That's one road, so breadth first search would pick it. But A to C to B is one plus two, three minutes. Two roads, and cheaper. So counting roads is the wrong question. We count minutes. Arrows show how we push times out from A. Call that relaxing.",
      "items": [
       {
        "id": "nA",
@@ -207,7 +207,7 @@
     {
      "type": "flow",
      "head": "Settle, then relax",
-     "say": "Dijkstra works like a GPS. Each town is a stop with its best known time. The priority queue is your to-visit list, closest first. That queue is a min-heap. Pick the smallest unsettled town. Settle it: that time is final. Then relax its roads: cheaper through this town? Update it.",
+     "say": "Dijkstra works like a GPS. Each town is a stop with its best known time, and the priority queue is the list of stops still to check, closest first. That queue is a min-heap. Pick the smallest unsettled town. Settle it: that time is final. Then relax its roads: cheaper through this town? Update it.",
      "items": [
       {
        "label": "keep",
@@ -605,6 +605,18 @@
        "size": 44,
        "tone": "info",
        "cue": "one plus five"
+      },
+      {
+       "id": "pq",
+       "x": 150,
+       "y": 790,
+       "w": 560,
+       "h": 90,
+       "label": "priority queue",
+       "text": "(4,B)",
+       "size": 40,
+       "tone": "info",
+       "cue": "nothing new joins the queue"
       }
      ],
      "arrows": [
@@ -795,15 +807,6 @@
        "lines": [],
        "cue": "the total is"
       }
-     ],
-     "notes": [
-      {
-       "line": 3,
-       "inside": true,
-       "text": "old entry: skip",
-       "tone": "warn",
-       "cue": "skip it"
-      }
      ]
     },
     {
@@ -928,7 +931,7 @@
       {
        "label": "Ana",
        "text": "president",
-       "sub": "follows nobody",
+       "sub": "the root, follows nobody",
        "tone": "good",
        "cue": "Ana follows nobody"
       },
@@ -999,7 +1002,7 @@
      "changes": [
       {
        "id": "call",
-       "text": "union(0, 1)",
+       "text": "unite(0, 1)",
        "cue": "Friendship zero and one"
       },
       {
@@ -1015,7 +1018,7 @@
       },
       {
        "id": "call",
-       "text": "union(2, 3)",
+       "text": "unite(2, 3)",
        "cue": "Friendship two and three"
       },
       {
@@ -1031,7 +1034,7 @@
       },
       {
        "id": "call",
-       "text": "union(1, 2)",
+       "text": "unite(1, 2)",
        "cue": "Friendship one and two"
       },
       {
@@ -1047,7 +1050,7 @@
       },
       {
        "id": "call",
-       "text": "union(5, 6)",
+       "text": "unite(5, 6)",
        "cue": "Friendship five and six"
       },
       {
@@ -1147,7 +1150,7 @@
        "from": "c3",
        "to": "c0",
        "tone": "good",
-       "bend": -300,
+       "bend": -380,
        "dy": -40,
        "cue": "straight at the president"
       },
@@ -1155,7 +1158,7 @@
        "from": "c2",
        "to": "c0",
        "tone": "good",
-       "bend": -200,
+       "bend": -120,
        "dy": 40,
        "cue": "straight at the president"
       }
@@ -1418,7 +1421,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Dijkstra: say it in 20 seconds",
      "covers": [
       "cp10"
      ],
@@ -1454,7 +1457,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Union-Find: say it in 20 seconds",
      "covers": [
       "cp11"
      ],
