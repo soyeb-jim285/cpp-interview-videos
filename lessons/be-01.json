@@ -1,0 +1,1143 @@
+{
+ "id": "be-01",
+ "track": "Backend",
+ "num": 1,
+ "title": "Life of a Request & REST Design",
+ "covers": [
+  "be01",
+  "be02"
+ ],
+ "caps": [
+  [
+   "get slash users slash forty two",
+   "GET /users/42"
+  ],
+  [
+   "slash orders slash nine ninety nine",
+   "/orders/999"
+  ],
+  [
+   "slash orders slash forty two",
+   "/orders/42"
+  ],
+  [
+   "post slash orders",
+   "POST /orders"
+  ],
+  [
+   "slash orders",
+   "/orders"
+  ],
+  [
+   "Four oh nine",
+   "409"
+  ],
+  [
+   "four oh nine",
+   "409"
+  ],
+  [
+   "Four oh four",
+   "404"
+  ],
+  [
+   "four oh four",
+   "404"
+  ],
+  [
+   "two oh one",
+   "201"
+  ],
+  [
+   "two oh four",
+   "204"
+  ],
+  [
+   "Idempotency Key",
+   "Idempotency-Key"
+  ],
+  [
+   "idempotency key",
+   "Idempotency-Key"
+  ],
+  [
+   "k one",
+   "k1"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "A click, end to end",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "You click, and a database row shows on screen. By the end, you'll trace every hop between, and design an API that survives a retry.",
+     "lines": [
+      {
+       "text": "One click.",
+       "cue": "You click"
+      },
+      {
+       "text": "Six hops to the database.",
+       "cue": "every hop"
+      },
+      {
+       "text": "Retry? No double charge.",
+       "cue": "survives a retry",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A restaurant in disguise",
+     "say": "Interviewers love this one. Picture a restaurant. The diner is the client. The host desk sends the order to a free kitchen: the load balancer. The kitchen cooks: your app server. For ingredients, it goes to the pantry: the database.",
+     "items": [
+      {
+       "label": "diner",
+       "text": "Client",
+       "sub": "orders",
+       "cue": "The diner"
+      },
+      {
+       "label": "host desk",
+       "text": "Balancer",
+       "sub": "picks a kitchen",
+       "cue": "host desk"
+      },
+      {
+       "label": "kitchen",
+       "text": "App server",
+       "sub": "cooks",
+       "cue": "The kitchen cooks"
+      },
+      {
+       "label": "pantry",
+       "text": "Database",
+       "sub": "ingredients",
+       "cue": "the pantry"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "GET /users/42, hop by hop",
+     "say": "Now the real steps for get slash users slash forty two. The browser asks DNS for the address behind the name, like a phone book. Then it opens a TCP connection and does a TLS handshake, so everything is encrypted. The load balancer picks one healthy server. The app runs your handler, and sends one SQL query. The database returns the row, and the app answers two hundred with JSON.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 120,
+       "y": 480,
+       "w": 280,
+       "h": 130,
+       "text": "browser",
+       "cue": "The browser",
+       "label": "client"
+      },
+      {
+       "id": "dns",
+       "x": 120,
+       "y": 230,
+       "w": 280,
+       "h": 130,
+       "text": "DNS",
+       "cue": "asks DNS",
+       "sub": "name to IP"
+      },
+      {
+       "id": "lb",
+       "x": 560,
+       "y": 480,
+       "w": 280,
+       "h": 130,
+       "text": "Balancer",
+       "cue": "TCP connection",
+       "label": "load balancer"
+      },
+      {
+       "id": "app",
+       "x": 1000,
+       "y": 480,
+       "w": 280,
+       "h": 130,
+       "text": "App",
+       "cue": "runs your handler"
+      },
+      {
+       "id": "db",
+       "x": 1440,
+       "y": 480,
+       "w": 280,
+       "h": 130,
+       "text": "Database",
+       "cue": "one SQL query"
+      },
+      {
+       "id": "res",
+       "x": 1000,
+       "y": 730,
+       "w": 280,
+       "h": 120,
+       "text": "200 + JSON",
+       "cue": "answers two hundred",
+       "tone": "good"
+      }
+     ],
+     "notes": [],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "dns",
+       "cue": "asks DNS"
+      },
+      {
+       "from": "cl",
+       "to": "lb",
+       "label": "TCP + TLS",
+       "cue": "TLS handshake"
+      },
+      {
+       "from": "lb",
+       "to": "app",
+       "cue": "one healthy server"
+      },
+      {
+       "from": "app",
+       "to": "db",
+       "label": "SQL",
+       "cue": "one SQL query"
+      },
+      {
+       "from": "app",
+       "to": "res",
+       "tone": "good",
+       "cue": "answers two hundred"
+      }
+     ],
+     "changes": [
+      {
+       "id": "dns",
+       "glow": true,
+       "cue": "phone book"
+      },
+      {
+       "id": "db",
+       "glow": true,
+       "tone": "good",
+       "cue": "returns the row"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Time each hop with curl",
+     "say": "Time each stage with curl. Put three timers in a format file, then run curl with it. Each number is cumulative, in seconds. DNS was done at twenty milliseconds. TLS was done at one fifty five. The first byte arrived at two forty. The gap between two numbers is what that stage cost.",
+     "panels": [
+      {
+       "file": "run.sh",
+       "code": "# fmt.txt\ndns   %{time_namelookup}\\n\ntls   %{time_appconnect}\\n\nfirst %{time_starttransfer}\\n\ncurl -s -o /dev/null -w @fmt.txt https://example.com"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "three timers"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "run curl"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "DNS was done"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "TLS was done"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "first byte"
+      },
+      {
+       "lines": [],
+       "cue": "The gap"
+      }
+     ],
+     "output": {
+      "cmd": "sh run.sh",
+      "text": "dns   0.019986\ntls   0.155366\nfirst 0.240485",
+      "cue": "Each number"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Using those numbers, how long did the server take between TLS finishing and the first byte arriving? Pause and predict.",
+     "q": "TLS done at 0.155 s, first byte at 0.240 s. Server time?",
+     "options": [
+      "20 ms",
+      "85 ms",
+      "135 ms",
+      "240 ms"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "chart",
+     "head": "Where 240 ms went",
+     "unit": "ms",
+     "say": "Eighty five: two forty minus one fifty five. DNS cost twenty. Connecting and encrypting cost a hundred thirty five, the biggest slice. The server needed eighty five. Blame the network or the code? Now you know.",
+     "bars": [
+      {
+       "label": "DNS",
+       "value": 20,
+       "cue": "DNS cost"
+      },
+      {
+       "label": "Connect+TLS",
+       "value": 135,
+       "tone": "warn",
+       "cue": "Connecting and encrypting"
+      },
+      {
+       "label": "Server",
+       "value": 85,
+       "tone": "good",
+       "cue": "The server needed"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Inside the app: 404 or 200",
+     "say": "Inside the app, the router matches the path and calls your function. One query goes to the database. No row? Four oh four. Otherwise it turns the row into JSON and answers two hundred. Forty two exists. Seven doesn't.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "# db: users table, row 42 is Ada\ndef get_user(uid):\n    row = db.execute(\n        \"select id, name from users where id = ?\",\n        (uid,)).fetchone()\n    if row is None:\n        return 404, {\"error\": \"not found\"}\n    return 200, {\"id\": row[0], \"name\": row[1]}\nprint(get_user(42), get_user(7))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "One query"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "No row"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "turns the row"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Forty two exists"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "(200, {'id': 42, 'name': 'Ada'}) (404, {'error': 'not found'})",
+      "cue": "Seven doesn't"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups on the journey",
+     "say": "Follow ups. Why a load balancer? To spread traffic and survive a dead server. Why TLS? It encrypts, and proves who the server is. It's slow? Time each hop, then fix the biggest. The mistake: skipping DNS and TLS, and saying only that the server returns JSON.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why a load balancer?",
+       "Spread traffic; survive a dead server"
+      ],
+      [
+       "Why TLS?",
+       "Encrypts + proves who the server is"
+      ],
+      [
+       "It's slow: now what?",
+       "Time each hop, fix the biggest"
+      ],
+      [
+       "Common mistake?",
+       "Skipping DNS and TLS in the answer"
+      ]
+     ],
+     "cues": [
+      "Why a load",
+      "Why TLS",
+      "It's slow",
+      "The mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Nouns in paths, honest codes",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "A filing cabinet",
+     "say": "Picture a filing cabinet. One drawer holds all orders, slash orders. One folder inside is order forty two. The path names the drawer or the folder. The verb says what you do: read it, add one, or replace it. Nouns in the path, verbs in the method. That's REST.",
+     "items": [
+      {
+       "id": "dr",
+       "x": 120,
+       "y": 330,
+       "w": 520,
+       "h": 140,
+       "text": "/orders",
+       "cue": "One drawer",
+       "label": "drawer: all orders"
+      },
+      {
+       "id": "fo",
+       "x": 120,
+       "y": 640,
+       "w": 520,
+       "h": 140,
+       "text": "/orders/42",
+       "cue": "One folder",
+       "label": "folder: one order"
+      },
+      {
+       "id": "v1",
+       "x": 980,
+       "y": 300,
+       "w": 560,
+       "h": 110,
+       "text": "GET: read it",
+       "cue": "read it",
+       "tone": "good"
+      },
+      {
+       "id": "v2",
+       "x": 980,
+       "y": 460,
+       "w": 560,
+       "h": 110,
+       "text": "POST: add one",
+       "cue": "add one",
+       "tone": "warn"
+      },
+      {
+       "id": "v3",
+       "x": 980,
+       "y": 620,
+       "w": 560,
+       "h": 110,
+       "text": "PUT: replace it",
+       "cue": "replace it",
+       "tone": "blue"
+      }
+     ],
+     "notes": [
+      {
+       "x": 960,
+       "y": 790,
+       "text": "nouns in paths, verbs in methods",
+       "tone": "info",
+       "cue": "Nouns in the path"
+      }
+     ],
+     "changes": [
+      {
+       "id": "dr",
+       "glow": true,
+       "cue": "names the drawer"
+      },
+      {
+       "id": "fo",
+       "glow": true,
+       "cue": "or the folder"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Methods and success codes",
+     "say": "Use plural nouns: orders, not get orders. Get reads and never changes anything. Post creates a new order, and answers two oh one Created. Put replaces the whole order. Patch changes only a few fields. Delete removes it, with two oh four and no body.",
+     "heads": [
+      "Request",
+      "Meaning",
+      "Success"
+     ],
+     "rows": [
+      [
+       "GET /orders/42",
+       "read, changes nothing",
+       "200"
+      ],
+      [
+       "POST /orders",
+       "create a new order",
+       "201"
+      ],
+      [
+       "PUT /orders/42",
+       "replace the whole order",
+       "200"
+      ],
+      [
+       "PATCH /orders/42",
+       "change a few fields",
+       "200"
+      ],
+      [
+       "DELETE /orders/42",
+       "remove it",
+       "204"
+      ]
+     ],
+     "cues": [
+      "Get reads",
+      "Post creates",
+      "Put replaces",
+      "Patch changes",
+      "Delete removes"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Status codes as code",
+     "say": "Now status codes, as code. No item in the body? Four hundred: the caller got it wrong. The item already exists? Four oh nine, Conflict. Otherwise two oh one, Created. Three calls print four hundred, four oh nine, two oh one.",
+     "panels": [
+      {
+       "file": "orders.py",
+       "code": "def create(body, taken):\n    if \"item\" not in body:\n        return 400\n    if body[\"item\"] in taken:\n        return 409\n    return 201\nprint(create({}, []), create({\"item\": \"pen\"}, [\"pen\"]),\n      create({\"item\": \"pen\"}, []))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "No item"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "already exists"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Otherwise"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Three calls"
+      }
+     ],
+     "output": {
+      "cmd": "python3 orders.py",
+      "text": "400 409 201",
+      "cue": "print four hundred"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A client reads slash orders slash nine ninety nine, and no such order exists. Which status comes back? Pause and predict.",
+     "q": "`GET /orders/999`, and no such order exists. Status?",
+     "options": [
+      "200",
+      "400",
+      "404",
+      "500"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "diagram",
+     "head": "Codes on the request path",
+     "say": "Four oh four. The path is fine, but the thing isn't there. Four hundreds mean the caller was wrong. Here are all four on one picture. Two oh one: the post worked. Four hundred: bad input. Four oh four: missing. Four oh nine: a duplicate or a version clash.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 120,
+       "y": 450,
+       "w": 420,
+       "h": 140,
+       "text": "client call",
+       "cue": "The path is fine",
+       "label": "request"
+      },
+      {
+       "id": "c201",
+       "x": 900,
+       "y": 230,
+       "w": 720,
+       "h": 120,
+       "text": "201 Created",
+       "cue": "Two oh one",
+       "tone": "good",
+       "sub": "the post worked"
+      },
+      {
+       "id": "c400",
+       "x": 900,
+       "y": 400,
+       "w": 720,
+       "h": 120,
+       "text": "400 Bad Request",
+       "cue": "Four hundred",
+       "tone": "warn",
+       "sub": "bad input"
+      },
+      {
+       "id": "c404",
+       "x": 900,
+       "y": 570,
+       "w": 720,
+       "h": 120,
+       "text": "404 Not Found",
+       "cue": "Four oh four: missing",
+       "tone": "warn",
+       "sub": "path fine, thing missing"
+      },
+      {
+       "id": "c409",
+       "x": 900,
+       "y": 740,
+       "w": 720,
+       "h": 120,
+       "text": "409 Conflict",
+       "cue": "Four oh nine",
+       "tone": "bad",
+       "sub": "duplicate or version clash"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "c201",
+       "cue": "Two oh one"
+      },
+      {
+       "from": "cl",
+       "to": "c400",
+       "cue": "Four hundred"
+      },
+      {
+       "from": "cl",
+       "to": "c404",
+       "cue": "Four oh four: missing"
+      },
+      {
+       "from": "cl",
+       "to": "c409",
+       "cue": "Four oh nine"
+      }
+     ],
+     "notes": [
+      {
+       "x": 120,
+       "y": 700,
+       "text": "4xx: the caller is wrong",
+       "tone": "warn",
+       "cue": "caller was wrong"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c404",
+       "glow": true,
+       "tone": "warn",
+       "cue": "isn't there"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups on REST design",
+     "say": "Follow ups. Four oh one or four oh three? Not logged in, versus not allowed. Five hundreds? Our fault. Put or patch? Put replaces everything, patch only the fields sent. Versioning? A v one prefix, and never break old clients. Mistake: verbs in paths, two hundred for everything.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "401 or 403?",
+       "Not logged in vs. not allowed"
+      ],
+      [
+       "What are 5xx codes?",
+       "Our fault, not the caller's"
+      ],
+      [
+       "PUT or PATCH?",
+       "PUT replaces all; PATCH only fields sent"
+      ],
+      [
+       "How to version?",
+       "`/v1` prefix; never break old clients"
+      ],
+      [
+       "Common mistake?",
+       "Verbs in paths; 200 for everything"
+      ]
+     ],
+     "cues": [
+      "Four oh one",
+      "Five hundreds",
+      "Put or patch",
+      "Versioning",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Retries that don't double-charge",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "One purchase, two orders",
+     "say": "A shopper taps pay. The client sends post slash orders. The server saves the order. But the answer is lost on a bad connection, and the client sees a timeout. So it retries. The server saves a second order. Two orders, one purchase, one angry customer.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 120,
+       "y": 450,
+       "w": 300,
+       "h": 140,
+       "text": "client",
+       "cue": "The client"
+      },
+      {
+       "id": "api",
+       "x": 780,
+       "y": 450,
+       "w": 300,
+       "h": 140,
+       "text": "API",
+       "cue": "saves the order"
+      },
+      {
+       "id": "ord",
+       "x": 1380,
+       "y": 450,
+       "w": 380,
+       "h": 140,
+       "text": "0",
+       "cue": "saves the order",
+       "label": "orders stored",
+       "size": 56,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "api",
+       "label": "POST /orders",
+       "cue": "sends post"
+      },
+      {
+       "from": "api",
+       "to": "ord",
+       "cue": "saves the order"
+      },
+      {
+       "from": "api",
+       "to": "cl",
+       "tone": "bad",
+       "bend": -90,
+       "label": "201 lost",
+       "cue": "answer is lost"
+      },
+      {
+       "from": "cl",
+       "to": "api",
+       "bend": 100,
+       "label": "retry",
+       "cue": "it retries"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ord",
+       "text": "1",
+       "cue": "saves the order"
+      },
+      {
+       "id": "ord",
+       "text": "2",
+       "tone": "bad",
+       "cue": "second order"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The naive server",
+     "say": "The same thing in code. Post appends an order and returns two oh one. The retry calls it again. Print the count: two orders, exactly like the picture.",
+     "panels": [
+      {
+       "file": "orders.py",
+       "code": "orders = []\ndef post_order(item):\n    orders.append(item)\n    return 201\npost_order(\"book\")\npost_order(\"book\")\nprint(len(orders))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "Post appends"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "The retry"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Print the count"
+      }
+     ],
+     "output": {
+      "cmd": "python3 orders.py",
+      "text": "2",
+      "tone": "bad",
+      "cue": "two orders"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Now a different method. A client retries put slash orders slash forty two, with the same body, three times. How many orders exist afterwards? Pause and predict.",
+     "q": "`PUT /orders/42`, same body, sent 3 times. Orders stored?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "0"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "diagram",
+     "head": "Is a retry safe?",
+     "say": "One. Put sets a state, so doing it three times leaves the same end state. That's idempotent. Get and delete are idempotent too. Post isn't, so a retry makes two orders. The fix is an idempotency key: the client sends a unique key, and the server replays the first result for repeats.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 120,
+       "y": 260,
+       "w": 440,
+       "h": 120,
+       "text": "PUT x3",
+       "cue": "Put sets a state",
+       "label": "/orders/42"
+      },
+      {
+       "id": "r1",
+       "x": 900,
+       "y": 260,
+       "w": 560,
+       "h": 120,
+       "text": "order 42, unchanged",
+       "cue": "That's idempotent",
+       "tone": "good"
+      },
+      {
+       "id": "m2",
+       "x": 120,
+       "y": 470,
+       "w": 440,
+       "h": 120,
+       "text": "POST x2",
+       "cue": "Post isn't",
+       "label": "/orders"
+      },
+      {
+       "id": "r2",
+       "x": 900,
+       "y": 470,
+       "w": 560,
+       "h": 120,
+       "text": "two orders",
+       "cue": "makes two orders",
+       "tone": "bad"
+      },
+      {
+       "id": "m3",
+       "x": 120,
+       "y": 680,
+       "w": 440,
+       "h": 120,
+       "text": "POST x2 + key",
+       "cue": "idempotency key",
+       "label": "Idempotency-Key: k1",
+       "tone": "blue"
+      },
+      {
+       "id": "r3",
+       "x": 900,
+       "y": 680,
+       "w": 560,
+       "h": 120,
+       "text": "one order",
+       "cue": "replays the first",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "m1",
+       "to": "r1",
+       "cue": "same end state"
+      },
+      {
+       "from": "m2",
+       "to": "r2",
+       "cue": "two orders"
+      },
+      {
+       "from": "m3",
+       "to": "r3",
+       "tone": "good",
+       "cue": "first result"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Replay the first result",
+     "say": "Now the server remembers keys. The first call with key k one is new, so it saves the order and records two oh one. The retry has the same key, so the server replays that answer and saves nothing. One order. The client makes a fresh key for each purchase.",
+     "panels": [
+      {
+       "file": "orders.py",
+       "code": "orders, seen = [], {}\ndef post_order(item, key):\n    if key not in seen:\n        orders.append(item)\n        seen[key] = 201\n    return seen[key]\npost_order(\"book\", \"k1\")\npost_order(\"book\", \"k1\")\nprint(len(orders))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7
+       ],
+       "cue": "first call"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "is new"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "The retry"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "replays that answer"
+      }
+     ],
+     "output": {
+      "cmd": "python3 orders.py",
+      "text": "1",
+      "tone": "good",
+      "cue": "One order"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be01"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What happens on an API call? DNS, TCP, TLS, load balancer, app, database, back. Why a load balancer? Spread traffic, survive a dead server. Slow? Time each hop.",
+     "rows": [
+      [
+       "What happens on a call?",
+       "DNS, TCP + TLS, balancer, app, DB, back"
+      ],
+      [
+       "Why a load balancer?",
+       "Spread traffic; survive a dead server"
+      ],
+      [
+       "It's slow?",
+       "Time each hop, fix the biggest"
+      ]
+     ],
+     "cues": [
+      "What happens",
+      "Why a load",
+      "Slow"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be02"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you design a REST API? Plural nouns, verbs as methods. Creating? Two oh one Created. Bad input? Four hundred. Missing, or a clash? Four oh four, four oh nine. Four oh one or four oh three? Not logged in, versus not allowed.",
+     "rows": [
+      [
+       "Design a REST API?",
+       "Plural nouns, verbs as methods"
+      ],
+      [
+       "Created? Bad input?",
+       "201 Created / 400 Bad Request"
+      ],
+      [
+       "Missing? A clash?",
+       "404 Not Found / 409 Conflict"
+      ],
+      [
+       "401 or 403?",
+       "Not logged in vs. not allowed"
+      ]
+     ],
+     "cues": [
+      "How do you design",
+      "Creating",
+      "Missing, or",
+      "Four oh one"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be02"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What is idempotent? Repeating leaves the same end state. Get, put, delete yes. Post no. A retried post? Send an idempotency key, and the server replays the first result.",
+     "rows": [
+      [
+       "What is idempotent?",
+       "Repeating leaves the same end state"
+      ],
+      [
+       "Which methods?",
+       "GET, PUT, DELETE yes; POST no"
+      ],
+      [
+       "A retried POST?",
+       "Idempotency-Key: replay the first result"
+      ]
+     ],
+     "cues": [
+      "What is idempotent",
+      "Get, put",
+      "A retried post"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice this week",
+     "say": "Three exercises. Run curl with the timing format on a real site, and name the biggest slice. Sketch five routes for a library API, with the status code for each. And write a post that takes an idempotency key, then replay it.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Time a real URL with `curl -w`",
+       "find the biggest slice"
+      ],
+      [
+       "Sketch 5 routes + status codes for a library API",
+       "nouns, honest codes"
+      ],
+      [
+       "Build POST with an `Idempotency-Key`; replay it",
+       "two calls, one order"
+      ]
+     ],
+     "cues": [
+      "Run curl",
+      "Sketch five",
+      "write a post"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. DNS, TCP, TLS, balancer, app, database. I time each hop. Nouns in paths, verbs as methods, honest status codes. Post isn't idempotent, so retries carry an idempotency key.",
+     "lines": [
+      "DNS, TCP+TLS, balancer, app, DB. Time each hop.",
+      "Nouns in paths, verbs as methods, honest codes.",
+      "POST isn't idempotent: retries carry a key."
+     ],
+     "cues": [
+      "DNS, TCP",
+      "Nouns in paths",
+      "Post isn't"
+     ]
+    }
+   ]
+  }
+ ]
+}
