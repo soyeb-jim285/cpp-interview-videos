@@ -23,7 +23,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Add one item to the front of a million. An array shifts them all. A list re-points two links. By the end you'll reverse a list, find its middle, catch a cycle, with zero extra memory.",
+     "say": "Add one item to the front of a million. An array shifts them all. How few moves can a list do it in? By the end you'll reverse a list, find its middle, catch a cycle, with zero extra memory.",
      "lines": [
       {
        "text": "Insert at the front of 1,000,000",
@@ -34,13 +34,13 @@
        "cue": "shifts them all"
       },
       {
-       "text": "List: re-point 2 links",
-       "cue": "re-points two links",
+       "text": "How few moves for a list?",
+       "cue": "How few moves",
        "accent": true
       },
       {
        "text": "Reverse · middle · cycle",
-       "cue": "catch a cycle"
+       "cue": "reverse a list"
       }
      ]
     },
@@ -65,12 +65,12 @@
      "statement": "Add a new value at the front of a sequence of a million items as cheaply as possible.",
      "example": {
       "input": "1,000,000 items, insert 5 first",
-      "output": "array shifts all; list re-points 2"
+      "output": "the cheapest way"
      },
-     "say": "Here is the problem. A million items, and a new five goes first. An array shifts every item. A list re-points two links.",
+     "say": "Here is the problem. A million items, and a new five goes first. What's the cheapest way?",
      "cues": {
       "example": "A million items",
-      "output": "An array shifts"
+      "output": "cheapest way"
      }
     },
     {
@@ -275,7 +275,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Swap the last two steps. Move head first, then point the new node at head. What does the list look like?",
-     "q": "Run `head = n;` before `n->next = head;`. What happens?",
+     "q": "Swap insertHead's last two steps: move head first, then point n at head. Result?",
      "options": [
       "5 10 20 30",
       "just 5, then null",
@@ -603,7 +603,7 @@
     {
      "type": "code",
      "head": "eraseAfter",
-     "say": "Three lines. Remember the doomed node. Skip over it. Then free it. Run it, and ten now points to thirty. Finding p costs O of n if you don't hold it. The unlinking itself is O of one.",
+     "say": "Three lines. Remember the doomed node. Skip over it. Then free it. Run it, and ten now points to thirty. Finding p costs O of n if you don't hold it. Delete solved: re-point around it.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -642,11 +642,9 @@
       },
       {
        "lines": [
-        2,
-        3,
-        4
+        3
        ],
-       "cue": "unlinking itself"
+       "cue": "Delete solved"
       }
      ],
      "output": {
@@ -664,9 +662,9 @@
      "q": "Insert right after a node you hold, in 1,000,000 nodes. Cost?",
      "options": [
       "O(1)",
-      "O(log n)",
-      "O(n)",
-      "O(n²)"
+      "O(n), for the walk",
+      "O(1) only at the head",
+      "O(log n)"
      ],
      "answer": "O(1)"
     },
@@ -725,7 +723,7 @@
     {
      "type": "compare",
      "head": "List versus array",
-     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node. C plus plus has both. In practice, vector usually wins. Delete solved: re-point around it.",
+     "say": "Compare array and list on five things. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node. C plus plus has both. In practice, vector usually wins.",
      "heads": [
       "",
       "Array",
@@ -1100,7 +1098,7 @@
     {
      "type": "quiz",
      "say": "Your turn. We forget to save next, and advance with head's next instead. What does print of prev show?",
-     "q": "Skip saving next: `head = head->next;` after the flip. Prints?",
+     "q": "Skip saving next and advance with head's next. What does print(prev) show?",
      "options": [
       "4 3 2 1",
       "1",
@@ -2537,6 +2535,22 @@
        "glow": true,
        "tone": "good",
        "cue": "eight comes along"
+      },
+      {
+       "id": "lb0",
+       "tone": "good",
+       "cue": "No copying"
+      },
+      {
+       "id": "lb1",
+       "tone": "good",
+       "cue": "No copying"
+      },
+      {
+       "id": "dm",
+       "glow": true,
+       "tone": "good",
+       "cue": "That's our merge"
       }
      ]
     }
@@ -2598,7 +2612,7 @@
      "covers": [
       "cp24"
      ],
-     "say": "How do you reverse? Three pointers, O of n time, O of one space. Find the middle? Slow takes one step, fast two. Slow ends at the middle. Why do they meet? Fast gains a step per round. Where does the cycle start? Reset one pointer to head, step both by one.",
+     "say": "How do you reverse? Save next, flip it to prev. O of n, constant space. Find the middle? Slow takes one step, fast two. Slow ends at the middle. Detect a cycle? They meet in a loop, since fast gains a step each round. Where does the cycle start? Reset one pointer to head, step both by one.",
      "heads": [
       "They ask",
       "You say"
@@ -2606,15 +2620,15 @@
      "rows": [
       [
        "Reverse a list?",
-       "prev, current, next: O(n) time, O(1) space"
+       "save next, flip it to prev: O(n), O(1) space"
       ],
       [
        "Find the middle?",
        "slow 1 step, fast 2: slow ends at middle"
       ],
       [
-       "Why do they meet?",
-       "fast gains a step per round: gap closes"
+       "Detect a cycle?",
+       "slow 1, fast 2: meet in a loop; null: none"
       ],
       [
        "Where does the cycle start?",
@@ -2624,7 +2638,7 @@
      "cues": [
       "How do you reverse",
       "Find the middle",
-      "Why do they meet",
+      "Detect a cycle",
       "Where does the cycle start"
      ]
     },
