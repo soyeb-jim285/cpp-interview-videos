@@ -257,25 +257,25 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "array<int, 4> a = {1, 2, 3, 4};\nvector<int> v = {1, 2, 3, 4};\ncout << sizeof(a) << ' ' << sizeof(v);"
+       "code": "int main() {\n  array<int, 4> a = {1, 2, 3, 4};\n  vector<int> v = {1, 2, 3, 4};\n  cout << sizeof(a) << ' ' << sizeof(v);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "the array is sixteen"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "The vector is"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Remember that"
       }
@@ -284,7 +284,10 @@
       "cmd": "./sz",
       "text": "16 24",
       "cue": "twenty four bytes",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -306,13 +309,13 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<int> v(1000000);\ncout << sizeof(v) << ' ' << v.capacity() << '\\n';\nvector<int> w(3);\nw.reserve(100);\ncout << w.size() << ' ' << w.capacity() << '\\n';\nw.clear();\ncout << w.size() << ' ' << w.capacity();"
+       "code": "int main() {\n  vector<int> v(1000000);\n  cout << sizeof(v) << ' ' << v.capacity() << '\\n';\n  vector<int> w(3); w.reserve(100);\n  cout << w.size() << ' ' << w.capacity() << '\\n';\n  w.clear(); cout << w.size() << ' ' << w.capacity();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "object stays three pointers"
       },
@@ -325,8 +328,7 @@
       },
       {
        "lines": [
-        6,
-        7
+        6
        ],
        "cue": "Clear destroys"
       }
@@ -334,8 +336,11 @@
      "output": {
       "cmd": "./cap",
       "text": "24 1000000\n3 100\n0 100",
-      "cue": "the room stays",
-      "tone": "good"
+      "cue": "Clear destroys",
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -397,28 +402,28 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<int> v;\nfor (int i = 1; i <= 9; i++) {\n    v.push_back(i);\n    cout << v.capacity() << ' ';\n}"
+       "code": "int main() {\n  vector<int> v;\n  for (int i = 1; i <= 9; i++) {\n    v.push_back(i);\n    cout << v.capacity() << ' ';\n  }\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "Push, then print"
       },
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "no growth"
       },
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "sixteen at the ninth"
       },
@@ -439,7 +444,10 @@
       "cmd": "./grow",
       "text": "1 2 4 4 8 8 8 8 16",
       "cue": "doubles",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -551,14 +559,14 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct A {\n  A() = default;\n  A(const A&) { cout << \"copy \"; }\n  A(A&&) noexcept { cout << \"move \"; }\n};\nvector<A> v(2);\nv.emplace_back();"
+       "code": "struct A {\n  A() = default;\n  A(const A&) { cout << \"copy \"; }\n  A(A&&) noexcept { cout << \"move \"; }\n};\nint main() {\n  vector<A> v(2);\n  v.emplace_back();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        6,
-        7
+        7,
+        8
        ],
        "cue": "carry the old elements"
       },
@@ -566,13 +574,21 @@
        "lines": [
         4
        ],
-       "cue": "noexcept"
+       "cue": "move constructor"
       },
       {
        "lines": [
         3
        ],
        "cue": "Otherwise it copies"
+      }
+     ],
+     "notes": [
+      {
+       "line": 8,
+       "inside": true,
+       "text": "moves or copies old elements",
+       "cue": "carry the old elements"
       }
      ]
     },
@@ -583,7 +599,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct A {\n  A() = default;\n  A(const A&) { cout << \"copy \"; }\n  A(A&&) noexcept { cout << \"move \"; }\n};\nvector<A> v(2);\nv.emplace_back();"
+       "code": "struct A {\n  A() = default;\n  A(const A&) { cout << \"copy \"; }\n  A(A&&) noexcept { cout << \"move \"; }\n};\nint main() {\n  vector<A> v(2);\n  v.emplace_back();\n}"
       }
      ],
      "steps": [
@@ -598,7 +614,10 @@
       "cmd": "./na",
       "text": "move move",
       "cue": "move move",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -616,52 +635,65 @@
     {
      "type": "code",
      "head": "Erase inside a loop",
-     "say": "The iterator is invalid after erase, so the plus plus is undefined behavior: the program may do anything. The fix: erase returns an iterator to the next element. Assign it back, and advance only when nothing was erased. With one to six, the evens vanish.",
+     "say": "The iterator is invalid after erase, so the plus plus is undefined behavior: the program may do anything.",
      "panels": [
       {
        "file": "bug.cpp",
        "label": "bug",
        "tone": "bad",
-       "code": "for (auto it = v.begin();\n     it != v.end(); ++it)\n  if (*it % 2 == 0)\n    v.erase(it);"
-      },
-      {
-       "file": "fix.cpp",
-       "label": "fix",
-       "tone": "good",
-       "code": "for (auto it = v.begin();\n     it != v.end(); ) {\n  if (*it % 2 == 0)\n    it = v.erase(it);\n  else ++it;\n}\nfor (int x : v)\n  cout << x << ' ';"
+       "code": "int main() {\n  vector<int> v = {1, 2, 3, 4, 5, 6};\n  for (auto it = v.begin(); it != v.end(); ++it)\n    if (*it % 2 == 0)\n      v.erase(it);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2,
-        3,
-        4
+        5
        ],
-       "cue": "invalid after erase",
-       "panel": 0
-      },
-      {
-       "lines": [],
-       "cue": "undefined behavior",
-       "panel": 0
+       "cue": "invalid after erase"
       },
       {
        "lines": [
         3
        ],
-       "cue": "returns an iterator",
-       "panel": 1
-      },
+       "cue": "undefined behavior"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix: assign erase back",
+     "say": "The fix: erase returns an iterator to the next element. Assign it back, and advance only when nothing was erased. With one to six, the evens vanish.",
+     "panels": [
+      {
+       "file": "fix.cpp",
+       "label": "fix",
+       "tone": "good",
+       "code": "int main() {\n  vector<int> v = {1, 2, 3, 4, 5, 6};\n  for (auto it = v.begin(); it != v.end(); ) {\n    if (*it % 2 == 0) it = v.erase(it);\n    else ++it;\n  }\n  for (int x : v) cout << x << ' ';\n}"
+      }
+     ],
+     "steps": [
       {
        "lines": [
         4
        ],
-       "cue": "advance only",
-       "panel": 1
+       "cue": "returns an iterator"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "advance only"
       }
-     ]
+     ],
+     "output": {
+      "cmd": "./fix",
+      "text": "1 3 5",
+      "cue": "the evens vanish",
+      "tone": "good",
+      "setup": {
+       "fix.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
+     }
     },
     {
      "type": "compare",
@@ -777,7 +809,7 @@
       {
        "id": "h0",
        "x": 1150,
-       "y": 260,
+       "y": 240,
        "w": 560,
        "h": 110,
        "text": "0: pear",
@@ -788,7 +820,7 @@
       {
        "id": "h1",
        "x": 1150,
-       "y": 400,
+       "y": 370,
        "w": 560,
        "h": 110,
        "text": "1: empty",
@@ -798,7 +830,7 @@
       {
        "id": "h2",
        "x": 1150,
-       "y": 540,
+       "y": 500,
        "w": 560,
        "h": 110,
        "text": "2: apple, fig",
@@ -809,7 +841,7 @@
       {
        "id": "h3",
        "x": 1150,
-       "y": 680,
+       "y": 630,
        "w": 560,
        "h": 110,
        "text": "3: empty",
@@ -851,7 +883,7 @@
      "notes": [
       {
        "x": 1150,
-       "y": 840,
+       "y": 780,
        "text": "Layout varies by build",
        "tone": "dim",
        "cue": "Real buckets vary"
@@ -865,26 +897,26 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "map<string, int> m = {{\"pear\", 3},\n    {\"apple\", 5}, {\"fig\", 1}};\nfor (auto& [k, v] : m)\n    cout << k << ' ';\ncout << '\\n';\ncout << m.lower_bound(\"b\")->first;"
+       "code": "int main() {\n  map<string, int> m = {{\"pear\", 3},\n      {\"apple\", 5}, {\"fig\", 1}};\n  for (auto& [k, v] : m)\n    cout << k << ' ';\n  cout << '\\n';\n  cout << m.lower_bound(\"b\")->first;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "iterates in sorted order"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "Lower bound"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "range query"
       },
@@ -897,7 +929,10 @@
       "cmd": "./m",
       "text": "apple fig pear\nfig",
       "cue": "not less than b",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -905,7 +940,7 @@
      "say": "One million keys in a map. About how many comparisons does one find make? Pause and predict.",
      "q": "`map` with 1,000,000 keys: comparisons per `find`?",
      "options": [
-      "1",
+      "500,000 (half the keys)",
       "about 20",
       "1,000",
       "1,000,000"
@@ -968,7 +1003,7 @@
        "rehash O(n), rare; `reserve` avoids it"
       ],
       [
-       "string keys: compare by length",
+       "string keys: each compare costs up to key length",
        "string keys: hash costs O(length)"
       ],
       [
@@ -1010,28 +1045,28 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "set<int> s = {5, 1, 4, 1, 3};\nfor (int x : s) cout << x << ' ';\ncout << '\\n';\nunordered_set<int> u = {5, 1, 4, 1, 3};\nfor (int x : u) cout << x << ' ';"
+       "code": "int main() {\n  set<int> s = {5, 1, 4, 1, 3};\n  for (int x : s) cout << x << ' ';\n  cout << '\\n';\n  unordered_set<int> u = {5, 1, 4, 1, 3};\n  for (int x : u) cout << x << ' ';\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "cue": "drops the duplicate"
       },
       {
        "lines": [
-        4,
-        5
+        5,
+        6
        ],
        "cue": "An unordered set"
       },
       {
        "lines": [
-        4,
-        5
+        5,
+        6
        ],
        "cue": "its order"
       },
@@ -1056,7 +1091,10 @@
       "cmd": "./s",
       "text": "1 3 4 5\n3 4 1 5",
       "cue": "always sorted",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -1066,7 +1104,7 @@
      "panels": [
       {
        "file": "types.cpp",
-       "code": "struct Point { int x, y; };\nbool operator==(Point a, Point b) {\n  return a.x == b.x && a.y == b.y;\n}\nbool operator<(Point a, Point b) {\n  return tie(a.x, a.y) < tie(b.x, b.y);\n}\nset<Point> s;"
+       "code": "struct Point { int x, y; };\nbool operator==(Point a, Point b) {\n  return a.x == b.x && a.y == b.y;\n}\nbool operator<(Point a, Point b) {\n  return tie(a.x, a.y) < tie(b.x, b.y);\n}\nint main() {\n  set<Point> s;\n}"
       }
      ],
      "steps": [
@@ -1089,7 +1127,7 @@
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "A set needs that ordering"
       }
@@ -1124,23 +1162,23 @@
      "panels": [
       {
        "file": "types.cpp",
-       "code": "struct PtHash {\n  size_t operator()(Point p) const {\n    return hash<int>{}(p.x) * 31 + hash<int>{}(p.y);\n  }\n};\nunordered_set<Point, PtHash> u;"
+       "code": "struct Point { int x, y; };\nstruct PtHash {\n  size_t operator()(Point p) const {\n    return hash<int>{}(p.x) * 31 + hash<int>{}(p.y);\n  }\n};\nint main() {\n  unordered_set<Point, PtHash> u;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
         2,
         3,
         4,
-        5
+        5,
+        6
        ],
        "cue": "needs a hash function"
       },
       {
        "lines": [
-        6
+        8
        ],
        "cue": "Forget the hash"
       },
