@@ -1,0 +1,1534 @@
+{
+ "id": "cpp-03",
+ "track": "C++",
+ "num": 3,
+ "title": "How Memory Really Works",
+ "covers": [
+  "q16",
+  "q17",
+  "q18",
+  "q19",
+  "q20",
+  "q21"
+ ],
+ "caps": [],
+ "chapters": [
+  {
+   "title": "A map of a running program",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Where does each variable in your program actually live? By the end, you'll draw a running program's memory map, and explain what new does that malloc never will.",
+     "lines": [
+      {
+       "text": "g, z, local, new Point(1, 2)",
+       "cue": "each variable"
+      },
+      {
+       "text": "Where does each one live?",
+       "cue": "actually live"
+      },
+      {
+       "text": "Draw the map.",
+       "cue": "memory map",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Place every variable in a running program's memory. Follow new down to the allocator. And see what new does that malloc never will.",
+     "lines": [
+      "Place every variable in memory",
+      "Follow new down to the allocator",
+      "See what new does that malloc never will"
+     ],
+     "cues": [
+      "Place every variable",
+      "Follow new down",
+      "see what new does"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Where does each variable live?",
+     "statement": "A small program has a global, a static, a local, and a Point made with new. Place each one in memory.",
+     "example": {
+      "input": "int g = 1; static int z; new Point(1, 2)",
+      "output": "data, bss, stack, heap"
+     },
+     "say": "Here is the problem. A small program has a global, a static, a local, and a Point made with new. Where does each live?",
+     "cues": {
+      "example": "a global",
+      "output": "Where does each"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "An office building",
+     "say": "Think of an office. The rulebook in the lobby never changes: that is the text, your machine code. The notice board holds fixed values: data, and B S S for zeros. A pile of trays is the stack. A rented warehouse is the heap.",
+     "items": [
+      {
+       "label": "text",
+       "text": "rulebook",
+       "sub": "code, read-only",
+       "cue": "The rulebook"
+      },
+      {
+       "label": "data + bss",
+       "text": "notice board",
+       "sub": "globals, statics",
+       "cue": "The notice board"
+      },
+      {
+       "label": "stack",
+       "text": "tray pile",
+       "sub": "locals, freed for you",
+       "cue": "pile of trays"
+      },
+      {
+       "label": "heap",
+       "text": "warehouse",
+       "sub": "new: you give it back",
+       "cue": "rented warehouse"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The memory map",
+     "say": "Here is the map. Low addresses at the bottom. The code, main, sits in text, read only. The global g has a value, so it lives in data. Static z has none, so B S S, zero filled. The Point we asked for lives on the heap. Local and p live on the stack, at the top.",
+     "items": [
+      {
+       "id": "st",
+       "x": 1050,
+       "y": 240,
+       "w": 700,
+       "h": 100,
+       "text": "stack: local, p",
+       "cue": "Local and p",
+       "tone": "blue"
+      },
+      {
+       "id": "hp",
+       "x": 1050,
+       "y": 370,
+       "w": 700,
+       "h": 100,
+       "text": "heap: Point(1, 2)",
+       "cue": "The Point we asked",
+       "tone": "warn"
+      },
+      {
+       "id": "bs",
+       "x": 1050,
+       "y": 500,
+       "w": 700,
+       "h": 100,
+       "text": "bss: z",
+       "cue": "Static z has none",
+       "tone": "dim"
+      },
+      {
+       "id": "da",
+       "x": 1050,
+       "y": 630,
+       "w": 700,
+       "h": 100,
+       "text": "data: g",
+       "cue": "global g has a value",
+       "tone": "good"
+      },
+      {
+       "id": "tx",
+       "x": 1050,
+       "y": 760,
+       "w": 700,
+       "h": 100,
+       "text": "text: main()",
+       "cue": "The code, main",
+       "tone": "info"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int g = 1;\nstatic int z;\nint main() {\n    int local = 5;\n    Point* p = new Point(1, 2);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "The code, main"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "global g has a value"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Static z has none"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The Point we asked"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Local and p"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Static z has no initial value. Which segment holds it? Pause and predict.",
+     "q": "static int z;  Which segment holds z?",
+     "options": [
+      "stack",
+      "heap",
+      "data",
+      "bss"
+     ],
+     "answer": "bss"
+    },
+    {
+     "type": "code",
+     "head": "Ask the linker",
+     "say": "B S S. A global with no initial value is zero filled at startup. The tool nm confirms it. Capital D is data, g. Lowercase b is B S S, z. And capital T is text, main.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int g = 1;\nstatic int z;\nint main() {\n    Point* p = new Point(1, 2);\n    z = g + p->x;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A global with no initial"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Capital D"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Lowercase b"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "capital T"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp -o app && nm -C app | grep -wE \"g|z|main\" | cut -c18-",
+      "text": "D g\nT main\nb z",
+      "cue": "nm confirms",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\nstruct Point { int x, y; Point(int a, int b) : x(a), y(b) {} };\n"
+      }
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Two groups of memory",
+     "say": "Two groups. Lifetime: stack and heap come and go, static areas last the whole run. Size: static areas are fixed at load. Freed by: the compiler, you, or the loader. Growth: stack down, heap up, static areas never.",
+     "heads": [
+      "",
+      "Stack, heap",
+      "Text, data, bss"
+     ],
+     "rows": [
+      [
+       "lifetime",
+       "scope end / until freed",
+       "whole program"
+      ],
+      [
+       "size",
+       "changes at runtime",
+       "fixed at load"
+      ],
+      [
+       "freed by",
+       "compiler / you",
+       "the loader"
+      ],
+      [
+       "grows",
+       "stack down, heap up",
+       "never"
+      ]
+     ],
+     "cues": [
+      "Lifetime",
+      "Size",
+      "Freed by",
+      "Growth"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Where heap memory comes from",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Who hands out heap memory?",
+     "statement": "You write new int(42). Follow that request down to the operating system.",
+     "example": {
+      "input": "new int(42)",
+      "output": "an address on the heap"
+     },
+     "say": "Here is the problem. You write new int of forty two. Who actually hands you the memory? We follow the request down.",
+     "cues": {
+      "example": "You write new",
+      "output": "We follow"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A hotel front desk",
+     "say": "Think of a hotel. You ask the front desk for a room. That desk is operator new, and on most systems it calls malloc. The allocator keeps a list of free rooms and hands one out. Only when the hotel is full does it ask the operating system for a new floor.",
+     "items": [
+      {
+       "label": "your code",
+       "text": "new int(42)",
+       "cue": "You ask the front desk"
+      },
+      {
+       "label": "operator new",
+       "text": "front desk",
+       "cue": "That desk is operator new"
+      },
+      {
+       "label": "allocator",
+       "text": "free rooms list",
+       "cue": "keeps a list of free rooms"
+      },
+      {
+       "label": "operating system",
+       "text": "new floor",
+       "sub": "only when full",
+       "tone": "warn",
+       "cue": "the hotel is full"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Three kinds of storage",
+     "say": "A global like counter has static storage: it lasts the whole run. Inside f, the local x lives on the stack. But new int of forty two asks the heap, and p holds the address. Delete hands the memory back. When f returns, x and p vanish.",
+     "items": [
+      {
+       "id": "c",
+       "x": 1050,
+       "y": 290,
+       "w": 700,
+       "h": 110,
+       "text": "counter = 0",
+       "cue": "A global like counter",
+       "label": "static",
+       "tone": "good"
+      },
+      {
+       "id": "x",
+       "x": 1050,
+       "y": 470,
+       "w": 700,
+       "h": 110,
+       "text": "x = 7",
+       "cue": "the local x",
+       "label": "stack",
+       "tone": "blue"
+      },
+      {
+       "id": "p",
+       "x": 1050,
+       "y": 650,
+       "w": 300,
+       "h": 110,
+       "text": "p",
+       "cue": "new int of forty two",
+       "label": "stack",
+       "tone": "blue"
+      },
+      {
+       "id": "h",
+       "x": 1450,
+       "y": 650,
+       "w": 300,
+       "h": 110,
+       "text": "42",
+       "cue": "new int of forty two",
+       "label": "heap",
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "h",
+       "cue": "p holds the address"
+      }
+     ],
+     "changes": [
+      {
+       "id": "h",
+       "kill": true,
+       "cue": "Delete hands"
+      },
+      {
+       "id": "x",
+       "kill": true,
+       "cue": "x and p vanish"
+      },
+      {
+       "id": "p",
+       "kill": true,
+       "cue": "x and p vanish"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int counter = 0;\nvoid f() {\n    int x = 7;\n    int* p = new int(42);\n    delete p;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A global like counter"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "the local x"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "new int of forty two"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Delete hands"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Let an owner allocate",
+     "say": "In modern C plus plus you rarely write new. Small data goes on the stack. For heap data, let an owner hold it: a vector, or make unique. The owner frees it for you. Raw new needs exactly one delete on every path, and that is where leaks begin.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int scores[10];\nvector<int> big(1'000'000);\nauto w = make_unique<Widget>();\nWidget* raw = new Widget;\ndelete raw;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Small data goes"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "let an owner hold it"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Raw new needs"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "stack",
+       "tone": "good",
+       "cue": "Small data goes"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "heap, owned",
+       "tone": "good",
+       "cue": "The owner frees"
+      },
+      {
+       "line": 4,
+       "inside": true,
+       "text": "you must delete",
+       "tone": "bad",
+       "cue": "that is where leaks"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Look at the vector of one million ints. Where do those ints live? Pause and predict.",
+     "q": "`vector<int> big(1000000)`: where are the 1,000,000 ints?",
+     "options": [
+      "stack",
+      "heap",
+      "data segment",
+      "registers"
+     ],
+     "answer": "heap"
+    },
+    {
+     "type": "diagram",
+     "head": "A small owner, a big block",
+     "say": "Heap. The vector object itself is small, a few pointers, on the stack. The million ints live in a heap block it owns. When big goes out of scope, its destructor frees that block.",
+     "items": [
+      {
+       "id": "v",
+       "x": 250,
+       "y": 420,
+       "w": 480,
+       "h": 160,
+       "text": "big",
+       "cue": "The vector object",
+       "label": "stack: pointers only",
+       "tone": "blue",
+       "size": 56
+      },
+      {
+       "id": "b",
+       "x": 1130,
+       "y": 420,
+       "w": 600,
+       "h": 160,
+       "text": "1,000,000 ints",
+       "cue": "The million ints",
+       "label": "heap block",
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "v",
+       "to": "b",
+       "cue": "a heap block it owns"
+      }
+     ],
+     "changes": [
+      {
+       "id": "b",
+       "kill": true,
+       "cue": "frees that block"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "malloc gives bytes, new gives objects",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "A Point that sets itself up",
+     "statement": "Point's constructor sets x and y and prints built. Get a Point from the heap two ways: malloc and new.",
+     "example": {
+      "input": "malloc(sizeof(Point)) vs new Point(1, 2)",
+      "output": "only new runs the constructor"
+     },
+     "say": "Here is the problem. Point has a constructor that sets x and y. We get memory two ways: malloc, and new. Which one gives us a real Point?",
+     "cues": {
+      "example": "We get memory",
+      "output": "Which one gives"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Renting an office",
+     "say": "Think of renting an office. Malloc hands you the keys to an empty room: raw bytes. The constructor is the furniture company. New does both, so you get a usable object.",
+     "items": [
+      {
+       "label": "malloc",
+       "text": "empty room",
+       "sub": "raw bytes",
+       "tone": "warn",
+       "cue": "Malloc hands you"
+      },
+      {
+       "label": "constructor",
+       "text": "furniture",
+       "sub": "builds the object",
+       "cue": "The constructor is"
+      },
+      {
+       "label": "new",
+       "text": "ready office",
+       "sub": "room + furniture",
+       "tone": "good",
+       "cue": "New does both"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Bytes versus an object",
+     "say": "Malloc gives raw bytes. Nothing ran, so the Point inside is garbage, and using it is undefined behavior. New gives the same bytes, then the constructor runs inside them. Now x is one and y is two.",
+     "items": [
+      {
+       "id": "a",
+       "x": 250,
+       "y": 400,
+       "w": 400,
+       "h": 150,
+       "text": "?? ??",
+       "cue": "Malloc gives raw bytes",
+       "label": "malloc: raw bytes",
+       "tone": "bad",
+       "size": 48
+      },
+      {
+       "id": "k",
+       "x": 760,
+       "y": 400,
+       "w": 400,
+       "h": 150,
+       "text": "Point(1, 2)",
+       "cue": "the constructor runs",
+       "label": "constructor runs",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "b",
+       "x": 1270,
+       "y": 400,
+       "w": 400,
+       "h": 150,
+       "text": "?? ??",
+       "cue": "New gives the same bytes",
+       "label": "new: same bytes",
+       "tone": "warn",
+       "size": 48
+      }
+     ],
+     "arrows": [
+      {
+       "from": "k",
+       "to": "b",
+       "cue": "the constructor runs"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Nothing ran"
+      },
+      {
+       "id": "b",
+       "text": "x=1 y=2",
+       "tone": "good",
+       "cue": "x is one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Which one built?",
+     "say": "In code, the constructor prints built. Malloc for a Point runs nothing. New runs it once. So built prints one time, and the Point holds one and two.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Point {\n    int x, y;\n    Point(int a, int b) : x(a), y(b) { puts(\"built\"); }\n};\nint main() {\n    void* raw = malloc(sizeof(Point));\n    Point* p = new Point(1, 2);\n    printf(\"%d %d\\n\", p->x, p->y);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "constructor prints built"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Malloc for a Point"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "New runs it once"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "built\n1 2",
+      "cue": "built prints one",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Both run out of memory. What does each one do? Pause and predict.",
+     "q": "Out of memory: what do malloc and new do, in that order?",
+     "options": [
+      "both return NULL",
+      "NULL, then bad_alloc",
+      "both throw",
+      "bad_alloc, then NULL"
+     ],
+     "answer": "NULL, then bad_alloc"
+    },
+    {
+     "type": "compare",
+     "head": "malloc versus new",
+     "say": "Failure first: malloc returns NULL, new throws bad alloc. Constructor: only new runs one. Size: bytes by hand, versus computed from the type. Returns: void star, versus a typed pointer. Release: free, versus delete. Resize: realloc, versus allocate and move.",
+     "heads": [
+      "",
+      "malloc",
+      "new"
+     ],
+     "rows": [
+      [
+       "on failure",
+       "returns `NULL`",
+       "throws `bad_alloc`"
+      ],
+      [
+       "constructor",
+       "no: raw bytes",
+       "yes"
+      ],
+      [
+       "size",
+       "you count bytes",
+       "from the type"
+      ],
+      [
+       "returns",
+       "`void*`, needs a cast",
+       "typed `T*`"
+      ],
+      [
+       "release",
+       "`free`",
+       "`delete`"
+      ],
+      [
+       "resize",
+       "`realloc`",
+       "none: allocate and move"
+      ]
+     ],
+     "cues": [
+      "Failure first",
+      "Constructor:",
+      "Size:",
+      "Returns: void",
+      "Release:",
+      "Resize:"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "What new and delete really do",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "What does delete do that free doesn't?",
+     "statement": "A Doc owns a string with a 100-character buffer. Release the Doc without leaking that buffer.",
+     "example": {
+      "input": "new Doc{...}; free(d) vs delete d",
+      "output": "only delete frees the buffer"
+     },
+     "say": "Here is the problem. A Doc object owns a string, and the string owns its own heap buffer. We must release the Doc without leaking that buffer.",
+     "cues": {
+      "example": "A Doc object owns",
+      "output": "We must release"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Renting a flat",
+     "say": "Think of renting a flat. The landlord hands over an empty flat: that is operator new. You move in: the constructor. When you leave, you move out first and clean up: the destructor. Then the landlord takes the keys back: operator delete.",
+     "items": [
+      {
+       "label": "operator new",
+       "text": "empty flat",
+       "cue": "The landlord hands"
+      },
+      {
+       "label": "constructor",
+       "text": "move in",
+       "cue": "You move in"
+      },
+      {
+       "label": "destructor",
+       "text": "move out",
+       "tone": "warn",
+       "cue": "you move out first"
+      },
+      {
+       "label": "operator delete",
+       "text": "keys back",
+       "tone": "good",
+       "cue": "takes the keys back"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "new Widget(3), step by step",
+     "say": "Step one: operator new returns raw memory, size of Widget bytes. Step two: the constructor runs inside it, and v becomes three. The pointer w comes back, already typed. Now delete w. First the destructor runs, then operator delete frees the block.",
+     "items": [
+      {
+       "id": "r",
+       "x": 1050,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "text": "??",
+       "cue": "operator new returns",
+       "label": "raw memory",
+       "tone": "bad",
+       "size": 56
+      },
+      {
+       "id": "w",
+       "x": 1450,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "text": "w",
+       "cue": "pointer w comes back",
+       "label": "Widget*",
+       "tone": "blue",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "w",
+       "to": "r",
+       "cue": "pointer w comes back"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r",
+       "text": "v = 3",
+       "tone": "good",
+       "cue": "constructor runs"
+      },
+      {
+       "id": "r",
+       "text": "dead",
+       "tone": "warn",
+       "cue": "destructor runs"
+      },
+      {
+       "id": "r",
+       "kill": true,
+       "cue": "operator delete frees"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Widget {\n    int v;\n    Widget(int x) : v(x) {}\n};\nWidget* w = new Widget(3);\ndelete w;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "operator new returns"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "constructor runs"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Now delete w"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The same steps, by hand",
+     "say": "You can split the steps yourself. Operator new only allocates. Placement new only constructs, inside memory you already have. Then the destructor is called by hand, and operator delete only frees. Vector uses this split to reserve capacity without building objects.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct W { W() { puts(\"ctor\"); } ~W() { puts(\"dtor\"); } };\nint main() {\n    void* raw = ::operator new(sizeof(W));\n    W* w = new (raw) W;\n    w->~W();\n    ::operator delete(raw);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Operator new only"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Placement new"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "destructor is called"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "operator delete only"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "ctor\ndtor",
+      "cue": "reserve capacity",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A Doc made with new owns a string. You call free on it. What is the verdict? Pause and predict.",
+     "q": "`Doc* d = new Doc{...}; free(d);` What is the verdict?",
+     "options": [
+      "fine: string freed",
+      "destructor skipped: UB",
+      "compile error",
+      "same as delete"
+     ],
+     "answer": "destructor skipped: UB"
+    },
+    {
+     "type": "compare",
+     "head": "free versus delete",
+     "say": "Destructor: free never calls it, delete calls it first. Memory from: each only takes its own kind, and mixing is undefined behavior. Null: both do nothing, so skip the if. Custom: only delete can be overloaded.",
+     "heads": [
+      "",
+      "free",
+      "delete"
+     ],
+     "rows": [
+      [
+       "destructor",
+       "never runs",
+       "runs first"
+      ],
+      [
+       "memory from",
+       "`malloc` family",
+       "`new`; `new[]` needs `delete[]`"
+      ],
+      [
+       "null pointer",
+       "safe no-op",
+       "safe no-op"
+      ],
+      [
+       "customizable",
+       "no",
+       "overload `operator delete`"
+      ]
+     ],
+     "cues": [
+      "Destructor",
+      "Memory from",
+      "Null",
+      "Custom"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "When something throws",
+     "say": "Two failure paths. No memory: operator new throws bad alloc. Constructor throws: new calls the matching operator delete for you, so nothing leaks. See alloc, free, caught. Classes can overload both, how memory pools hook in.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Bad {\n    Bad() { throw 1; }\n    void* operator new(size_t n)\n        { puts(\"alloc\"); return malloc(n); }\n    void operator delete(void* p) { puts(\"free\"); free(p); }\n};\nint main() {\n    try { new Bad; } catch (int) { puts(\"caught\"); }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Constructor throws"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "matching operator delete"
+      },
+      {
+       "lines": [],
+       "cue": "overload both"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "alloc\nfree\ncaught",
+      "cue": "See alloc",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\n"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "title": "Why new[] needs delete[]",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Free three objects from one pointer",
+     "statement": "new T[3] builds three objects, but the pointer only points at the first. How does delete[] know there are three?",
+     "example": {
+      "input": "T* arr = new T[3]; delete[] arr;",
+      "output": "three destructors run"
+     },
+     "say": "Here is the problem. We build three T objects. The pointer only points at the first. So how does delete with brackets know it is three?",
+     "cues": {
+      "example": "We build three",
+      "output": "So how does"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A coat check",
+     "say": "Think of a coat check. Your ticket points at the first coat. The clerk wrote the count, three, on a tag just before it. Delete with brackets reads that tag, then runs three destructors.",
+     "items": [
+      {
+       "label": "new T[3]",
+       "text": "3 objects",
+       "cue": "Your ticket points"
+      },
+      {
+       "label": "hidden slot",
+       "text": "3",
+       "sub": "just before the objects",
+       "tone": "warn",
+       "cue": "wrote the count"
+      },
+      {
+       "label": "delete[] reads",
+       "text": "3",
+       "cue": "reads that tag"
+      },
+      {
+       "label": "result",
+       "text": "3 destructors",
+       "tone": "good",
+       "cue": "runs three destructors"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Where the count hides",
+     "say": "On G C C and Clang, for a type with a destructor, new stores the count in a hidden slot before the objects. The pointer arr points past it, at the first T. Delete with brackets reads the count, three. Then it runs three destructors, last to first, and frees the whole block.",
+     "items": [
+      {
+       "id": "n",
+       "x": 1010,
+       "y": 420,
+       "w": 150,
+       "h": 130,
+       "text": "3",
+       "cue": "stores the count",
+       "label": "count",
+       "tone": "warn",
+       "size": 56
+      },
+      {
+       "id": "t0",
+       "x": 1180,
+       "y": 420,
+       "w": 150,
+       "h": 130,
+       "text": "T",
+       "label": "[0]",
+       "size": 48
+      },
+      {
+       "id": "t1",
+       "x": 1350,
+       "y": 420,
+       "w": 150,
+       "h": 130,
+       "text": "T",
+       "label": "[1]",
+       "size": 48
+      },
+      {
+       "id": "t2",
+       "x": 1520,
+       "y": 420,
+       "w": 150,
+       "h": 130,
+       "text": "T",
+       "label": "[2]",
+       "size": 48
+      },
+      {
+       "id": "ar",
+       "x": 1180,
+       "y": 640,
+       "w": 150,
+       "h": 90,
+       "text": "arr",
+       "cue": "points past it",
+       "tone": "blue"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ar",
+       "to": "t0",
+       "cue": "points past it"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n",
+       "glow": true,
+       "tone": "warn",
+       "cue": "reads the count"
+      },
+      {
+       "id": "t2",
+       "kill": true,
+       "cue": "runs three destructors"
+      },
+      {
+       "id": "t1",
+       "kill": true,
+       "cue": "last to first"
+      },
+      {
+       "id": "t0",
+       "kill": true,
+       "cue": "frees the whole block"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T { ~T() { puts(\"~T\"); } };\nT* arr = new T[3];\ndelete[] arr;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "stores the count"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Delete with brackets"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Three destructors, one call",
+     "say": "In code, new T with brackets builds three objects. Delete with brackets runs the destructor for each. Run it, and the message prints three times.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T {\n    ~T() { cout << \"~T \"; }\n};\nint main() {\n    T* arr = new T[3];\n    delete[] arr;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "builds three"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "runs the destructor"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "~T ~T ~T",
+      "cue": "prints three times",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now write plain delete arr, without brackets, on that same array. What does the standard say? Pause and predict.",
+     "q": "`T* arr = new T[3]; delete arr;` What does the standard say?",
+     "options": [
+      "runs 1 destructor",
+      "runs 3 destructors",
+      "undefined behavior",
+      "compile error"
+     ],
+     "answer": "undefined behavior"
+    },
+    {
+     "type": "code",
+     "head": "Mismatch: undefined",
+     "say": "Undefined behavior. In practice it often runs one destructor, then hands the allocator the wrong address, so it crashes or corrupts the heap. The reverse mismatch is undefined too, even for int. The fix: a vector, and no delete at all.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "T* a = new T[3];\ndelete a;\n\nT* one = new T;\ndelete[] one;\n\nint* n = new int[3];\ndelete n;\n\nvector<T> v(3);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "often runs one destructor"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "reverse mismatch"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "even for int"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "The fix"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "wrong form",
+       "tone": "bad",
+       "cue": "wrong address"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "wrong form",
+       "tone": "bad",
+       "cue": "reverse mismatch is undefined"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "still wrong",
+       "tone": "bad",
+       "cue": "even for int"
+      },
+      {
+       "line": 10,
+       "inside": true,
+       "text": "no delete needed",
+       "tone": "good",
+       "cue": "no delete at all"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "How does allocation work? Three storages: static, stack, heap. What does new call? Operator new, then the allocator, then the operating system when full. Modern advice? Stack first, owners over raw new.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Kinds of storage?",
+       "static, stack (automatic), heap (dynamic)"
+      ],
+      [
+       "What does `new` call?",
+       "`operator new` → malloc → OS pages"
+      ],
+      [
+       "Modern advice?",
+       "stack first; owners over raw `new`"
+      ]
+     ],
+     "cues": [
+      "How does allocation",
+      "What does new call",
+      "Modern advice"
+     ],
+     "covers": [
+      "q16"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Text? Read only machine code. Data and B S S? Globals and statics, with values or zero filled. Heap? Dynamic memory, alive until freed. Stack? Locals, freed at scope end, and small.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Text?",
+       "machine code, read-only"
+      ],
+      [
+       "Data and BSS?",
+       "globals and statics: valued / zero-filled"
+      ],
+      [
+       "Heap?",
+       "dynamic: lives until freed"
+      ],
+      [
+       "Stack?",
+       "locals: freed at scope end, small"
+      ]
+     ],
+     "cues": [
+      "Text?",
+      "Data and B S S",
+      "Heap?",
+      "Stack?"
+     ],
+     "covers": [
+      "q17"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Malloc versus new? New also runs the constructor. Free versus delete? Delete runs the destructor first. Mixing them? Undefined behavior, so pair them up. On failure? Malloc returns NULL, new throws bad alloc.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`malloc` vs `new`?",
+       "`new` also runs the constructor"
+      ],
+      [
+       "`free` vs `delete`?",
+       "`delete` runs the destructor first"
+      ],
+      [
+       "Mixing them?",
+       "undefined behavior: pair them up"
+      ],
+      [
+       "On failure?",
+       "`NULL` vs throws `bad_alloc`"
+      ]
+     ],
+     "cues": [
+      "Malloc versus new",
+      "Free versus delete",
+      "Mixing them",
+      "On failure"
+     ],
+     "covers": [
+      "q18",
+      "q19"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What does new do? It calls operator new for raw memory, then runs the constructor. If the constructor throws? New frees the memory for you. And delete? The reverse: destructor, then operator delete.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What does `new` do?",
+       "`operator new`, then the constructor"
+      ],
+      [
+       "Constructor throws?",
+       "`new` frees the memory for you"
+      ],
+      [
+       "And `delete`?",
+       "destructor, then `operator delete`"
+      ]
+     ],
+     "cues": [
+      "What does new do",
+      "If the constructor",
+      "And delete"
+     ],
+     "covers": [
+      "q20"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Why delete brackets? New brackets hides a count, and only delete brackets reads it. Wrong form? Undefined behavior, even for int. Best fix? A vector, or a unique pointer to an array.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why `delete[]`?",
+       "`new[]` hides a count; only `delete[]` reads it"
+      ],
+      [
+       "Wrong form?",
+       "undefined behavior, even for `int`"
+      ],
+      [
+       "Best fix?",
+       "`vector`, or `unique_ptr<T[]>`"
+      ]
+     ],
+     "cues": [
+      "Why delete brackets",
+      "Wrong form",
+      "Best fix"
+     ],
+     "covers": [
+      "q21"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode two hundred six, reverse linked list: rewire heap nodes. LeetCode twenty one, merge two sorted lists: splice nodes, and know who owns them. Then add two numbers: allocate each new node with new.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 206 · Reverse Linked List",
+       "rewire heap nodes, no copies"
+      ],
+      [
+       "LeetCode 21 · Merge Two Sorted Lists",
+       "splice nodes; who owns them?"
+      ],
+      [
+       "LeetCode 2 · Add Two Numbers",
+       "allocate each result node"
+      ]
+     ],
+     "cues": [
+      "LeetCode two hundred six",
+      "LeetCode twenty one",
+      "add two numbers"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Text, data, B S S, stack, heap: each variable has one home. New allocates, then constructs. Delete destructs, then frees. Brackets run every destructor.",
+     "lines": [
+      "Text, data, bss, stack, heap: one home each.",
+      "`new` allocates then constructs; `delete` reverses.",
+      "`new[]` hides a count: pair it with `delete[]`."
+     ],
+     "cues": [
+      "Text, data, B S S",
+      "New allocates, then",
+      "Brackets run every"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
