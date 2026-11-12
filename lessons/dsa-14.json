@@ -178,7 +178,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. In C plus plus, what does three minus five, then percent seven, print? Pause and predict.",
+     "say": "Warm-up. In C plus plus, what does three minus five, then percent seven, print? Lock in a guess.",
      "q": "In C++, what does `(3 - 5) % 7` print?",
      "options": [
       "2",
@@ -274,7 +274,7 @@
      },
      "say": "Imagine a thirty one digit answer. Contests want its remainder mod one billion seven. Fast power gets two to the hundredth: nine seven six, three seven one, two eight five.",
      "cues": {
-      "example": "Fast power gets",
+      "example": "Contests want its remainder",
       "output": "nine seven six"
      }
     },
@@ -295,7 +295,7 @@
     {
      "type": "flow",
      "head": "13 in binary: 1101",
-     "say": "Thirteen in binary is one one zero one: eight plus four plus one. So three to the thirteen is three to the eight, times three to the four, times three to the one. Squaring builds each power. That's three squarings and two joins.",
+     "say": "Thirteen in binary is one one zero one: eight plus four plus one. So three to the thirteen is three to the eight, times three to the four, times three to the one. Squaring builds each power. Three squarings, two real multiplies. The first bit just sets it.",
      "items": [
       {
        "label": "13 in binary",
@@ -467,7 +467,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Fermat says the inverse of a is a to the p minus two. What is the inverse of three mod seven? Pause and predict.",
+     "say": "Try this one. Fermat says the inverse of a is a to the p minus two, because a to the p minus one is one mod p. Fermat needs a prime modulus. Otherwise use extended Euclid: a gcd that also returns x and y, where a times x plus m times y equals the gcd. What is the inverse of three mod seven? Commit to a number.",
      "q": "Inverse of 3 mod 7 (3 · x ≡ 1)?",
      "options": [
       "2",
@@ -515,7 +515,7 @@
     {
      "type": "compare",
      "head": "Three modular traps",
-     "say": "Three traps. Fermat's inverse needs a prime modulus. Otherwise use extended Euclid. Multiply three numbers and the product overflows before the mod: reduce after every times. And plain power loops e times, too slow. So the answer is three.",
+     "say": "Three traps. Fermat's inverse needs a prime modulus. Otherwise use extended Euclid. Multiply three numbers and the product overflows before the mod: reduce after every times. And plain power loops e times, too slow.",
      "heads": [
       "Trap",
       "Fix"
@@ -899,9 +899,9 @@
      ],
      "notes": [
       {
-       "x": 510,
-       "y": 870,
-       "text": "stop: 7² = 49 > 30",
+       "x": 1420,
+       "y": 770,
+       "text": "7² > 30",
        "tone": "warn",
        "cue": "past thirty"
       }
@@ -1127,7 +1127,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Sieve up to one hundred. Which prime is the last whose multiples get crossed out? Pause and predict.",
+     "say": "Quick check. Sieve up to one hundred. Which prime is the last whose multiples get crossed out? Say your answer out loud.",
      "q": "Sieve up to 100: last prime crossed out?",
      "options": [
       "5",
@@ -1175,7 +1175,7 @@
     {
      "type": "compare",
      "head": "Sieve follow-ups",
-     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i is fine as an int here. So the sieve lists ten primes.",
+     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i is fine as an int here.",
      "heads": [
       "Question",
       "Answer"
@@ -1535,14 +1535,14 @@
     },
     {
      "type": "code",
-     "head": "Fenwick tree in code",
-     "say": "Query goes down: subtract the lowest bit each time, adding subtotals. Lowbit is the value of the lowest one bit: lowbit of six is two. Update goes up: add the lowest bit each time, fixing every subtotal that covers i. Both loops run at most log n times. A range sum is sum of r minus sum of l minus one.",
+     "head": "Query goes down",
      "panels": [
       {
        "file": "sol.cpp",
        "code": "long long t[6]; int n = 5;\nvoid add(int i, long long v) {\n    for (; i <= n; i += i & -i) t[i] += v;\n}\nlong long sum(int i) {\n    long long s = 0;\n    for (; i > 0; i -= i & -i) s += t[i];\n    return s;\n}"
       }
      ],
+     "say": "Query goes down: subtract the lowest bit each time, adding subtotals. Lowbit is the value of the lowest one bit. Lowbit of six is two. A range sum is sum of r minus sum of l minus one.",
      "steps": [
       {
        "lines": [
@@ -1558,20 +1558,6 @@
         7
        ],
        "cue": "Lowbit is"
-      },
-      {
-       "lines": [
-        2,
-        3
-       ],
-       "cue": "Update goes up"
-      },
-      {
-       "lines": [
-        3,
-        7
-       ],
-       "cue": "Both loops run"
       }
      ],
      "notes": [
@@ -1583,18 +1569,86 @@
        "cue": "subtract the lowest bit"
       },
       {
-       "line": 3,
-       "inside": true,
-       "text": "up: i += lowbit",
-       "tone": "good",
-       "cue": "add the lowest bit"
-      },
-      {
        "line": 8,
        "inside": true,
        "text": "range: sum(r) − sum(l−1)",
        "tone": "warn",
        "cue": "A range sum"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Update goes up",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "long long t[6]; int n = 5;\nvoid add(int i, long long v) {\n    for (; i <= n; i += i & -i) t[i] += v;\n}\nlong long sum(int i) {\n    long long s = 0;\n    for (; i > 0; i -= i & -i) s += t[i];\n    return s;\n}"
+      }
+     ],
+     "say": "Update goes up: add the lowest bit each time, fixing every subtotal that covers i. Both loops run at most log n times.",
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Update goes up"
+      },
+      {
+       "lines": [],
+       "cue": "Both loops run"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "up: i += lowbit",
+       "tone": "good",
+       "cue": "add the lowest bit"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Now you try. After the update the array is five, five, nine, one, seven. What is the sum of the first three? Name it before I do.",
+     "q": "After the update, sum of the first 3 values?",
+     "options": [
+      "16",
+      "17",
+      "19",
+      "20"
+     ],
+     "answer": 2,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "sum(3) after the update",
+     "say": "Nineteen. Start at i equals three: add t three, nine. Drop the lowest bit: i is two. Add t two, now ten. Drop again: i is zero, stop. Nine plus ten is nineteen.",
+     "items": [
+      {
+       "label": "i = 3",
+       "text": "+ t3 = 9",
+       "cue": "add t three"
+      },
+      {
+       "label": "i = 2",
+       "text": "+ t2 = 10",
+       "cue": "Add t two"
+      },
+      {
+       "label": "i = 0",
+       "text": "stop",
+       "tone": "dim",
+       "cue": "i is zero"
+      },
+      {
+       "label": "total",
+       "text": "19",
+       "tone": "good",
+       "cue": "is nineteen"
       }
      ]
     },
@@ -1638,51 +1692,9 @@
      }
     },
     {
-     "type": "quiz",
-     "say": "Your turn. After the update the array is five, five, nine, one, seven. What is the sum of the first three? Pause and predict.",
-     "q": "After the update, sum of the first 3 values?",
-     "options": [
-      "16",
-      "17",
-      "19",
-      "20"
-     ],
-     "answer": 2,
-     "pause": 6
-    },
-    {
-     "type": "flow",
-     "head": "sum(3) after the update",
-     "say": "Nineteen. Start at i equals three: add t three, nine. Drop the lowest bit: i is two. Add t two, now ten. Drop again: i is zero, stop. Nine plus ten is nineteen.",
-     "items": [
-      {
-       "label": "i = 3",
-       "text": "+ t3 = 9",
-       "cue": "add t three"
-      },
-      {
-       "label": "i = 2",
-       "text": "+ t2 = 10",
-       "cue": "Add t two"
-      },
-      {
-       "label": "i = 0",
-       "text": "stop",
-       "tone": "dim",
-       "cue": "i is zero"
-      },
-      {
-       "label": "total",
-       "text": "19",
-       "tone": "good",
-       "cue": "is nineteen"
-      }
-     ]
-    },
-    {
      "type": "compare",
      "head": "Fenwick traps",
-     "say": "Index zero is the classic bug: the loop never moves. Fenwick needs an operation you can subtract, like sums. For min or max, use a segment tree. That's how Fenwick answers seventeen, then twenty.",
+     "say": "Index zero is the classic bug: the loop never moves. Fenwick needs an operation you can subtract, like sums. For min or max, use a segment tree.",
      "heads": [
       "Trap",
       "Why"
@@ -1715,15 +1727,15 @@
     {
      "type": "problem",
      "title": "Range minimum with updates",
-     "statement": "Find the smallest value in a range while values change.",
+     "statement": "Find the smallest value in a half-open range [l, r) while values change.",
      "example": {
-      "input": "[5, 2, 9, 1]: min of positions 1 to 3",
+      "input": "[5, 2, 9, 1]: min over [1, 4)",
       "output": "1"
      },
-     "say": "Five, two, nine, one. What's the smallest value among positions one to three? One. And the values can change.",
+     "say": "Five, two, nine, one. Half open means start included, end excluded. Smallest from one to four? One. And the values can change.",
      "cues": {
       "example": "Five, two, nine, one",
-      "output": "One. And"
+      "output": "Smallest from one"
      }
     },
     {
@@ -1837,7 +1849,7 @@
     {
      "type": "diagram",
      "head": "Query: take whole blocks",
-     "say": "Min of positions one to three. Take the leaf holding two. Then the block above nine and one, which already holds one. Min of two and one: one. Two blocks, not three leaves.",
+     "say": "Min over the half open range, one to four, four excluded. Take the leaf holding two. Then the block above nine and one, which already holds one. Min of two and one: one. Two pieces, not three leaves.",
      "items": [
       {
        "tree": {
@@ -1881,11 +1893,11 @@
        "y": 420,
        "w": 360,
        "h": 120,
-       "label": "min of 1..3",
+       "label": "min of [1, 4)",
        "text": "?",
        "size": 56,
        "tone": "info",
-       "cue": "Min of positions"
+       "cue": "Min over the half"
       }
      ],
      "changes": [
@@ -1962,7 +1974,7 @@
     {
      "type": "code",
      "head": "Query in code",
-     "say": "For a query over the half open range l to r, where l is in and r is out, start at both leaves and walk inward. If l is a right child, take it and step right. If r is a right edge, step left and take it. Only whole blocks: O of log n.",
+     "say": "Half open means start included, end excluded, so l is in and r is out. Start at both leaves and walk inward. If l is odd, take it and step right. If r is odd, step left and take it. Only whole blocks: O of log n.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1972,27 +1984,27 @@
      "steps": [
       {
        "lines": [
-        2
+        1
        ],
-       "cue": "half open range"
+       "cue": "Half open means"
       },
       {
        "lines": [
         3
        ],
-       "cue": "start at both leaves"
+       "cue": "Start at both leaves"
       },
       {
        "lines": [
         4
        ],
-       "cue": "If l is"
+       "cue": "If l is odd"
       },
       {
        "lines": [
         5
        ],
-       "cue": "If r is"
+       "cue": "If r is odd"
       },
       {
        "lines": [],
@@ -2011,8 +2023,8 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. After setting position one to eight, what is the min of positions zero and one? Pause and predict.",
-     "q": "After update(1, 8): min of positions 0 and 1?",
+     "say": "Last check. After setting position one to eight, what is the min over the range zero up to, not including, two? Hold your guess.",
+     "q": "After update(1, 8): min over [0, 2)?",
      "options": [
       "1",
       "2",
@@ -2069,7 +2081,7 @@
        "y": 420,
        "w": 360,
        "h": 120,
-       "label": "min of 0..1",
+       "label": "min of [0, 2)",
        "text": "?",
        "size": 56,
        "tone": "info"
@@ -2106,7 +2118,7 @@
     {
      "type": "compare",
      "head": "Segment tree vs Fenwick",
-     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building either one is linear, built bottom up. And the query range is half open: r is excluded. That's how the tree finds the minimum.",
+     "say": "Fenwick for sums, short code. Segment tree for min and max. Range updates? Lazy propagation keeps pending updates, pushed down when needed. Query range? Half open: start included, end excluded. Build time? Fenwick, n adds, O of n log n. Segment tree, O of n.",
      "heads": [
       "Question",
       "Answer"
@@ -2118,22 +2130,22 @@
       ],
       [
        "Range updates?",
-       "lazy propagation: the usual follow-up"
-      ],
-      [
-       "Build time?",
-       "O(n) for both, built bottom up"
+       "lazy propagation: pending updates pushed down"
       ],
       [
        "Query range",
        "half open [l, r)"
+      ],
+      [
+       "Build time?",
+       "Fenwick: n adds, O(n log n); segment tree: O(n)"
       ]
      ],
      "cues": [
       "Fenwick for sums",
-      "lazy range",
-      "Building",
-      "half open"
+      "Range updates",
+      "Query range",
+      "Build time"
      ]
     }
    ]
@@ -2152,7 +2164,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Why mod one billion seven? Prime, and products fit in sixty four bits. Fast power? O of log e. Inverse? Fermat, prime modulus only. GCD? Euclid: the pair becomes the second number and the remainder, O of log n. Sieve? n log log n. Mistake? Overflow before the mod.",
+     "say": "Why mod one billion seven? Prime, and products fit in sixty four bits. Fast power? O of log e. Inverse? Fermat, prime modulus only. GCD? Euclid: the pair becomes the second number and the remainder, O of log n. Sieve time? n log log n. Mistake? Overflow before the mod.",
      "rows": [
       [
        "Why mod 1e9+7?",
@@ -2171,8 +2183,12 @@
        "Euclid: gcd(a, b) = gcd(b, a mod b), O(log n)"
       ],
       [
-       "Sieve time? Mistake?",
-       "n log log n; overflow before mod"
+       "Sieve time?",
+       "O(n log log n)"
+      ],
+      [
+       "Mistake?",
+       "overflow before mod"
       ]
      ],
      "cues": [
@@ -2180,7 +2196,8 @@
       "Fast power",
       "Inverse",
       "GCD",
-      "Sieve"
+      "Sieve",
+      "Mistake"
      ]
     },
     {
@@ -2193,7 +2210,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Range sums with updates? Fenwick or segment tree, O of log n each. Which one? Fenwick for sums, segment tree for min, max, lazy. Why lowbit? Cell i covers lowbit i values. Mistake? Fenwick is one indexed.",
+     "say": "Range sums with updates? Fenwick or segment tree, O of log n each. Which one? Fenwick for sums, segment tree for min, max, lazy. Why lowbit? Cell i sums lowbit values ending at i, so steps jump whole blocks. Mistake? Fenwick is one indexed.",
      "rows": [
       [
        "Range sums, updates?",
@@ -2205,7 +2222,7 @@
       ],
       [
        "Why lowbit?",
-       "cell i covers lowbit(i) values"
+       "cell i holds the sum of the lowbit(i) values ending at i, so each loop step jumps a whole block"
       ],
       [
        "Common mistake?",
