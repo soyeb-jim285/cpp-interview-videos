@@ -1,0 +1,1639 @@
+{
+ "id": "cpp-12",
+ "track": "C++",
+ "num": 12,
+ "title": "Using Containers Well: Algorithms & Idioms",
+ "covers": [
+  "q79",
+  "q80",
+  "q81",
+  "q82",
+  "q83",
+  "q84",
+  "q85"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "push back",
+   "push_back"
+  ],
+  [
+   "emplace back",
+   "emplace_back"
+  ],
+  [
+   "stable sort",
+   "stable_sort"
+  ],
+  [
+   "priority queue",
+   "priority_queue"
+  ],
+  [
+   "erase remove",
+   "erase-remove"
+  ],
+  [
+   "remove if",
+   "remove_if"
+  ],
+  [
+   "erase if",
+   "erase_if"
+  ],
+  [
+   "make heap",
+   "make_heap"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Filling a vector well",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Two lines add a point to a vector. One builds it twice, the other once. By the end, you'll write the erase remove idiom from memory, and pick the right container and sort for any task.",
+     "lines": [
+      {
+       "text": "push_back: build, then move",
+       "cue": "builds it twice"
+      },
+      {
+       "text": "emplace_back: build in place",
+       "cue": "the other once"
+      },
+      {
+       "text": "erase-remove, from memory",
+       "cue": "erase remove idiom",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Interviewers ask these seven questions again and again. Today you count constructor calls, and tell reserve from resize. Then you choose a container and a sort, see a heap inside a vector, and delete the right way.",
+     "lines": [
+      "Count constructors; reserve versus resize",
+      "Pick a container, a comparator, a sort",
+      "Heap inside a vector; erase-remove"
+     ],
+     "cues": [
+      "count constructor calls",
+      "choose a container",
+      "delete the right way"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Who builds the point?",
+     "statement": "Add the point one, two to a vector two ways. Count the constructor and move calls in each way.",
+     "example": {
+      "input": "push_back(P(1,2)) vs emplace_back(1,2)",
+      "output": "ctor + move, against one ctor"
+     },
+     "say": "Here is the problem. Add a point to a vector two ways. For example, push back of a finished point, and emplace back of two numbers. Count the calls.",
+     "cues": {
+      "example": "For example",
+      "output": "Count the calls"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Cooking at the table",
+     "say": "Think of a restaurant. Push back cooks the dish in the kitchen, carries it over, and throws the pan away. Emplace back cooks it right at the table. Same dish, fewer steps.",
+     "items": [
+      {
+       "label": "push_back",
+       "text": "temporary",
+       "cue": "Push back cooks",
+       "sub": "built outside"
+      },
+      {
+       "label": "then",
+       "text": "move in",
+       "cue": "carries it over",
+       "sub": "into the slot"
+      },
+      {
+       "label": "then",
+       "text": "destroy",
+       "cue": "throws the pan",
+       "sub": "temp dies"
+      },
+      {
+       "label": "emplace_back",
+       "text": "in place",
+       "cue": "Emplace back cooks",
+       "sub": "built in the slot",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Count the constructor calls",
+     "say": "The struct prints which constructor runs. Push back takes a finished object. So P of one, two is built, then moved in. Emplace back takes the arguments, and builds the element in place. We reserve first, so growth adds no extra moves.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct P {\n  P(int, int) { cout << \"ctor\\n\"; }\n  P(P&&) noexcept { cout << \"move\\n\"; }\n};\nvector<P> v;\nv.reserve(2);\nv.push_back(P(1, 2));\nv.emplace_back(1, 2);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "prints which constructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "finished object"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "built, then moved in"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "builds the element in place"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "reserve first"
+      }
+     ],
+     "output": {
+      "cmd": "./emp",
+      "text": "ctor\nmove\nctor",
+      "cue": "in place",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We already hold a string s, and write emplace back of s. Copy, move, or something cleverer? Pause and predict.",
+     "q": "`string s = \"hi\"; v.emplace_back(s);` What runs?",
+     "options": [
+      "a move",
+      "a copy",
+      "nothing",
+      "in-place only"
+     ],
+     "answer": "a copy"
+    },
+    {
+     "type": "code",
+     "head": "Emplace is not magic",
+     "say": "A copy. Emplace back of an existing object still copies it, same as push back. It wins with a literal: push back builds a temporary string first. The trap: emplace back can call explicit constructors. Push back of a raw new won't compile. Emplace back does, and can leak.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<string> v;\nstring s = \"hi\";\nv.push_back(s);\nv.emplace_back(s);\nv.emplace_back(\"hi\");\n\nvector<unique_ptr<int>> w;\nw.push_back(new int(1));\nw.emplace_back(new int(1));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "existing object"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "a literal"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "temporary string"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "explicit constructors"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "won't compile"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "can leak"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "copy, like push_back",
+       "tone": "warn",
+       "cue": "existing object"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "error: explicit ctor",
+       "tone": "bad",
+       "cue": "won't compile"
+      },
+      {
+       "line": 9,
+       "inside": true,
+       "text": "leaks if growth throws",
+       "tone": "bad",
+       "cue": "can leak"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "reserve is not resize",
+     "say": "Now a second mix-up. Reserve four only allocates: size stays zero. Resize four creates four zeros: size four. Push back seven onto each. The reserved vector gets one element. The resized one gets five. That is the classic bug.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> a, b;\na.reserve(4);\nb.resize(4);\na.push_back(7);\nb.push_back(7);\ncout << a.size() << ' ' << b.size();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Reserve four"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Resize four"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Push back seven"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "classic bug"
+      }
+     ],
+     "output": {
+      "cmd": "./rr",
+      "text": "1 5",
+      "cue": "The resized one",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "reserve versus resize",
+     "say": "Reserve only allocates. Resize changes the size, and creates zeros. Index after reserve? Undefined, no element exists. Resize can shrink size, not capacity. Reserve before push back loops. Resize to index.",
+     "heads": [
+      "reserve(n)",
+      "resize(n)"
+     ],
+     "rows": [
+      [
+       "size unchanged; no elements",
+       "size becomes n; creates elements"
+      ],
+      [
+       "`v[0]` is undefined",
+       "`v[0]` is fine"
+      ],
+      [
+       "never shrinks",
+       "size shrinks, capacity stays"
+      ]
+     ],
+     "cues": [
+      "Reserve only",
+      "Index after",
+      "Resize can shrink"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Which container?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which sequence container?",
+     "statement": "Three containers hold a sequence. Choose by memory layout: random access, fast front, cheap middle inserts.",
+     "example": {
+      "input": "vector, deque or list?",
+      "output": "vector by default"
+     },
+     "say": "Next problem. Vector, deque, or list. For example, a job queue, and a list you splice. Which layout fits? Mostly, vector.",
+     "cues": {
+      "example": "For example",
+      "output": "Mostly, vector"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Shelf, rows, treasure hunt",
+     "say": "Think of a bookshelf, a set of shelf rows, and a treasure hunt. A vector is one long shelf. A deque is short rows plus an index card. A list is a treasure hunt: every clue points to the next.",
+     "items": [
+      {
+       "label": "vector",
+       "text": "one block",
+       "cue": "A vector is",
+       "sub": "contiguous"
+      },
+      {
+       "label": "deque",
+       "text": "chunks",
+       "cue": "A deque is",
+       "sub": "plus an index"
+      },
+      {
+       "label": "list",
+       "text": "nodes",
+       "cue": "A list is",
+       "sub": "two pointers each",
+       "tone": "warn"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The numbers behind the layout",
+     "say": "Random access: vector and deque are one step. List must walk. Front inserts: vector shifts everything, the other two don't. Middle inserts: only list, if you hold an iterator. Memory: list pays two pointers per element. Cache: vector wins by far.",
+     "heads": [
+      "vector",
+      "deque",
+      "list"
+     ],
+     "rows": [
+      [
+       "O(1)",
+       "O(1)",
+       "O(n) walk"
+      ],
+      [
+       "O(n)",
+       "O(1)",
+       "O(1)"
+      ],
+      [
+       "O(n)",
+       "O(n)",
+       "O(1) at an iterator"
+      ],
+      [
+       "tightest",
+       "chunks + index",
+       "+2 pointers each"
+      ],
+      [
+       "excellent",
+       "good",
+       "poor"
+      ]
+     ],
+     "cues": [
+      "Random access",
+      "Front inserts",
+      "Middle inserts",
+      "Memory:",
+      "Cache:"
+     ],
+     "rowHeads": [
+      "random access",
+      "insert at front",
+      "insert in middle",
+      "memory",
+      "cache use"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A queue: push at the back, pop at the front, a million times. Which container is the usual choice? Pause and predict.",
+     "q": "Queue: push back, pop front, a million times. Best?",
+     "options": [
+      "vector",
+      "deque",
+      "list",
+      "array"
+     ],
+     "answer": "deque"
+    },
+    {
+     "type": "code",
+     "head": "Pick by access pattern",
+     "say": "Deque. It's fast at both ends, and it's the default behind queue and stack. Vector stays the default for everything else: it's cache friendly. List earns its place with stable iterators, and splice, which moves nodes without copying one element.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v;   // default choice\ndeque<int> q;    // both ends: queues\nlist<int> l;     // stable iterators\n\nlist<int> other = {7, 8};\nl.splice(l.begin(), other);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "fast at both ends"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "default for everything"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "stable iterators"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "splice"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "moves nodes, copies nothing",
+       "tone": "good",
+       "cue": "without copying"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Sorting with your own rules",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sort by my own rule",
+     "statement": "Sort students by grade, highest first. Ann and Cid both scored ninety. Which one comes first?",
+     "example": {
+      "input": "Ann 90, Bob 85, Cid 90, Dan 85",
+      "output": "Ann, Cid, Bob, Dan"
+     },
+     "say": "Here is the problem. Four students. For example, Ann and Cid tie at ninety. Bob and Dan tie at eighty five. Who comes first in a tie?",
+     "cues": {
+      "example": "For example",
+      "output": "Who comes first"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A comparator answers one question",
+     "say": "A comparator answers: should a come before b? Plain sort uses less than: ascending. Pass a lambda returning a greater than b, and it's descending. The library also ships greater. Any callable that takes two elements and returns bool works.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v = {3, 1, 4, 1, 5};\nsort(v.begin(), v.end());\nsort(v.begin(), v.end(),\n     [](int a, int b) { return a > b; });\nsort(v.begin(), v.end(), greater<int>());"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "uses less than"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "returning a greater than b"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "also ships greater"
+      }
+     ],
+     "output": {
+      "cmd": "./cmp",
+      "text": "1 1 3 4 5",
+      "cue": "ascending",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "In a set, it defines equal",
+     "say": "For a set, the comparator is part of the type. This one orders strings by length. Kiwi, fig, pear go in. What prints? Pause and predict.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct ByLength {\n  bool operator()(const string& a,\n                  const string& b) const {\n    return a.size() < b.size();\n  }\n};\nset<string, ByLength> s =\n    {\"kiwi\", \"fig\", \"pear\"};\nfor (auto& w : s) cout << w << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "orders strings by length"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Kiwi, fig, pear"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "How many words does the set print, and which? Pause and predict.",
+     "q": "`set<string, ByLength>` from kiwi, fig, pear: what prints?",
+     "options": [
+      "fig kiwi pear",
+      "fig kiwi",
+      "fig pear kiwi",
+      "kiwi fig"
+     ],
+     "answer": "fig kiwi"
+    },
+    {
+     "type": "diagram",
+     "head": "Equivalent means not unique",
+     "say": "Fig and kiwi. Where did pear go? A set treats two keys as the same when neither comes first. Kiwi and pear both have length four, so neither is smaller. Pear counts as a duplicate, and is dropped. Your comparator also defines what equal means.",
+     "items": [
+      {
+       "id": "f",
+       "x": 330,
+       "y": 420,
+       "w": 300,
+       "h": 150,
+       "text": "fig",
+       "cue": "fig",
+       "label": "length 3",
+       "tone": "good",
+       "size": 44
+      },
+      {
+       "id": "k",
+       "x": 810,
+       "y": 420,
+       "w": 300,
+       "h": 150,
+       "text": "kiwi",
+       "cue": "kiwi",
+       "label": "length 4",
+       "tone": "good",
+       "size": 44
+      },
+      {
+       "id": "p",
+       "x": 1290,
+       "y": 420,
+       "w": 300,
+       "h": 150,
+       "text": "pear",
+       "cue": "pear",
+       "label": "length 4",
+       "tone": "warn",
+       "size": 44
+      }
+     ],
+     "changes": [
+      {
+       "id": "k",
+       "glow": true,
+       "tone": "warn",
+       "cue": "neither comes first"
+      },
+      {
+       "id": "p",
+       "kill": true,
+       "cue": "dropped"
+      }
+     ],
+     "notes": [
+      {
+       "x": 700,
+       "y": 700,
+       "text": "neither is smaller: equal",
+       "tone": "warn",
+       "cue": "neither is smaller"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The one rule: strict",
+     "say": "The rule: a comparator must be a strict weak ordering. Comparing an element with itself must give false. Less than or equal breaks that, and with sort it's undefined behavior, even a crash. Use strict less than. For several keys, compare tuples with tie.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "// WRONG: cmp(x, x) is true\nsort(v.begin(), v.end(),\n     [](int a, int b) { return a <= b; });\n\n// several keys: tie does it right\nauto byAgeName = [](const P& a, const P& b) {\n  return tie(a.age, a.name) < tie(b.age, b.name);\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "strict weak ordering"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Less than or equal"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "compare tuples"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "UB, maybe a crash",
+       "tone": "bad",
+       "cue": "undefined behavior"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Stable keeps the tie order",
+     "say": "Back to the students. A stable sort keeps equal elements in their original order. Ann was before Cid, so Ann stays before Cid. Bob was before Dan, so Bob stays before Dan. Plain sort promises only the grades. A tie may come out either way.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "Ann",
+         "Bob",
+         "Cid",
+         "Dan"
+        ],
+        "y": 330,
+        "cue": "the students"
+       }
+      },
+      {
+       "id": "g0",
+       "x": 630,
+       "y": 590,
+       "w": 140,
+       "h": 100,
+       "text": "90",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "g1",
+       "x": 810,
+       "y": 590,
+       "w": 140,
+       "h": 100,
+       "text": "85",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "g2",
+       "x": 990,
+       "y": 590,
+       "w": 140,
+       "h": 100,
+       "text": "90",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "g3",
+       "x": 1170,
+       "y": 590,
+       "w": 140,
+       "h": 100,
+       "text": "85",
+       "tone": "blue",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "c1",
+       "text": "Cid",
+       "tone": "good",
+       "cue": "Ann stays before Cid"
+      },
+      {
+       "id": "g1",
+       "text": "90",
+       "tone": "good",
+       "cue": "Ann stays before Cid"
+      },
+      {
+       "id": "c2",
+       "text": "Bob",
+       "tone": "good",
+       "cue": "Bob stays before Dan"
+      },
+      {
+       "id": "g2",
+       "text": "85",
+       "tone": "good",
+       "cue": "Bob stays before Dan"
+      },
+      {
+       "id": "c0",
+       "glow": true,
+       "cue": "Ann was before Cid"
+      },
+      {
+       "id": "c3",
+       "glow": true,
+       "tone": "warn",
+       "cue": "either way"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "sort versus stable_sort",
+     "say": "Equal elements: sort may reorder them, stable sort keeps them. Algorithms: introsort against merge sort. Cost: both O of n log n. Stable needs a buffer. Sort is usually faster. Use stable sort for passes by several keys.",
+     "heads": [
+      "sort",
+      "stable_sort"
+     ],
+     "rows": [
+      [
+       "ties may be reordered",
+       "ties keep original order"
+      ],
+      [
+       "introsort: quick + heap",
+       "merge sort"
+      ],
+      [
+       "O(n log n), in place",
+       "O(n log n) with a buffer (else n log² n)"
+      ],
+      [
+       "usually faster",
+       "multi-pass, multi-key sorts"
+      ]
+     ],
+     "cues": [
+      "Equal elements",
+      "Algorithms",
+      "Cost:",
+      "Use stable sort"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A heap in a vector",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Always the biggest, fast",
+     "statement": "Push five, one, eight, three into a priority queue. Top must return the biggest in constant time. How is it stored?",
+     "example": {
+      "input": "push 5, 1, 8, 3; top()",
+      "output": "8, in O(1)"
+     },
+     "say": "Next problem. A priority queue. For example, push five, one, eight, three. Top is the biggest, instantly. How does it store them?",
+     "cues": {
+      "example": "For example",
+      "output": "How does it"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "A heap: every parent is the biggest",
+     "say": "Think of a company chart where every boss earns at least as much as their reports. Push five: it is the boss. Push one: a report. Push eight: it lands at the bottom, beats its boss, so they swap. Push three: it beats the one, so they swap. Eight sits on top.",
+     "items": [
+      {
+       "id": "n0",
+       "x": 880,
+       "y": 230,
+       "w": 160,
+       "h": 110,
+       "text": "",
+       "cue": "Push five",
+       "tone": "blue",
+       "size": 44
+      },
+      {
+       "id": "n1",
+       "x": 640,
+       "y": 430,
+       "w": 160,
+       "h": 110,
+       "text": "",
+       "cue": "Push one",
+       "tone": "blue",
+       "size": 44
+      },
+      {
+       "id": "n2",
+       "x": 1120,
+       "y": 430,
+       "w": 160,
+       "h": 110,
+       "text": "",
+       "cue": "Push eight",
+       "tone": "blue",
+       "size": 44
+      },
+      {
+       "id": "n3",
+       "x": 500,
+       "y": 630,
+       "w": 160,
+       "h": 110,
+       "text": "",
+       "cue": "Push three",
+       "tone": "blue",
+       "size": 44
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n0",
+       "to": "n1",
+       "cue": "Push one"
+      },
+      {
+       "from": "n0",
+       "to": "n2",
+       "cue": "Push eight"
+      },
+      {
+       "from": "n1",
+       "to": "n3",
+       "cue": "Push three"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "text": "5",
+       "cue": "Push five"
+      },
+      {
+       "id": "n1",
+       "text": "1",
+       "cue": "a report"
+      },
+      {
+       "id": "n2",
+       "text": "8",
+       "cue": "at the bottom"
+      },
+      {
+       "id": "n0",
+       "text": "8",
+       "tone": "good",
+       "cue": "they swap"
+      },
+      {
+       "id": "n2",
+       "text": "5",
+       "cue": "they swap"
+      },
+      {
+       "id": "n3",
+       "text": "3",
+       "cue": "Push three:"
+      },
+      {
+       "id": "n1",
+       "text": "3",
+       "cue": "beats the one"
+      },
+      {
+       "id": "n3",
+       "text": "1",
+       "cue": "beats the one"
+      },
+      {
+       "id": "n0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Eight sits"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1120,
+       "y": 230,
+       "text": "parent >= child",
+       "tone": "info",
+       "cue": "every boss earns"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The tree is just an array",
+     "say": "No pointers. The tree lives in a vector: eight, three, five, one. Top is index zero. Children of index i sit at two i plus one and two i plus two. Pop moves the last element to the root, and sifts it down.",
+     "items": [
+      {
+       "label": "index 0",
+       "text": "8",
+       "cue": "index zero",
+       "sub": "top: O(1)",
+       "tone": "good"
+      },
+      {
+       "label": "index 1",
+       "text": "3",
+       "cue": "two i plus one",
+       "sub": "child of 0"
+      },
+      {
+       "label": "index 2",
+       "text": "5",
+       "cue": "two i plus two",
+       "sub": "child of 0"
+      },
+      {
+       "label": "index 3",
+       "text": "1",
+       "cue": "Pop moves",
+       "sub": "child of 1"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Pop them all",
+     "say": "Push the four, then pop until empty. Push sifts up, pop sifts down, each O of log n. Out come eight, five, three, one: always the biggest left. Default is a max heap.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "priority_queue<int> pq;\nfor (int x : {5, 1, 8, 3})\n    pq.push(x);\nwhile (!pq.empty()) {\n    cout << pq.top() << ' ';\n    pq.pop();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Push the four"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "pop until empty"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Push sifts up"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "pop sifts down"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "max heap"
+      }
+     ],
+     "output": {
+      "cmd": "./pq",
+      "text": "8 5 3 1",
+      "cue": "eight, five, three, one",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same four numbers, but the queue is declared with greater. What does top return? Pause and predict.",
+     "q": "`priority_queue<int, vector<int>, greater<int>>`: first `top()`?",
+     "options": [
+      "8",
+      "1",
+      "5",
+      "3"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "code",
+     "head": "Min-heap, and the comparator twist",
+     "say": "One. Greater makes a min heap, and you must spell the container too. A custom comparator reads backwards: it returns true when a has lower priority than b. Build from a range is O of n. You can't iterate it, search it, or change a priority.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "priority_queue<int, vector<int>,\n                greater<int>> m;\nfor (int x : {5, 1, 8, 3}) m.push(x);\nwhile (!m.empty()) {\n    cout << m.top() << ' ';\n    m.pop();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "spell the container"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "custom comparator"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Build from a range"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "can't iterate"
+      }
+     ],
+     "output": {
+      "cmd": "./min",
+      "text": "1 3 5 8",
+      "cue": "One.",
+      "tone": "good"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Deleting from a vector",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Delete every two",
+     "statement": "Remove every two from one, two, three, two, four. Do it in one pass, without shifting the tail again and again.",
+     "example": {
+      "input": "{1, 2, 3, 2, 4}, remove 2",
+      "output": "{1, 3, 4}"
+     },
+     "say": "Last problem. Delete from a vector. For example, one, two, three, two, four. Remove the twos. Result: one, three, four.",
+     "cues": {
+      "example": "For example",
+      "output": "Result"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "remove shifts, erase cuts",
+     "say": "Take one, two, three, two, four. Remove the twos. Here's the surprise: remove doesn't erase anything. It shifts the keepers forward: three into slot one, four into slot two. It returns the new logical end. Past it are leftovers, and size is still five. Then erase cuts them, and size is three.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         1,
+         2,
+         3,
+         2,
+         4
+        ],
+        "y": 330,
+        "cue": "one, two, three"
+       }
+      },
+      {
+       "id": "sz",
+       "x": 520,
+       "y": 740,
+       "w": 300,
+       "h": 110,
+       "text": "5",
+       "cue": "size is still five",
+       "label": "size",
+       "tone": "good",
+       "size": 56
+      },
+      {
+       "id": "it",
+       "x": 1080,
+       "y": 570,
+       "w": 140,
+       "h": 80,
+       "text": "it",
+       "cue": "returns the new",
+       "size": 36
+      }
+     ],
+     "changes": [
+      {
+       "id": "c1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "doesn't erase anything"
+      },
+      {
+       "id": "c1",
+       "text": "3",
+       "tone": "good",
+       "cue": "three into slot one"
+      },
+      {
+       "id": "c2",
+       "text": "4",
+       "tone": "good",
+       "cue": "four into slot two"
+      },
+      {
+       "id": "c3",
+       "text": "?",
+       "tone": "dim",
+       "cue": "leftovers"
+      },
+      {
+       "id": "c4",
+       "text": "?",
+       "tone": "dim",
+       "cue": "leftovers"
+      },
+      {
+       "id": "c3",
+       "kill": true,
+       "cue": "erase cuts"
+      },
+      {
+       "id": "c4",
+       "kill": true,
+       "cue": "erase cuts"
+      },
+      {
+       "id": "sz",
+       "text": "3",
+       "tone": "good",
+       "cue": "size is three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The idiom, and the modern way",
+     "say": "Put together, it is one line: erase of remove, to the end. Remove if takes a condition. It's one pass, O of n. Erasing matches one by one would be O of n squared. In C plus plus twenty, just call erase or erase if.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "v.erase(remove(v.begin(), v.end(), 2),\n        v.end());\n\nv.erase(remove_if(v.begin(), v.end(),\n          [](int x) { return x % 2 == 0; }),\n        v.end());\n\nerase(v, 2);                    // C++20\nerase_if(v, [](int x) { return x % 2 == 0; });"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "one line"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "takes a condition"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "one pass"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "O of n squared"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "C plus plus twenty"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We forget the second argument: erase of remove, with only one argument, on one, two, three, two, four. How many elements remain? Pause and predict.",
+     "q": "`v.erase(remove(v.begin(), v.end(), 2));` on `{1,2,3,2,4}`: size after?",
+     "options": [
+      "3",
+      "4",
+      "5",
+      "2"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "code",
+     "head": "The classic trap",
+     "say": "Four. With one argument, erase cuts just a single leftover element, so the leftovers stay. And if nothing matched, remove returns end, and erasing end is undefined. Always pass v dot end. For a list, use its own remove member: it unlinks nodes, no shifting.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "v.erase(remove(v.begin(), v.end(), 2));\nv.erase(remove(v.begin(), v.end(), 2),\n        v.end());\n\nlist<int> l = {1, 2, 3, 2};\nl.remove(2);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "just a single leftover"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "nothing matched"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Always pass"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "its own remove member"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "BUG: size 4, not 3",
+       "tone": "bad",
+       "cue": "just a single leftover"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "OK",
+       "tone": "good",
+       "cue": "Always pass"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Push back versus emplace back? Push back takes an object you have. Emplace back takes constructor arguments and builds in place. An existing object still copies.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`push_back(obj)`?",
+       "copies or moves an existing object"
+      ],
+      [
+       "`emplace_back(args)`?",
+       "builds the element in place"
+      ],
+      [
+       "Catch?",
+       "existing objects still copy; explicit ctors allowed"
+      ]
+     ],
+     "cues": [
+      "Push back versus",
+      "Emplace back takes",
+      "An existing object"
+     ],
+     "covers": [
+      "q79"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Vector, deque, list? Vector is one contiguous block, fast and cache friendly. Deque is chunks, fast at both ends. List is linked nodes, with cheap splice. Default to vector.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "vector?",
+       "one block; default, cache friendly"
+      ],
+      [
+       "deque?",
+       "chunks; O(1) at both ends"
+      ],
+      [
+       "list?",
+       "nodes; stable iterators, `splice`"
+      ]
+     ],
+     "cues": [
+      "Vector, deque",
+      "Deque is",
+      "List is"
+     ],
+     "covers": [
+      "q80"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Custom comparator? A function answering: does a come before b? It must be strict: comparing x with itself gives false. Never less than or equal. In a set, it also defines equality.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Comparator?",
+       "answers: does `a` come before `b`?"
+      ],
+      [
+       "The rule?",
+       "strict weak ordering: `cmp(x, x)` is false"
+      ],
+      [
+       "In a set?",
+       "also defines which keys are equal"
+      ]
+     ],
+     "cues": [
+      "Custom comparator",
+      "It must be strict",
+      "In a set"
+     ],
+     "covers": [
+      "q81"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Priority queue? A binary heap in a vector. Top is O of one. Push and pop are O of log n. Max heap by default. Greater gives a min heap.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does it work?",
+       "binary heap stored in a vector"
+      ],
+      [
+       "Costs?",
+       "top O(1); push, pop O(log n)"
+      ],
+      [
+       "Min-heap?",
+       "pass `greater<int>`"
+      ]
+     ],
+     "cues": [
+      "Priority queue",
+      "Top is",
+      "Max heap by default"
+     ],
+     "covers": [
+      "q82"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Sort versus stable sort? Stable sort keeps equal elements in their original order. Both O of n log n, sort is usually faster. Use stable for multi-key passes.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Difference?",
+       "stable keeps the order of equal elements"
+      ],
+      [
+       "Cost?",
+       "both O(n log n); stable needs a buffer"
+      ],
+      [
+       "Use stable when?",
+       "ties matter, multi-pass sorting"
+      ]
+     ],
+     "cues": [
+      "Sort versus",
+      "Both O of n log n",
+      "Use stable"
+     ],
+     "covers": [
+      "q83"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Erase remove idiom? Remove only shifts keepers forward and returns the new end. Erase then cuts the leftovers. In C plus plus twenty, call erase or erase if.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What does `remove` do?",
+       "shifts keepers forward; returns new end"
+      ],
+      [
+       "Then?",
+       "`erase(it, v.end())` cuts the rest"
+      ],
+      [
+       "C++20?",
+       "`std::erase`, `std::erase_if`"
+      ]
+     ],
+     "cues": [
+      "Erase remove idiom",
+      "Erase then",
+      "In C plus plus twenty"
+     ],
+     "covers": [
+      "q84"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Reserve versus resize? Reserve allocates, size stays zero. Resize creates elements, size becomes n. Reserve before push back, resize before indexing.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`reserve(n)`?",
+       "allocates only; no elements"
+      ],
+      [
+       "`resize(n)`?",
+       "changes size; creates elements"
+      ],
+      [
+       "Which when?",
+       "reserve + push_back; resize + index"
+      ]
+     ],
+     "cues": [
+      "Reserve versus",
+      "Resize creates",
+      "Reserve before"
+     ],
+     "covers": [
+      "q85"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode twenty seven, Remove Element, is the erase remove idea. LeetCode two fifteen, Kth Largest Element in an Array, uses a priority queue. LeetCode fifty six, Merge Intervals, sorts with a comparator.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 27 · Remove Element",
+       "erase-remove"
+      ],
+      [
+       "LeetCode 215 · Kth Largest Element in an Array",
+       "`priority_queue`"
+      ],
+      [
+       "LeetCode 56 · Merge Intervals",
+       "sort with a comparator"
+      ]
+     ],
+     "cues": [
+      "LeetCode twenty seven",
+      "LeetCode two fifteen",
+      "LeetCode fifty six"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Emplace builds in place, reserve only makes room. A comparator must be strict, and stable sort keeps ties. A heap is an array, and erase remove is two steps.",
+     "lines": [
+      "Emplace builds in place; reserve only makes room.",
+      "Comparators are strict; stable_sort keeps ties.",
+      "A heap is an array. Erase-remove is two steps."
+     ],
+     "cues": [
+      "Emplace builds",
+      "comparator must be strict",
+      "A heap is an array"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}

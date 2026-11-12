@@ -343,8 +343,8 @@
      "head": "array versus vector",
      "say": "Array: fixed size, part of its type. Vector: size chosen at run time. The array keeps ints inline, with no allocation. Moving a vector steals the buffer. An array copies every int. Default to vector. Use array for small, fixed data.",
      "heads": [
-      "`array`",
-      "`vector`"
+      "array",
+      "vector"
      ],
      "rows": [
       [
@@ -916,8 +916,8 @@
      "head": "Insert, find, erase",
      "say": "Map: all three O of log n, guaranteed. Unordered: O of one on average. Worst case, one bucket takes all keys: O of n. A rehash costs O of n, but it's rare. String keys cost their length. Map needs less than. Unordered needs a hash and equality.",
      "heads": [
-      "`map`",
-      "`unordered_map`"
+      "map",
+      "unordered_map"
      ],
      "rows": [
       [
@@ -1080,8 +1080,8 @@
      "head": "Set versus unordered set",
      "say": "Compile error: no hash for Point. Tree against hash table, sorted against any order. O of log n guaranteed, against O of one average. Need order, ranges, min or max? Set. Plain membership tests? Unordered set.",
      "heads": [
-      "`set`",
-      "`unordered_set`"
+      "set",
+      "unordered_set"
      ],
      "rows": [
       [
