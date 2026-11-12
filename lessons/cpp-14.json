@@ -95,7 +95,7 @@
     {
      "type": "diagram",
      "head": "Watch the stack",
-     "say": "No: x is gone. Here's why. main calls getValue. A new stack frame appears, with x holding ten. getValue returns its address, and p stores it. But the frame is popped the moment it returns. The next call reuses that memory. Reading star p is undefined: ten, garbage, or a crash.",
+     "say": "No: x is gone. Here's why. main calls getValue. Each call gets a stack frame, the memory for its locals. A new stack frame appears, with x holding ten. getValue returns its address, and p stores it. But the frame is popped the moment it returns. The next call reuses that memory. Reading star p is undefined: ten, garbage, or a crash.",
      "items": [
       {
        "id": "m",
@@ -158,8 +158,8 @@
     },
     {
      "type": "code",
-     "head": "The compiler warns, and two fixes",
-     "say": "Good news: the compiler warns. Read it. Fix one: return the int by value. Copying an int is free. Fix two: if it must outlive the call, build it on the heap, memory that lasts until you free it. A unique pointer owns that memory, and frees it for you.",
+     "head": "The compiler warns, and fix one",
+     "say": "Good news: the compiler warns. Read it. Fix one: return the int by value. Copying an int is free.",
      "panels": [
       {
        "file": "value.cpp",
@@ -192,18 +192,6 @@
       {
        "lines": [],
        "cue": "is free"
-      },
-      {
-       "lines": [],
-       "cue": "build it on the heap"
-      },
-      {
-       "lines": [],
-       "cue": "memory that lasts"
-      },
-      {
-       "lines": [],
-       "cue": "owns that memory"
       }
      ],
      "output": {
@@ -212,6 +200,39 @@
       "cue": "Read it",
       "tone": "bad"
      }
+    },
+    {
+     "type": "code",
+     "head": "Fix two: build it on the heap",
+     "say": "Fix two: if it must outlive the call, build it on the heap, memory that lasts until you free it. A unique pointer owns that memory, and frees it for you.",
+     "panels": [
+      {
+       "file": "heap.cpp",
+       "label": "fix two",
+       "tone": "good",
+       "code": "unique_ptr<int> getValue() {\n  return make_unique<int>(10);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "build it on the heap"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "memory that lasts"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "owns that memory"
+      }
+     ]
     }
    ]
   },
@@ -309,8 +330,8 @@
     },
     {
      "type": "code",
-     "head": "Catch it, then make it impossible",
-     "say": "Address Sanitizer catches it at once, and names it: heap use after free. A band aid: null the pointer after delete, so a later star p fails fast. But other copies still dangle. The real fix: make unique. No manual delete, and no way to touch freed memory.",
+     "head": "Catch it, then a band aid",
+     "say": "Address Sanitizer, a memory checker built into the compiler, catches it at once and names it: heap use after free. A band aid: null the pointer after delete, so a later star p fails fast.",
      "panels": [
       {
        "file": "main.cpp",
@@ -319,10 +340,10 @@
        "code": "int main() {\n  int* p = new int(5);\n  delete p;\n  cout << *p;\n}"
       },
       {
-       "file": "fixed.cpp",
-       "label": "fix",
-       "tone": "good",
-       "code": "int main() {\n  auto p = make_unique<int>(5);\n  cout << *p;\n}"
+       "file": "band_aid.cpp",
+       "label": "band aid",
+       "tone": "warn",
+       "code": "int main() {\n  int* p = new int(5);\n  delete p;\n  p = nullptr;  // null it\n  cout << *p;\n}"
       }
      ],
      "steps": [
@@ -335,29 +356,17 @@
       },
       {
        "lines": [
-        3
+        4
        ],
-       "panel": 0,
+       "panel": 1,
        "cue": "null the pointer"
       },
       {
        "lines": [
-        4
-       ],
-       "panel": 0,
-       "cue": "fails fast"
-      },
-      {
-       "lines": [],
-       "cue": "still dangle"
-      },
-      {
-       "lines": [
-        2,
-        3
+        5
        ],
        "panel": 1,
-       "cue": "make unique"
+       "cue": "fails fast"
       }
      ],
      "output": {
@@ -367,9 +376,35 @@
       "tone": "bad",
       "setup": {
        "main.cpp": "#include <iostream>\n#include <memory>\nusing namespace std;",
-       "fixed.cpp": "#include <iostream>\n#include <memory>\nusing namespace std;"
+       "band_aid.cpp": "#include <iostream>\nusing namespace std;"
       }
      }
+    },
+    {
+     "type": "code",
+     "head": "Make it impossible: make unique",
+     "say": "But other copies still dangle. The real fix: make unique. No manual delete, and no way to touch freed memory.",
+     "panels": [
+      {
+       "file": "fixed.cpp",
+       "label": "fix",
+       "tone": "good",
+       "code": "int main() {\n  auto p = make_unique<int>(5);\n  cout << *p;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [],
+       "cue": "still dangle"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "make unique"
+      }
+     ]
     }
    ]
   },
@@ -731,7 +766,7 @@
     {
      "type": "diagram",
      "head": "A shallow copy",
-     "say": "Twice. We never wrote a copy constructor, so the compiler's copies each member. It copies the pointer, not the int. Two objects now own one int. At the end, b is destroyed and deletes it. Then a deletes the same address again. A double delete, and glibc aborts.",
+     "say": "Twice. We never wrote a copy constructor, so the compiler's copies each member. It copies the pointer, not the int. Two objects now own one int. At the end, b is destroyed and deletes it. Then a deletes the same address again. A double delete, and glibc, the C library's allocator, aborts.",
      "items": [
       {
        "id": "a",
@@ -784,8 +819,8 @@
      "changes": [
       {
        "id": "blk",
-       "kill": true,
-       "cue": "b is destroyed"
+       "cue": "b is destroyed",
+       "fade": true
       },
       {
        "id": "a",
@@ -807,20 +842,18 @@
      ],
      "steps": [
       {
-       "lines": [],
-       "cue": "Rule of Three"
-      },
-      {
-       "lines": [
-        10
-       ],
-       "cue": "needs a destructor"
-      },
-      {
        "lines": [
         5
        ],
        "cue": "needs a copy constructor"
+      },
+      {
+       "lines": [
+        6,
+        7,
+        8
+       ],
+       "cue": "copy assignment too"
       },
       {
        "lines": [
@@ -830,9 +863,7 @@
       },
       {
        "lines": [
-        6,
-        7,
-        8
+        7
        ],
        "cue": "Assignment copies"
       },
@@ -853,13 +884,13 @@
        "file": "zero.cpp",
        "label": "Rule of Zero",
        "tone": "good",
-       "code": "class User {\npublic:\n  int data = 10;\n};\nUser a;\nUser b = a;   // copies"
+       "code": "class User {\npublic:\n  int data = 10;\n};\nint main() {\n  User a;\n  User b = a;   // copies\n}"
       },
       {
        "file": "unique.cpp",
        "label": "unique_ptr",
        "tone": "good",
-       "code": "#include <memory>\nusing namespace std;\nclass User {\npublic:\n  unique_ptr<int> data =\n    make_unique<int>(10);\n};\nUser a;\n// User b = a; // won't compile"
+       "code": "#include <memory>\nusing namespace std;\nclass User {\npublic:\n  unique_ptr<int> data =\n    make_unique<int>(10);\n};\nint main() {\n  User a;\n  // User b = a; // error\n}"
       }
      ],
      "steps": [
@@ -872,7 +903,7 @@
       },
       {
        "lines": [
-        6
+        7
        ],
        "panel": 0,
        "cue": "copy is correct"
@@ -891,7 +922,7 @@
       },
       {
        "lines": [
-        9
+        10
        ],
        "panel": 1,
        "cue": "won't compile"
@@ -948,7 +979,7 @@
       ],
       [
        "Prevent it?",
-       "`unique_ptr`; test with `-fsanitize=address`"
+       "`unique_ptr`; test with Address Sanitizer"
       ]
      ],
      "cues": [
@@ -963,10 +994,10 @@
     {
      "type": "take",
      "kicker": "Say it in 20 seconds",
-     "say": "How many prints? One Constructor, two Destructors. Why? B equals a is the silent copy constructor. Order? B dies first, then a.",
+     "say": "How many prints? One Constructor, two Destructors. Why? Test b built from a is the silent copy constructor, not assignment. Order? B dies first, then a.",
      "lines": [
       "How many prints? 1 Constructor, 2 Destructor",
-      "Why? `b = a` is the silent copy constructor",
+      "Why? `Test b = a;` is the silent copy constructor",
       "Order? b is destroyed first, then a"
      ],
      "cues": [
@@ -1048,7 +1079,7 @@
       ],
       [
        "LeetCode 155 · Min Stack",
-       "a vector that grows: keep indexes"
+       "a vector that grows: return values"
       ],
       [
        "LeetCode 707 · Design Linked List",
