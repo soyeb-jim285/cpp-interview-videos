@@ -277,7 +277,7 @@ function sceneProblem(sc, sid, sfx) {
 
 // spoken -> written forms for captions
 const CAPS = [[/\bnull p t r\b/g, "nullptr"], [/\bs t d colon colon (\w+)/g, "std::$1"], [/\bs t d\b/g, "std"], [/\b(\w+) colon colon (\w+)/g, "$1::$2"], [/\bC plus plus eleven\b/g, "C++11"], [/\bC plus plus seventeen\b/g, "C++17"], [/\bC plus plus\b/g, "C++"], [/\b[Pp]lus plus ([a-z])\b/g, "++$1"], [/\b([a-z]) plus plus\b/g, "$1++"], [/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")]];
-const capfix = (s, spec) => hlInline([...CAPS, ...(spec.caps || []).map(([a, b]) => [new RegExp(a, "g"), b])].reduce((x, [a, b]) => x.replace(a, b), s));
+const capfix = (s, spec) => hlInline([...CAPS, ...(spec.caps || []).map(([a, b]) => [new RegExp(`${/^\w/.test(a) ? "\\b" : ""}${a}${/\w$/.test(a) ? "\\b" : ""}`, "g"), b])].reduce((x, [a, b]) => x.replace(a, b), s));
 // Reveal times for the audit (audit.sh): every tween that brings something in, merged within 0.5 s.
 export function revealsOf(scene, t0, tweens) {
   const hits = [{ t: r3(t0), what: "scene start" }];
