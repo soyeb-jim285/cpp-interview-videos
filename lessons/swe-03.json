@@ -1384,7 +1384,7 @@
        "w": 420,
        "h": 130,
        "text": "strategy",
-       "sub": "crypto = 1 class",
+       "sub": "crypto = class + entry",
        "tone": "good",
        "cue": "strategy for payment"
       },
