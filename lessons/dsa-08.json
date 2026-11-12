@@ -1848,7 +1848,7 @@
     {
      "type": "compare",
      "head": "Practice before your interview",
-     "say": "Solve these three next. LeetCode one oh four, maximum depth, is today's depth function. LeetCode ninety eight, validate binary search tree, is the inorder idea. LeetCode two oh eight, implement trie, is today's trie.",
+     "say": "Solve these three next. LeetCode one oh four, maximum depth, is today's height function. LeetCode ninety eight, validate binary search tree, is the inorder idea. LeetCode two oh eight, implement trie, is today's trie.",
      "heads": [
       "Solve next",
       "Why"
@@ -1856,7 +1856,7 @@
      "rows": [
       [
        "LeetCode 104 · Maximum Depth of Binary Tree",
-       "today's depth function"
+       "today's height function"
       ],
       [
        "LeetCode 98 · Validate Binary Search Tree",
