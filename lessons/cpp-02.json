@@ -134,9 +134,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ main.cpp",
+      "cmd": "g++ main.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: redefinition of ‘void log(const char*)’",
       "cue": "redefinition error",
+      "setup": {
+       "main.cpp": "#include <iostream>\nint main() {}\n"
+      },
       "tone": "bad"
      }
     },
@@ -248,7 +251,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "using namespace net;\nusing namespace ui;\nlog(\"hi\");\n\nusing net::log;     // one name\nusing namespace std;"
+       "code": "using namespace net;\nusing namespace ui;\nint main() { log(\"hi\"); }\n\nusing net::log;     // one name\nusing namespace std;"
       }
      ],
      "steps": [
@@ -292,9 +295,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ main.cpp",
+      "cmd": "g++ main.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: call of overloaded ‘log(const char [3])’ is ambiguous",
       "cue": "Ambiguous",
+      "setup": {
+       "main.cpp": "#include <iostream>\nnamespace net { void log(const char* m) { std::cout << m; } }\nnamespace ui  { void log(const char* m) { std::cout << m; } }\n"
+      },
       "tone": "bad"
      }
     }
@@ -446,7 +452,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "struct C {\n    int v = 5;\n    C& operator++() { ++v; return *this; }\n    C operator++(int) { C o = *this; ++v; return o; }\n};\nC c;  C a = c++;  C b = ++c;\ncout << a.v << ' ' << b.v << ' ' << c.v;"
+       "code": "struct C {\n    int v = 5;\n    C& operator++() { ++v; return *this; }\n    C operator++(int) { C o = *this; ++v; return o; }\n};\nint main() {\n    C c;  C a = c++;  C b = ++c;\n    cout << a.v << ' ' << b.v << ' ' << c.v;\n}"
       }
      ],
      "steps": [
@@ -476,8 +482,8 @@
       },
       {
        "lines": [
-        6,
-        7
+        7,
+        8
        ],
        "cue": "Run it"
       }
@@ -485,7 +491,10 @@
      "output": {
       "cmd": "./app",
       "text": "5 7 7",
-      "cue": "five, seven, seven"
+      "cue": "five, seven, seven",
+      "setup": {
+       "main.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -654,7 +663,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void print(int x)    { cout << \"int: \" << x << '\\n'; }\nvoid print(double x) { cout << \"double: \" << x << '\\n'; }\nvoid print(const string& s) { cout << \"string: \" << s << '\\n'; }\nprint(42);\nprint(3.14);\nprint(string(\"hi\"));"
+       "code": "void print(int x)    { cout << \"int: \" << x << '\\n'; }\nvoid print(double x) { cout << \"double: \" << x << '\\n'; }\nvoid print(const string& s) { cout << \"string: \" << s << '\\n'; }\nint main() {\n    print(42);\n    print(3.14);\n    print(string(\"hi\"));\n}"
       }
      ],
      "steps": [
@@ -668,19 +677,19 @@
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Call print with"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Three point one four"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "A string picks"
       }
@@ -688,7 +697,10 @@
      "output": {
       "cmd": "./app",
       "text": "int: 42\ndouble: 3.14\nstring: hi",
-      "cue": "decided at compile"
+      "cue": "decided at compile",
+      "setup": {
+       "main.cpp": "#include <iostream>\n#include <string>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -742,7 +754,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int parse(const char* s);\ndouble parse(const char* s);\n\nvoid f(long x);\nvoid f(double x);\nf(5);"
+       "code": "int parse(const char* s);\ndouble parse(const char* s);\n\nvoid f(long x);\nvoid f(double x);\nvoid g() { f(5); }"
       }
      ],
      "steps": [
@@ -777,9 +789,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ main.cpp",
+      "cmd": "g++ -c main.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: ambiguating new declaration of ‘double parse(const char*)’\nerror: call of overloaded ‘f(int)’ is ambiguous",
       "cue": "gives up",
+      "setup": {
+       "main.cpp": "int main() {}\n"
+      },
       "tone": "bad"
      }
     },
@@ -927,7 +942,7 @@
      "say": "Here is the header, with no inline. Each source file compiles fine on its own. The trouble starts at link time. The linker finds sq defined twice, and stops with multiple definition.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "sq.h",
        "code": "// sq.h\nint sq(int x) {\n    return x * x;\n}"
       }
      ],
@@ -951,9 +966,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ a.cpp b.cpp",
-      "text": "multiple definition of `sq(int)'\ncollect2: error: ld returned 1 exit status",
+      "cmd": "g++ a.cpp b.cpp 2>&1 | grep -oE \"multiple definition of [^;]*|error: ld.*\"",
+      "text": "multiple definition of `sq(int)'\nerror: ld returned 1 exit status",
       "cue": "multiple definition",
+      "setup": {
+       "a.cpp": "#include \"sq.h\"\n#include <cstdio>\nint other();\nint main() { std::printf(\"%d %d\\n\", sq(5), other()); }\n",
+       "b.cpp": "#include \"sq.h\"\nint other() { return sq(7); }\n"
+      },
       "tone": "bad"
      }
     },
@@ -963,7 +982,7 @@
      "say": "Add the word inline. Now identical definitions in many files are allowed, and the linker keeps one. That is the one definition rule. The program prints twenty five and forty nine.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "sq.h",
        "code": "// sq.h\ninline int sq(int x) {\n    return x * x;\n}"
       }
      ],
@@ -989,9 +1008,13 @@
       }
      ],
      "output": {
-      "cmd": "./app",
+      "cmd": "g++ a.cpp b.cpp -o app && ./app",
       "text": "25 49",
-      "cue": "prints twenty five"
+      "cue": "prints twenty five",
+      "setup": {
+       "a.cpp": "#include \"sq.h\"\n#include <cstdio>\nint other();\nint main() { std::printf(\"%d %d\\n\", sq(5), other()); }\n",
+       "b.cpp": "#include \"sq.h\"\nint other() { return sq(7); }\n"
+      }
      }
     },
     {
@@ -1400,28 +1423,28 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int i = 1;\ni = i++ + ++i;\nint big = INT_MAX;\nbig = big + 1;"
+       "code": "int main() {\n    int i = 1;\n    i = i++ + ++i;\n    int big = INT_MAX;\n    big = big + 1;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "cue": "two plus plus changes"
       },
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "Sanitizers catch"
       }
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "two writes to i",
        "tone": "bad",
@@ -1429,9 +1452,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ -Wall -g -fsanitize=undefined",
-      "text": "main.cpp:4:9: runtime error: signed integer overflow:\n2147483647 + 1 cannot be represented in type 'int'",
+      "cmd": "g++ -fsanitize=undefined main.cpp && ./a.out 2>&1 | grep -o \"runtime error: signed integer overflow\"",
+      "text": "runtime error: signed integer overflow",
       "cue": "exact line",
+      "setup": {
+       "main.cpp": "#include <climits>\n"
+      },
       "tone": "bad"
      }
     }
@@ -1488,7 +1514,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void f(int)   { cout << \"int\\n\"; }\nvoid f(char*) { cout << \"pointer\\n\"; }\nf(0);\nf(nullptr);"
+       "code": "void f(int)   { cout << \"int\\n\"; }\nvoid f(char*) { cout << \"pointer\\n\"; }\nint main() {\n    f(0);\n    f(nullptr);\n}"
       }
      ],
      "steps": [
@@ -1501,13 +1527,13 @@
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Calling f with zero"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Calling f with null"
       }
@@ -1515,7 +1541,10 @@
      "output": {
       "cmd": "./app",
       "text": "int\npointer",
-      "cue": "pointer version"
+      "cue": "pointer version",
+      "setup": {
+       "main.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -1537,46 +1566,46 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "f(NULL);\nauto x = NULL;\nauto y = nullptr;"
+       "code": "int main() {\n    f(NULL);\n    auto x = NULL;\n    auto y = nullptr;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "NULL is an integer constant"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "Auto of NULL"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Auto of null p t r"
       }
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "ambiguous",
        "tone": "bad",
        "cue": "equally well"
       },
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "an integer",
        "tone": "warn",
        "cue": "Auto of NULL"
       },
       {
-       "line": 3,
+       "line": 4,
        "inside": true,
        "text": "a pointer type",
        "tone": "good",
@@ -1584,9 +1613,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ main.cpp",
+      "cmd": "g++ main.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: call of overloaded ‘f(NULL)’ is ambiguous",
       "cue": "Ambiguous",
+      "setup": {
+       "main.cpp": "#include <cstddef>\nvoid f(int);\nvoid f(char*);\n"
+      },
       "tone": "bad"
      }
     }
