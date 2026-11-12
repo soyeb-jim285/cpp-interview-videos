@@ -124,7 +124,7 @@
     {
      "type": "diagram",
      "head": "A tree of smaller trees",
-     "say": "Here's our tree, six nodes. Eight is the root. Three and ten are its children. One and six hang below three. Fourteen hangs below ten. Now cut the line above three. What hangs below is a whole smaller tree, with three as its root. Every node is the root of its own subtree. That's why recursion fits trees.",
+     "say": "Here's our tree, six nodes. Eight is the root. Three and ten are its children. One and six hang below three. Fourteen hangs below ten. Now cut the line above three. What hangs below is a whole smaller tree, with three as its root. Every node is the root of its own subtree. That's why recursion, a function calling itself, fits trees.",
      "items": [
       {
        "id": "n8",
@@ -995,7 +995,7 @@
        "h": 90,
        "label": "search 6",
        "text": "compare, then go one side",
-       "size": 44,
+       "size": 52,
        "tone": "info",
        "cue": "Now search for six"
       }
@@ -1077,7 +1077,7 @@
     {
      "type": "code",
      "head": "Search and insert",
-     "say": "That is how we find six. Search: if the node is empty, the key isn't there. If it matches, found. Otherwise follow one side only: smaller goes left, bigger goes right. Insert is the same walk. When it falls off the tree at an empty spot, it hangs a new node right there. Each call goes down one level, so the cost is the height of the tree, its number of levels.",
+     "say": "Search: if the node is empty, the key isn't there. If it matches, found. Otherwise follow one side only: smaller goes left, bigger goes right. Insert is the same walk. When it falls off the tree at an empty spot, it hangs a new node right there. Each call goes down one level, so the cost is the height of the tree, its number of levels.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1277,11 +1277,11 @@
     {
      "type": "code",
      "head": "Height by recursion",
-     "say": "Using the insert from before, height, the number of levels, is a recursion too. An empty tree has height zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
+     "say": "Using the insert from before, height, the number of levels, is a recursion too. An empty tree has height zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int height(Node* n) {\n    if (!n) return 0;\n    return 1 + max(height(n->left), height(n->right));\n}\nint main() {\n    cout << height(bst) << ' ' << height(chain);\n}"
+       "code": "int height(Node* n) {\n    if (!n) return 0;\n    return 1 + max(height(n->left), height(n->right));\n}\nint main() {\n    Node* bst = nullptr;\n    for (int x : {8, 3, 10, 1, 6, 14}) bst = insert(bst, x);\n    cout << height(bst);\n}"
       }
      ],
      "steps": [
@@ -1299,7 +1299,7 @@
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "On our six node"
       },
@@ -1326,29 +1326,29 @@
      "output": {
       "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* insert(Node* n, int x) { if (!n) return new Node{x}; if (x < n->val) n->left = insert(n->left, x); else n->right = insert(n->right, x); return n; }\nNode* build(vector<int> v) { Node* r = nullptr; for (int x : v) r = insert(r, x); return r; }\nNode* bst = build({8, 3, 10, 1, 6, 14});\nNode* chain = build({1, 2, 3, 4, 5});\n"
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* insert(Node* n, int x) {\n    if (!n) return new Node{x};\n    if (x < n->val) n->left = insert(n->left, x);\n    else n->right = insert(n->right, x);\n    return n;\n}\n"
       },
-      "text": "3 5",
+      "text": "3",
       "cue": "that's three"
      }
     },
     {
      "type": "chart",
-     "head": "Balanced vs red-black, steps",
+     "head": "Steps to find one key among a million",
      "unit": "steps",
-     "say": "A balanced tree takes about twenty steps. Red-black trees rebalance on every insert, so the worst case stays near forty.",
+     "say": "A balanced tree keeps both sides equally deep. For a million keys, search takes about twenty steps. Red-black is one kind of balanced tree. Its worst case stays near forty.",
      "bars": [
       {
        "label": "Balanced",
        "value": 20,
        "tone": "good",
-       "cue": "A balanced tree"
+       "cue": "takes about twenty"
       },
       {
        "label": "Red-black (worst)",
        "value": 40,
        "tone": "good",
-       "cue": "Red-black trees"
+       "cue": "worst case stays near forty"
       }
      ]
     },
@@ -1356,13 +1356,13 @@
      "type": "chart",
      "head": "A chain of 1,000,000 keys",
      "unit": "steps",
-     "say": "A chain takes a million. Every key sits one level below the last, so search walks the whole line.",
+     "say": "Every key sits one level below the last. A chain takes a million steps. Search walks the whole line.",
      "bars": [
       {
        "label": "Chain",
        "value": 1000000,
        "tone": "bad",
-       "cue": "Every key sits"
+       "cue": "A chain takes a million"
       }
      ]
     }
@@ -1714,7 +1714,7 @@
     {
      "type": "code",
      "head": "The end flag matters",
-     "say": "False, then true. C a begins three words, but no word ends there, so no end flag. That's the classic trap: forget the flag, and every prefix looks like a word. Here it runs. Search c a, false. Starts with c a, true. Search car, true.",
+     "say": "False, then true. C a begins three words, but no word ends there, so no end flag. That's the classic trap: forget the flag, and every prefix looks like a word. Search c a, false. Starts with c a, true. Search car, true.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1756,13 +1756,13 @@
        "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Trie {\n    Trie* kid[26] = {};\n    bool end = false;\n    void insert(const string& w) { Trie* u = this; for (char ch : w) { int c = ch - 'a'; if (!u->kid[c]) u->kid[c] = new Trie(); u = u->kid[c]; } u->end = true; }\n    Trie* walk(const string& s) { Trie* u = this; for (char ch : s) { u = u->kid[ch - 'a']; if (!u) return nullptr; } return u; }\n    bool search(const string& w) { Trie* u = walk(w); return u && u->end; }\n    bool startsWith(const string& p) { return walk(p) != nullptr; }\n};\n"
       },
       "text": "false true true",
-      "cue": "Here it runs"
+      "cue": "Search car, true"
      }
     },
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Four follow-ups come next. Memory too big? A map per node, or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum XOR? A trie of bits. That is autocomplete solved.",
+     "say": "Four follow-ups come next. Memory too big? A map per node, or a radix tree, a compressed trie. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum XOR? A trie of bits. That is autocomplete solved.",
      "heads": [
       "They ask",
       "You say"
@@ -1804,11 +1804,11 @@
      "covers": [
       "cp20"
      ],
-     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Hash sets match whole words. Prefixes, like autocomplete, need a trie. Implement it? Insert marks the end. Search needs the mark. Starts with: same walk, no mark check. Each is O of L. Classic bug? Forgetting the mark.",
      "heads": [
       "They ask",
       "You say"
      ],
+     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Hash sets match whole words. Prefixes need a trie. Implement it? Walk letters, make missing nodes, mark the end. Search checks that flag.",
      "rows": [
       [
        "What is a trie?",
@@ -1820,8 +1820,27 @@
       ],
       [
        "Implement it?",
-       "insert marks end · search needs it · O(L)"
-      ],
+       "walk letters, create missing child nodes, mark end · search: walk, then check end flag · O(L)"
+      ]
+     ],
+     "cues": [
+      "What is a trie",
+      "Versus a hash set",
+      "Implement it"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds (cont.)",
+     "covers": [
+      "cp20"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Starts with? Same walk, with no end-mark check. Each step costs O of L. Classic bug? Forgetting the end flag.",
+     "rows": [
       [
        "Starts with?",
        "same walk, no end-mark check"
@@ -1832,9 +1851,6 @@
       ]
      ],
      "cues": [
-      "What is a trie",
-      "Versus a hash set",
-      "Implement it",
       "Starts with",
       "Classic bug"
      ]
