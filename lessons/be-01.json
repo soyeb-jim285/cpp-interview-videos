@@ -98,7 +98,7 @@
        "cue": "quarter of a second"
       },
       {
-       "text": "Six hops to the database.",
+       "text": "Five stops to the database.",
        "cue": "Where did it go"
       },
       {
@@ -126,12 +126,12 @@
     {
      "type": "problem",
      "title": "What happens when you call an API?",
-     "statement": "A browser calls an endpoint and gets JSON back. Name every stop (hop) the request makes, and find where the time goes.",
+     "statement": "A browser calls an endpoint and gets JSON back, a text format for data. Name every hop (each stop the request makes) and where the time goes.",
      "example": {
       "input": "GET https://example.com/users/42",
-      "output": "DNS, TLS, balancer, app, DB, 200"
+      "output": "DNS, TCP+TLS, balancer, app, DB, 200"
      },
-     "say": "Here's the problem. A browser calls an endpoint and gets JSON back. For example, get users forty two. We want every hop named, and to know where the time goes.",
+     "say": "A browser calls an endpoint and gets JSON back, a text format for data. For example, get users forty two. We want every hop, each stop it makes, and the time each takes.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -335,6 +335,10 @@
        "cue": "run curl"
       },
       {
+       "lines": [],
+       "cue": "cumulative"
+      },
+      {
        "lines": [
         1
        ],
@@ -357,7 +361,6 @@
       },
       {
        "lines": [],
-       "panel": 0,
        "cue": "The gap"
       }
      ],
@@ -369,8 +372,8 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Using those numbers, how long did the server take between TLS finishing and the first byte arriving? Pause and predict.",
-     "q": "TLS done at 0.155 s, first byte at 0.240 s. Server time?",
+     "say": "Your turn. Using those numbers, how long did you spend waiting for the server, between TLS finishing and the first byte arriving? Pause and predict.",
+     "q": "TLS done at 0.155 s, first byte at 0.240 s. Time spent waiting for the server?",
      "options": [
       "20 ms",
       "85 ms",
@@ -590,7 +593,7 @@
     {
      "type": "compare",
      "head": "Methods and success codes",
-     "say": "Use plural nouns: orders, not get orders. Get reads and never changes anything. Post creates a new order, and answers two oh one Created. Put replaces the whole order. Patch changes only a few fields. Delete removes it, with two oh four and no body.",
+     "say": "Use plural nouns: orders, not get orders. Get reads and never changes anything. Post creates a new order, and answers two oh one Created. Put replaces the whole order. Patch changes only a few fields. Delete removes it, with two oh four and no body. A duplicate post gets four oh nine, Conflict.",
      "heads": [
       "Request",
       "Meaning",
@@ -621,6 +624,11 @@
        "DELETE /orders/42",
        "remove it",
        "204"
+      ],
+      [
+       "POST /orders (exists)",
+       "refuse: it clashes",
+       "409"
       ]
      ],
      "cues": [
@@ -628,7 +636,8 @@
       "Post creates",
       "Put replaces",
       "Patch changes",
-      "Delete removes"
+      "Delete removes",
+      "A duplicate post"
      ]
     },
     {
@@ -733,7 +742,7 @@
        "text": "404 Not Found",
        "cue": "Four oh four: missing",
        "tone": "warn",
-       "sub": "path fine, thing missing"
+       "sub": "thing missing"
       },
       {
        "id": "c409",
@@ -744,7 +753,7 @@
        "text": "409 Conflict",
        "cue": "Four oh nine: it",
        "tone": "bad",
-       "sub": "duplicate or version clash"
+       "sub": "duplicate or clash"
       }
      ],
      "arrows": [
@@ -1147,7 +1156,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What happens on a call? DNS finds the address, then TCP and TLS connect. Then the balancer picks a server, the app queries the database and answers. Why TLS? It encrypts, and proves who the server is. Why a balancer? It spreads traffic and survives a dead server. Slow? I time each hop.",
+     "say": "What happens on a call? DNS finds the address, then TCP and TLS connect. Then the balancer picks a server, and the app queries the database. Back comes two hundred with JSON. Where does the time go? DNS, connecting, and waiting. I time each with curl. Slow? I fix the biggest slice.",
      "rows": [
       [
        "What happens on a call?",
@@ -1155,26 +1164,26 @@
       ],
       [
        "Then?",
-       "Balancer → app → DB, and back"
+       "Balancer picks a server; app queries DB"
       ],
       [
-       "Why TLS?",
-       "Encrypts + proves who the server is"
+       "And back?",
+       "200 + JSON to the browser"
       ],
       [
-       "Why a load balancer?",
-       "Spread traffic; survive a dead server"
+       "Where does the time go?",
+       "DNS, connect, wait: I time each with curl"
       ],
       [
        "It's slow?",
-       "Time each hop, fix the biggest"
+       "Fix the biggest slice"
       ]
      ],
      "cues": [
       "What happens",
       "Then the balancer",
-      "Why TLS",
-      "Why a balancer",
+      "Back comes",
+      "Where does the time",
       "Slow"
      ]
     },
@@ -1184,7 +1193,7 @@
      "covers": [
       "be02"
      ],
-     "say": "How do you design a REST API? Plural nouns in paths, verbs as methods. Then honest codes. Two oh one, created. Four hundred, bad input. Four oh four, missing. Four oh nine, a clash. Four oh one, not logged in. Four oh three, not allowed. Five hundreds are our fault.",
+     "say": "How do you design a REST API? Plural nouns in paths, verbs as methods: get reads, post creates. Then honest codes. Two oh one, created. Four hundred, bad input. Four oh four, missing. Four oh nine, a clash.",
      "items": [
       {
        "id": "des",
@@ -1200,7 +1209,7 @@
       {
        "id": "c201",
        "x": 120,
-       "y": 430,
+       "y": 470,
        "w": 400,
        "h": 170,
        "text": "201",
@@ -1212,7 +1221,7 @@
       {
        "id": "c400",
        "x": 546,
-       "y": 430,
+       "y": 470,
        "w": 400,
        "h": 170,
        "text": "400",
@@ -1224,7 +1233,7 @@
       {
        "id": "c404",
        "x": 972,
-       "y": 430,
+       "y": 470,
        "w": 400,
        "h": 170,
        "text": "404",
@@ -1236,7 +1245,7 @@
       {
        "id": "c409",
        "x": 1398,
-       "y": 430,
+       "y": 470,
        "w": 400,
        "h": 170,
        "text": "409",
@@ -1244,12 +1253,22 @@
        "sub": "clash",
        "tone": "warn",
        "cue": "Four oh nine"
-      },
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be02"
+     ],
+     "say": "Two more four hundreds. Four oh one, not logged in: who are you? Four oh three, logged in but not allowed. And five hundreds? The server broke. That's our fault, not the caller's.",
+     "items": [
       {
        "id": "c401",
        "x": 120,
-       "y": 680,
-       "w": 400,
+       "y": 470,
+       "w": 520,
        "h": 170,
        "text": "401",
        "size": 56,
@@ -1259,9 +1278,9 @@
       },
       {
        "id": "c403",
-       "x": 546,
-       "y": 680,
-       "w": 400,
+       "x": 700,
+       "y": 470,
+       "w": 520,
        "h": 170,
        "text": "403",
        "size": 56,
@@ -1271,15 +1290,15 @@
       },
       {
        "id": "c5xx",
-       "x": 972,
-       "y": 680,
-       "w": 400,
+       "x": 1280,
+       "y": 470,
+       "w": 520,
        "h": 170,
        "text": "5xx",
        "size": 56,
        "sub": "our fault",
        "tone": "bad",
-       "cue": "Five hundreds"
+       "cue": "five hundreds?"
       }
      ]
     },
