@@ -377,7 +377,7 @@
        "cue": "copies itself"
       },
       {
-       "x": 1150,
+       "x": 1090,
        "y": 290,
        "text": "fix: re-point first",
        "tone": "good",
@@ -409,28 +409,28 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "Node* head = nullptr;\ninsertHead(head, 30);\ninsertHead(head, 20);\ninsertHead(head, 10);\ninsertHead(head, 5);\nprint(head);"
+       "code": "int main() {\n    Node* head = nullptr;\n    insertHead(head, 30);\n    insertHead(head, 20);\n    insertHead(head, 10);\n    insertHead(head, 5);\n    print(head);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2,
         3,
         4,
-        5
+        5,
+        6
        ],
        "cue": "Insert thirty"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "Print follows"
       },
       {
        "lines": [
-        1
+        2
        ],
        "cue": "empty list"
       }
@@ -438,7 +438,10 @@
      "output": {
       "cmd": "./sol",
       "text": "5 10 20 30",
-      "cue": "Five, ten"
+      "cue": "Five, ten",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node* next; };\nvoid print(Node* p) {\n    while (p) { cout << p->val << ' '; p = p->next; }\n}\nvoid insertHead(Node*& head, int v) { head = new Node{v, head}; }\n"
+      }
      }
     }
    ]
@@ -600,7 +603,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "void eraseAfter(Node* p) {\n    Node* dead = p->next;\n    p->next = dead->next;\n    delete dead;\n}\neraseAfter(head->next);\nprint(head);"
+       "code": "void eraseAfter(Node* p) {\n    Node* dead = p->next;\n    p->next = dead->next;\n    delete dead;\n}\nint main() {\n    eraseAfter(head->next);\n    print(head);\n}"
       }
      ],
      "steps": [
@@ -624,8 +627,8 @@
       },
       {
        "lines": [
-        6,
-        7
+        7,
+        8
        ],
        "cue": "Run it"
       },
@@ -645,7 +648,10 @@
      "output": {
       "cmd": "./sol",
       "text": "5 10 30",
-      "cue": "now points to thirty"
+      "cue": "now points to thirty",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node* next; };\nvoid print(Node* p) {\n    while (p) { cout << p->val << ' '; p = p->next; }\n}\nvoid insertHead(Node*& head, int v) { head = new Node{v, head}; }\nNode* head = []{ Node* h = nullptr; for (int v : {30, 20, 10, 5}) insertHead(h, v); return h; }();\n"
+      }
      }
     },
     {
@@ -667,7 +673,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "void insertAfter(Node* p, int v) {\n    p->next = new Node{v, p->next};\n}\ninsertAfter(head->next, 7);\nprint(head);"
+       "code": "void insertAfter(Node* p, int v) {\n    p->next = new Node{v, p->next};\n}\nint main() {\n    insertAfter(head->next, 7);\n    print(head);\n}"
       }
      ],
      "steps": [
@@ -697,8 +703,8 @@
       },
       {
        "lines": [
-        4,
-        5
+        5,
+        6
        ],
        "cue": "put seven after ten"
       }
@@ -706,13 +712,16 @@
      "output": {
       "cmd": "./sol",
       "text": "5 10 7 30",
-      "cue": "put seven"
+      "cue": "put seven",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node* next; };\nvoid print(Node* p) {\n    while (p) { cout << p->val << ' '; p = p->next; }\n}\nvoid insertHead(Node*& head, int v) { head = new Node{v, head}; }\nNode* head = []{ Node* h = nullptr; for (int v : {30, 10, 5}) insertHead(h, v); return h; }();\n"
+      }
      }
     },
     {
      "type": "compare",
      "head": "List versus array",
-     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Next to a node you hold: constant for a list. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node directly. C plus plus ships both, singly and doubly. In practice, vector usually wins.",
+     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node directly. C plus plus ships both, singly and doubly. In practice, vector usually wins.",
      "heads": [
       "",
       "Array",
@@ -726,11 +735,6 @@
       ],
       [
        "insert at front",
-       "O(n) shift",
-       "O(1)"
-      ],
-      [
-       "insert next to held node",
        "O(n) shift",
        "O(1)"
       ],
@@ -753,7 +757,6 @@
      "cues": [
       "Reading item",
       "Inserting at the front",
-      "Next to a node",
       "Memory",
       "A doubly linked",
       "C plus plus ships"
@@ -1111,26 +1114,26 @@
        "file": "sol.cpp",
        "label": "bug",
        "tone": "bad",
-       "code": "Node* prev = nullptr;\nwhile (head) {\n    head->next = prev;\n    prev = head;\n    head = head->next;\n}\nprint(prev);"
+       "code": "int main() {\n    Node* prev = nullptr;\n    while (head) {\n        head->next = prev;\n        prev = head;\n        head = head->next;\n    }\n    print(prev);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "After the flip"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "head becomes null"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "the loop ends"
       },
@@ -1141,7 +1144,7 @@
      ],
      "notes": [
       {
-       "line": 5,
+       "line": 6,
        "inside": true,
        "text": "reads prev, not the list",
        "tone": "bad",
@@ -1152,7 +1155,10 @@
       "cmd": "./sol",
       "text": "1",
       "tone": "bad",
-      "cue": "Just one"
+      "cue": "Just one",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node* next; };\nvoid print(Node* p) {\n    while (p) { cout << p->val << ' '; p = p->next; }\n}\nvoid insertHead(Node*& head, int v) { head = new Node{v, head}; }\nNode* head = []{ Node* h = nullptr; for (int v : {4, 3, 2, 1}) insertHead(h, v); return h; }();\n"
+      }
      }
     }
    ]
@@ -1347,7 +1353,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "Node* middle(Node* head) {\n    Node *slow = head, *fast = head;\n    while (fast && fast->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    return slow;\n}\ncout << middle(head)->val;"
+       "code": "Node* middle(Node* head) {\n    Node *slow = head, *fast = head;\n    while (fast && fast->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    return slow;\n}\nint main() { cout << middle(head)->val; }"
       }
      ],
      "steps": [
@@ -1380,7 +1386,10 @@
      "output": {
       "cmd": "./sol",
       "text": "3",
-      "cue": "it prints three"
+      "cue": "it prints three",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node* next; };\nNode* head = []{ Node* h = nullptr; for (int v : {5, 4, 3, 2, 1}) h = new Node{v, h}; return h; }();\n"
+      }
      }
     },
     {

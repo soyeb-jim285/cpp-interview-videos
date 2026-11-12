@@ -761,33 +761,33 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "vector<int> b = {5, 3, 4, 8};\nvector<int> r = nextGreater(b);\nfor (int x : r) cout << x << ' ';"
+       "code": "int main() {\n    vector<int> b = {5, 3, 4, 8};\n    vector<int> r = nextGreater(b);\n    for (int x : r) cout << x << ' ';\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "Run it"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Five waits"
       }
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "3 is beaten by 4",
        "tone": "good",
        "cue": "Three is beaten"
       },
       {
-       "line": 3,
+       "line": 4,
        "inside": true,
        "text": "8: never beaten",
        "tone": "warn",
@@ -797,7 +797,10 @@
      "output": {
       "cmd": "./sol",
       "text": "8 4 8 -1",
-      "cue": "Eight, four"
+      "cue": "Eight, four",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvector<int> nextGreater(vector<int>& a) {\n    vector<int> res(a.size(), -1);\n    stack<int> st;\n    for (int i = 0; i < (int)a.size(); i++) {\n        while (!st.empty() && a[st.top()] < a[i]) {\n            res[st.top()] = a[i];\n            st.pop();\n        }\n        st.push(i);\n    }\n    return res;\n}\n"
+      }
      }
     },
     {
@@ -958,15 +961,15 @@
      ],
      "notes": [
       {
-       "x": 120,
+       "x": 430,
        "y": 270,
-       "text": "children of i: 2i+1, 2i+2",
+       "text": "children: 2i+1, 2i+2",
        "cue": "twelve below it"
       },
       {
        "x": 1230,
        "y": 270,
-       "text": "parent of i: (i-1)/2",
+       "text": "parent: (i-1)/2",
        "cue": "Its parent is five"
       }
      ],
@@ -1060,9 +1063,9 @@
      ],
      "notes": [
       {
-       "x": 1230,
+       "x": 1150,
        "y": 270,
-       "text": "5 above 3: rule broken",
+       "text": "5 > 3: rule broken",
        "tone": "bad",
        "cue": "the rule breaks"
       }
@@ -1145,34 +1148,34 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "priority_queue<int> a;\npriority_queue<int, vector<int>, greater<int>> b;\nfor (int x : {3, 1, 5}) {\n    a.push(x);\n    b.push(x);\n}\ncout << a.top() << ' ' << b.top();"
+       "code": "int main() {\n    priority_queue<int> a;\n    priority_queue<int, vector<int>, greater<int>> b;\n    for (int x : {3, 1, 5}) {\n        a.push(x);\n        b.push(x);\n    }\n    cout << a.top() << ' ' << b.top();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "default priority queue"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "add greater"
       },
       {
        "lines": [
-        3,
         4,
         5,
-        6
+        6,
+        7
        ],
        "cue": "second queue"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "classic slip"
       }
@@ -1180,11 +1183,14 @@
      "output": {
       "cmd": "./sol",
       "text": "5 1",
-      "cue": "Five. The default"
+      "cue": "Five. The default",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\n"
+      }
      },
      "notes": [
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "biggest on top",
        "tone": "warn",
@@ -1381,7 +1387,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "vector<int> a = {3, 1, 5, 12, 2, 11};\nint k = 2;\npriority_queue<int, vector<int>, greater<int>> h;\nfor (int x : a) {\n    h.push(x);\n    if ((int)h.size() > k) h.pop();\n}\ncout << h.top();"
+       "code": "int main() {\n    vector<int> a = {3, 1, 5, 12, 2, 11}; int k = 2;\n    priority_queue<int, vector<int>, greater<int>> h;\n    for (int x : a) {\n        h.push(x);\n        if ((int)h.size() > k) h.pop();\n    }\n    cout << h.top();\n}"
       }
      ],
      "steps": [
@@ -1413,7 +1419,10 @@
      "output": {
       "cmd": "./sol",
       "text": "11",
-      "cue": "prints eleven"
+      "cue": "prints eleven",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -1435,7 +1444,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "vector<int> a = {5, 2, 8, 1, 9, 3};\nint k = 3;\npriority_queue<int, vector<int>, greater<int>> h;\nfor (int x : a) {\n    h.push(x);\n    if ((int)h.size() > k) h.pop();\n}\ncout << h.top();"
+       "code": "int main() {\n    vector<int> a = {5, 2, 8, 1, 9, 3}; int k = 3;\n    priority_queue<int, vector<int>, greater<int>> h;\n    for (int x : a) {\n        h.push(x);\n        if ((int)h.size() > k) h.pop();\n    }\n    cout << h.top();\n}"
       }
      ],
      "steps": [
@@ -1464,7 +1473,10 @@
      "output": {
       "cmd": "./sol",
       "text": "5",
-      "cue": "Five. The heap"
+      "cue": "Five. The heap",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\n"
+      }
      }
     },
     {
