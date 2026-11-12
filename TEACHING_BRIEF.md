@@ -425,6 +425,11 @@ go in a temp dir).
 - [ ] Length matches § 6 (run the estimate command); no scene is filler.
 - [ ] Read the whole `say` text top to bottom aloud in your head: it sounds like a teacher talking, no banned
       phrases, no symbols, numbers as words, short sentences.
+- [ ] Pilot audit lessons (each cost a re-audit): a quiz about code shows that code on screen; every analogy
+      is introduced before it is used and tied explicitly to the real thing; no dense one-liners (split
+      `for(a;b;c)` tricks into plain loops); claims are scoped exactly ("for sum-threshold windows", not
+      "always"); a printed output needs the print code visible; directions are literal ("R steps one cell
+      left", not "move right in"); state preconditions (sorted input) and hidden costs (O(n log n) sort).
 
 ## 13. Complete example lesson (passes the lint)
 
