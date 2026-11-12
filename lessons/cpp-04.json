@@ -19,7 +19,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "A class that holds one hundred bytes can fail in five different ways. By the end, you'll find all five, explain each crash, and have a tool name the exact line.",
+     "say": "A few lines of code that hold one hundred bytes can fail in five different ways. By the end, you'll find all five, explain each crash, and have a tool name the exact line.",
      "lines": [
       {
        "text": "char* data = new char[100];",
@@ -68,7 +68,7 @@
     {
      "type": "flow",
      "head": "A coat check",
-     "say": "Think of a coat check. The ticket in your hand is the pointer. The coat on the rack is the heap block. Lose the ticket, and the coat hangs there forever, unclaimable.",
+     "say": "Think of a coat check. The ticket in your hand is the pointer. The coat on the rack is the heap block: memory from new, freed by delete. Lose the ticket, and the coat hangs there forever, unclaimable.",
      "items": [
       {
        "label": "you hold",
@@ -94,7 +94,7 @@
     {
      "type": "diagram",
      "head": "The early return",
-     "say": "work allocates one hundred bytes, and d holds the address. If fail is true, we return early. The delete line is never reached. When work returns, d vanishes, but the heap block stays. Nobody holds its address, so nobody can ever free it. That is a leak.",
+     "say": "work allocates one hundred bytes, and d holds the address, a local on the stack. If fail is true, we return early. The delete line is never reached. When work returns, d vanishes, but the heap block stays. Nobody holds its address, so nobody can ever free it. That is a leak.",
      "items": [
       {
        "id": "blk",
@@ -171,6 +171,15 @@
        ],
        "cue": "never reached"
       }
+     ],
+     "notes": [
+      {
+       "x": 1050,
+       "y": 640,
+       "text": "nobody holds its address",
+       "tone": "warn",
+       "cue": "Nobody holds its address"
+      }
      ]
     },
     {
@@ -180,15 +189,15 @@
      "options": [
       "nothing, OS cleans up",
       "memory keeps climbing",
-      "crash on first call",
-      "compile error"
+      "crash at 1,000 calls",
+      "new fails at once"
      ],
      "answer": "memory keeps climbing"
     },
     {
      "type": "chart",
      "head": "Leaked memory, 100 bytes a call",
-     "say": "Memory keeps climbing. A thousand calls leak about a tenth of a megabyte. A hundred thousand, ten megabytes. A million calls, a hundred megabytes. Only exit reclaims it, so servers suffer most.",
+     "say": "Memory keeps climbing, because each call leaks and nothing frees it. A thousand calls leak about a tenth of a megabyte. A hundred thousand, ten megabytes. Only exit reclaims it, so servers suffer most. A million calls, a hundred megabytes.",
      "unit": "MB",
      "bars": [
       {
@@ -285,12 +294,12 @@
      "statement": "q is a copy of p, and w was never set. After delete[] p, can you use p, q or w?",
      "example": {
       "input": "q = p; delete[] p; char* w;",
-      "output": "none: all three are UB"
+      "output": "none: using any of them is undefined behavior"
      },
-     "say": "Here is the problem. Pointer q is a copy of p, and w was never set. Now we delete p. Which of p, q and w are safe? None of them.",
+     "say": "Here is the problem. Pointer q is a copy of p, and w was never set. Now we delete p. Which of them are safe? None of them. Using one is undefined behavior, or U B.",
      "cues": {
       "example": "w was never set",
-      "output": "Which of p"
+      "output": "None of them"
      }
     },
     {
@@ -425,6 +434,15 @@
        ],
        "cue": "q still points"
       }
+     ],
+     "notes": [
+      {
+       "x": 1050,
+       "y": 720,
+       "text": "both still hold its address",
+       "tone": "warn",
+       "cue": "still hold its address"
+      }
      ]
     },
     {
@@ -440,22 +458,25 @@
      "steps": [
       {
        "lines": [
-        2,
-        3
+        2
        ],
        "cue": "Return the address"
       },
       {
        "lines": [
-        6,
-        7,
-        8
+        3
+       ],
+       "cue": "x dies when"
+      },
+      {
+       "lines": [
+        6
        ],
        "cue": "keep a pointer"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "It may reallocate"
       }
@@ -520,15 +541,15 @@
      "options": [
       "wild",
       "dangling",
-      "leaked",
-      "null"
+      "double free",
+      "leaked"
      ],
      "answer": "wild"
     },
     {
      "type": "compare",
      "head": "Wild versus dangling",
-     "say": "Wild: never valid. Dangling: valid until the object died. Example: an unset local, versus a copy after delete. Catch it: dash Wall warns on wild ones, and sanitizers catch both.",
+     "say": "The answer is wild, because it was never set. Wild: never valid. Dangling: valid until the object died. Example: an unset local, versus a copy after delete. Catch it: dash Wall warns on the easy wild cases, and sanitizers catch both.",
      "heads": [
       "",
       "Wild",
@@ -688,7 +709,7 @@
     {
      "type": "code",
      "head": "Catch it at the line",
-     "say": "Formally it is undefined, so the standard promises nothing. Address Sanitizer catches it at the exact line, and shows where the memory was freed. Line four read it, line three freed it.",
+     "say": "Formally it is undefined, so the standard promises nothing. Address Sanitizer stops at the exact line. It also shows where the memory was freed. Line four read it, line three freed it.",
      "panels": [
       {
        "file": "uaf.cpp",
@@ -711,11 +732,11 @@
      ],
      "output": {
       "cmd": "g++ -g -fsanitize=address uaf.cpp && ./a.out 2>&1 | sh f",
-      "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 1\n    #0 in read() uaf.cpp:4",
+      "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 1\n    #0 in read() uaf.cpp:4\nfreed by thread T0 here:\n    #1 in read() uaf.cpp:3",
       "cue": "exact line",
       "setup": {
        "uaf.cpp": "int read();\nint main() { return read(); }\n#line 0\n",
-       "f": "grep -E \"ERROR|READ|#0 .* in read\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
+       "f": "grep -E \"ERROR|READ|freed by|#0 .* in read|#1 .* in read\" | head -5 | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
       },
       "tone": "bad"
      }
@@ -725,17 +746,17 @@
      "say": "Your turn. After delete p, you read star p. What does the standard promise about the value? Pause and predict.",
      "q": "After `delete p`, reading `*p` gives...?",
      "options": [
-      "the old value",
+      "always the old value",
       "zero",
-      "a crash",
-      "nothing at all"
+      "always a crash",
+      "no value is promised"
      ],
-     "answer": "nothing at all"
+     "answer": "no value is promised"
     },
     {
      "type": "compare",
      "head": "What it can do",
-     "say": "Nothing at all is promised. You may read the old value. You may read garbage. You may read another object's data. Or crash, maybe later. It often seems fine, a classic security hole.",
+     "say": "The answer is no value, because the standard promises nothing. You may read the old value. You may read garbage. You may read another object's data. Or crash, maybe later. It often seems fine, a classic security hole.",
      "heads": [
       "Outcome",
       "Why"
@@ -778,7 +799,7 @@
       "input": "Buffer b2 = b1;",
       "output": "one block, freed twice"
      },
-     "say": "Here is the problem. Buffer owns one hundred bytes, and frees them in its destructor. We copy b1 into b2. Then both objects die. What gets freed?",
+     "say": "Here's the problem. Buffer owns one hundred bytes, and frees them in its destructor. We copy b1 into b2. Then both objects die. What gets freed?",
      "cues": {
       "example": "We copy b1",
       "output": "What gets freed"
@@ -873,7 +894,8 @@
       {
        "id": "blk",
        "kill": true,
-       "cue": "frees the array"
+       "cue": "frees the array",
+       "text": "freed"
       },
       {
        "id": "b1",
@@ -965,7 +987,7 @@
     {
      "type": "code",
      "head": "The fix: a deep copy",
-     "say": "Write a copy constructor. It allocates a fresh block, and copies the bytes. Now each destructor frees its own block. Add a matching assignment operator too: that is the rule of three. Or delete copying, like unique pointer does.",
+     "say": "A deep copy: each object owns its block. Write a copy constructor. It allocates a fresh block, and copies the bytes. Add a matching assignment operator too: that is the rule of three. Or delete copying, like unique pointer does.",
      "panels": [
       {
        "file": "buffer.cpp",
@@ -995,7 +1017,7 @@
      "output": {
       "cmd": "g++ -fsanitize=address t.cpp && ./a.out",
       "text": "ok",
-      "cue": "its own block",
+      "cue": "owns its block",
       "setup": {
        "buffer.cpp": "#include <algorithm>\nusing namespace std;\n#line 0\n",
        "t.cpp": "#include <cstdio>\n#include \"buffer.cpp\"\nint main() { Buffer b1; Buffer b2 = b1; puts(\"ok\"); }\n"
@@ -1091,7 +1113,7 @@
        "label": "ASan report",
        "text": "exact line",
        "tone": "good",
-       "cue": "Address Sanitizer"
+       "cue": "names the exact line"
       }
      ]
     },
@@ -1237,43 +1259,60 @@
     {
      "type": "code",
      "head": "Valgrind: no rebuild",
-     "say": "Valgrind needs no rebuild. Add dash g for line numbers, and run the program under valgrind. It checks every memory access on a simulated processor. Here it reports the leak: one hundred bytes definitely lost. The catch: often twenty to thirty times slower. Never run an ASan build under it.",
+     "say": "The answer is Valgrind, because it needs no rebuild. It checks every memory access on a simulated processor. Here it reports the leak: one hundred bytes definitely lost. If you can rebuild, add dash g and it names the line too. The catch: often twenty to thirty times slower. Never run an Address Sanitizer build under it.",
      "panels": [
       {
        "file": "main.cpp",
        "code": "void work() {\n    char* d = new char[100];\n}"
       },
       {
-       "file": "run.sh",
-       "code": "valgrind --leak-check=full ./app\n# 100 bytes in 1 blocks are\n# definitely lost"
+       "file": "valgrind.txt",
+       "code": "valgrind --leak-check=full ./app\n100 bytes definitely lost\nat work() main.cpp:2 (needs -g)"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
-       ],
-       "cue": "Add dash g",
-       "panel": 0
-      },
-      {
-       "lines": [
         1
        ],
-       "cue": "checks every memory",
-       "panel": 1
+       "panel": 1,
+       "cue": "checks every memory"
       },
       {
        "lines": [
-        2,
+        2
+       ],
+       "panel": 1,
+       "cue": "Here it reports"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "definitely lost"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "add dash g"
+      },
+      {
+       "lines": [
         3
        ],
-       "cue": "Here it reports",
-       "panel": 1
+       "panel": 1,
+       "cue": "names the line"
       },
       {
        "lines": [],
        "cue": "The catch"
+      },
+      {
+       "lines": [],
+       "cue": "Never run"
       }
      ]
     }
@@ -1285,7 +1324,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "What is a memory leak? Heap memory still allocated, but unreachable. How do you detect it? Sanitizers, valgrind, or memory that keeps growing. How do you prevent it? Owners like vector and unique pointer, no raw new.",
+     "say": "What is a memory leak? Heap memory still allocated, but unreachable. Shared pointer cycles? They leak too, so break them with a weak pointer. How do you detect it? Sanitizers, valgrind, or memory that keeps growing. How do you prevent it? Owners like vector and unique pointer, no raw new.",
      "heads": [
       "They ask",
       "You say"
@@ -1293,7 +1332,11 @@
      "rows": [
       [
        "What is a leak?",
-       "heap memory still allocated, but unreachable"
+       "heap still allocated, but unreachable"
+      ],
+      [
+       "Shared_ptr cycles?",
+       "they leak: break them with weak_ptr"
       ],
       [
        "How to detect it?",
@@ -1306,6 +1349,7 @@
      ],
      "cues": [
       "What is a memory leak",
+      "Shared pointer cycles",
       "How do you detect",
       "How do you prevent"
      ],
@@ -1314,26 +1358,13 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
+     "kicker": "Say it in 20 seconds",
      "say": "Dangling pointer? An address whose object died, like a copy after delete. Wild pointer? Never initialized, so it holds garbage. Both are undefined to use. Avoid both? Initialize everything, use smart pointers, and turn on dash Wall.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Dangling pointer?",
-       "address of a dead object, e.g. a copy after `delete`"
-      ],
-      [
-       "Wild pointer?",
-       "never initialized: a garbage address"
-      ],
-      [
-       "How to avoid both?",
-       "initialize; smart pointers; `-Wall`"
-      ]
+     "lines": [
+      "Dangling: address of a dead object",
+      "Wild: never initialized, a garbage address",
+      "Avoid both: initialize, smart pointers, `-Wall`"
      ],
      "cues": [
       "Dangling pointer",
@@ -1377,34 +1408,16 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Double free? One block released twice. Usual cause? Copying a class that owns a raw pointer. Shallow versus deep? Pointer copied, versus data copied. Fix? A deep copy, rule of three, or a vector.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Double free?",
-       "same block released twice: UB"
-      ],
-      [
-       "Usual cause?",
-       "copying a class that owns a raw pointer"
-      ],
-      [
-       "Shallow vs deep copy?",
-       "pointer copied vs data copied"
-      ],
-      [
-       "Fix?",
-       "deep copy (rule of three), or `vector`"
-      ]
+     "type": "take",
+     "kicker": "Say it in 20 seconds",
+     "say": "Double free? One block released twice, usually from a copied raw pointer. Shallow versus deep? Pointer copied, versus data copied. Fix? A deep copy, rule of three, or a vector.",
+     "lines": [
+      "Double free: one block released twice",
+      "Shallow: pointer copied. Deep: data copied.",
+      "Fix: deep copy, rule of three, or vector"
      ],
      "cues": [
       "Double free",
-      "Usual cause",
       "Shallow versus deep",
       "Fix?"
      ],
@@ -1453,7 +1466,7 @@
     {
      "type": "compare",
      "head": "Practice before your interview",
-     "say": "Solve these next. LeetCode two thirty seven, delete node in a linked list: free the removed node. LeetCode one thirty eight, copy list with random pointer: a deep copy. LeetCode one thirty three, clone graph: deep copy with cycles.",
+     "say": "Solve these next. LeetCode two thirty seven. Copy next in, free next. You never get the previous node. LeetCode one thirty eight, copy list with random pointer: a deep copy. LeetCode one thirty three, clone graph: deep copy with cycles.",
      "heads": [
       "Solve next",
       "Why"
@@ -1461,7 +1474,7 @@
      "rows": [
       [
        "LeetCode 237 · Delete Node in a Linked List",
-       "who frees the node?"
+       "copy next value in, then free the next node"
       ],
       [
        "LeetCode 138 · Copy List with Random Pointer",
