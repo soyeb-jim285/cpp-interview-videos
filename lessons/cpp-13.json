@@ -221,7 +221,7 @@
     {
      "type": "code",
      "head": "auto drops references",
-     "say": "Still one, two, three. Plain auto copies. It drops references, and top level const. That's a const on the variable itself. You doubled copies. Write auto ampersand, and you double the elements themselves. Two, four, six.",
+     "say": "Still one, two, three. Plain auto copies. It drops references, and top level const. That's a const on the variable itself. Your doubling hits the copy. Write auto ampersand, and you double the elements themselves. Two, four, six.",
      "panels": [
       {
        "file": "main.cpp",
@@ -245,7 +245,7 @@
        "lines": [
         3
        ],
-       "cue": "doubled copies"
+       "cue": "Your doubling"
       },
       {
        "lines": [
@@ -266,7 +266,7 @@
        "inside": true,
        "text": "copies: v unchanged",
        "tone": "bad",
-       "cue": "doubled copies"
+       "cue": "Your doubling"
       },
       {
        "line": 5,
@@ -876,7 +876,7 @@
     {
      "type": "code",
      "head": "That is a data race",
-     "say": "This is the code. Both threads touch the same int, and one writes, with no lock. That's a data race, and in C plus plus it's undefined behavior. A race condition is broader: any timing bug, even with atomics. Run it a few times with optimization off, and the total can come up short and change between runs. With optimization on, it may still print two hundred thousand. The bug is still there.",
+     "say": "This is the code. Both threads write the same int, with no lock. That's a data race, and in C plus plus it's undefined behavior. A race condition is broader: any timing bug, even with atomics. Run it a few times with optimization off, and the total can come up short and change between runs. With optimization on, it may still print two hundred thousand. The bug is still there.",
      "panels": [
       {
        "file": "main.cpp",
@@ -892,7 +892,7 @@
         3,
         4
        ],
-       "cue": "touch the same int"
+       "cue": "write the same int"
       },
       {
        "lines": [
