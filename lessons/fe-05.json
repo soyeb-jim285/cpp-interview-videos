@@ -79,7 +79,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Make a form work without a mouse. Cut a page load from four seconds to two. And stop X S S, C S R F, cross origin resource sharing, C O R S, mistakes.",
+     "say": "Today you will do three things. Make a form work without a mouse. Cut the hero's L C P, four point one down to two point three seconds. And stop X S S, C S R F, and C O R S mistakes.",
      "lines": [
       "Make a form usable without a mouse",
       "Speed up the hero image: LCP 4.1 s to 2.3 s",
@@ -87,8 +87,8 @@
      ],
      "cues": [
       "Make a form",
-      "four seconds",
-      "cross origin"
+      "Cut the hero",
+      "And stop"
      ]
     },
     {
@@ -742,7 +742,7 @@
       "Blocks the load"
      ],
      "answer": 1,
-     "optCue": "what happens to the text below"
+     "optCue": "Predict it"
     },
     {
      "type": "diagram",
@@ -913,11 +913,11 @@
     {
      "type": "code",
      "head": "Text, not HTML",
-     "say": "Inner H T M L parses the string, so the script runs. Text content treats it as plain text. Or escape the angle brackets yourself, and it prints harmless text. React escapes for you, unless you reach for dangerously set inner H T M L. As a second layer, add a Content Security Policy: a server header that says which scripts may run.",
+     "say": "Inner H T M L parses the string. In a browser, a broken image runs its onerror. Text content treats it as plain text. React escapes for you, unless you reach for dangerously set inner H T M L. As a second layer, add a Content Security Policy: a server header that says which scripts may run.",
      "panels": [
       {
        "file": "comment.js",
-       "code": "const el = {}; // stand-in for a DOM element\nconst c = '<img src=x onerror=steal()>';\nel.innerHTML = c;\nel.textContent = c;\nconst esc = (s) => s.replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconsole.log(esc(c));\n// server sends: Content-Security-Policy: script-src 'self'"
+       "code": "const el = {};                // stand-in for a real DOM element\nconst c = '<img src=x onerror=steal()>';\nel.innerHTML = c;\nel.textContent = c;\n// server sends: Content-Security-Policy: script-src 'self'"
       }
      ],
      "steps": [
@@ -931,14 +931,7 @@
        "lines": [
         4
        ],
-       "cue": "plain text"
-      },
-      {
-       "lines": [
-        5,
-        6
-       ],
-       "cue": "escape the angle"
+       "cue": "Text content"
       },
       {
        "lines": [
@@ -948,7 +941,7 @@
       },
       {
        "lines": [
-        8
+        5
        ],
        "cue": "Content Security Policy"
       }
@@ -957,16 +950,11 @@
       {
        "line": 3,
        "inside": true,
-       "text": "script runs",
+       "text": "in a browser, this runs",
        "tone": "bad",
-       "cue": "script runs"
+       "cue": "parses the string"
       }
-     ],
-     "output": {
-      "cmd": "node comment.js",
-      "text": "&lt;img src=x onerror=steal()&gt;",
-      "cue": "prints harmless text"
-     }
+     ]
     },
     {
      "type": "quiz",
@@ -1050,7 +1038,7 @@
       },
       {
        "id": "ih",
-       "kill": true,
+       "tone": "dim",
        "cue": "run code"
       }
      ]
@@ -1223,21 +1211,21 @@
       },
       {
        "id": "api",
-       "x": 1240,
+       "x": 1180,
        "y": 300,
-       "w": 520,
+       "w": 620,
        "h": 150,
        "label": "Server api.com",
-       "text": "Allow-Origin: app.com",
+       "text": "Allow-Origin: https://app.com",
        "size": 32,
        "tone": "good",
        "cue": "The server"
       },
       {
        "id": "ok",
-       "x": 1240,
+       "x": 1180,
        "y": 660,
-       "w": 520,
+       "w": 620,
        "h": 150,
        "label": "script can read it?",
        "text": "?",
@@ -1341,7 +1329,8 @@
       "A 403 from api.com",
       "An empty 200"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "Predict it"
     },
     {
      "type": "diagram",
@@ -1588,7 +1577,7 @@
       "They ask",
       "You say"
      ],
-     "say": "The answer is OPTIONS, the preflight method. X S S versus C S R F? X S S runs script. Escape output, add a policy. C S R F forges requests: same site cookies and tokens.",
+     "say": "The answer is OPTIONS, the preflight method. Why? The browser asks first, safely. X S S versus C S R F? X S S runs script. Escape output, add a policy. C S R F forges requests: same site cookies and tokens.",
      "rows": [
       [
        "XSS vs CSRF?",
@@ -1664,7 +1653,7 @@
        "watch LCP fall"
       ],
       [
-       "Post `<img src=x onerror=...>` in your comment box",
+       "Post an onerror image tag",
        "proves your escaping works"
       ]
      ],
@@ -1676,7 +1665,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Native elements first, keyboard everywhere, test with a screen reader. Vitals: L C P, I N P, C L S, each with one fix. Escape output. Same site cookies. Let the server set C O R S.",
+     "say": "So say this. Native elements first. Keyboard everywhere, and test with a screen reader. Vitals: L C P, I N P, C L S, each with one fix. Escape output. Same site cookies. Let the server set C O R S.",
      "lines": [
       "Native HTML first. Keyboard works everywhere.",
       "LCP, INP, CLS: preload, split, reserve space.",
