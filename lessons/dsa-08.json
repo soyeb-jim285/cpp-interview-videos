@@ -691,7 +691,7 @@
     {
      "type": "code",
      "head": "The trap: no base case",
-     "say": "Here's the classic trap. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty?",
+     "say": "Here's the classic trap. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty? That walk is our answer to the first problem.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -723,6 +723,10 @@
       {
        "lines": [],
        "cue": "first line of any"
+      },
+      {
+       "lines": [],
+       "cue": "our answer to the first"
       }
      ],
      "notes": [
@@ -1329,7 +1333,7 @@
      "type": "chart",
      "head": "Search steps among 1,000,000 keys",
      "unit": "steps",
-     "say": "One million keys. In a balanced tree, a search takes about twenty steps. In a chain, a million steps. Self balancing trees, like a red black tree, stop that.",
+     "say": "One million keys. In a balanced tree, a search takes about twenty steps. In a chain, a million steps. Red black trees stop that. That is how we found six fast.",
      "bars": [
       {
        "label": "Balanced",
@@ -1742,7 +1746,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Four follow ups. Memory too big? Use map children or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits.",
+     "say": "Four follow ups. Memory too big? Use map children or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits. That is autocomplete solved.",
      "heads": [
       "They ask",
       "You say"

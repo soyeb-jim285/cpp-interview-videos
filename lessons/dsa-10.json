@@ -506,7 +506,7 @@
     {
      "type": "diagram",
      "head": "Relax, but no improvement",
-     "say": "Four. Through C, B would cost one plus five, six. That's not less than four, so there's no update, and nothing new joins the queue. B stays four, and D becomes five.",
+     "say": "Four. Through C, B would cost one plus five, six. That's not less than four, so there's no update, and nothing new joins the queue. B stays four, and D becomes five. That answers our cheapest route problem.",
      "items": [
       {
        "id": "nA",
@@ -853,7 +853,7 @@
     {
      "type": "compare",
      "head": "What they ask next",
-     "say": "Four follow ups. Negative weights? Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow.",
+     "say": "Four follow ups. Negative weights? Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow. That is the code problem solved.",
      "heads": [
       "They ask",
       "You say"
@@ -1369,7 +1369,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Follow ups. How fast? Inverse Ackermann of n, under five: nearly constant. Can you split a group? No. Go offline, or use rollback. Why not B F S each time? Edges arrive online, and this answers instantly. Classic problems? Provinces, redundant connection, Kruskal's. Common mistake? Comparing parents, not roots.",
+     "say": "Follow ups. How fast? Inverse Ackermann of n, under five: nearly constant. Can you split a group? No. Go offline, or use rollback. Why not B F S each time? Edges arrive online, and this answers instantly. Classic problems? Provinces, redundant connection, Kruskal's. Common mistake? Comparing parents, not roots. That answers who is connected.",
      "heads": [
       "They ask",
       "You say"

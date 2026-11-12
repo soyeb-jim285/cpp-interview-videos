@@ -1028,7 +1028,7 @@
     {
      "type": "compare",
      "head": "Three BFS mistakes",
-     "say": "Three mistakes. Marking visited on pop, not push: cells enter the queue many times. Checking the wall before the bounds: you read outside the grid. Using depth first search for fewest steps: you get a path, not the shortest.",
+     "say": "Three mistakes. Marking visited on pop, not push: cells enter the queue many times. Checking the wall before the bounds: you read outside the grid. Using depth first for fewest steps: not the shortest. That solves our maze.",
      "heads": [
       "Mistake",
       "What goes wrong",
@@ -1830,7 +1830,7 @@
     {
      "type": "compare",
      "head": "BFS or DFS?",
-     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges.",
+     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges. That counts any islands.",
      "heads": [
       "Question",
       "Use"
@@ -2652,7 +2652,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Follow ups. Alphabetically smallest order? Use a min heap instead of the queue. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n.",
+     "say": "Follow ups. Alphabetically smallest order? Use a min heap instead of the queue. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n. That orders any courses.",
      "heads": [
       "They ask",
       "You say"
