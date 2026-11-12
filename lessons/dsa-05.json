@@ -30,7 +30,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "I'm thinking of a number from one to a million. You get twenty guesses. By the end, you'll write binary search with no off by one bugs, then use it on problems that don't look like search.",
+     "say": "I'm thinking of a number from one to a million. You get twenty guesses. By the end, you'll find the first value at least x in a sorted array of a million, then search answers that aren't arrays.",
      "lines": [
       {
        "text": "1 to 1,000,000",
@@ -41,13 +41,13 @@
        "cue": "twenty guesses"
       },
       {
-       "text": "No off-by-one bugs.",
-       "cue": "no off by one",
+       "text": "First value at least x",
+       "cue": "first value at least x",
        "accent": true
       },
       {
-       "text": "Then: problems that aren't search",
-       "cue": "don't look like search"
+       "text": "Then: answers that aren't arrays",
+       "cue": "answers that aren't arrays"
       }
      ]
     },
@@ -167,9 +167,9 @@
        "id": "hi",
        "x": 1530,
        "y": 660,
-       "w": 120,
+       "w": 150,
        "h": 70,
-       "text": "hi",
+       "text": "hi 6",
        "tone": "good",
        "cue": "Hi is the latest"
       },
@@ -314,6 +314,12 @@
      "steps": [
       {
        "lines": [
+        1
+       ],
+       "cue": "Run it"
+      },
+      {
+       "lines": [
         3
        ],
        "cue": "Seven gives three"
@@ -343,7 +349,7 @@
      "output": {
       "cmd": "./sol",
       "text": "3 5 6",
-      "cue": "Run it",
+      "cue": "Ten gives six",
       "setup": {
        "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint lowerBound(const vector<int>& a, int x) {\n    int lo = 0, hi = (int)a.size();\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (a[mid] < x) lo = mid + 1;\n        else hi = mid;\n    }\n    return lo;\n}\n"
       }
@@ -536,14 +542,6 @@
        "h": 100,
        "text": "?",
        "cue": "yes or no question"
-      }
-     ],
-     "notes": [
-      {
-       "x": 1320,
-       "y": 235,
-       "text": "1 trip a day",
-       "cue": "in five days"
       }
      ],
      "changes": [
@@ -999,7 +997,7 @@
      "title": "Does binary search apply?",
      "statement": "Two yes or no checks over candidate answers. Which one can we binary search for its first yes?",
      "example": {
-      "input": "A: no no no yes yes · B: no yes no no yes",
+      "input": "A: NNNYY  B: NYNNY",
       "output": "A works, B does not"
      },
      "say": "Last problem: when is this legal? Check A says no, no, no, yes, yes. Check B: no, yes, no, no, yes. Only A works. Let's see why B breaks.",
@@ -1053,7 +1051,8 @@
       "3",
       "4"
      ],
-     "answer": "4"
+     "answer": "4",
+     "optCue": 0.15
     },
     {
      "type": "diagram",
@@ -1166,7 +1165,7 @@
     {
      "type": "code",
      "head": "The standard library version",
-     "say": "For a sorted array, C plus plus already ships lower bound. It returns an iterator to the first element at least the value. Subtract begin to get the index. Three, same as ours. The search on the answer version, you still write yourself. And it needs sorted input. So only check A is searchable.",
+     "say": "For a sorted array, C plus plus already ships lower bound. It returns an iterator to the first element at least the value. Subtract begin to get the index. Three, same as ours. The search on the answer version, you still write yourself. And it needs sorted input. So only check A can be searched. Problem solved.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1231,7 +1230,7 @@
      "covers": [
       "cp06"
      ],
-     "say": "How does binary search work? Keep a range that holds the answer and halve it. How fast? O of log n, so a billion items take thirty steps. Search on the answer? Find the first yes of a check that never flips back. Common mistakes? Overflowing mid, mixing loop templates, unsorted data.",
+     "say": "How does binary search work? On sorted data, halve a range holding the answer. How fast? O of log n: a billion items, thirty steps. Search on the answer? First yes of a check that never flips, like ship capacity. Common mistakes? Overflowing mid, mixed templates, unsorted data.",
      "heads": [
       "They ask",
       "You say"
@@ -1239,7 +1238,7 @@
      "rows": [
       [
        "How does binary search work?",
-       "keep a range that holds the answer, halve it"
+       "sorted data: halve a range holding the answer"
       ],
       [
        "How fast?",
@@ -1247,7 +1246,7 @@
       ],
       [
        "What is search on the answer?",
-       "first yes of a check that never flips back"
+       "first yes of a never-flipping check, e.g. ship capacity"
       ],
       [
        "Common mistakes?",
