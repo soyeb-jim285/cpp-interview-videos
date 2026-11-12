@@ -1,0 +1,1296 @@
+{
+ "id": "swe-04",
+ "track": "SWE",
+ "num": 4,
+ "title": "Tests, Safe Refactors & Verifiers",
+ "covers": [
+  "sw05",
+  "sw07",
+  "sw11"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Pin it before you touch it",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "You inherit a two hundred line function with no tests, and your manager says clean it up. By the end, you'll change it without breaking anything, then design a task a machine can grade.",
+     "lines": [
+      {
+       "text": "200 lines. Zero tests.",
+       "cue": "two hundred line"
+      },
+      {
+       "text": "\"Clean it up.\"",
+       "cue": "clean it up"
+      },
+      {
+       "text": "Break nothing.",
+       "cue": "without breaking",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Three habits, one lesson",
+     "say": "Interviewers ask this to see whether you rewrite and hope, or work like a surgeon. Three habits answer it. First, pin today's behavior before you touch anything. Second, keep tests fast and trustworthy. Third, write a verifier that nobody can fool.",
+     "items": [
+      {
+       "label": "habit one",
+       "text": "Pin it",
+       "sub": "record today's behavior",
+       "cue": "Three habits"
+      },
+      {
+       "label": "habit two",
+       "text": "Trust tests",
+       "sub": "fast, no flakes",
+       "cue": "keep tests fast"
+      },
+      {
+       "label": "habit three",
+       "text": "Verify",
+       "sub": "a machine grades it",
+       "cue": "write a verifier"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Renovating a house you live in",
+     "say": "Think of renovating a house you live in. First, photograph every room. Then move one wall. Then compare with the photos. In code, the photos are tests.",
+     "items": [
+      {
+       "label": "photograph",
+       "text": "Every room",
+       "sub": "= tests record today",
+       "cue": "photograph every room"
+      },
+      {
+       "label": "move",
+       "text": "One wall",
+       "sub": "= one tiny change",
+       "cue": "move one wall"
+      },
+      {
+       "label": "compare",
+       "text": "With photos",
+       "sub": "= rerun the tests",
+       "cue": "compare with the photos"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Run it, write down what comes back",
+     "say": "Here's a short stand in for your two hundred line monster. It adds tax, takes ten percent off for gold customers, and adds shipping under fifty. Don't hunt for bugs yet. Run it and record. Zero gives four ninety nine. One gives six oh seven. Ninety nine ninety nine gives one oh seven ninety nine.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def calc_invoice(amount, gold=False):\n    total = amount * 1.08\n    if gold:\n        total = total * 0.9\n    if total < 50:\n        total += 4.99\n    return round(total, 2)\nfor a in (0, 1, 99.99):\n    print(a, calc_invoice(a))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "adds tax"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "ten percent off"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "adds shipping"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "Run it and record"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "One gives"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "Ninety nine ninety nine gives"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "0 4.99\n1 6.07\n99.99 107.99",
+      "cue": "Zero gives"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The recording says an empty invoice costs four ninety nine. That smells like a bug. Before you refactor, what do you do? Pause and predict.",
+     "q": "`calc_invoice(0)` returns 4.99, a probable bug. Before refactoring, you...",
+     "options": [
+      "fix it first",
+      "pin 4.99 as it is",
+      "skip that test",
+      "delete the branch"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "code",
+     "head": "Freeze today's answers as asserts",
+     "say": "Pin it as is. These are characterization tests: they describe today, bugs included. So no refactor can change anything by accident. The bug gets fixed later, in its own commit. Four asserts, one for gold. Run them. Pinned. Now you're allowed to touch the code.",
+     "panels": [
+      {
+       "file": "test_app.py",
+       "code": "assert calc_invoice(0) == 4.99\nassert calc_invoice(1) == 6.07\nassert calc_invoice(99.99) == 107.99\nassert calc_invoice(99.99, True) == 97.19\nprint(\"pinned\")"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "describe today"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "no refactor"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "own commit"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "one for gold"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Run them"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "bug pinned on purpose",
+       "tone": "warn",
+       "cue": "bugs included"
+      }
+     ],
+     "output": {
+      "cmd": "python3 test_app.py",
+      "text": "pinned",
+      "tone": "good",
+      "cue": "Pinned"
+     }
+    }
+   ]
+  },
+  {
+   "title": "One tiny step, then run",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "The safe loop",
+     "say": "Now the loop. Make one tiny change, like extracting a helper. Run the tests, which takes seconds. Green? Commit. Red? Undo just that step, so a failure points at exactly one change.",
+     "items": [
+      {
+       "id": "chg",
+       "x": 120,
+       "y": 430,
+       "w": 380,
+       "h": 150,
+       "text": "One tiny change",
+       "cue": "Make one tiny",
+       "label": "step",
+       "sub": "extract, rename",
+       "tone": "blue"
+      },
+      {
+       "id": "run",
+       "x": 620,
+       "y": 430,
+       "w": 380,
+       "h": 150,
+       "text": "Run the tests",
+       "cue": "Run the tests",
+       "label": "seconds",
+       "tone": "warn"
+      },
+      {
+       "id": "ok",
+       "x": 1180,
+       "y": 260,
+       "w": 380,
+       "h": 150,
+       "text": "Green: commit",
+       "cue": "Green",
+       "tone": "good"
+      },
+      {
+       "id": "bad",
+       "x": 1180,
+       "y": 600,
+       "w": 380,
+       "h": 150,
+       "text": "Red: undo it",
+       "cue": "Red",
+       "tone": "bad",
+       "sub": "that one step"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "chg",
+       "to": "run",
+       "cue": "Run the tests"
+      },
+      {
+       "from": "run",
+       "to": "ok",
+       "tone": "good",
+       "cue": "Green"
+      },
+      {
+       "from": "run",
+       "to": "bad",
+       "tone": "bad",
+       "cue": "Red"
+      }
+     ],
+     "changes": [
+      {
+       "id": "chg",
+       "glow": true,
+       "cue": "extracting a helper"
+      },
+      {
+       "id": "ok",
+       "glow": true,
+       "tone": "good",
+       "cue": "Commit"
+      },
+      {
+       "id": "bad",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Undo just"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Extract the tax step",
+     "say": "Say you extract the tax step into its own helper. Your finger slips, and one point oh eight becomes one point eight. The code still runs. Which pinned call fails first?",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def with_tax(x):\n    return x * 1.8\n\ndef calc_invoice(amount, gold=False):\n    total = with_tax(amount)\n    if gold:\n        total = total * 0.9\n    if total < 50:\n        total += 4.99\n    return round(total, 2)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "extract the tax"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "finger slips"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "still runs"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "typo: 1.08 became 1.8",
+       "tone": "bad",
+       "cue": "one point eight"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your pinned tests run in order: zero, one, ninety nine ninety nine. Which assert fails first? Pause and predict.",
+     "q": "With the `1.8` typo, which pinned call fails first?",
+     "options": [
+      "`calc_invoice(0)`",
+      "`calc_invoice(1)`",
+      "`calc_invoice(99.99)`",
+      "none fail"
+     ],
+     "answer": 1,
+     "pause": 4
+    },
+    {
+     "type": "diagram",
+     "head": "Zero hides the typo",
+     "say": "Call one fails. Zero times anything is still zero, so the zero test passed and hid the typo. One gives six seventy nine, not six oh seven. Ninety nine ninety nine gives a hundred seventy nine ninety eight. Red, so you undo that one step. Pick varied inputs.",
+     "items": [
+      {
+       "id": "t0",
+       "x": 120,
+       "y": 400,
+       "w": 480,
+       "h": 150,
+       "text": "4.99 = 4.99",
+       "cue": "Zero times",
+       "label": "calc_invoice(0)",
+       "tone": "good",
+       "size": 44
+      },
+      {
+       "id": "t1",
+       "x": 720,
+       "y": 400,
+       "w": 480,
+       "h": 150,
+       "text": "6.79 vs 6.07",
+       "cue": "One gives",
+       "label": "calc_invoice(1)",
+       "tone": "bad",
+       "size": 44
+      },
+      {
+       "id": "t2",
+       "x": 1320,
+       "y": 400,
+       "w": 480,
+       "h": 150,
+       "text": "179.98 vs 107.99",
+       "cue": "Ninety nine ninety nine gives",
+       "label": "calc_invoice(99.99)",
+       "tone": "bad",
+       "size": 40
+      },
+      {
+       "id": "undo",
+       "x": 720,
+       "y": 700,
+       "w": 480,
+       "h": 130,
+       "text": "undo that step",
+       "cue": "Red, so",
+       "tone": "warn"
+      }
+     ],
+     "notes": [
+      {
+       "x": 560,
+       "y": 880,
+       "text": "vary the inputs",
+       "tone": "info",
+       "cue": "varied inputs"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t0",
+       "glow": true,
+       "tone": "good",
+       "cue": "hid the typo"
+      },
+      {
+       "id": "undo",
+       "glow": true,
+       "tone": "warn",
+       "cue": "undo that one"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three temptations, three habits",
+     "say": "Three temptations. Spot a bug mid refactor? Fix it in its own commit. Can't test it at all? Find a seam, a spot to inject a dependency. Tempted to rewrite from scratch? Don't. Take steps small enough to undo with one revert.",
+     "heads": [
+      "Temptation",
+      "Do this instead"
+     ],
+     "rows": [
+      [
+       "Fix that bug right now",
+       "Note it; fix in its own commit"
+      ],
+      [
+       "Can't test it at all",
+       "Find a seam: inject a dependency"
+      ],
+      [
+       "Big rewrite from scratch",
+       "Steps small enough for one revert"
+      ]
+     ],
+     "cues": [
+      "Spot a bug",
+      "Can't test",
+      "Tempted to"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Tests you can trust",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "The test pyramid",
+     "say": "Think of building a car. First, check each bolt alone. That's a unit test: one function, milliseconds, no database. Many of them, about seventy percent. Next, engine and gearbox on a bench: integration, about twenty. Last, test drive the whole car: end to end, slow, about ten.",
+     "items": [
+      {
+       "id": "e2e",
+       "x": 710,
+       "y": 260,
+       "w": 500,
+       "h": 150,
+       "text": "End to end",
+       "cue": "test drive",
+       "sub": "whole car · ~10%",
+       "tone": "bad"
+      },
+      {
+       "id": "int",
+       "x": 510,
+       "y": 460,
+       "w": 900,
+       "h": 150,
+       "text": "Integration",
+       "cue": "on a bench",
+       "sub": "engine + gearbox · ~20%",
+       "tone": "warn"
+      },
+      {
+       "id": "unit",
+       "x": 310,
+       "y": 660,
+       "w": 1300,
+       "h": 170,
+       "text": "Unit",
+       "cue": "each bolt",
+       "sub": "one function, no database · ~70%",
+       "tone": "good"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1300,
+       "y": 210,
+       "text": "slow, few",
+       "tone": "bad",
+       "cue": "slow, about ten"
+      }
+     ],
+     "changes": [
+      {
+       "id": "unit",
+       "glow": true,
+       "tone": "good",
+       "cue": "Many of them"
+      },
+      {
+       "id": "int",
+       "glow": true,
+       "tone": "warn",
+       "cue": "about twenty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Flaky? Pass the clock in",
+     "say": "A flaky test passes sometimes, fails sometimes. Say yours fails only at midnight. The cause is hidden input: the real clock. Random numbers and the network do it too. Fix it by passing time in. Now a hundred is expired, ninety nine is not, every run.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "import time\n\ndef is_expired(exp):\n    return time.time() >= exp\n\ndef is_expired2(exp, now):\n    return now >= exp\n\nprint(is_expired2(100, 100), is_expired2(100, 99))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "fails only at midnight"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "the real clock"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "passing time in"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Now a hundred"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "hidden input",
+       "tone": "bad",
+       "cue": "hidden input"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "True False",
+      "cue": "every run"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A mock stands in for slow things",
+     "say": "A mock replaces something slow or outside your control, like an email service. The test hands checkout a fake mailer, so no email is sent. It checks the return value, fifty, and that send was called once with receipt. A fake is a simple working copy. A mock also records calls.",
+     "panels": [
+      {
+       "file": "test_app.py",
+       "code": "from unittest.mock import Mock\ndef checkout(mailer, total):\n    mailer.send(\"receipt\")\n    return total\n\nmailer = Mock()\nassert checkout(mailer, 50) == 50\nmailer.send.assert_called_once_with(\"receipt\")\nprint(\"ok\")"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "email service"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "fake mailer"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "return value"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "called once"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "A fake is"
+      }
+     ],
+     "output": {
+      "cmd": "python3 test_app.py",
+      "text": "ok",
+      "cue": "records calls"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same test, but checkout has a bug and sends the receipt twice. What happens when you run it? Pause and predict.",
+     "q": "`checkout` calls `mailer.send` twice. The test above...",
+     "options": [
+      "passes",
+      "fails",
+      "sends two emails",
+      "hangs"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "code",
+     "head": "The mock caught the double send",
+     "say": "It fails. The mock recorded two calls, and assert called once refuses that. No email left the building, yet the bug got caught.",
+     "panels": [
+      {
+       "file": "test_app.py",
+       "code": "def checkout(mailer, total):\n    mailer.send(\"receipt\")\n    mailer.send(\"receipt\")\n    return total\n\n# same Mock test as before"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "two calls"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "duplicate send",
+       "tone": "bad",
+       "cue": "refuses that"
+      }
+     ],
+     "output": {
+      "cmd": "python3 test_app.py",
+      "text": "AssertionError: Expected 'send' to be called once. Called 2 times.",
+      "tone": "bad",
+      "cue": "It fails"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Over-mocking proves nothing",
+     "say": "Here's the classic mistake. This test mocks the cart, tells the mock to return fifty, then asserts the mock returns fifty. It passes. It tests the mock. Mock the slow edges, not the thing you test.",
+     "panels": [
+      {
+       "file": "test_app.py",
+       "label": "bad",
+       "tone": "bad",
+       "code": "from unittest.mock import Mock\n\ncart = Mock()\ncart.total.return_value = 50\nassert cart.total() == 50\nprint(\"passed\")"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "mocks the cart"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "asserts the mock"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "tests the mock",
+       "tone": "bad",
+       "cue": "tests the mock"
+      }
+     ],
+     "output": {
+      "cmd": "python3 test_app.py",
+      "text": "passed",
+      "tone": "bad",
+      "cue": "It passes"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups you'll get",
+     "say": "Follow ups. Why are tests flaky? Clock, randomness, network, shared state. Is a hundred percent coverage good? No, it only shows lines ran. What do you test? Behavior and edge cases, not internals.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why are tests flaky?",
+       "Clock, randomness, network, shared state"
+      ],
+      [
+       "100% coverage good?",
+       "No: it only shows lines ran"
+      ],
+      [
+       "What do you test?",
+       "Behavior and edge cases, not internals"
+      ]
+     ],
+     "cues": [
+      "Why are tests",
+      "Is a hundred",
+      "What do you test"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A verifier nobody can fool",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A driving test",
+     "say": "A verifier says pass or fail. Think of a driving test. The examiner follows a fixed checklist, the same for everyone. The route is a surprise, so you can't memorize it. And any good driver passes, not only one who drives exactly like the examiner.",
+     "items": [
+      {
+       "label": "fixed checklist",
+       "text": "Same rules",
+       "sub": "= deterministic",
+       "cue": "The examiner"
+      },
+      {
+       "label": "surprise route",
+       "text": "Hidden cases",
+       "sub": "= can't memorize",
+       "cue": "surprise"
+      },
+      {
+       "label": "any good driver",
+       "text": "Any answer",
+       "sub": "= not one style",
+       "cue": "any good driver"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Task: merge overlapping intervals",
+     "say": "Our task: merge overlapping intervals. The spec says touching intervals merge, and output is sorted. The reference sorts, then extends the last interval or starts a new one. The sample gives one to six, eight to ten. And one to four, with four to five, becomes one to five.",
+     "panels": [
+      {
+       "file": "ref.py",
+       "code": "def reference(iv):\n    out = []\n    for s, e in sorted(iv):\n        if out and s <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], e)\n        else:\n            out.append([s, e])\n    return out\nprint(reference([[1,3],[2,6],[8,10]]), reference([[1,4],[4,5]]))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "overlapping intervals"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "touching intervals"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "sorts"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "extends the last"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "starts a new one"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "The sample"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "And one to four"
+      }
+     ],
+     "output": {
+      "cmd": "python3 ref.py",
+      "text": "[[1, 6], [8, 10]] [[1, 5]]",
+      "cue": "The sample gives"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A seed makes the cases repeatable",
+     "say": "The generator takes a seed. Seed zero always builds the same list, so a failure on seed thirty one reproduces on any machine, every run. Each case has zero to eight intervals, so the empty list is covered on purpose.",
+     "panels": [
+      {
+       "file": "gen.py",
+       "code": "import random\ndef make_case(seed):\n    rng = random.Random(seed)\n    case = []\n    for _ in range(rng.randint(0, 8)):\n        a = rng.randint(0, 20)\n        case.append([a, a + rng.randint(1, 5)])\n    return case\nprint(make_case(0)[:2], make_case(0) == make_case(0))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "takes a seed"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Seed zero"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "seed thirty one"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "zero to eight"
+      }
+     ],
+     "output": {
+      "cmd": "python3 gen.py",
+      "text": "[[13, 14], [8, 13]] True",
+      "cue": "same list"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "A solution that cheats",
+     "panels": [
+      {
+       "file": "cheat.py",
+       "label": "cheater",
+       "tone": "bad",
+       "code": "def cheat(iv):\n    if iv == [[1,3],[2,6],[8,10]]:\n        return [[1, 6], [8, 10]]\n    return []"
+      }
+     ],
+     "say": "Now a cheater. It hard codes the sample. It passes the visible example. But hidden seeds it has never seen fail. Big inputs with a time limit catch slow brute force. And edge cases, like empty input, go in on purpose.",
+     "items": [
+      {
+       "id": "s",
+       "x": 1060,
+       "y": 240,
+       "w": 640,
+       "h": 120,
+       "text": "sample: pass",
+       "cue": "passes the visible",
+       "label": "visible test",
+       "tone": "good"
+      },
+      {
+       "id": "h",
+       "x": 1060,
+       "y": 430,
+       "w": 640,
+       "h": 120,
+       "text": "hidden seeds: FAIL",
+       "cue": "hidden seeds",
+       "label": "hidden tests",
+       "tone": "bad"
+      },
+      {
+       "id": "b",
+       "x": 1060,
+       "y": 620,
+       "w": 640,
+       "h": 120,
+       "text": "big input: timeout",
+       "cue": "Big inputs",
+       "label": "time limit",
+       "tone": "warn"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1060,
+       "y": 790,
+       "text": "edge cases on purpose",
+       "tone": "info",
+       "cue": "edge cases"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fifty seeds, one verdict",
+     "say": "The grader loops over fifty seeds, builds a case, and compares the candidate with the reference. It hands the candidate a copy, so it can't change the case. The real solution passes all fifty. The cheater fails on seed zero.",
+     "panels": [
+      {
+       "file": "grade.py",
+       "code": "def grade(solve):\n    for seed in range(50):\n        case = make_case(seed)\n        if solve([r[:] for r in case]) != reference(case):\n            return \"FAIL seed %d\" % seed\n    return \"PASS 50 of 50\"\nprint(grade(reference))\nprint(grade(cheat))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "loops over fifty"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "compares the candidate"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "hands the candidate a copy"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "real solution"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "cheater fails"
+      }
+     ],
+     "output": {
+      "cmd": "python3 grade.py",
+      "text": "PASS 50 of 50\nFAIL seed 0",
+      "cue": "passes all fifty"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "The cheater returns an empty list for anything but the sample. Out of the fifty hidden cases, how many does it pass? Pause and predict.",
+     "q": "The cheater passes the sample. How does it do on the 50 hidden cases?",
+     "options": [
+      "all 50",
+      "about 25",
+      "only the empty cases",
+      "none"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "chart",
+     "head": "Passing by luck",
+     "unit": "of 50",
+     "say": "The real solution passes fifty. The cheater passes five, only the empty cases, where an empty answer is right.",
+     "bars": [
+      {
+       "label": "Real",
+       "value": 50,
+       "tone": "good",
+       "cue": "passes fifty"
+      },
+      {
+       "label": "Cheater",
+       "value": 5,
+       "tone": "bad",
+       "cue": "passes five"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Many right answers? Validate",
+     "say": "Some problems accept many answers, like two sum with several valid pairs. Then don't compare with the reference output. Check the rules: two different indices, both in range, and the values add up to the target. Seven works with zero and two, or one and two. Both pass.",
+     "panels": [
+      {
+       "file": "check.py",
+       "code": "def check_pair(nums, t, out):\n    i, j = out\n    n = len(nums)\n    if i == j or i not in range(n) or j not in range(n):\n        return False\n    return nums[i] + nums[j] == t\nnums = [3, 3, 4, 6]\nprint(check_pair(nums, 7, [0, 2]), check_pair(nums, 7, [1, 2]))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "many answers"
+      },
+      {
+       "lines": [],
+       "cue": "don't compare"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "two different"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "in range"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "add up"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Seven works"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "not ==, validate rules",
+       "tone": "warn",
+       "cue": "don't compare"
+      }
+     ],
+     "output": {
+      "cmd": "python3 check.py",
+      "text": "True True",
+      "cue": "Both pass"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Is the reference even right?",
+     "say": "One more. Is the reference right? Compare it with a slow brute force on small inputs. Why seeds? Reproducible failures. Common mistake? A vague spec, or testing only the sample.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Is the reference right?",
+       "Cross-check vs slow brute force (we did)"
+      ],
+      [
+       "Why seeds?",
+       "Same tests every run, repro on demand"
+      ],
+      [
+       "Common mistake?",
+       "Vague spec, or testing only the sample"
+      ]
+     ],
+     "cues": [
+      "Is the reference",
+      "Why seeds",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw07"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Refactor legacy code safely? Pin behavior with characterization tests, then tiny steps. No tests, hard to test? Find a seam. Bug spotted midway? Note it, fix it in its own commit. Common mistake: rewriting from scratch.",
+     "rows": [
+      [
+       "Refactor legacy code safely?",
+       "Pin behavior first, then tiny steps"
+      ],
+      [
+       "Hard to test?",
+       "Find a seam, inject, then add tests"
+      ],
+      [
+       "Bug found midway?",
+       "Note it; fix in its own commit"
+      ],
+      [
+       "Common mistake?",
+       "Rewriting and changing behavior unseen"
+      ]
+     ],
+     "cues": [
+      "Refactor legacy",
+      "No tests",
+      "Bug spotted",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw05"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Unit, integration, end to end? One function, parts together, whole flow. Keep tests reliable? Pass in time and randomness. Mock or fake? A mock records calls. Mistake: mocking so much the test proves nothing.",
+     "rows": [
+      [
+       "Unit vs integration vs end to end?",
+       "One function, parts together, whole flow"
+      ],
+      [
+       "Keep tests reliable?",
+       "Inject time, randomness, I/O"
+      ],
+      [
+       "Mock or fake?",
+       "Mock records calls; fake just works"
+      ],
+      [
+       "Common mistake?",
+       "Mocking so much nothing is proven"
+      ]
+     ],
+     "cues": [
+      "Unit, integration",
+      "Keep tests",
+      "Mock or fake",
+      "Mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw11"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Design a verifier? Spec, reference, seeded hidden tests. Many valid answers? Validate the rules, don't compare text. How do you stop hard coding? Hidden cases, edge cases, time limits. Reference right? Cross check with brute force.",
+     "rows": [
+      [
+       "Design a verifier?",
+       "Spec, reference, seeded hidden tests"
+      ],
+      [
+       "Many valid answers?",
+       "Validate rules, don't compare text"
+      ],
+      [
+       "Stop hard-coding?",
+       "Hidden cases, edges, time limits"
+      ],
+      [
+       "Reference right?",
+       "Cross-check vs brute force"
+      ]
+     ],
+     "cues": [
+      "Design a verifier",
+      "Many valid",
+      "stop hard",
+      "Reference right"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice this week",
+     "say": "Try these three. Take any function you own and write four characterization tests before editing it. Find one test that reads the clock and pass the time in. Then write a seeded verifier for merge overlapping intervals, LeetCode fifty six, and run a cheater against it.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "4 characterization tests on your own code",
+       "pin it before you touch it"
+      ],
+      [
+       "Make one clock-reading test deterministic",
+       "no more midnight failures"
+      ],
+      [
+       "Seeded verifier for LeetCode 56 · Merge Intervals",
+       "a cheater must fail"
+      ]
+     ],
+     "cues": [
+      "Take any function",
+      "Find one test",
+      "seeded verifier"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Pin behavior with tests, then take tiny steps. Keep tests deterministic, many unit tests and few end to end. And grade with a spec, a reference, and seeded hidden tests.",
+     "lines": [
+      "Pin behavior first, then tiny steps.",
+      "Fast, deterministic tests: many unit, few end to end.",
+      "Spec + reference + seeded hidden tests."
+     ],
+     "cues": [
+      "Pin behavior",
+      "Keep tests",
+      "grade with"
+     ]
+    }
+   ]
+  }
+ ]
+}
