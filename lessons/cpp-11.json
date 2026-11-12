@@ -1,0 +1,1406 @@
+{
+ "id": "cpp-11",
+ "track": "C++",
+ "num": 11,
+ "title": "Containers: vector, map & set",
+ "covers": [
+  "q71",
+  "q72",
+  "q73",
+  "q74",
+  "q75",
+  "q76",
+  "q77",
+  "q78"
+ ],
+ "caps": [
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "push back",
+   "push_back"
+  ],
+  [
+   "emplace back",
+   "emplace_back"
+  ],
+  [
+   "unordered map",
+   "unordered_map"
+  ],
+  [
+   "unordered set",
+   "unordered_set"
+  ],
+  [
+   "shrink to fit",
+   "shrink_to_fit"
+  ],
+  [
+   "lower bound",
+   "lower_bound"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Where the elements live",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "A vector looks like a magic array that grows. It isn't magic: it's three pointers and one heap block. Soon you'll predict exactly when it reallocates, and pick map or unordered map with numbers.",
+     "lines": [
+      {
+       "text": "Not magic: 3 pointers + a block",
+       "cue": "three pointers"
+      },
+      {
+       "text": "Predict when it reallocates",
+       "cue": "predict exactly when"
+      },
+      {
+       "text": "map or unordered_map? Use numbers.",
+       "cue": "with numbers",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Interviewers love one question: what happens when a vector is full? Today you see where elements live. Then you watch it grow, and what breaks. Then you pick a tree or a hash table.",
+     "lines": [
+      "Where a vector keeps its elements",
+      "Watch it grow, and what breaks",
+      "Tree or hash table: choose with numbers"
+     ],
+     "cues": [
+      "see where elements live",
+      "watch it grow",
+      "pick a tree"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Where do the elements live?",
+     "statement": "An array of four ints and a vector of four ints hold the same data. Compare the size of each object, and where the data sits.",
+     "example": {
+      "input": "array<int,4> a; vector<int> v(4);",
+      "output": "sizeof 16 and 24; stack and heap"
+     },
+     "say": "Here is the problem. Two containers, four ints each. For example, an array and a vector. How big is each object, and where is the data?",
+     "cues": {
+      "example": "For example",
+      "output": "How big"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A shelf versus a storage unit",
+     "say": "Think of a shelf in your room, or a storage unit with a key card. The array is the shelf. The vector is the key card: three pointers, begin, end, cap. The real ints sit in a unit on the heap.",
+     "items": [
+      {
+       "label": "array: the shelf",
+       "text": "16 bytes",
+       "cue": "The array is the shelf",
+       "sub": "ints inside"
+      },
+      {
+       "label": "vector: key card",
+       "text": "24 bytes",
+       "cue": "The vector is the key card",
+       "sub": "3 pointers"
+      },
+      {
+       "label": "heap block",
+       "text": "4 ints",
+       "cue": "The real ints",
+       "sub": "elements live here",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Three pointers, one block",
+     "say": "Reserve four: the vector asks the heap for four ints. Nothing exists yet, so begin and end sit together. Push ten, and end moves one slot. Push twenty. Push thirty. Size is end minus begin: three. Capacity is cap minus begin: four.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "_",
+         "_",
+         "_",
+         "_"
+        ],
+        "y": 380,
+        "cue": "four ints"
+       }
+      },
+      {
+       "id": "bg",
+       "x": 630,
+       "y": 570,
+       "w": 140,
+       "h": 80,
+       "text": "begin",
+       "cue": "begin and end",
+       "size": 32
+      },
+      {
+       "id": "en",
+       "x": 630,
+       "y": 670,
+       "w": 140,
+       "h": 80,
+       "text": "end",
+       "cue": "sit together",
+       "tone": "warn",
+       "size": 32
+      },
+      {
+       "id": "cp",
+       "x": 1350,
+       "y": 770,
+       "w": 140,
+       "h": 80,
+       "text": "cap",
+       "cue": "cap minus",
+       "size": 32
+      },
+      {
+       "id": "sz",
+       "x": 610,
+       "y": 210,
+       "w": 300,
+       "h": 100,
+       "text": "0",
+       "cue": "Size is",
+       "label": "size",
+       "tone": "good",
+       "size": 56
+      },
+      {
+       "id": "cap",
+       "x": 1010,
+       "y": 210,
+       "w": 300,
+       "h": 100,
+       "text": "4",
+       "cue": "Capacity is",
+       "label": "capacity",
+       "tone": "blue",
+       "size": 56
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": "10",
+       "cue": "Push ten"
+      },
+      {
+       "id": "en",
+       "move": [
+        810,
+        670
+       ],
+       "cue": "end moves"
+      },
+      {
+       "id": "c1",
+       "text": "20",
+       "cue": "Push twenty"
+      },
+      {
+       "id": "en",
+       "move": [
+        990,
+        670
+       ],
+       "cue": "Push twenty"
+      },
+      {
+       "id": "c2",
+       "text": "30",
+       "cue": "Push thirty"
+      },
+      {
+       "id": "en",
+       "move": [
+        1170,
+        670
+       ],
+       "cue": "Push thirty"
+      },
+      {
+       "id": "sz",
+       "text": "3",
+       "cue": "three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Same size on paper, not in memory",
+     "say": "In code, the array is sixteen bytes: the four ints sit inside. The vector is twenty four bytes. Remember that number, and watch it again.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "array<int, 4> a = {1, 2, 3, 4};\nvector<int> v = {1, 2, 3, 4};\ncout << sizeof(a) << ' ' << sizeof(v);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "the array is sixteen"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The vector is"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Remember that"
+      }
+     ],
+     "output": {
+      "cmd": "./sz",
+      "text": "16 24",
+      "cue": "twenty four bytes",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "A million ints in a vector. What is sizeof of the vector object? Pause and predict.",
+     "q": "`vector<int> v(1000000);` What is `sizeof(v)`?",
+     "options": [
+      "8",
+      "24",
+      "4000000",
+      "4000024"
+     ],
+     "answer": "24"
+    },
+    {
+     "type": "code",
+     "head": "Size is not capacity",
+     "say": "Twenty four. Only the heap block grows. The object stays three pointers. Size counts elements that exist, capacity counts room. Reserve one hundred on three elements: size three, capacity one hundred. Clear destroys the elements, but the room stays.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v(1000000);\ncout << sizeof(v) << ' ' << v.capacity() << '\\n';\nvector<int> w(3);\nw.reserve(100);\ncout << w.size() << ' ' << w.capacity() << '\\n';\nw.clear();\ncout << w.size() << ' ' << w.capacity();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "object stays three pointers"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Reserve one hundred"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Clear destroys"
+      }
+     ],
+     "output": {
+      "cmd": "./cap",
+      "text": "24 1000000\n3 100\n0 100",
+      "cue": "the room stays",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "array versus vector",
+     "say": "Array: fixed size, part of its type. Vector: size chosen at run time. The array keeps ints inline, with no allocation. Moving a vector steals the buffer. An array copies every int. Default to vector. Use array for small, fixed data.",
+     "heads": [
+      "`array`",
+      "`vector`"
+     ],
+     "rows": [
+      [
+       "fixed at compile time",
+       "dynamic, can grow"
+      ],
+      [
+       "inside the object, no allocation",
+       "separate heap block"
+      ],
+      [
+       "move: O(n), element by element",
+       "move: O(1), steal the buffer"
+      ],
+      [
+       "small, size known up front",
+       "everything else: the default"
+      ]
+     ],
+     "cues": [
+      "Array: fixed size",
+      "The array keeps",
+      "Moving a vector",
+      "Default to vector"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When the block is full",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why did my pointer break?",
+     "statement": "A vector grows with push_back. Predict its capacity after each push, and whether a saved pointer survives.",
+     "example": {
+      "input": "push_back 1 to 9, keep a pointer",
+      "output": "capacity 1 2 4 4 8 8 8 8 16"
+     },
+     "say": "Next problem. Push one to nine into an empty vector. For example, watch the capacity after every push. Then ask: does a saved pointer survive?",
+     "cues": {
+      "example": "For example",
+      "output": "survive"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Capacity after each push",
+     "say": "Push, then print the capacity. One, two, four. Then four again: no growth. Eight at the fifth push, then sixteen at the ninth. With G C C the capacity doubles. M S V C grows by one and a half. Either way it's geometric, so push back is amortized O of one.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v;\nfor (int i = 1; i <= 9; i++) {\n    v.push_back(i);\n    cout << v.capacity() << ' ';\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Push, then print"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "no growth"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "sixteen at the ninth"
+      },
+      {
+       "lines": [],
+       "cue": "M S V C"
+      },
+      {
+       "lines": [],
+       "cue": "geometric"
+      },
+      {
+       "lines": [],
+       "cue": "amortized"
+      }
+     ],
+     "output": {
+      "cmd": "./grow",
+      "text": "1 2 4 4 8 8 8 8 16",
+      "cue": "doubles",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "What one push_back really does",
+     "say": "Here is a full vector: four ints, capacity four. A pointer p remembers the first one. Push back five. No room, so a block twice as big appears. The four ints are copied across, and five goes in. The old block is freed. But p still points into it. It dangles.",
+     "items": [
+      {
+       "array": {
+        "id": "o",
+        "values": [
+         1,
+         2,
+         3,
+         4
+        ],
+        "y": 250,
+        "cue": "full vector"
+       }
+      },
+      {
+       "id": "p",
+       "x": 630,
+       "y": 440,
+       "w": 200,
+       "h": 100,
+       "text": "p",
+       "cue": "pointer p",
+       "tone": "warn",
+       "size": 40
+      },
+      {
+       "array": {
+        "id": "n",
+        "values": [
+         "·",
+         "·",
+         "·",
+         "·",
+         "·",
+         "·",
+         "·",
+         "·"
+        ],
+        "y": 620,
+        "cue": "twice as big"
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "text": "1",
+       "cue": "copied across"
+      },
+      {
+       "id": "n1",
+       "text": "2",
+       "cue": "copied across"
+      },
+      {
+       "id": "n2",
+       "text": "3",
+       "cue": "copied across"
+      },
+      {
+       "id": "n3",
+       "text": "4",
+       "cue": "copied across"
+      },
+      {
+       "id": "n4",
+       "text": "5",
+       "tone": "good",
+       "cue": "five goes in"
+      },
+      {
+       "id": "o0",
+       "kill": true,
+       "cue": "old block is freed"
+      },
+      {
+       "id": "o1",
+       "kill": true,
+       "cue": "old block is freed"
+      },
+      {
+       "id": "o2",
+       "kill": true,
+       "cue": "old block is freed"
+      },
+      {
+       "id": "o3",
+       "kill": true,
+       "cue": "old block is freed"
+      },
+      {
+       "id": "p",
+       "text": "dangling",
+       "tone": "bad",
+       "cue": "It dangles"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Copy or move? It depends on noexcept",
+     "say": "The vector must carry the old elements across. It moves them only if the move constructor is noexcept. Otherwise it copies, so a throw halfway leaves the original intact. Here, noexcept: move move. Remove it, and the same code prints copy copy.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct A {\n  A() = default;\n  A(const A&) { cout << \"copy \"; }\n  A(A&&) noexcept { cout << \"move \"; }\n};\nvector<A> v(2);\nv.emplace_back();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "carry the old elements"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "noexcept"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Otherwise it copies"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "move move"
+      }
+     ],
+     "output": {
+      "cmd": "./na",
+      "text": "move move",
+      "cue": "move move",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We erase every even number in a loop, calling erase on the iterator, then plus plus on it. What goes wrong? Pause and predict.",
+     "q": "`for(it...; ++it) if even: v.erase(it);` What is wrong?",
+     "options": [
+      "nothing",
+      "it is invalid",
+      "erase is O(n)",
+      "won't compile"
+     ],
+     "answer": "it is invalid"
+    },
+    {
+     "type": "code",
+     "head": "Erase inside a loop",
+     "say": "The iterator is invalid after erase, so the plus plus is undefined behavior. The fix: erase returns an iterator to the next element. Assign it back, and advance only when nothing was erased. With one to six, the evens vanish.",
+     "panels": [
+      {
+       "file": "bug.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "for (auto it = v.begin();\n     it != v.end(); ++it)\n  if (*it % 2 == 0)\n    v.erase(it);"
+      },
+      {
+       "file": "fix.cpp",
+       "label": "fix",
+       "tone": "good",
+       "code": "for (auto it = v.begin();\n     it != v.end(); ) {\n  if (*it % 2 == 0)\n    it = v.erase(it);\n  else ++it;\n}\nfor (int x : v)\n  cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "invalid after erase",
+       "panel": 0
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "returns an iterator",
+       "panel": 1
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "advance only",
+       "panel": 1
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Who invalidates what",
+     "say": "Each container has its own rules. Vector and string: reallocation kills all, else from the change on. Deque: pushing at an end kills iterators, not references. List, map, set: only the erased element. Unordered: rehash kills iterators, references survive.",
+     "heads": [
+      "Container",
+      "Invalidated"
+     ],
+     "rows": [
+      [
+       "`vector`, `string`",
+       "all on realloc; else from the change on"
+      ],
+      [
+       "`deque`",
+       "iterators on push; references stay valid"
+      ],
+      [
+       "`list`, `map`, `set`",
+       "only the erased element"
+      ],
+      [
+       "`unordered_*`",
+       "iterators on rehash; references survive"
+      ]
+     ],
+     "cues": [
+      "Vector and string",
+      "Deque",
+      "List, map, set",
+      "Unordered:"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Tree or hash table?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Look up a key among a million",
+     "statement": "Store a million name-to-score entries. Look one up fast, and walk them in sorted order. Which container, and at what cost?",
+     "example": {
+      "input": "map or unordered_map, 1,000,000 keys",
+      "output": "about 20 steps, or one hash"
+     },
+     "say": "Next problem. A million keys. For example, names mapped to scores. We want fast lookups, and sometimes sorted order. Which container?",
+     "cues": {
+      "example": "For example",
+      "output": "Which container"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A phone book or numbered lockers",
+     "say": "Think of a phone book against numbered lockers. The phone book is sorted, and you flip to the middle again and again: that's a map, a tree. Lockers: the key becomes a locker number, and you jump straight there. That's an unordered map, a hash table.",
+     "items": [
+      {
+       "label": "phone book",
+       "text": "sorted",
+       "cue": "phone book is sorted",
+       "sub": "flip to the middle"
+      },
+      {
+       "label": "map",
+       "text": "a tree",
+       "cue": "that's a map",
+       "sub": "~20 steps"
+      },
+      {
+       "label": "lockers",
+       "text": "numbered",
+       "cue": "Lockers: the key",
+       "sub": "key becomes a number"
+      },
+      {
+       "label": "unordered_map",
+       "text": "hash table",
+       "cue": "an unordered map",
+       "sub": "1 jump",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Same keys, two structures",
+     "say": "A map is a balanced tree. Smaller keys go left, bigger go right, so walking it in order gives sorted keys. An unordered map hashes each key to pick a bucket. Pear lands in bucket zero. Apple and fig collide, so they share bucket two, chained. There is no order.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "nodes": [
+         [
+          "fig",
+          -1
+         ],
+         [
+          "apple",
+          0
+         ],
+         [
+          "pear",
+          0
+         ]
+        ],
+        "x": 480,
+        "y": 280,
+        "cue": "balanced tree"
+       }
+      },
+      {
+       "id": "h0",
+       "x": 1150,
+       "y": 260,
+       "w": 560,
+       "h": 110,
+       "text": "0: pear",
+       "cue": "pick a bucket",
+       "label": "hash table",
+       "size": 40
+      },
+      {
+       "id": "h1",
+       "x": 1150,
+       "y": 400,
+       "w": 560,
+       "h": 110,
+       "text": "1: empty",
+       "tone": "dim",
+       "size": 40
+      },
+      {
+       "id": "h2",
+       "x": 1150,
+       "y": 540,
+       "w": 560,
+       "h": 110,
+       "text": "2: apple, fig",
+       "cue": "share bucket two",
+       "label": "",
+       "size": 40
+      },
+      {
+       "id": "h3",
+       "x": 1150,
+       "y": 680,
+       "w": 560,
+       "h": 110,
+       "text": "3: empty",
+       "tone": "dim",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "t1",
+       "glow": true,
+       "tone": "good",
+       "cue": "Smaller keys go left"
+      },
+      {
+       "id": "t0",
+       "glow": true,
+       "cue": "sorted keys"
+      },
+      {
+       "id": "t2",
+       "glow": true,
+       "tone": "good",
+       "cue": "bigger go right"
+      },
+      {
+       "id": "h0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Pear lands"
+      },
+      {
+       "id": "h2",
+       "glow": true,
+       "tone": "warn",
+       "cue": "collide"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "What you see in code",
+     "say": "A map iterates in sorted order: apple, fig, pear. Lower bound finds the first key not less than b: fig. That's a range query. Only a map can do it. An unordered map iterates in an order you must not rely on.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "map<string, int> m = {{\"pear\", 3},\n    {\"apple\", 5}, {\"fig\", 1}};\nfor (auto& [k, v] : m)\n    cout << k << ' ';\ncout << '\\n';\ncout << m.lower_bound(\"b\")->first;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "iterates in sorted order"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Lower bound"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "range query"
+      },
+      {
+       "lines": [],
+       "cue": "unordered map iterates"
+      }
+     ],
+     "output": {
+      "cmd": "./m",
+      "text": "apple fig pear\nfig",
+      "cue": "not less than b",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "One million keys in a map. About how many comparisons does one find make? Pause and predict.",
+     "q": "`map` with 1,000,000 keys: comparisons per `find`?",
+     "options": [
+      "1",
+      "about 20",
+      "1,000",
+      "1,000,000"
+     ],
+     "answer": "about 20"
+    },
+    {
+     "type": "chart",
+     "head": "Steps to find one key",
+     "say": "About twenty. A tree of a million keys is only that deep. A plain scan takes a million steps. A hash computes one bucket, and checks a few keys.",
+     "unit": "steps",
+     "bars": [
+      {
+       "label": "map",
+       "value": 20,
+       "tone": "warn",
+       "cue": "About twenty"
+      },
+      {
+       "label": "Scan",
+       "value": 1000000,
+       "tone": "bad",
+       "cue": "plain scan"
+      },
+      {
+       "label": "hash",
+       "value": 1,
+       "tone": "good",
+       "cue": "A hash computes"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Insert, find, erase",
+     "say": "Map: all three O of log n, guaranteed. Unordered: O of one on average. Worst case, one bucket takes all keys: O of n. A rehash costs O of n, but it's rare. String keys cost their length. Map needs less than. Unordered needs a hash and equality.",
+     "heads": [
+      "`map`",
+      "`unordered_map`"
+     ],
+     "rows": [
+      [
+       "insert, find, erase: O(log n)",
+       "insert, find, erase: O(1) average"
+      ],
+      [
+       "worst case: still O(log n)",
+       "worst case: O(n), one bucket"
+      ],
+      [
+       "no rehash, ever",
+       "rehash O(n), rare; `reserve` avoids it"
+      ],
+      [
+       "string keys: compare by length",
+       "string keys: hash costs O(length)"
+      ],
+      [
+       "needs `operator<`",
+       "needs hash and `==`"
+      ]
+     ],
+     "cues": [
+      "Map: all three",
+      "Worst case",
+      "A rehash",
+      "String keys",
+      "Map needs"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Sets, sorted or hashed",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Unique keys, two ways",
+     "statement": "Put five, one, four, one, three into a set. Drop the duplicate, then decide: sorted tree or hash table?",
+     "example": {
+      "input": "set<int> s = {5, 1, 4, 1, 3};",
+      "output": "1 3 4 5, duplicate dropped"
+     },
+     "say": "Last problem. A set keeps unique keys. For example, five, one, four, one, three. The second one is dropped. What order comes out?",
+     "cues": {
+      "example": "For example",
+      "output": "What order"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Same input, different order",
+     "say": "The set drops the duplicate and prints one, three, four, five, always sorted. An unordered set drops it too, but its order you must not depend on. A set is a tree. An unordered set is a hash table. Think of maps with keys and no values.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "set<int> s = {5, 1, 4, 1, 3};\nfor (int x : s) cout << x << ' ';\n\nunordered_set<int> u = {5, 1, 4, 1, 3};\nfor (int x : u) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "drops the duplicate"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "An unordered set"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "its order"
+      },
+      {
+       "lines": [],
+       "cue": "A set is a tree"
+      },
+      {
+       "lines": [],
+       "cue": "is a hash table"
+      },
+      {
+       "lines": [],
+       "cue": "no values"
+      }
+     ],
+     "output": {
+      "cmd": "./s",
+      "text": "1 3 4 5",
+      "cue": "always sorted",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Your own type needs more",
+     "say": "With your own type, requirements differ. A set needs an ordering: less than, made from tie. An unordered set needs a hash function, and equality. Forget the hash, and it won't compile. Elements are constant: erase, then insert.",
+     "panels": [
+      {
+       "file": "types.cpp",
+       "code": "bool operator<(Pt a, Pt b) {\n  return tie(a.x, a.y) < tie(b.x, b.y);\n}\nset<Pt> s;\nstruct PtHash {\n  size_t operator()(Pt p) const {\n    return hash<int>{}(p.x) * 31 + hash<int>{}(p.y);\n  }\n};\nunordered_set<Pt, PtHash> u;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "needs an ordering"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ],
+       "cue": "needs a hash function"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "Forget the hash"
+      },
+      {
+       "lines": [],
+       "cue": "Elements are constant"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. An unordered set of Point, with equality defined but no hash. What happens? Pause and predict.",
+     "q": "`unordered_set<Point> u;` with `==` but no hash. Result?",
+     "options": [
+      "slow but works",
+      "compile error",
+      "random order",
+      "runtime crash"
+     ],
+     "answer": "compile error"
+    },
+    {
+     "type": "compare",
+     "head": "Set versus unordered set",
+     "say": "Compile error: no hash for Point. Tree against hash table, sorted against any order. O of log n guaranteed, against O of one average. Need order, ranges, min or max? Set. Plain membership tests? Unordered set.",
+     "heads": [
+      "`set`",
+      "`unordered_set`"
+     ],
+     "rows": [
+      [
+       "balanced tree, sorted",
+       "hash table, any order"
+      ],
+      [
+       "O(log n), guaranteed",
+       "O(1) average, O(n) worst"
+      ],
+      [
+       "`lower_bound`, `begin()` is the min",
+       "`reserve`, load factor"
+      ]
+     ],
+     "cues": [
+      "Tree against hash",
+      "O of log n guaranteed",
+      "Need order"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Vector versus array? An array has a fixed size and keeps its ints inline. A vector grows, and keeps them on the heap. Default to vector.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "array?",
+       "fixed size; ints inline, no allocation"
+      ],
+      [
+       "vector?",
+       "dynamic; ints in a heap block"
+      ],
+      [
+       "Which by default?",
+       "vector"
+      ]
+     ],
+     "cues": [
+      "Vector versus array",
+      "A vector grows",
+      "Default to"
+     ],
+     "covers": [
+      "q71"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "How does a vector manage memory? Three pointers into one contiguous heap block. Full? It allocates a bigger block, moves the elements, frees the old one.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How is it stored?",
+       "three pointers into one contiguous heap block"
+      ],
+      [
+       "When it's full?",
+       "bigger block, move elements, free the old"
+      ]
+     ],
+     "cues": [
+      "How does a vector",
+      "Full?"
+     ],
+     "covers": [
+      "q72"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What if a vector exceeds capacity? It reallocates. Growth: doubling on G C C, one and a half on M S V C. Every pointer and iterator is invalidated.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What happens?",
+       "new block, elements moved or copied, old freed"
+      ],
+      [
+       "How much bigger?",
+       "2x GCC, 1.5x MSVC: amortized O(1)"
+      ],
+      [
+       "Side effect?",
+       "all pointers and iterators invalidated"
+      ]
+     ],
+     "cues": [
+      "What if a vector",
+      "Growth",
+      "Every pointer"
+     ],
+     "covers": [
+      "q73"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Size versus capacity? Size counts elements that exist. Capacity counts room before the next reallocation. Index only below size. Clear keeps the capacity.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`size()`?",
+       "elements that exist"
+      ],
+      [
+       "`capacity()`?",
+       "room before the next reallocation"
+      ],
+      [
+       "After `clear()`?",
+       "size 0, capacity unchanged"
+      ]
+     ],
+     "cues": [
+      "Size versus capacity",
+      "Capacity counts",
+      "Clear keeps"
+     ],
+     "covers": [
+      "q74"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Iterator invalidation? The iterator survives, its element doesn't. Using it is undefined. Vector: reallocation kills all, erase kills from that point. In loops, write it equals erase of it.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Invalidation?",
+       "iterator survives, its element doesn't: UB"
+      ],
+      [
+       "Vector rule?",
+       "realloc: all; erase: from that point"
+      ],
+      [
+       "Erase in a loop?",
+       "`it = v.erase(it)`"
+      ]
+     ],
+     "cues": [
+      "Iterator invalidation",
+      "Vector",
+      "In loops"
+     ],
+     "covers": [
+      "q75"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Map versus unordered map? A map is a sorted tree. An unordered map is a hash table with no order. Use unordered for lookups, map for order and range queries.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "map?",
+       "balanced tree, sorted, range queries"
+      ],
+      [
+       "unordered_map?",
+       "hash table, no order"
+      ],
+      [
+       "Which when?",
+       "lookup: unordered; order: map"
+      ]
+     ],
+     "cues": [
+      "Map versus",
+      "An unordered map is",
+      "Use unordered"
+     ],
+     "covers": [
+      "q76"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Complexity? Map: log n for insert, find and erase, guaranteed. Unordered: one on average, n in the worst case, when keys collide. Rehash is O of n but rare.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`map`?",
+       "O(log n) for all three, guaranteed"
+      ],
+      [
+       "`unordered_map`?",
+       "O(1) average, O(n) worst case"
+      ],
+      [
+       "Rehash?",
+       "O(n), rare; `reserve` avoids it"
+      ]
+     ],
+     "cues": [
+      "Complexity",
+      "Unordered",
+      "Rehash is"
+     ],
+     "covers": [
+      "q77"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Set versus unordered set? Both hold unique keys. A set: sorted tree, log n. An unordered set is a hash table, one on average. Need order or ranges? Set.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "set?",
+       "sorted tree, O(log n), needs `<`"
+      ],
+      [
+       "unordered_set?",
+       "hash table, O(1) average, hash and `==`"
+      ],
+      [
+       "Which when?",
+       "order or ranges: set; membership: unordered"
+      ]
+     ],
+     "cues": [
+      "Set versus",
+      "An unordered set is",
+      "Need order"
+     ],
+     "covers": [
+      "q78"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode one, Two Sum, is a hash map lookup. LeetCode three forty seven, Top K Frequent, counts with a map, then a heap. LeetCode one forty six, LRU Cache, is a hash map plus a list.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 1 · Two Sum",
+       "`unordered_map` lookup in O(1)"
+      ],
+      [
+       "LeetCode 347 · Top K Frequent Elements",
+       "count with a map, then a heap"
+      ],
+      [
+       "LeetCode 146 · LRU Cache",
+       "hash map plus a list"
+      ]
+     ],
+     "cues": [
+      "LeetCode one,",
+      "LeetCode three forty seven",
+      "LeetCode one forty six"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A vector is three pointers into one block. Full means a bigger block, and broken iterators. Map is a sorted tree. Unordered map is a hash table, O of one.",
+     "lines": [
+      "Vector: 3 pointers, one block; growth breaks iterators.",
+      "Capacity doubles: push_back is amortized O(1).",
+      "map: sorted, O(log n). unordered_map: O(1) average."
+     ],
+     "cues": [
+      "A vector is three",
+      "Full means",
+      "Map is a sorted"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
