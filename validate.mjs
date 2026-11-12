@@ -24,6 +24,7 @@ const cueRefs = (sc) => [
 function lessonScene(s, sc, at, panels, cuesOk) {
   const L = codeLayout(sc);
   L.raw.forEach((px, k) => px < 32 && err(at, `[font-floor] panel ${k} code font ${px}px < 32px`));
+  if (L.outH && L.bottom > BAND.y + BAND.h) err(at, `[code-fit] code + output end at y ${Math.round(L.bottom)}, behind the caption band (max ${BAND.y + BAND.h}) even at the 32 px font floor; cut ${Math.ceil((L.bottom - BAND.y - BAND.h) / 48)} line(s) of code or output`);
   if (sc.type === "compare") {
     const t = tableFit(sc);
     if (!t.ok) err(at, `[table-fit] table needs ${Math.round(t.total)} px at the 32 px font floor (max ${BAND.h}, bottom must stay above y 900); cut rows or shorten the cell text`);

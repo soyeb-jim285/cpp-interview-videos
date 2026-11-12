@@ -76,7 +76,7 @@ export function sceneChart(sc, sid, sfx) {
   html = html.replace('class="cbase"', `class="cbase" id="${sid}-cbase"`);
   B.forEach((b, i) => {
     const cx = 160 + slot * (i + 0.5), H = Math.max(10, (b.value / max) * maxH), t = r3(cueTime(sc, b.cue ?? i / n));
-    html += `<div class="cb ${b.tone || "blue"}" id="${sid}-b${i}" style="left:${r3(cx - bw / 2)}px;width:${r3(bw)}px;bottom:${1080 - base}px;height:0"><div class="bv" id="${sid}-b${i}-v"><span id="${sid}-b${i}-n">0</span>${sc.unit ? `<small>${esc(sc.unit)}</small>` : ""}</div></div>`;
+    html += `<div class="cb ${b.tone || "blue"}" id="${sid}-b${i}" style="left:${r3(cx - bw / 2)}px;width:${r3(bw)}px;bottom:${1080 - base}px;height:0"><div class="bv" id="${sid}-b${i}-v"><span id="${sid}-b${i}-n">0</span>${sc.unit ? `<small>${esc(b.value === 1 ? sc.unit.replace(/^([a-z]{2,})s$/i, "$1") : sc.unit)}</small>` : ""}</div></div>`;
     html += `<div class="cx" id="${sid}-x${i}" style="left:${r3(cx - slot / 2)}px;top:${base + 22}px;width:${r3(slot)}px">${hlInline(b.label)}</div>`;
     tw.push(`tl.fromTo("#${sid}-b${i}-v,#${sid}-x${i}",{opacity:0},{opacity:1,duration:0.4},${t});`);
     tw.push(`tl.fromTo("#${sid}-b${i}",{height:0},{height:${r3(H)},duration:0.9,ease:"power3.out"},${t});`);

@@ -142,3 +142,10 @@ test("problem scene renders kicker, statement, input/output boxes with cue-timed
   assert.ok(0.45 < t && t < o && o < n, `${t} ${o} ${n}`);
   assert.ok(at("ps") > at("pt"));
 });
+
+test("chart: unit is singular for a value of exactly 1", async () => {
+  const { sceneChart } = await import("../scenes-v2.mjs");
+  const h = (unit) => sceneChart({ t0: 0, vo: 1, say: "x", unit, bars: [{ label: "a", value: 1 }, { label: "b", value: 2 }] }, "s", []).html;
+  assert.match(h("seconds"), /<small>second<\/small>.*<small>seconds<\/small>/s);
+  assert.match(h("ms"), /<small>ms<\/small>.*<small>ms<\/small>/s);
+});

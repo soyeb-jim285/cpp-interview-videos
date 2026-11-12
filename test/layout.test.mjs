@@ -56,3 +56,12 @@ test("legacy scripts keep passing without the new rules", () => {
   const r = spawnSync("node", ["validate.mjs", ...fs.readdirSync(path.join(ROOT, "scripts")).filter((f) => f.endsWith(".json")).map((f) => `scripts/${f}`)], { cwd: ROOT, encoding: "utf8" });
   assert.match(r.stdout, /^ok/m);
 });
+
+test("code + output: font shrinks to fit above the caption band, else [code-fit]", () => {
+  const sc = (n, o) => ({ type: "code", say, panels: [{ code: Array.from({ length: n }, (_, i) => `x${i} = ${i}`).join("\n") }], output: { text: Array(o).fill("ok").join("\n"), cue: "beta" } });
+  const L = codeLayout(sc(8, 2));
+  assert.ok(L.fonts[0] < 46 && L.fonts[0] >= 32 && L.bottom <= 900);
+  assert.doesNotMatch(lint(sc(8, 2)), /\[code-fit\]/);
+  assert.equal(codeLayout(sc(9, 2)).fonts[0], 32);
+  assert.match(lint(sc(9, 2)), /\[code-fit\] .*cut 1 line/);
+});

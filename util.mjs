@@ -30,10 +30,14 @@ export function codeLayout(sc) {
   const area = { x: isCode ? 160 : 120, y: BAND.y, w: isCode ? 1600 : 840, h, ...sc.area };
   const pw = (area.w - 40 * (panels.length - 1)) / (panels.length || 1);
   const raw = panels.map((p) => panelFont(p, pw, area)), fonts = raw.map((r) => Math.max(32, r));
-  const hs = panels.map((p, k) => p.code.replace(/\n$/, "").split("\n").length * Math.round(fonts[k] * 1.55) + 96);
+  const n = panels.map((p) => p.code.replace(/\n$/, "").split("\n").length), ph = (k) => n[k] * Math.round(fonts[k] * 1.55) + 96;
+  // shrink (floor 32) until panels + terminal end above the caption band (y 900)
+  const room = BAND.y + BAND.h - (sc.area?.y ?? BAND.y) - (outH ? 30 + outH : 0);
+  panels.forEach((p, k) => { while (fonts[k] > 32 && ph(k) > room) fonts[k]--; });
+  const hs = panels.map((p, k) => ph(k));
   const total = Math.max(0, ...hs) + (outH ? 30 + outH : 0);
   if (sc.area?.y === undefined) area.y = BAND.y + Math.max(0, (BAND.h - total) / 2); // center the block in the band
-  return { area, pw, raw, fonts, total, outH, fit: sc.area?.y === undefined && !sc.area?.h };
+  return { area, pw, raw, fonts, total, outH, bottom: area.y + total, fit: sc.area?.y === undefined && !sc.area?.h };
 }
 // Rendered-width estimate (px) of a one-line string at font size fs (Inter ~0.55 em/char avg, bold a bit wider).
 export const textW = (s, fs, bold) => String(s).replace(/`/g, "").length * fs * (bold ? 0.6 : 0.56);
