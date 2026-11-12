@@ -33,11 +33,11 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Delete one word, virtual, and every shape prints zero. By the end, you'll explain the four pillars of O O P, and show when virtual picks the function.",
+     "say": "Drop one word, virtual, from a base with a body, and every shape prints zero. By the end, you'll explain the four pillars of O O P, and show when virtual picks the function.",
      "lines": [
       {
-       "text": "Delete one word: virtual",
-       "cue": "Delete one word"
+       "text": "Drop one word: virtual",
+       "cue": "Drop one word"
       },
       {
        "text": "Every shape prints 0",
@@ -446,6 +446,12 @@
      "steps": [
       {
        "lines": [
+        4
+       ],
+       "cue": "A Copier is a Scanner"
+      },
+      {
+       "lines": [
         2,
         3
        ],
@@ -580,7 +586,7 @@
      "panels": [
       {
        "file": "zoo.cpp",
-       "code": "struct Animal {\n    virtual void speak() { cout << \"...\\n\"; }\n};\nstruct Dog : Animal { void speak() override { cout << \"Woof\\n\"; } };\nstruct Cat : Animal { void speak() override { cout << \"Meow\\n\"; } };\nAnimal* zoo[] = {new Dog, new Cat};\nfor (Animal* a : zoo) a->speak();"
+       "code": "struct Animal {\n    virtual void speak() const { cout << \"...\\n\"; }\n};\nstruct Dog : Animal { void speak() const override { cout << \"Woof\\n\"; } };\nstruct Cat : Animal { void speak() const override { cout << \"Meow\\n\"; } };\nAnimal* zoo[] = {new Dog, new Cat};\nfor (Animal* a : zoo) a->speak();"
       }
      ],
      "steps": [
@@ -613,8 +619,8 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Back to shapes. Delete the word virtual from Shape's area. The loop still calls p arrow area on a Circle and a Square. What prints? Pause and predict.",
-     "q": "Without `virtual`, `p->area()` on a Circle(2) and Square(3) prints...",
+     "say": "Your turn. Shape's area has a body that returns zero, and no virtual. Circle and Square define their own. The loop holds Shape pointers and calls p arrow area. What prints? Pause and predict.",
+     "q": "Shape's `area()` returns 0 and is not virtual. Circle and Square define their own `area()`. The loop calls `p->area()` through `Shape*`. What prints?",
      "options": [
       "12.57 9",
       "0 0",
@@ -836,7 +842,7 @@
     {
      "type": "code",
      "head": "Compile time: overloads and templates",
-     "say": "Overloading: the same name, different parameters. The compiler picks from the argument types. Templates: one piece of code, stamped out for each type you use. Both are settled before the program runs.",
+     "say": "Overloading: same name, different parameters. The compiler picks by argument types. Templates: one code body, stamped out per type. Both are settled before the program runs.",
      "panels": [
       {
        "file": "ct.cpp",
@@ -944,6 +950,10 @@
         2
        ],
        "cue": "By reference"
+      },
+      {
+       "lines": [],
+       "cue": "Polymorphism needs"
       }
      ],
      "notes": [
@@ -987,7 +997,7 @@
      "panels": [
       {
        "file": "shape.cpp",
-       "code": "struct Shape {\n    virtual double area() const = 0;\n};\nclass Circle : public Shape {\npublic:\n    double area() const override { return 3.14; }\n};\nShape s;                 // error: abstract\nShape* p = new Circle;   // OK: a pointer\nCircle c;                // OK: concrete"
+       "code": "struct Shape {\n    virtual double area() const = 0;\n};\nclass Circle : public Shape {\npublic:\n    double area() const override { return 3.14; }\n};\n// Shape s;              // error: abstract\nShape* p = new Circle;   // OK: a pointer\nCircle c;                // OK: concrete"
       }
      ],
      "steps": [
@@ -1192,36 +1202,17 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
      "say": "What is inheritance? A derived class reuses a base, and public means is a. Types? Single, multilevel, multiple, hierarchical, hybrid. Diamond? Two copies of the base, fixed with virtual inheritance. Access modes? Public, protected, private.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What is inheritance?",
-       "derived reuses base; public = is-a"
-      ],
-      [
-       "Types?",
-       "single, multilevel, multiple, hierarchical, hybrid"
-      ],
-      [
-       "Diamond?",
-       "two bases: fix with `virtual` inheritance"
-      ],
-      [
-       "Access modes?",
-       "public, protected, private"
-      ]
+     "lines": [
+      "Derived reuses base. Public means is-a.",
+      "Single, multilevel, multiple, hierarchical, hybrid",
+      "Diamond: fix with virtual inheritance."
      ],
      "cues": [
       "What is inheritance",
       "Types",
-      "Diamond",
-      "Access modes"
+      "Diamond"
      ],
      "covers": [
       "q48"
@@ -1265,30 +1256,16 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
      "say": "What is a virtual function? Chosen at runtime by the object's real type. How? A hidden vptr to the class's vtable. Traps? Constructor calls stay in Base, and always write override.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Virtual function?",
-       "chosen by the object's real type"
-      ],
-      [
-       "How does it work?",
-       "hidden vptr, class vtable"
-      ],
-      [
-       "Traps?",
-       "ctor calls stay in Base; use `override`"
-      ]
+     "lines": [
+      "Chosen at runtime by the object's real type.",
+      "A hidden vptr, pointing to the class's vtable.",
+      "Traps: ctor calls stay in Base. Use override."
      ],
      "cues": [
-      "virtual function",
-      "How",
+      "Chosen at runtime",
+      "hidden vptr",
       "Traps"
      ],
      "covers": [
@@ -1368,7 +1345,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Encapsulation guards the inside, abstraction simplifies the outside. Inheritance is an is a relationship, and virtual makes the object's real type choose the function. Pure virtual makes a class abstract.",
+     "say": "So say this. Encapsulation guards the inside, abstraction simplifies the outside. Inheritance is an is-a relationship. Virtual makes the real type choose the function. Pure virtual makes a class abstract.",
      "lines": [
       "Encapsulation guards, abstraction simplifies.",
       "`virtual`: the real type picks the function.",
@@ -1376,7 +1353,7 @@
      ],
      "cues": [
       "Encapsulation guards",
-      "virtual makes",
+      "Virtual makes",
       "Pure virtual makes"
      ]
     }
