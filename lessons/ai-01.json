@@ -14,15 +14,11 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Ask a model for the capital of France, and it looks nothing up. It picks the next word from odds. By the end you'll explain an L L M in two minutes, and catch five confident wrong answers.",
+     "say": "Ask a model for the capital of France, and it looks nothing up. It picks the next word from odds. By the end you'll explain a large language model in two minutes, and catch five confident wrong answers.",
      "lines": [
       {
-       "text": "Capital of France?",
+       "text": "Capital of France? It looks nothing up.",
        "cue": "capital of France"
-      },
-      {
-       "text": "It looks nothing up.",
-       "cue": "looks nothing up"
       },
       {
        "text": "It picks from odds.",
@@ -31,7 +27,11 @@
       },
       {
        "text": "Explain an LLM in 2 minutes",
-       "cue": "explain an L L M"
+       "cue": "explain a large language model"
+      },
+      {
+       "text": "Catch five confident wrong answers",
+       "cue": "catch five confident wrong answers"
       }
      ]
     },
@@ -228,6 +228,20 @@
      ]
     },
     {
+     "type": "take",
+     "say": "Each token gets a score. Temperature divides every score before the odds are rebuilt. At two, the big gap shrinks. Paris still leads, but by less.",
+     "lines": [
+      "Temperature divides every score",
+      "At two, the big gap shrinks",
+      "Paris still leads, but by less"
+     ],
+     "cues": [
+      "Temperature divides",
+      "big gap shrinks",
+      "still leads"
+     ]
+    },
+    {
      "type": "quiz",
      "say": "Your turn. Temperature two flattens the odds. Paris was ninety two percent. About where does it land? Pause and predict.",
      "q": "Temperature 2 flattens the odds. Paris was 92%. About now?",
@@ -242,7 +256,7 @@
     {
      "type": "code",
      "head": "Temperature and sampling, for real",
-     "say": "About sixty. Flatter, but Paris still leads. The scores are logs of the odds. Divide by temperature, and turn them back into probabilities. Temperature two gives point six three for Paris. Now sample five times: Paris, Lyon, located, Paris, Paris. Same prompt, different answers. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
+     "say": "About sixty. Flatter, but Paris still leads. The scores are logs of the probabilities. Divide by temperature, and turn them back into probabilities. Temperature two gives point six three for Paris. Now sample five times, drawing at random from the odds: Paris, Lyon, located, Paris, Paris. Same prompt, different answers. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
      "panels": [
       {
        "file": "app.py",
@@ -293,7 +307,7 @@
     {
      "type": "diagram",
      "head": "The context window: a sliding sheet",
-     "say": "One more limit: the context window. Think of a sheet that holds only so many tokens. Prompt and reply must fit. Say six. Reply in French. Hi there. Now three more tokens arrive, and the oldest slide off the top. The rule is gone. Real windows are bigger. Many apps drop the oldest first.",
+     "say": "One more limit: the context window. Think of a sheet that holds only so many tokens. Prompt and reply must fit. Say six. Reply in French. Hi there. Now a question arrives: where is Lyon? The oldest slide off the top. The rule is gone. Real windows are bigger. Many apps drop the oldest first.",
      "items": [
       {
        "id": "win",
@@ -380,6 +394,12 @@
        "text": "the rule is gone",
        "tone": "bad",
        "cue": "The rule is gone"
+      },
+      {
+       "x": 190,
+       "y": 790,
+       "text": "drop the oldest first",
+       "cue": "Many apps drop the oldest first"
       }
      ],
      "changes": [
@@ -468,12 +488,20 @@
        "tone": "bad",
        "cue": "completely wrong"
       }
+     ],
+     "changes": [
+      {
+       "id": "f3",
+       "glow": true,
+       "tone": "bad",
+       "cue": "plausible text"
+      }
      ]
     },
     {
      "type": "code",
      "head": "Failure 1: hallucination",
-     "say": "Failure one: hallucination. Ask for a paper. The model answers with authors, a year, a title, and a journal. Every detail is invented. It just continues text, and rarely says I do not know. Catch it by checking names, numbers, and citations against a real source.",
+     "say": "Failure one: hallucination, a confident made-up fact. Ask for a paper. The model answers with authors, a year, a title, and a journal. Nothing in the text tells you which details are real. Treat each one as unverified until you check it. It just continues text, and rarely says I don't know. Catch it by checking names, numbers, and citations against a real source. To reduce it, ask for sources, and allow the answer I don't know.",
      "panels": [
       {
        "file": "prompt.txt",
@@ -508,7 +536,22 @@
       {
        "panel": 1,
        "lines": [],
+       "cue": "Nothing in the text"
+      },
+      {
+       "panel": 1,
+       "lines": [],
+       "cue": "continues text"
+      },
+      {
+       "panel": 1,
+       "lines": [],
        "cue": "Catch it by checking"
+      },
+      {
+       "panel": 1,
+       "lines": [],
+       "cue": "To reduce it"
       }
      ],
      "notes": [
@@ -516,9 +559,9 @@
        "panel": 1,
        "line": 2,
        "inside": true,
-       "text": "invented",
+       "text": "unproven",
        "tone": "bad",
-       "cue": "Every detail is invented"
+       "cue": "Treat each one"
       }
      ]
     },
@@ -539,6 +582,12 @@
         2
        ],
        "cue": "four hundred eighteen"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "It does not calculate"
       },
       {
        "lines": [
@@ -564,17 +613,17 @@
      "say": "Your turn. The model says seventeen times twenty four is four hundred eighteen. You suspect it. What is the best first check? Pause and predict.",
      "q": "Model says 17 × 24 = 418. Best first check?",
      "options": [
-      "Ask if it is sure",
+      "Ask for its steps",
+      "Rerun, take majority",
       "Compute it in code",
-      "Rerun until it agrees",
-      "Judge its confidence"
+      "Ask for a source"
      ],
-     "answer": 1
+     "answer": 2
     },
     {
      "type": "diagram",
      "head": "Check with a tool, not the model",
-     "say": "Compute it in code. Asking again invites a cave. A rerun is another guess. Run the sum. Python says four hundred eight. The answers differ, so reject the claim. A checkable fact needs a checker.",
+     "say": "Compute it in code. Asking again gets another guess, and it may just agree with you. Run the sum. Python says four hundred eight. The answers differ, so reject the claim. A checkable fact needs a checker.",
      "items": [
       {
        "id": "cl",
@@ -716,7 +765,7 @@
     {
      "type": "flow",
      "head": "Failure 4: sycophancy",
-     "say": "Failure four: sycophancy. You ask seventeen times six, and the model says one hundred two, correctly. You push back with a wrong number, one twelve. It caves, and apologizes. It agrees instead of being right. Catch it by pushing back on a correct answer. Wrong pushback should not move it.",
+     "say": "Failure four: sycophancy, which means agreeing to please you. You ask seventeen times six, and the model says one hundred two, correctly. You push back with a wrong number, one twelve. It caves, and apologizes. It agrees instead of being right. Catch it by pushing back on a correct answer. Wrong pushback should not move it.",
      "items": [
       {
        "label": "you",
@@ -761,7 +810,7 @@
     {
      "type": "code",
      "head": "Failure 5: reward hacking",
-     "say": "Failure five: reward hacking. The test checks one input. The model hard codes the expected answer. The test goes green, and the function is useless. Related tricks: editing the test, or special casing the example.",
+     "say": "Failure five: reward hacking, gaming the check. The test checks one input. The model hard codes the expected answer, writing it into the function. The test goes green, and the function is useless. Related tricks: editing the test, or adding an if for that one example.",
      "panels": [
       {
        "file": "app.py",
@@ -804,8 +853,8 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. The function always returns one, two, three. A hidden test calls it on nine, four. What prints? Pause and predict.",
-     "q": "`sort_list` always returns `[1, 2, 3]`. Run it on `[9, 4]`. Prints?",
+     "say": "Your turn. The function always returns one, two, three. A hidden test calls it on nine, four. What comes back? Pause and predict.",
+     "q": "sort_list([9, 4]) returns?",
      "options": [
       "[4, 9]",
       "[1, 2, 3]",
@@ -950,11 +999,11 @@
       "They ask",
       "You say"
      ],
-     "say": "How does an L L M work? It predicts the next token from odds. What is a token? A word piece. Why does one prompt vary? It samples. Temperature zero? Nearly fixed, not guaranteed.",
+     "say": "How does an L L M work? It predicts the next token from odds it learned from huge text. What is a token? A word piece. Why does one prompt vary? It samples. Temperature zero? Nearly fixed, not guaranteed. What is a common mistake? Treating it as a database of facts.",
      "rows": [
       [
        "How does an LLM work?",
-       "predicts the next token from odds"
+       "predicts the next token from odds it learned from huge text"
       ],
       [
        "What is a token?",
@@ -967,13 +1016,18 @@
       [
        "Temperature zero?",
        "nearly fixed, not guaranteed"
+      ],
+      [
+       "What is a common mistake?",
+       "treating it as a database of facts"
       ]
      ],
      "cues": [
-      "How does an L L M",
+      "It predicts the next token",
       "What is a token",
       "Why does one prompt",
-      "Temperature zero"
+      "Temperature zero",
+      "What is a common mistake"
      ]
     },
     {
@@ -986,7 +1040,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Failure modes? Hallucination, wrong sums, ignored rules, sycophancy, reward hacking. Why hallucinate? It predicts plausible text, not truth. Reduce it? Give sources, allow I do not know. Common mistake? Trusting a confident tone.",
+     "say": "Failure modes? Hallucination, wrong sums, ignored rules, sycophancy, reward hacking. Why hallucinate? It predicts plausible text, not truth. Reduce it? Give sources, and allow the answer I don't know. Common mistake? Trusting a confident tone.",
      "rows": [
       [
        "Failure modes?",
