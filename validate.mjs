@@ -1,6 +1,6 @@
 // Usage: node validate.mjs scripts/q16.json [...]   — static checks, no audio needed. Exit 1 on any problem.
 import fs from "node:fs";
-import { panelFont, boxFont } from "./util.mjs";
+import { boxFont, codeLayout, tableFit, arrowGeo, stageOf, textW, noteW, BAND } from "./util.mjs";
 import { expandMacros } from "./scenes-v2.mjs";
 
 let bad = 0;
@@ -22,11 +22,12 @@ const cueRefs = (sc) => [
 ].filter(([, c]) => typeof c === "string");
 // Lesson-only per-scene rules: font floor, cue order, reveal gaps.
 function lessonScene(s, sc, at, panels, cuesOk) {
-  const area = sc.type === "code" ? { w: 1600, h: sc.output ? 560 : 720, ...sc.area } : { w: 840, h: 700, ...sc.area };
-  panels.forEach((p, k) => {
-    const px = panelFont(p, (area.w - 40 * (panels.length - 1)) / panels.length, area);
-    if (px < 32) err(at, `[font-floor] panel ${k} code font ${px}px < 32px`);
-  });
+  const L = codeLayout(sc);
+  L.raw.forEach((px, k) => px < 32 && err(at, `[font-floor] panel ${k} code font ${px}px < 32px`));
+  if (sc.type === "compare") {
+    const t = tableFit(sc);
+    if (!t.ok) err(at, `[table-fit] table needs ${Math.round(t.total)} px at the 32 px font floor (max ${BAND.h}, bottom must stay above y 900); cut rows or shorten the cell text`);
+  }
   const items = sc.type === "flow" ? sc.items.map((it) => ({ ...it, w: Math.min(340, (1600 - 70 * (sc.items.length - 1)) / sc.items.length), size: it.size || 34 })) : sc.items || [];
   for (const b of items) {
     if (b.region) continue;
@@ -56,9 +57,8 @@ function lessonScene(s, sc, at, panels, cuesOk) {
 
 // Pinned notes must not cover code: inside notes need to start past the end of nearby lines; outside notes must fit in frame.
 function noteOverlap(at, sc, panels, n) {
-  const a = sc.type === "code" ? { x: 160, w: 1600, h: sc.output ? 560 : 720, ...sc.area } : { x: 120, w: 840, h: 700, ...sc.area };
-  const k = n.panel || 0, pw = (a.w - 40 * (panels.length - 1)) / panels.length, x = a.x + k * (pw + 40);
-  const fs = Math.max(32, panelFont(panels[k], pw, a)), noteW = (n.text || "").length * 18 + 44;
+  const { area: a, pw, fonts } = codeLayout(sc);
+  const k = n.panel || 0, x = a.x + k * (pw + 40), fs = fonts[k], noteW = (n.text || "").length * 18 + 44;
   const lines = panels[k].code.replace(/\n$/, "").split("\n");
   if (!n.inside) { // ponytail: ignores side:"left"
     if (n.side !== "left" && x + pw + 18 + noteW > 1880) err(at, `[note-overlap] note "${n.text}" runs off the frame; shorten the text, use "inside", or a free-position note`);
@@ -66,6 +66,38 @@ function noteOverlap(at, sc, panels, n) {
   }
   const end = x + 90 + lines[n.line - 1].length * fs * 0.6;
   if (x + pw - 36 - noteW < end + 12) err(at, `[note-overlap] note "${n.text}" covers code at line ${n.line}; shorten the line or the note, or use a free-position note`);
+}
+
+// Rendered text must stay on screen (x 80..1840 after the stage zoom) and arrow labels must not collide.
+function diagramFit(at, sc) {
+  const st = stageOf(sc), k = st?.k ?? 1, X = (x) => (st ? st.tx + x * k : x), boxes = Object.fromEntries(sc.items.map((b) => [b.id, b]));
+  const chk = (what, x, w, fix) => { // x, w in stage units
+    const l = X(x), r = l + w * k;
+    if (l < 80) err(at, `[offscreen] ${what} starts at x=${Math.round(l)} (min 80); ${fix}`);
+    else if (r > 1840) err(at, `[offscreen] ${what} ends at x=${Math.round(r)} (max 1840); ${fix}`);
+  };
+  const fit = (x, extra) => Math.max(1, Math.floor(((1840 - X(x)) / k - extra) / (32 * 0.56)));
+  for (const b of sc.items) {
+    if (b.region) { chk(`region label "${b.label}"`, b.x + 22, (b.label || "").length * 23.7 + 24, "shorten the label or move the region left"); continue; }
+    if (b.label) chk(`label "${b.label}"`, b.x + 4, textW(b.label, 32, true), "shorten the label or move the box left");
+    const vals = [b.text ?? "", ...(sc.changes || []).filter((c) => c.id === b.id && c.text !== undefined).map((c) => c.text)];
+    for (const v of vals) { const w = textW(v, Math.max(32, boxFont(b, vals)), true); chk(`box ${b.id} text "${v}"`, b.x + b.w / 2 - w / 2, w, "shorten the text or move the box inward"); }
+  }
+  for (const n of (sc.notes || []).filter((n) => !n.line && n.x !== undefined))
+    chk(`note "${n.text}"`, n.x, noteW(n), `shorten the text to ~${fit(n.x, 44)} chars or move x left`);
+  const labs = [];
+  (sc.arrows || []).forEach((a, j) => {
+    if (!boxes[a.from] || !boxes[a.to] || !a.label) return;
+    const g = arrowGeo(a, boxes[a.from], boxes[a.to]);
+    chk(`arrow ${j} label "${a.label}"`, g.lab.x, g.lab.w, `shorten the label to ~${fit(g.lab.x, 0)} chars or use bend/layout to move the arrow`);
+    labs.push({ ...g.lab, what: `arrow ${j} label "${a.label}"` });
+  });
+  const hit = (a, b) => a.x + 4 < b.x + b.w && b.x + 4 < a.x + a.w && a.y + 4 < b.y + b.h && b.y + 4 < a.y + a.h;
+  labs.forEach((a, i) => {
+    for (const b of labs.slice(i + 1)) if (hit(a, b)) err(at, `[label-overlap] ${a.what} overprints ${b.what}; shorten them, bend an arrow, or move a box`);
+    for (const b of sc.items) if (!b.region) for (const r of [{ x: b.x, y: b.y, w: b.w, h: b.h }, ...(b.label ? [{ x: b.x + 4, y: b.y - 48, w: textW(b.label, 32, true), h: 40 }] : [])])
+      if (hit(a, r)) { err(at, `[label-overlap] ${a.what} overlaps box ${b.id}; shorten the label or move the boxes apart`); break; }
+  });
 }
 
 function lessonRules(f, s) {
@@ -171,6 +203,7 @@ for (const f of process.argv.slice(2)) {
       (sc.arrows || []).forEach((a, j) => {
         if (!ids.has(a.from) || !ids.has(a.to)) err(at, `arrow ${j} from/to unknown id`);
       });
+      if (s.chapters) diagramFit(at, sc);
       for (const c of sc.changes || []) {
         const m = c.id.match(/^a(\d+)$/);
         if (m ? +m[1] >= (sc.arrows || []).length : !ids.has(c.id)) err(at, `change targets unknown id ${c.id}`);

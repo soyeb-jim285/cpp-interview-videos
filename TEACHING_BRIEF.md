@@ -441,6 +441,9 @@ go in a temp dir).
 | `[region-title]` | a region's title sits on its top border: keep cells' top (and index labels) ≥ 80 px below the region top, or right of the title |
 | `[note-overlap]` | shorten that code line or the note text, or use a free-position note (`x`,`y`) |
 | `[font-floor]` | shorten code lines / box text, fewer lines, or widen the box |
+| `[table-fit]` | compare table still taller than y 190-900 at the 32 px floor: cut rows or shorten cell text (the build already shrinks padding, then font) |
+| `[offscreen]` | a diagram note, label, arrow label or box text would render left of x 80 or right of x 1840 (after the auto-zoom): shorten it (message gives max chars) or move it inward |
+| `[label-overlap]` | two arrow labels, or an arrow label and a box/its label, intersect: shorten the label, add `bend`, or move the boxes apart |
 | `… cue "…" not found in say` | every cue (steps, notes, output, rows, items, arrows, changes, hook lines, bars, panels, `optCue`) must be an exact substring of that scene's `say`; order/gap checks wait until all are found |
 | `[cue-count]` | one cue per compare row / take line |
 | `[macro] …` | a macro is malformed (e.g. a tree parent index that doesn't exist) |

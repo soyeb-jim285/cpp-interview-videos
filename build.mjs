@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const SFX = new URL("./sfx", import.meta.url).pathname;
-import { LEAD, TAIL, esc, r3, hlInline, cueTime, panelFont, boxFont } from "./util.mjs";
+import { LEAD, TAIL, esc, r3, hlInline, cueTime, boxFont, codeLayout, tableFit, arrowGeo, stageOf, noteW } from "./util.mjs";
 import { sceneHook, sceneQuiz, sceneChapter, sceneChart, expandMacros } from "./scenes-v2.mjs";
 
 const SFXLEN = { "click.mp3": 0.37, "click-soft.mp3": 0.37, "error.mp3": 1.62, "key-press.mp3": 0.4, "pop.mp3": 0.72, "sparkle.mp3": 1.8, "whoosh.mp3": 0.57, "whoosh-short.mp3": 0.57 };
@@ -45,13 +45,12 @@ function hl(line, lang = "cpp") {
 const langOf = (file) => LANG[(file || "main.cpp").split(".").pop().toLowerCase()] || "cpp";
 
 // ---------- scene renderers: return {html, tw:[js lines], sfx:[{t,file,vol}]} ----------
-function codePanels(sc, sid, panels, area) {
+function codePanels(sc, sid, panels, { area, pw, fonts }) {
   let html = "", tw = [];
-  const gap = 40, n = panels.length;
-  const pw = (area.w - gap * (n - 1)) / n;
+  const gap = 40;
   panels.forEach((p, k) => {
     const lines = p.code.replace(/\n$/, "").split("\n");
-    const fs_ = Math.max(32, panelFont(p, pw, area));
+    const fs_ = fonts[k];
     const lh = Math.round(fs_ * 1.55);
     const h = lines.length * lh + 96;
     const x = area.x + k * (pw + gap);
@@ -100,7 +99,7 @@ function focusSteps(sc, panels, steps = []) {
   return tw;
 }
 
-function notesHtml(sc, sid, panels, notes = [], sfx) {
+function notesHtml(sc, sid, panels, notes = [], sfx, st) {
   let html = "", free = "", tw = [];
   notes.forEach((nt, i) => {
     const id = `${sid}-n${i}`, t = r3(cueTime(sc, nt.cue));
@@ -110,7 +109,7 @@ function notesHtml(sc, sid, panels, notes = [], sfx) {
       const y = g.top + (nt.line - 1) * g.lh + g.lh / 2;
       style = nt.side === "left" ? `right:${1920 - g.x + 18}px;top:${y}px` : `left:${g.x + g.w + 18}px;top:${y}px`;
       if (nt.inside) style = `right:${1920 - (g.x + g.w) + 36}px;top:${y}px`;
-    } else style = `left:${nt.x}px;top:${nt.y}px`;
+    } else style = `left:${st ? Math.min(nt.x, (1840 - st.tx) / st.k - noteW(nt)) : nt.x}px;top:${nt.y}px`; // clamp: keep the chip on screen
     const el = `<div class="note ${nt.tone || "info"}" id="${id}" style="${style}">${esc(nt.text)}</div>`;
     if (nt.line) html += el; else free += el;
     tw.push(`tl.fromTo("#${id}",{opacity:0,scale:0.85},{opacity:1,scale:1,duration:0.35,ease:"back.out(2)"},${t});`);
@@ -133,9 +132,7 @@ function outputHtml(sc, sid, out, y, sfx) {
 
 function sceneCode(sc, sid, sfx) {
   const panels = sc.panels;
-  const hasOut = !!sc.output;
-  const area = { x: 160, y: 190, w: 1600, h: hasOut ? 560 : 720, ...(sc.area || {}) };
-  const a = codePanels(sc, sid, panels, area);
+  const a = codePanels(sc, sid, panels, codeLayout(sc));
   const tw = [...a.tw, ...focusSteps(sc, panels, sc.steps)];
   const bottom = Math.max(...panels.map((p) => p._geo.y + p._geo.h));
   const n = notesHtml(sc, sid, panels, sc.notes, sfx);
@@ -145,8 +142,8 @@ function sceneCode(sc, sid, sfx) {
 
 function sceneCompare(sc, sid, sfx) {
   const cols = sc.heads.length + (sc.rowHeads ? 1 : 0);
-  const big = sc.rows.length <= 3, small = sc.rows.length >= 6; // few rows: scale text and padding up to fill the band
-  let html = `<div class="cmp" id="${sid}-cmp" style="--cf:${big ? 46 : small ? 34 : 40}px;--rf:${big ? 40 : 32}px;--cp:${big ? 40 : small ? 18 : 28}px;grid-template-columns:${sc.rowHeads ? "300px " : ""}repeat(${sc.heads.length},1fr)">`;
+  const tf = tableFit(sc); // few rows: scale up; many: shrink to fit above the caption band
+  let html = `<div class="cmp" id="${sid}-cmp" style="--cf:${tf.cf}px;--rf:${tf.rf}px;--cp:${tf.cp}px;grid-template-columns:${sc.rowHeads ? "300px " : ""}repeat(${sc.heads.length},1fr)">`;
   if (sc.rowHeads) html += `<div class="ch" style="background:none"></div>`;
   sc.heads.forEach((h, k) => (html += `<div class="ch h${k}">${esc(h)}</div>`));
   const tw = [`tl.fromTo("#${sid}-cmp .ch",{opacity:0,y:-16},{opacity:1,y:0,duration:0.4,stagger:0.1},${r3(sc.t0 + 0.2)});`];
@@ -168,7 +165,7 @@ function sceneDiagram(sc, sid, sfx) {
   let html = `<svg class="wires" width="1920" height="1080" viewBox="0 0 1920 1080">`, tw = [];
   let pre = "";
   if (sc.panels) {
-    const a = codePanels(sc, sid, sc.panels, { x: 120, y: 190, w: 840, h: 700, ...(sc.area || {}) });
+    const a = codePanels(sc, sid, sc.panels, codeLayout(sc));
     pre = a.html; tw.push(...a.tw, ...focusSteps(sc, sc.panels, sc.steps));
   }
   const boxes = Object.fromEntries((sc.items || []).map((b) => [b.id, b]));
@@ -185,25 +182,15 @@ function sceneDiagram(sc, sid, sfx) {
     if (!b.region && b.cue !== undefined) tw.push(glow(id, b.tone, t + 0.2));
     if (!b.region && b.cue !== undefined) sfx.push({ t, file: "pop.mp3", vol: 0.14 });
   }
-  const edge = (b, tx, ty) => { // point on b's border (incl. label above it) toward (tx,ty)
-    const top = b.y - (b.label && !b.region ? 46 : 0), h = b.y + b.h - top;
-    const cx = b.x + b.w / 2, cy = top + h / 2, dx = tx - cx, dy = ty - cy;
-    const s = Math.min(Math.abs((b.w / 2 + 6) / (dx || 1e-9)), Math.abs((h / 2 + 6) / (dy || 1e-9)));
-    return [cx + dx * s, cy + dy * s];
-  };
   (sc.arrows || []).forEach((a, i) => {
     const A = boxes[a.from], B = boxes[a.to], id = `${sid}-a${i}`, t = r3(cueTime(sc, a.cue));
-    const [bx, by] = [B.x + B.w / 2 + (a.dx || 0), B.y + B.h / 2 + (a.dy || 0)];
-    const [x1, y1] = edge(A, bx, by);
-    const [x2, y2] = edge(B, A.x + A.w / 2, A.y + A.h / 2);
-    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, L = Math.hypot(x2 - x1, y2 - y1) || 1;
-    const qx = mx + (-(y2 - y1) / L) * (a.bend || 0), qy = my + ((x2 - x1) / L) * (a.bend || 0);
+    const { x1, y1, x2, y2, qx, qy, side } = arrowGeo(a, A, B);
     let len = 0, px = x1, py = y1;
     for (let k = 1; k <= 40; k++) { const u = k / 40, X = (1 - u) ** 2 * x1 + 2 * (1 - u) * u * qx + u * u * x2, Y = (1 - u) ** 2 * y1 + 2 * (1 - u) * u * qy + u * u * y2; len += Math.hypot(X - px, Y - py); px = X; py = Y; }
     const ang = Math.atan2(y2 - qy, x2 - qx), hx = (d, s) => [x2 - 22 * Math.cos(ang + s * d), y2 - 22 * Math.sin(ang + s * d)];
     const [p1, p2] = [hx(0.45, 1), hx(0.45, -1)];
     const dpath = `M${r3(x1)},${r3(y1)} Q${r3(qx)},${r3(qy)} ${r3(x2)},${r3(y2)}`;
-    html += `<g id="${id}" class="arrow ${a.tone || ""}"><path id="${id}-p" d="${dpath}" stroke-dasharray="${r3(len)}" stroke-dashoffset="${r3(len)}"/><path class="pulse" id="${id}-q" d="${dpath}" stroke-dasharray="46 ${r3(len + 46)}" stroke-dashoffset="46" opacity="0"/><polygon id="${id}-h" points="${r3(x2)},${r3(y2)} ${r3(p1[0])},${r3(p1[1])} ${r3(p2[0])},${r3(p2[1])}" opacity="0"/>${a.label ? (Math.abs(x2 - x1) < Math.abs(y2 - y1) ? `<text x="${r3(qx + 22)}" y="${r3(qy + 9)}" style="text-anchor:start" id="${id}-t" opacity="0">${esc(a.label)}</text>` : `<text x="${r3(qx)}" y="${r3(qy - 16)}" id="${id}-t" opacity="0">${esc(a.label)}</text>`) : ""}</g>`;
+    html += `<g id="${id}" class="arrow ${a.tone || ""}"><path id="${id}-p" d="${dpath}" stroke-dasharray="${r3(len)}" stroke-dashoffset="${r3(len)}"/><path class="pulse" id="${id}-q" d="${dpath}" stroke-dasharray="46 ${r3(len + 46)}" stroke-dashoffset="46" opacity="0"/><polygon id="${id}-h" points="${r3(x2)},${r3(y2)} ${r3(p1[0])},${r3(p1[1])} ${r3(p2[0])},${r3(p2[1])}" opacity="0"/>${a.label ? (side ? `<text x="${r3(qx + 22)}" y="${r3(qy + 9)}" style="text-anchor:start" id="${id}-t" opacity="0">${esc(a.label)}</text>` : `<text x="${r3(qx)}" y="${r3(qy - 16)}" id="${id}-t" opacity="0">${esc(a.label)}</text>`) : ""}</g>`;
     tw.push(`tl.to("#${id}-p",{strokeDashoffset:0,duration:0.6,ease:"power2.inOut"},${t});`);
     tw.push(`tl.to("#${id}-h${a.label ? `,#${id}-t` : ""}",{opacity:1,duration:0.2},${r3(t + 0.5)});`);
     tw.push(`tl.set("#${id}-q",{opacity:1},${r3(t + 0.55)});tl.fromTo("#${id}-q",{strokeDashoffset:46},{strokeDashoffset:${r3(-len)},duration:0.75,ease:"power1.inOut"},${r3(t + 0.55)});tl.set("#${id}-q",{opacity:0},${r3(t + 1.3)});`);
@@ -229,16 +216,11 @@ function sceneDiagram(sc, sid, sfx) {
     if (c.glow) tw.push(glow(id, c.tone, t));
     if (c.fade) tw.push(`tl.to("#${id}",{opacity:0,duration:0.4},${t});`);
   }
-  const n = notesHtml(sc, sid, sc.panels || [], sc.notes, sfx);
-  // auto-zoom: scale the diagram so it fills its area, with a slow push-in
-  const its = [...(sc.items || []), ...(sc.changes || []).filter((c) => c.move && boxes[c.id]).map((c) => ({ ...boxes[c.id], x: c.move[0], y: c.move[1] }))]; // include move targets
+  const st = stageOf(sc); // auto-zoom: scale the diagram so it fills its area, with a slow push-in
+  const n = notesHtml(sc, sid, sc.panels || [], sc.notes, sfx, st);
   let stageOpen = "", stageClose = "";
-  if (its.length && !sc.noZoom) {
-    const x0 = Math.min(...its.map((b) => b.x)) - 20, x1 = Math.max(...its.map((b) => b.x + b.w)) + 20;
-    const y0 = Math.min(...its.map((b) => b.y - (b.label && !b.region ? 50 : b.region ? 30 : 0))) - 10, y1 = Math.max(...its.map((b) => b.y + b.h + (b.sub ? 10 : 0))) + 30;
-    const A = sc.panels ? { x: 120 + (sc.area?.w ?? 840) + 50, y: 180, w: 1800 - (120 + (sc.area?.w ?? 840) + 50), h: 730 } : { x: 110, y: 180, w: 1700, h: 740 };
-    const k = Math.max(1, Math.min(A.w / (x1 - x0), A.h / (y1 - y0), sc.panels ? 1.35 : 1.6));
-    const tx = A.x + (A.w - (x1 - x0) * k) / 2 - x0 * k, ty = A.y + (A.h - (y1 - y0) * k) / 2 - y0 * k;
+  if (st) {
+    const { k, tx, ty, x0, x1, y0, y1 } = st;
     stageOpen = `<div class="stage" id="${sid}-stage">`; stageClose = "</div>";
     const end = sc.t0 + LEAD + sc.vo + (sc.hold ?? TAIL);
     tw.unshift(`tl.fromTo("#${sid}-stage",{x:${r3(tx + (x1 - x0) * k * 0.015)},y:${r3(ty + (y1 - y0) * k * 0.015)},scale:${r3(k * 0.97)},transformOrigin:"0 0"},{x:${r3(tx)},y:${r3(ty)},scale:${r3(k)},duration:${r3(end - sc.t0)},ease:"none"},${r3(sc.t0)});`);
@@ -267,7 +249,7 @@ function sceneTitle(sc, sid, spec) {
 }
 
 function sceneTake(sc, sid, sfx) {
-  const html = `<div class="take" id="${sid}-tk"><div class="kicker">${esc(sc.kicker || "Remember")}</div>${sc.lines.map((l, i) => `<div class="tl" id="${sid}-t${i}"><s>0${i + 1}</s><span>${hlInline(l.replace(/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")))}</span></div>`).join("")}</div>`;
+  const html = `<div class="take${sc.kicker === "Today" ? " ag" : ""}" id="${sid}-tk"><div class="kicker">${esc(sc.kicker || "Remember")}</div>${sc.lines.map((l, i) => `<div class="tl" id="${sid}-t${i}"><s>0${i + 1}</s><span>${hlInline(l.replace(/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")))}</span></div>`).join("")}</div>`;
   const tw = [`tl.fromTo("#${sid}-tk .kicker",{opacity:0,x:-20},{opacity:1,x:0,duration:0.6},${r3(sc.t0 + 0.2)});`];
   sc.lines.forEach((l, i) => {
     const t = r3(cueTime(sc, sc.cues?.[i] ?? i / sc.lines.length));
