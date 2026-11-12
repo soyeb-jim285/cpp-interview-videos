@@ -1,0 +1,7 @@
+name: ping
+on: { push: { branches: [ci-ping] } }
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: nproc && echo ok
