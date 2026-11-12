@@ -1,6 +1,6 @@
 // Usage: node validate.mjs scripts/q16.json [...]   — static checks, no audio needed. Exit 1 on any problem.
 import fs from "node:fs";
-import { boxFont, codeLayout, tableFit, arrowGeo, stageOf, textW, noteW, BAND } from "./util.mjs";
+import { boxFont, codeLayout, tableFit, arrowGeo, stageOf, textW, noteW, BAND, cueIndex } from "./util.mjs";
 import { expandMacros } from "./scenes-v2.mjs";
 
 let bad = 0;
@@ -8,7 +8,7 @@ const err = (f, m) => { bad++; console.log(`${f}: ${m}`); };
 const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take", "problem", "hook", "quiz", "chart", "chapter"]);
 const SPOKEN_BAN = [/C\+\+/, /std::/, /->/, /::/, /[{}<>;`]/, /\bnullptr\b(?! t)/i, /\bRAII\b/, /\bSTL\b/];
 
-const wordsBefore = (say, cue) => say.slice(0, say.toLowerCase().indexOf(String(cue).toLowerCase())).split(/\s+/).filter(Boolean).length;
+const wordsBefore = (say, cue) => say.slice(0, cueIndex(say, cue)).split(/\s+/).filter(Boolean).length;
 // Every string cue in a scene, labelled for error messages (numbers are 0..1 fractions of the voice).
 const cueRefs = (sc) => [
   ...(sc.steps || []).map((x) => ["step", x.cue]), ...(sc.notes || []).map((x) => ["note", x.cue]), ["output", sc.output?.cue],

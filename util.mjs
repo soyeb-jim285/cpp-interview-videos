@@ -5,11 +5,22 @@ export const r3 = (n) => Math.round(n * 1000) / 1000;
 // `code` inside backticks in prose cells
 export const hlInline = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
+// Position of a cue in say, at word boundaries ("Task" must not match inside "Microtask").
+// ponytail: falls back to plain substring so mid-word cues still resolve
+export function cueIndex(say, cue) {
+  const s = say.toLowerCase(), c = String(cue).toLowerCase(), w = /[a-z0-9]/;
+  for (let i = s.indexOf(c); i >= 0; i = s.indexOf(c, i + 1)) {
+    const okL = !w.test(c[0]) || !w.test(s[i - 1] || " "), okR = !w.test(c.at(-1)) || !w.test(s[i + c.length] || " ");
+    if (okL && okR) return i;
+  }
+  return s.indexOf(c);
+}
+
 // Map a cue (substring of sc.say, or 0..1 fraction of the voice) to absolute seconds.
 export function cueTime(sc, cue) {
   if (cue === undefined || cue === null) return sc.t0 + LEAD;
   if (typeof cue === "number") return sc.t0 + LEAD + cue * sc.vo;
-  const i = sc.say.toLowerCase().indexOf(cue.toLowerCase());
+  const i = cueIndex(sc.say, cue);
   if (i < 0) throw new Error(`cue "${cue}" not in: ${sc.say}`);
   return sc.t0 + LEAD + (i / sc.say.length) * sc.vo;
 }
