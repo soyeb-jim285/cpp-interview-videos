@@ -54,10 +54,10 @@
       "input": "Answer A and Answer B, two graders",
       "output": "Both graders: A is 4, B is 2"
      },
-     "say": "Here is the problem. Two answers to explain recursion, two graders. For example, answers A and B. We want both graders to agree: four for A, two for B.",
+     "say": "Here is the problem. Two graders read two answers to explain recursion, answers A and B. Make both graders land on the same scores: four for A, two for B.",
      "cues": {
-      "example": "For example",
-      "output": "We want both graders"
+      "example": "answers A and B",
+      "output": "Make both graders"
      }
     },
     {
@@ -165,7 +165,7 @@
     {
      "type": "code",
      "head": "Our rubric and two answers",
-     "say": "Here is our rubric, out of five. Correct is worth up to two: no false claims. Complete, up to two: names the self call and the base case. Clear, one. Answer A is correct and clear, but never names a base case. Answer B calls recursion a loop.",
+     "say": "Here is our rubric, out of five. Correct is worth up to two: no false claims. Complete, up to two: names the self call and the base case. Clear, one. Answer A is true and clear, but never names a base case. Two, one, one: a four. Answer B names the self call, but says it runs forever. That is false. Zero, one, one: a two.",
      "panels": [
       {
        "file": "rubric.txt",
@@ -173,7 +173,7 @@
       },
       {
        "file": "answers.txt",
-       "code": "A: A function that calls\n   itself on a smaller input.\n   Example: 3! is 3 times 2!\n\nB: A loop that repeats some\n   code."
+       "code": "A: A function that calls\n   itself on a smaller input.\n   Example: 3! is 3 times 2!\n\nB: A function that calls\n   itself, again and again,\n   forever."
       }
      ],
      "steps": [
@@ -210,11 +210,45 @@
       },
       {
        "lines": [
-        5,
-        6
+        2,
+        3
+       ],
+       "panel": 0,
+       "cue": "never names a base"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
        ],
        "panel": 1,
-       "cue": "Answer B calls"
+       "cue": "Two, one, one"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "panel": 1,
+       "cue": "Answer B names"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "That is false"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "panel": 1,
+       "cue": "Zero, one, one"
       }
      ]
     },
@@ -395,9 +429,9 @@
       "output": "Fail: it broke an explicit rule"
      },
      "note": "Easy to miss when skimming",
-     "say": "Next problem. The prompt wants exactly two sentences. The response reads well. For example, it has three short ones. Does it pass? No, it broke a rule. A quick reader misses that.",
+     "say": "A trap. The prompt wants exactly two sentences. The response reads well, but has three short ones. Does it pass? No, it broke a rule. A quick reader misses that.",
      "cues": {
-      "example": "For example",
+      "example": "three short ones",
       "output": "it broke a rule",
       "note": "A quick reader"
      }
@@ -415,7 +449,7 @@
        "file": "response.txt",
        "label": "3 sentences",
        "tone": "warn",
-       "code": "The city opened a bridge.\nIt cuts commutes by 12\nminutes.\nIt cost 40 million dollars."
+       "code": "The city opened a bridge.\nIt cuts commutes by 12 min.\nIt cost 40 million."
       }
      ],
      "steps": [
@@ -423,8 +457,7 @@
        "lines": [
         1,
         2,
-        3,
-        4
+        3
        ],
        "panel": 1,
        "cue": "Read the response"
@@ -438,15 +471,14 @@
       },
       {
        "lines": [
-        2,
-        3
+        2
        ],
        "panel": 1,
        "cue": "two,"
       },
       {
        "lines": [
-        4
+        3
        ],
        "panel": 1,
        "cue": "three."
@@ -454,9 +486,10 @@
      ],
      "notes": [
       {
-       "line": 4,
+       "panel": 1,
+       "line": 3,
        "inside": true,
-       "text": "3rd: rule broken",
+       "text": "Too many!",
        "tone": "bad",
        "cue": "careful grader"
       }
@@ -536,20 +569,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same two sentence summary, but now the response says the bridge cost four hundred million. The text said forty. Which check fails? Pause and predict.",
+     "say": "Now change one number. Same two sentence summary, but the response says the bridge cost four hundred million. The text said forty. Which check fails? Pause and predict.",
      "q": "The text says 40 million; the response says 400 million. Which check fails?",
      "options": [
       "Facts match",
       "Rules followed",
-      "Nothing invented",
-      "Clear and short"
+      "Clear and short",
+      "Tone is friendly"
      ],
      "answer": "Facts match"
     },
     {
      "type": "diagram",
      "head": "Four checks, pass or fail",
-     "say": "Facts match fails. The text says forty million, and the response says four hundred million. Rules followed now passes. Nothing invented still passes, because only a number is wrong. One failed check, one reason.",
+     "say": "Facts match fails. The text says forty million. The response says four hundred million. Rules followed now passes. Nothing invented still passes, because only a number is wrong. One failed check, one reason.",
      "items": [
       {
        "id": "c0",
@@ -558,9 +591,8 @@
        "w": 380,
        "h": 200,
        "label": "Facts match",
-       "text": "pass",
-       "size": 56,
-       "tone": "good"
+       "text": "?",
+       "size": 56
       },
       {
        "id": "c1",
@@ -569,10 +601,8 @@
        "w": 380,
        "h": 200,
        "label": "Rules followed",
-       "text": "fail",
-       "sub": "3 sentences",
-       "size": 56,
-       "tone": "bad"
+       "text": "?",
+       "size": 56
       },
       {
        "id": "c2",
@@ -668,10 +698,10 @@
       "input": "Reply A vs Reply B, same prompt",
       "output": "A winner plus a written reason"
      },
-     "say": "No checklist. Which of two replies to an angry customer sounds better? For example, reply A against reply B. We want a winner, and a written reason.",
+     "say": "Now there is no checklist at all. Two replies to an angry customer, reply A and reply B. Which sounds better? Pick a winner, and write down a reason that holds up.",
      "cues": {
-      "example": "For example",
-      "output": "a winner, and"
+      "example": "reply A and reply B",
+      "output": "Pick a winner"
      }
     },
     {
@@ -831,20 +861,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Order A then B, and the grader picks A. Swap to B then A, and it picks B. What does that tell you? Pause and predict.",
+     "say": "Quick trace. Order A then B, and the grader picks A. Swap to B then A, and it picks B. What does that tell you? Decide before the answer.",
      "q": "Order A,B picks A. Order B,A picks B. What happened?",
      "options": [
       "A is clearly better",
       "B is clearly better",
       "Position bias",
-      "The rubric is perfect"
+      "The rubric needs more points"
      ],
      "answer": "Position bias"
     },
     {
      "type": "code",
      "head": "Both orders, or it's a tie",
-     "say": "Position bias: it picked the first slot twice. This code asks in both orders. If the picks disagree, it says tie. Our biased judge always says slot one, so it says tie. A fair judge would not.",
+     "say": "Position bias. Flipping the order flipped the winner. Order decided it, not the answer. This code asks in both orders. If the picks disagree, it says tie. Our biased judge always says slot one, so it says tie. A fair judge would not.",
      "panels": [
       {
        "file": "judge.py",
@@ -860,7 +890,7 @@
        "lines": [
         2
        ],
-       "cue": "asks in both orders"
+       "cue": "This code asks"
       },
       {
        "lines": [
@@ -931,9 +961,9 @@
       "input": "5 tool calls, then 'Booked the cheapest flight!'",
       "output": "Score every step, not the message"
      },
-     "say": "Now the model acts. It must book the cheapest Boston flight. For example, five tool calls, then a cheerful message. We must grade the whole run.",
+     "say": "The stakes are higher: the model acts. It must book the cheapest Boston flight. It makes five tool calls, then sends a cheerful message. We grade the whole run, not just that message.",
      "cues": {
-      "example": "For example",
+      "example": "makes five tool calls",
       "output": "grade the whole run"
      }
     },
@@ -1284,7 +1314,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Agent A and agent B both book the right flight, on the right day, at the cheapest price. But agent B also deleted the user's saved trips on the way. Who passes? Pause and predict.",
+     "say": "Judge this run. Agent A and agent B both book the right flight, on the right day, at the cheapest price. But agent B also deleted the user's saved trips on the way. Who passes? Pause and predict.",
      "q": "A and B both book it right. B also deletes saved trips. Who passes?",
      "options": [
       "Both pass",
@@ -1362,7 +1392,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "How do you grade consistently? Use separate checks with anchored examples. No clean checklist? Compare A and B, swap the order, and write why. Graders disagree? Fix the rubric, then re-grade. A model as grader? Yes, but spot check against humans.",
+     "say": "How do you grade consistently? Use separate checks with anchored examples. No clean checklist? Compare A and B, write why. Judge twice with the order swapped, because graders favor whichever answer comes first. That is position bias. Graders disagree? Fix the rubric, then re-grade. A model as grader? Yes, but spot check against humans.",
      "heads": [
       "They ask",
       "You say"
@@ -1374,7 +1404,11 @@
       ],
       [
        "No clean checklist?",
-       "Compare A and B, swap order, say why"
+       "Compare A and B, say why"
+      ],
+      [
+       "Why swap the order?",
+       "Position bias: graders favor slot one"
       ],
       [
        "Graders disagree?",
@@ -1388,6 +1422,7 @@
      "cues": [
       "How do you grade",
       "No clean",
+      "because graders favor",
       "Graders disagree",
       "A model as"
      ],
@@ -1398,7 +1433,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "How do you evaluate an agent? Check the outcome with code. What's on the route? Tool calls, arguments, side effects. Many valid paths? Accept any that pass. Flaky tool? Run several times. Cheating? Lock the checks.",
+     "say": "How do you evaluate an agent? Check the outcome with code. Grade only the final reply? No, check the real state and the tool calls. What's on the route? Tool calls, arguments, side effects. Many valid paths? Accept any that pass. Flaky tool? Run several times. Cheating? Lock the checks.",
      "heads": [
       "They ask",
       "You say"
@@ -1407,6 +1442,10 @@
       [
        "Evaluate an agent?",
        "Code check on the final state"
+      ],
+      [
+       "Grade only the reply?",
+       "No: check state and tool calls"
       ],
       [
        "What is on the route?",
@@ -1427,6 +1466,7 @@
      ],
      "cues": [
       "How do you evaluate",
+      "Grade only the final reply",
       "What's on the route",
       "Many valid",
       "Flaky tool",
