@@ -165,7 +165,7 @@
     {
      "type": "diagram",
      "head": "A B-tree finding user 50",
-     "say": "The catalog is usually a B tree: keys kept sorted. We want user fifty. The root page holds thirty and sixty. Below it sit three children, one for each range. Fifty is between thirty and sixty, so we take the middle one. It holds forty and fifty, plus a pointer to the row. Real pages hold hundreds of keys, so ten million rows need only three or four hops.",
+     "say": "The catalog is usually a B tree: keys kept sorted. We want user fifty. The root page holds thirty and sixty. Below it sit three children, one for each range. Fifty is between thirty and sixty, so we take the middle one. It holds forty and fifty, plus a pointer to the row. Real pages hold hundreds of keys, so ten million rows need only three or four steps down.",
      "items": [
       {
        "id": "find",
@@ -253,7 +253,7 @@
       {
        "x": 1240,
        "y": 760,
-       "text": "10M rows: 3 or 4 hops",
+       "text": "10M rows: 3 or 4 steps",
        "tone": "good",
        "cue": "ten million rows"
       }
@@ -288,7 +288,10 @@
       "cmd": "sqlite3 app.db",
       "text": "QUERY PLAN\n`--SCAN users",
       "tone": "bad",
-      "cue": "scan users"
+      "cue": "scan users",
+      "setup": {
+       "seed.sql": "CREATE TABLE users(id INTEGER PRIMARY KEY, email TEXT, name TEXT, country TEXT, city TEXT);\nWITH RECURSIVE c(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM c WHERE i<1000) INSERT INTO users(email,name,country,city) SELECT 'user'||i||'@mail.com','n'||i,CASE i%2 WHEN 0 THEN 'DE' ELSE 'FR' END,'city'||(i%50) FROM c;"
+      }
      }
     },
     {
@@ -322,7 +325,10 @@
       "cmd": "sqlite3 app.db",
       "text": "QUERY PLAN\n`--SEARCH users USING INDEX idx_email (email=?)",
       "tone": "good",
-      "cue": "search, using the index"
+      "cue": "search, using the index",
+      "setup": {
+       "seed.sql": "CREATE TABLE users(id INTEGER PRIMARY KEY, email TEXT, name TEXT, country TEXT, city TEXT);\nWITH RECURSIVE c(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM c WHERE i<1000) INSERT INTO users(email,name,country,city) SELECT 'user'||i||'@mail.com','n'||i,CASE i%2 WHEN 0 THEN 'DE' ELSE 'FR' END,'city'||(i%50) FROM c;"
+      }
      }
     },
     {
@@ -366,6 +372,17 @@
       "The lower one",
       "leading wildcard",
       "plain range"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers our problem. An index turns a scan of a million rows into a few steps.",
+     "lines": [
+      "Index: a few steps, not a scan"
+     ],
+     "cues": [
+      "An index"
      ]
     }
    ]
@@ -481,7 +498,7 @@
      "type": "chart",
      "head": "Rows an index lookup must fetch",
      "unit": "rows",
-     "say": "Filter by email: one row comes back. Filter by city, one of fifty: twenty thousand rows. Filter by country, two values: half a million. An index helps little there.",
+     "say": "Filter by email: one row comes back. Filter by city, one of fifty: a million divided by fifty, twenty thousand rows. Filter by country, two values: half a million. An index helps little there.",
      "bars": [
       {
        "label": "email",
@@ -586,7 +603,10 @@
       "cmd": "sqlite3 app.db",
       "text": "QUERY PLAN\n`--SCAN users",
       "tone": "bad",
-      "cue": "a full scan"
+      "cue": "a full scan",
+      "setup": {
+       "seed.sql": "CREATE TABLE users(id INTEGER PRIMARY KEY, email TEXT, name TEXT, country TEXT, city TEXT);\nWITH RECURSIVE c(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM c WHERE i<1000) INSERT INTO users(email,name,country,city) SELECT 'user'||i||'@mail.com','n'||i,CASE i%2 WHEN 0 THEN 'DE' ELSE 'FR' END,'city'||(i%50) FROM c;"
+      }
      }
     },
     {
@@ -619,6 +639,17 @@
       "Equality",
       "Ranges",
       "Order by"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. An index costs writes, so index what you filter, join or sort on.",
+     "lines": [
+      "Index only what you query"
+     ],
+     "cues": [
+      "An index costs"
      ]
     }
    ]
@@ -819,7 +850,10 @@
       "cmd": "python3 app.py",
       "text": "51",
       "tone": "bad",
-      "cue": "queries ran"
+      "cue": "queries ran",
+      "setup": {
+       "app.py": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.row_factory = sqlite3.Row\ndb.executescript(\"CREATE TABLE authors(id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE posts(id INTEGER PRIMARY KEY, title TEXT, author_id INT);\")\ndb.executemany(\"INSERT INTO authors VALUES (?,?)\", [(i, \"a%d\" % i) for i in range(1, 11)])\ndb.executemany(\"INSERT INTO posts VALUES (?,?,?)\", [(i, \"p%d\" % i, i % 10 + 1) for i in range(1, 51)])\ncalls = 0\ndef query(sql, *args):\n    global calls\n    calls += 1\n    return db.execute(sql, args).fetchall()"
+      }
      }
     },
     {
@@ -874,7 +908,10 @@
       "cmd": "python3 app.py",
       "text": "2",
       "tone": "good",
-      "cue": "prints two"
+      "cue": "prints two",
+      "setup": {
+       "app.py": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.row_factory = sqlite3.Row\ndb.executescript(\"CREATE TABLE authors(id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE posts(id INTEGER PRIMARY KEY, title TEXT, author_id INT);\")\ndb.executemany(\"INSERT INTO authors VALUES (?,?)\", [(i, \"a%d\" % i) for i in range(1, 11)])\ndb.executemany(\"INSERT INTO posts VALUES (?,?,?)\", [(i, \"p%d\" % i, i % 10 + 1) for i in range(1, 51)])\ncalls = 0\ndef query(sql, *args):\n    global calls\n    calls += 1\n    return db.execute(sql, args).fetchall()"
+      }
      }
     },
     {
@@ -921,7 +958,10 @@
       "cmd": "python3 app.py",
       "text": "1",
       "tone": "good",
-      "cue": "prints one"
+      "cue": "prints one",
+      "setup": {
+       "app.py": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.row_factory = sqlite3.Row\ndb.executescript(\"CREATE TABLE authors(id INTEGER PRIMARY KEY, name TEXT); CREATE TABLE posts(id INTEGER PRIMARY KEY, title TEXT, author_id INT);\")\ndb.executemany(\"INSERT INTO authors VALUES (?,?)\", [(i, \"a%d\" % i) for i in range(1, 11)])\ndb.executemany(\"INSERT INTO posts VALUES (?,?,?)\", [(i, \"p%d\" % i, i % 10 + 1) for i in range(1, 51)])\ncalls = 0\ndef query(sql, *args):\n    global calls\n    calls += 1\n    return db.execute(sql, args).fetchall()"
+      }
      }
     },
     {
@@ -954,6 +994,17 @@
       "select related",
       "Prefetch related",
       "Rails includes"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. Join or batch, and the fifty one queries become one or two.",
+     "lines": [
+      "Join or batch: 1 or 2 queries"
+     ],
+     "cues": [
+      "Join or batch"
      ]
     }
    ]
@@ -1011,7 +1062,7 @@
     {
      "type": "compare",
      "head": "Read the plan",
-     "say": "On Postgres, explain analyze runs the query and prints its plan. A Seq Scan on a big table with a filter is the red flag. An Index Scan means the tree is working. And estimated rows far from actual rows means stale statistics, so run analyze.",
+     "say": "On Postgres, explain analyze runs the query and prints its plan. A Seq Scan on a big table with a filter is the red flag. An Index Scan means the tree is working. And estimated rows far from actual rows means out of date statistics, so run analyze.",
      "heads": [
       "Plan says",
       "It means"
@@ -1066,6 +1117,17 @@
        "cue": "at least two"
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. Count the queries, read the plan, fix one thing, measure.",
+     "lines": [
+      "Count, read, fix one, measure"
+     ],
+     "cues": [
+      "Count the queries"
+     ]
     }
    ]
   },
@@ -1083,11 +1145,11 @@
       "They ask",
       "You say"
      ],
-     "say": "How does an index help? Sorted B tree: a few hops, not a scan. When do indexes hurt? Every write updates every index. Composite index? Leftmost column first. How do you check? Explain, before and after.",
+     "say": "How does an index help? Sorted B tree: a few steps, not a scan. When do indexes hurt? Every write updates every index. Composite index? Leftmost column first. How do you check? Explain, before and after.",
      "rows": [
       [
        "How does an index help?",
-       "Sorted B-tree: a few hops, no full scan"
+       "Sorted B-tree: a few steps, no full scan"
       ],
       [
        "When do indexes hurt?",
@@ -1183,7 +1245,7 @@
      "type": "take",
      "say": "So say this. An index is a sorted tree: a few hops instead of a scan. It costs writes, so index what you filter and sort on. And N plus one is a query in a loop: join, batch, measure.",
      "lines": [
-      "An index is a sorted tree: few hops, no scan.",
+      "An index is a sorted tree: few steps, no scan.",
       "It costs writes: index what you filter and sort.",
       "N+1 is a query in a loop: join, batch, measure."
      ],

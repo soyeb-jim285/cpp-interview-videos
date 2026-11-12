@@ -255,11 +255,11 @@
     {
      "type": "code",
      "head": "bcrypt in Python",
-     "say": "In Python. Hash the same password twice, each with a fresh salt. Print the first twenty nine characters: algorithm, cost, and salt. The two hashes differ, yet check password says true. The salt lives inside the string.",
+     "say": "In Python. Hash the same password twice, each with a fresh salt. Print the first seven characters: algorithm and cost. The two hashes differ, yet check password says true. The salt follows, inside the same string.",
      "panels": [
       {
        "file": "app.py",
-       "code": "pw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:29])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
+       "code": "pw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:7])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
       }
      ],
      "steps": [
@@ -285,9 +285,12 @@
      ],
      "output": {
       "cmd": "python3 app.py",
-      "text": "$2b$12$ZAehwblkkYK5oIAsjVCzpO\nTrue True",
+      "text": "$2b$12$\nTrue True",
       "tone": "good",
-      "cue": "says true"
+      "cue": "says true",
+      "setup": {
+       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport bcrypt"
+      }
      }
     },
     {
@@ -327,6 +330,17 @@
       "Plain text",
       "A plain fast hash",
       "B crypt"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers our problem. A slow salted hash means a leak reveals no passwords.",
+     "lines": [
+      "Slow salted hash"
+     ],
+     "cues": [
+      "A slow salted hash"
      ]
     }
    ]
@@ -480,7 +494,10 @@
      "output": {
       "cmd": "python3 app.py",
       "text": "{'sub': '42', 'exp': 1893456000}",
-      "cue": "It prints"
+      "cue": "It prints",
+      "setup": {
+       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\""
+      }
      }
     },
     {
@@ -490,7 +507,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "body = b64({\"sub\": \"1\", \"exp\": 1893456000})\nforged = head + \".\" + body + \".\" + sig\njwt.decode(forged, KEY, [\"HS256\"])"
+       "code": "body = b64({\"sub\": \"1\", \"exp\": 1893456000})\nforged = head + \".\" + body + \".\" + sig\ntry:\n    jwt.decode(forged, KEY, [\"HS256\"])\nexcept jwt.InvalidTokenError as e:\n    print(type(e).__name__, e)"
       }
      ],
      "steps": [
@@ -508,16 +525,22 @@
       },
       {
        "lines": [
-        3
+        3,
+        4,
+        5,
+        6
        ],
        "cue": "and verify"
       }
      ],
      "output": {
       "cmd": "python3 app.py",
-      "text": "InvalidSignatureError:\nSignature verification failed",
+      "text": "InvalidSignatureError Signature verification failed",
       "tone": "good",
-      "cue": "Rejected"
+      "cue": "Rejected",
+      "setup": {
+       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\ntok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\ndef b64(d):\n    return base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip(\"=\")"
+      }
      }
     },
     {
@@ -596,6 +619,17 @@
       "local storage",
       "HttpOnly",
       "never put secrets"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. A session id or a signed token tells the server who is calling.",
+     "lines": [
+      "Session or token: user 42"
+     ],
+     "cues": [
+      "A session id"
      ]
     }
    ]
@@ -793,6 +827,17 @@
      "cues": [
       "Authentication",
       "Authorization"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. OAuth shows the app who you are, without your password.",
+     "lines": [
+      "OAuth: identity, no password"
+     ],
+     "cues": [
+      "OAuth shows"
      ]
     }
    ]
@@ -1052,7 +1097,10 @@
       "cmd": "python3 app.py",
       "text": "10 5\nTrue",
       "tone": "good",
-      "cue": "Ten pass"
+      "cue": "Ten pass",
+      "setup": {
+       "app.py": "class TokenBucket:\n    def __init__(self, rate, cap):\n        self.rate, self.cap = rate, cap\n        self.tokens, self.last = cap, 0.0\n    def allow(self, now):\n        gained = (now - self.last) * self.rate\n        self.tokens = min(self.cap, self.tokens + gained)\n        self.last = now\n        if self.tokens < 1:\n            return False\n        self.tokens -= 1\n        return True"
+      }
      }
     },
     {
@@ -1090,6 +1138,17 @@
        "tone": "bad",
        "cue": "two get"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. A bucket per user lets ten through and rejects five.",
+     "lines": [
+      "Per-user bucket: 10 in, 5 out"
+     ],
+     "cues": [
+      "A bucket per user"
      ]
     }
    ]
@@ -1154,7 +1213,7 @@
     {
      "type": "diagram",
      "head": "Local buckets leak",
-     "say": "Twenty. Each server sees ten requests and its own full bucket, so everything passes. The limit was ten. The client got twenty. The fix is one shared bucket in Redis, a key per user. Both servers ask Redis. The read, refill and spend must be one atomic step, so a small Lua script does it.",
+     "say": "Twenty. Each server sees ten requests and its own full bucket, so everything passes. The limit was ten. The client got twenty. The fix is one shared bucket in Redis, a fast shared store, with a key per user. Both servers ask Redis. The read, refill and spend must be one atomic step, so a small Lua script, run inside Redis, does it.",
      "items": [
       {
        "id": "s1",
@@ -1312,6 +1371,17 @@
       "Retry After",
       "classic mistakes",
       "Capacity sets"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. One shared Redis bucket enforces a single limit across servers.",
+     "lines": [
+      "One shared bucket, atomic"
+     ],
+     "cues": [
+      "One shared Redis"
      ]
     }
    ]

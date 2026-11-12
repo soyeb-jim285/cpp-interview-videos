@@ -210,7 +210,7 @@
        "file": "bank.sql",
        "label": "bug",
        "tone": "bad",
-       "code": "UPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash!\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n-- after restart:\nSELECT * FROM accounts;"
+       "code": "UPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash! step two never runs:\n-- UPDATE ... balance + 100 WHERE id = 2;\nSELECT * FROM accounts;"
       }
      ],
      "steps": [
@@ -242,8 +242,7 @@
       },
       {
        "lines": [
-        4,
-        5
+        4
        ],
        "cue": "After the restart"
       }
@@ -261,7 +260,10 @@
       "cmd": "sqlite3 bank.db",
       "text": "1|Alice|400\n2|Bob|200",
       "tone": "bad",
-      "cue": "Alice shows four hundred"
+      "cue": "Alice shows four hundred",
+      "setup": {
+       "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, name TEXT, balance INT);\nINSERT INTO accounts VALUES (1,'Alice',500),(2,'Bob',200);"
+      }
      }
     },
     {
@@ -279,19 +281,20 @@
     {
      "type": "code",
      "head": "BEGIN ... COMMIT",
-     "say": "Five hundred. The database never saw a commit, so on restart it undoes the half-done work. Begin opens the transaction. Both updates wait inside it. Only commit makes them permanent. After the restart, Alice shows five hundred and Bob two hundred.",
+     "say": "Five hundred. The database never saw a commit, so it undoes the half-done work. Begin opens the transaction. The update waits inside it. Only commit makes it permanent. A crash before commit acts like a rollback. After it, Alice shows five hundred and Bob two hundred.",
      "panels": [
       {
        "file": "bank.sql",
        "label": "fixed",
        "tone": "good",
-       "code": "BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash!\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\n-- after restart:\nSELECT * FROM accounts;"
+       "code": "BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash before COMMIT acts like:\nROLLBACK;\nSELECT * FROM accounts;"
       }
      ],
      "steps": [
       {
        "lines": [
-        5
+        3,
+        4
        ],
        "cue": "never saw a commit"
       },
@@ -303,30 +306,32 @@
       },
       {
        "lines": [
-        2,
-        4
+        2
        ],
-       "cue": "Both updates wait"
+       "cue": "The update waits"
       },
       {
        "lines": [
-        5
+        3
        ],
        "cue": "Only commit"
       },
       {
        "lines": [
-        6,
-        7
+        4,
+        5
        ],
-       "cue": "After the restart"
+       "cue": "After it"
       }
      ],
      "output": {
       "cmd": "sqlite3 bank.db",
       "text": "1|Alice|500\n2|Bob|200",
       "tone": "good",
-      "cue": "Alice shows five hundred"
+      "cue": "Alice shows five hundred",
+      "setup": {
+       "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, name TEXT, balance INT);\nINSERT INTO accounts VALUES (1,'Alice',500),(2,'Bob',200);"
+      }
      }
     },
     {
@@ -359,6 +364,17 @@
        "tone": "good",
        "cue": "Durable"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers our problem. A transaction makes the transfer all or nothing.",
+     "lines": [
+      "Transaction: all or nothing"
+     ],
+     "cues": [
+      "A transaction"
      ]
     }
    ]
@@ -514,7 +530,7 @@
     {
      "type": "code",
      "head": "The same race, replayed",
-     "say": "Here's that exact interleaving in code. A and B are two database connections. A reads. B reads. A writes thirty less. B writes twenty less, from its stale copy. The print shows the balance: eighty.",
+     "say": "Here's that exact interleaving in code. A and B are two database connections. A reads. B reads. A writes thirty less. B writes twenty less, from its out of date copy. The print shows the balance: eighty.",
      "panels": [
       {
        "file": "app.py",
@@ -559,14 +575,17 @@
        "inside": true,
        "text": "A's 30 is lost",
        "tone": "bad",
-       "cue": "stale copy"
+       "cue": "out of date copy"
       }
      ],
      "output": {
       "cmd": "python3 app.py",
       "text": "80",
       "tone": "bad",
-      "cue": "shows the balance"
+      "cue": "shows the balance",
+      "setup": {
+       "app.py": "import sqlite3\nc0 = sqlite3.connect(\"r.db\")\nc0.execute(\"CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT)\")\nc0.execute(\"INSERT INTO accounts VALUES (1,100)\")\nc0.commit()\na = sqlite3.connect(\"r.db\", isolation_level=None)\nb = sqlite3.connect(\"r.db\", isolation_level=None)\ndef read(c):\n    return c.execute(\"SELECT balance FROM accounts WHERE id=1\").fetchone()[0]\ndef write(c, v):\n    c.execute(\"UPDATE accounts SET balance=? WHERE id=1\", (v,))"
+      }
      }
     },
     {
@@ -628,6 +647,17 @@
      "cues": [
       "wrapping the read",
       "a lock inside"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. Two requests that read, then write, lose an update.",
+     "lines": [
+      "Read, think, write loses updates"
+     ],
+     "cues": [
+      "Two requests"
      ]
     }
    ]
@@ -706,13 +736,16 @@
       "cmd": "sqlite3 bank.db",
       "text": "50",
       "tone": "good",
-      "cue": "prints fifty"
+      "cue": "prints fifty",
+      "setup": {
+       "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT);\nINSERT INTO accounts VALUES (1,100);"
+      }
      }
     },
     {
      "type": "diagram",
      "head": "Why one statement is safe",
-     "say": "Why is that safe? While A's statement runs, the database locks the row. B arrives, and has to wait. A finishes: the balance is seventy, and the lock opens. Now B runs on seventy, not on a stale hundred. Seventy minus twenty is fifty.",
+     "say": "Why is that safe? While A's statement runs, the database locks the row. B arrives, and has to wait. A finishes: the balance is seventy, and the lock opens. Now B runs on seventy, not on an out of date hundred. Seventy minus twenty is fifty.",
      "items": [
       {
        "id": "ra",
@@ -888,7 +921,10 @@
      "output": {
       "cmd": "sqlite3 bank.db",
       "text": "1\n0",
-      "cue": "Zero rows changed"
+      "cue": "Zero rows changed",
+      "setup": {
+       "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT, version INT);\nINSERT INTO accounts VALUES (1,100,7);"
+      }
      }
     },
     {
@@ -941,7 +977,10 @@
       "cmd": "sqlite3 bank.db",
       "text": "1\n50|9",
       "tone": "good",
-      "cue": "with version nine"
+      "cue": "with version nine",
+      "setup": {
+       "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT, version INT);\nINSERT INTO accounts VALUES (1,100,7);\nUPDATE accounts SET balance = 70, version = 8 WHERE id = 1 AND version = 7;"
+      }
      }
     },
     {
@@ -974,6 +1013,17 @@
       "Optimistic checks",
       "The cost",
       "Best when"
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. One atomic update, a row lock, or a version column gives fifty.",
+     "lines": [
+      "Atomic, lock, or version: 50"
+     ],
+     "cues": [
+      "One atomic update"
      ]
     }
    ]
@@ -1295,7 +1345,7 @@
        "cue": "Now T1 wants"
       },
       {
-       "x": 1380,
+       "x": 1290,
        "y": 770,
        "text": "aborted: code retries",
        "tone": "warn",
@@ -1321,6 +1371,17 @@
        "kill": true,
        "cue": "aborts one transaction"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Solved",
+     "say": "That answers it. Isolation levels say what a transaction sees, and deadlocks get retried.",
+     "lines": [
+      "Levels set what you can see"
+     ],
+     "cues": [
+      "Isolation levels"
      ]
     }
    ]
