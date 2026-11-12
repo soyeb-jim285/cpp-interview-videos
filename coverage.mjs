@@ -12,12 +12,13 @@ const lessons = () => (fs.existsSync("lessons") ? fs.readdirSync("lessons") : []
 const syllabus = () => !fs.existsSync("SYLLABUS.md") ? [] : fs.readFileSync("SYLLABUS.md", "utf8").split("\n")
   .map((l) => l.split("|").map((c) => c.trim()))
   .filter((c) => REAL.test(c[1] || ""))
-  .map((c) => [c[1], c[3].split(",").map((s) => s.trim()).filter(Boolean)]);
+  .map((c) => [c[1], (c[3] || "").split(",").map((s) => s.trim()).filter(Boolean)]);
 
 const errs = [];
 if (args[0] === "--lesson") {
   const f = args[1], own = path.basename(f, ".json");
   const covers = JSON.parse(fs.readFileSync(f, "utf8")).covers || [];
+  if (!Array.isArray(covers) || !covers.length) errs.push(`${own}: covers is empty or missing`);
   const others = [...lessons(), ...syllabus()].filter(([id]) => id !== own);
   for (const c of covers) {
     if (!universe.has(c)) errs.push(`unknown id: ${c}`);

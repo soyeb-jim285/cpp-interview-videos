@@ -15,7 +15,9 @@ const proj = ({ syllabus, lessons = {} }) => {
     "| id | title | covers | hook idea | central worked example |\n|---|---|---|---|---|\n" +
     syllabus.map(([id, c]) => `| ${id} | T | ${c} | h | e |`).join("\n") + "\n");
   for (const [id, covers] of Object.entries(lessons)) fs.writeFileSync(path.join(d, `lessons/${id}.json`), JSON.stringify({ id, covers }));
-  return (...args) => spawnSync("node", [path.join(ROOT, "coverage.mjs"), ...args], { cwd: d, encoding: "utf8" });
+  const run = (...args) => spawnSync("node", [path.join(ROOT, "coverage.mjs"), ...args], { cwd: d, encoding: "utf8" });
+  run.dir = d;
+  return run;
 };
 const out = (r) => r.stdout + r.stderr;
 
@@ -55,4 +57,15 @@ test("--lesson: id claimed by a different syllabus row fails", () => {
 test("--lesson: unknown id fails", () => {
   const r = proj({ lessons: { "dsa-01": ["a", "nope"] } })("--lesson", "lessons/dsa-01.json");
   assert.equal(r.status, 1); assert.match(out(r), /unknown.*nope/i);
+});
+test("--lesson: empty or missing covers fails", () => {
+  for (const covers of [[], undefined]) {
+    const r = proj({ lessons: { "dsa-01": covers } })("--lesson", "lessons/dsa-01.json");
+    assert.equal(r.status, 1, out(r)); assert.match(out(r), /empty or missing/);
+  }
+});
+test("short syllabus row (no covers column) does not crash", () => {
+  const run = proj({ syllabus: [["dsa-01", "a, b, c"]] });
+  fs.appendFileSync(path.join(run.dir, "SYLLABUS.md"), "| be-01 | T\n");
+  const r = run("--syllabus"); assert.equal(r.status, 0, out(r)); assert.doesNotMatch(out(r), /TypeError/);
 });
