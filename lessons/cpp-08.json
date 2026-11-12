@@ -191,7 +191,7 @@
     {
      "type": "code",
      "head": "Inheritance and polymorphism",
-     "say": "Zero. The guard made the radius zero. Now Square also derives from Shape, like that Circle, like our Circle. Put all three in a Shape pointer array, and loop. Same call, p arrow area, and each object runs its own formula: circle, square, and the guarded circle.",
+     "say": "Zero. The guard made the radius zero. Now Square also derives from Shape, like our Circle. Put all three in a Shape pointer array, and loop. Same call, p arrow area, and each object runs its own formula: circle, square, and the guarded circle.",
      "panels": [
       {
        "file": "loop.cpp",
@@ -461,7 +461,7 @@
     {
      "type": "code",
      "head": "The diamond, fixed with virtual",
-     "say": "A Copier is a Scanner and a Printer, and both are Devices. Marking the bases virtual makes them share one single Device. So c dot id just works, and prints seven.",
+     "say": "A Copier is a Scanner and a Printer, and both are Devices. Virtual inheritance, marked on the bases, makes them share one Device. So c dot id just works, and prints seven.",
      "panels": [
       {
        "file": "diamond.cpp",
