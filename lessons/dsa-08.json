@@ -69,7 +69,7 @@
      "say": "Today we'll do three things. Walk a tree in three orders. Search a search tree one side at a time. Then build autocomplete with a trie.",
      "lines": [
       "Walk a tree in 3 orders.",
-      "Search a BST, one side per step.",
+      "Search a binary search tree, one side per step.",
       "Build autocomplete with a trie."
      ],
      "cues": [
@@ -439,7 +439,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "struct Node { int val; Node *left = nullptr, *right = nullptr; };\nvoid walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}\nint main() { walk(buildTree<Node>({8, 3, 10, 1, 6, 14})); }"
+       "code": "struct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* mk(int v, Node* l = 0, Node* r = 0) { return new Node{v, l, r}; }\nvoid walk(Node* n) { if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}\nint main() { walk(mk(8, mk(3, mk(1), mk(6)), mk(10, 0, mk(14)))); }"
       }
      ],
      "steps": [
@@ -492,7 +492,7 @@
      "output": {
       "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\ntemplate <class N> N* put(N* n, int x) { if (!n) return new N{x}; if (x < n->val) n->left = put(n->left, x); else n->right = put(n->right, x); return n; }\ntemplate <class N> N* buildTree(vector<int> v) { N* r = nullptr; for (int x : v) r = put(r, x); return r; }\n"
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\n"
       },
       "text": "1 3 6 8 10 14",
       "cue": "On our tree"
@@ -500,7 +500,7 @@
     },
     {
      "type": "quiz",
-     "say": "Try this one. Postorder visits a node after both its children. Same tree. What prints? Pause and predict.",
+     "say": "Predict this one. Postorder visits a node after both its children. Same tree. What prints? Pause and predict.",
      "q": "Postorder of 8 (left 3: 1, 6; right 10: 14)?",
      "options": [
       "1 6 3 14 10 8",
@@ -691,7 +691,7 @@
     {
      "type": "code",
      "head": "The trap: no base case",
-     "say": "Now the bug everyone writes. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty? That walk is our answer to the first problem.",
+     "say": "Now the bug everyone writes. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty? That guard is the fix for the first problem, walk every node.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -734,8 +734,11 @@
        "cue": "first line of any"
       },
       {
-       "lines": [],
-       "cue": "our answer to the first"
+       "lines": [
+        2
+       ],
+       "cue": "That guard",
+       "panel": 1
       }
      ]
     }
@@ -761,7 +764,7 @@
     {
      "type": "flow",
      "head": "Higher or lower",
-     "say": "Remember guessing a number? Higher or lower, and half the numbers vanish. A search tree builds that game into its shape. Take any node, say eight. Smaller values go left. Bigger go right. One comparison drops a side.",
+     "say": "Remember guessing a number? Higher or lower, and half the numbers vanish. A binary search tree, or BST, plays that game. Take any node, say eight. Smaller values go left. Bigger go right. One comparison drops a side.",
      "items": [
       {
        "label": "the game",
@@ -773,7 +776,7 @@
        "label": "search tree",
        "text": "node 8",
        "sub": "the same game",
-       "cue": "A search tree"
+       "cue": "A binary search tree"
       },
       {
        "label": "the rule",
@@ -1142,7 +1145,7 @@
     },
     {
      "type": "quiz",
-     "say": "Quick one. Insert one, two, three, four, five, in that order, into an empty tree. How many levels tall does it get? Pause and predict.",
+     "say": "Count the levels. Insert one, two, three, four, five, in that order, into an empty tree. How many levels tall does it get? Pause and predict.",
      "q": "Insert 1, 2, 3, 4, 5 in order. How many levels?",
      "options": [
       "3",
@@ -1274,11 +1277,11 @@
     {
      "type": "code",
      "head": "Height by recursion",
-     "say": "Height, the number of levels, is a recursion too. An empty tree has depth zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
+     "say": "Using the insert from before, height, the number of levels, is a recursion too. An empty tree has height zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int depth(Node* n) {\n    if (!n) return 0;\n    return 1 + max(depth(n->left), depth(n->right));\n}\nint main() {\n    cout << depth(bst) << ' ' << depth(chain);\n}"
+       "code": "int height(Node* n) {\n    if (!n) return 0;\n    return 1 + max(height(n->left), height(n->right));\n}\nint main() {\n    cout << height(bst) << ' ' << height(chain);\n}"
       }
      ],
      "steps": [
@@ -1286,7 +1289,7 @@
        "lines": [
         2
        ],
-       "cue": "depth zero"
+       "cue": "An empty tree"
       },
       {
        "lines": [
@@ -1331,9 +1334,9 @@
     },
     {
      "type": "chart",
-     "head": "Search steps among 1,000,000 keys",
+     "head": "Balanced vs red-black, steps",
      "unit": "steps",
-     "say": "A balanced tree takes about twenty steps. A chain takes a million. Red black trees keep the worst case near forty. That is a self balancing tree.",
+     "say": "A balanced tree takes about twenty steps. Red-black trees rebalance on every insert, so the worst case stays near forty.",
      "bars": [
       {
        "label": "Balanced",
@@ -1342,16 +1345,24 @@
        "cue": "A balanced tree"
       },
       {
-       "label": "Chain",
-       "value": 1000000,
-       "tone": "bad",
-       "cue": "A chain takes"
-      },
-      {
        "label": "Red-black (worst)",
        "value": 40,
        "tone": "good",
-       "cue": "Red black trees"
+       "cue": "Red-black trees"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "A chain of 1,000,000 keys",
+     "unit": "steps",
+     "say": "A chain takes a million. Every key sits one level below the last, so search walks the whole line.",
+     "bars": [
+      {
+       "label": "Chain",
+       "value": 1000000,
+       "tone": "bad",
+       "cue": "Every key sits"
       }
      ]
     }
@@ -1366,7 +1377,7 @@
      "statement": "Store words, then answer instantly: does any stored word start with this prefix?",
      "example": {
       "input": "store car, cat, care. Ask: \"ca\"?",
-      "output": "yes: car, cat, care"
+      "output": "yes"
      },
      "cues": {
       "example": "store words",
@@ -1690,7 +1701,7 @@
     },
     {
      "type": "quiz",
-     "say": "Quick check. We stored car, cat, and care. What do search for ca, and startsWith for ca, return? Pause and predict.",
+     "say": "Test yourself. We stored car, cat, and care. What do search for ca, and startsWith for ca, return? Pause and predict.",
      "q": "Stored car, cat, care. search(\"ca\"), startsWith(\"ca\")?",
      "options": [
       "true, true",
@@ -1751,7 +1762,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Expect four follow ups. Memory too big? A map per node, or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits. That is autocomplete solved.",
+     "say": "Four follow-ups come next. Memory too big? A map per node, or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum XOR? A trie of bits. That is autocomplete solved.",
      "heads": [
       "They ask",
       "You say"
@@ -1778,7 +1789,7 @@
       "Memory too big",
       "Top three",
       "Word Search Two",
-      "Maximum X O R"
+      "Maximum XOR"
      ]
     }
    ]
@@ -1793,7 +1804,7 @@
      "covers": [
       "cp20"
      ],
-     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Prefix questions, like autocomplete. Implement it? Insert marks the end. Search needs the mark. Starts with: same walk, no mark check. Each is O of L. Classic bug? Forgetting the mark.",
+     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Hash sets match whole words. Prefixes, like autocomplete, need a trie. Implement it? Insert marks the end. Search needs the mark. Starts with: same walk, no mark check. Each is O of L. Classic bug? Forgetting the mark.",
      "heads": [
       "They ask",
       "You say"
@@ -1805,7 +1816,7 @@
       ],
       [
        "Trie vs hash set?",
-       "trie for prefixes and autocomplete"
+       "a hash set only matches whole words; a trie answers prefix questions like autocomplete"
       ],
       [
        "Implement it?",
@@ -1826,37 +1837,6 @@
       "Implement it",
       "Starts with",
       "Classic bug"
-     ]
-    },
-    {
-     "type": "compare",
-     "head": "Trees and BSTs, quickly",
-     "covers": [
-      "cp20"
-     ],
-     "say": "BST search is O of height. Balanced, log n. A chain, O of n. Inorder walk? Sorted values. Pre, in, post? Same recursion, the visit line moves.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "BST search cost?",
-       "O(height): log n balanced, n for a chain"
-      ],
-      [
-       "Inorder of a BST?",
-       "sorted order"
-      ],
-      [
-       "Pre, in, post?",
-       "visit before, between, after the children"
-      ]
-     ],
-     "cues": [
-      "BST search",
-      "Inorder walk",
-      "Pre, in, post"
      ]
     }
    ]
