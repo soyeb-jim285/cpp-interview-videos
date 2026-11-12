@@ -43,15 +43,15 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Scan every item for its next bigger one, and a thousand items cost half a million steps. By the end you'll do it in one pass, and find the top k of a billion numbers with memory for only k.",
+     "say": "For each number, find the next bigger one to its right. Scanning a thousand costs half a million steps. You'll do it in one pass, and keep the top k of a billion with memory for k.",
      "lines": [
       {
-       "text": "Next bigger, 1,000 items",
-       "cue": "Scan every item"
+       "text": "Next bigger, to the right",
+       "cue": "For each number"
       },
       {
-       "text": "About 500,000 steps",
-       "cue": "half a million steps"
+       "text": "1,000 items: ~500,000 steps",
+       "cue": "Scanning a thousand"
       },
       {
        "text": "One pass.",
@@ -94,31 +94,74 @@
      }
     },
     {
-     "type": "flow",
+     "type": "diagram",
      "head": "A pile of plates",
-     "say": "A stack is a pile of plates. Push puts a plate on top. Pop takes the top plate off. Top just looks at it. Last in, first out is the rule. All moves cost O of one.",
+     "say": "A stack is a pile of plates. Push adds plate one, then two, then three. You can only reach the top plate. Pop takes it off: three is gone, and two is the top again. Top reads the top plate without removing it. Last in, first out. Every move costs O of one.",
      "items": [
       {
-       "label": "push",
-       "text": "add on top",
-       "cue": "Push puts"
+       "stack": {
+        "id": "s",
+        "values": [
+         "plate 1",
+         "plate 2",
+         "plate 3"
+        ],
+        "x": 810,
+        "y": 800,
+        "cues": [
+         "plate one",
+         "then two",
+         "then three"
+        ]
+       }
       },
       {
-       "label": "pop",
-       "text": "remove top",
+       "id": "tp",
+       "x": 1130,
+       "y": 592,
+       "w": 160,
+       "h": 76,
+       "text": "← top",
+       "size": 34,
+       "tone": "warn",
+       "cue": "only reach the top"
+      }
+     ],
+     "notes": [
+      {
+       "x": 500,
+       "y": 640,
+       "text": "last in, first out",
+       "tone": "good",
+       "cue": "Last in, first out"
+      },
+      {
+       "x": 500,
+       "y": 740,
+       "text": "every move O(1)",
+       "tone": "good",
+       "cue": "Every move costs"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s2",
+       "fade": true,
        "cue": "Pop takes"
       },
       {
-       "label": "top",
-       "text": "peek only",
-       "cue": "Top just looks"
+       "id": "tp",
+       "move": [
+        1130,
+        702
+       ],
+       "cue": "top again"
       },
       {
-       "label": "the rule",
-       "text": "LIFO",
-       "sub": "last in, first out",
-       "tone": "good",
-       "cue": "Last in, first out"
+       "id": "tp",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Top reads"
       }
      ]
     },
@@ -161,7 +204,7 @@
       },
       {
        "id": "ans",
-       "x": 1300,
+       "x": 1420,
        "y": 700,
        "w": 300,
        "h": 110,
@@ -170,9 +213,36 @@
        "size": 56,
        "tone": "good",
        "cue": "Empty stack"
+      },
+      {
+       "id": "tp",
+       "x": 1130,
+       "y": 812,
+       "w": 160,
+       "h": 76,
+       "text": "← top",
+       "size": 34,
+       "tone": "warn",
+       "cue": "push curly"
       }
      ],
      "changes": [
+      {
+       "id": "tp",
+       "move": [
+        1130,
+        702
+       ],
+       "cue": "push square"
+      },
+      {
+       "id": "tp",
+       "move": [
+        1130,
+        592
+       ],
+       "cue": "push round"
+      },
       {
        "id": "c3",
        "glow": true,
@@ -181,6 +251,14 @@
       {
        "id": "s2",
        "fade": true,
+       "cue": "so pop"
+      },
+      {
+       "id": "tp",
+       "move": [
+        1130,
+        702
+       ],
        "cue": "so pop"
       },
       {
@@ -194,12 +272,25 @@
        "cue": "is square, pop"
       },
       {
+       "id": "tp",
+       "move": [
+        1130,
+        812
+       ],
+       "cue": "is square, pop"
+      },
+      {
        "id": "c5",
        "glow": true,
        "cue": "Closing curly"
       },
       {
        "id": "s0",
+       "fade": true,
+       "cue": "curly: pop"
+      },
+      {
+       "id": "tp",
        "fade": true,
        "cue": "curly: pop"
       }
@@ -256,7 +347,7 @@
       "valid",
       "invalid, wrong top",
       "invalid, leftovers",
-      "crash"
+      "invalid, empty stack"
      ],
      "answer": "invalid, wrong top"
     },
@@ -295,7 +386,7 @@
       },
       {
        "id": "ans",
-       "x": 1300,
+       "x": 1420,
        "y": 700,
        "w": 300,
        "h": 110,
@@ -304,6 +395,17 @@
        "size": 56,
        "tone": "bad",
        "cue": "return false"
+      },
+      {
+       "id": "tp",
+       "x": 1130,
+       "y": 812,
+       "w": 160,
+       "h": 76,
+       "text": "← top",
+       "size": 34,
+       "tone": "warn",
+       "cue": "Round"
       }
      ],
      "notes": [
@@ -316,6 +418,14 @@
       }
      ],
      "changes": [
+      {
+       "id": "tp",
+       "move": [
+        1130,
+        702
+       ],
+       "cue": "square, then"
+      },
       {
        "id": "c2",
        "glow": true,
@@ -337,11 +447,13 @@
       "input": "[2, 1, 2, 4, 3]",
       "output": "[4, 2, 4, -1, -1]"
      },
-     "say": "Now the star problem. For every item, the next bigger value to its right. Two, one, two, four, three gives four, two, four, minus one, minus one.",
+     "say": "Now the star problem. For every item, the next bigger value to its right. Two, one, two, four, three gives four, two, four, minus one, minus one. Stock apps ask this all day: when does the price next go higher?",
      "cues": {
       "example": "Two, one, two",
-      "output": "gives four"
-     }
+      "output": "gives four",
+      "note": "Stock apps ask"
+     },
+     "note": "stocks: when is the next higher price?"
     },
     {
      "type": "chart",
@@ -394,7 +506,7 @@
     {
      "type": "diagram",
      "head": "Next greater of 2, 1, 2, 4, 3",
-     "say": "Same array. Keep a stack of items still waiting. Two arrives. Push it. One arrives. Smaller, so it waits too. Another two arrives. It beats one, so pop one: its answer is two. It doesn't beat the first two, so push.",
+     "say": "Same array. Like those people, keep a stack of items still waiting. Two arrives. Push it. One arrives. Smaller, so it waits too. Another two arrives. It beats one, so pop one: its answer is two. It doesn't beat the first two, so push.",
      "items": [
       {
        "array": {
@@ -415,31 +527,11 @@
        "x": 550,
        "y": 410,
        "w": 100,
-       "h": 60,
+       "h": 76,
        "text": "i",
        "tone": "warn",
-       "cue": "Two arrives"
-      },
-      {
-       "id": "s0",
-       "x": 520,
-       "y": 560,
-       "w": 160,
-       "h": 90,
-       "label": "stack",
-       "text": "–",
-       "tone": "dim",
-       "cue": "stack of items"
-      },
-      {
-       "id": "s1",
-       "x": 700,
-       "y": 560,
-       "w": 160,
-       "h": 90,
-       "text": "–",
-       "tone": "dim",
-       "cue": "stack of items"
+       "cue": "Two arrives",
+       "size": 34
       },
       {
        "id": "r0",
@@ -491,6 +583,38 @@
        "text": "?",
        "tone": "blue",
        "cue": "still waiting"
+      },
+      {
+       "id": "s0",
+       "x": 1480,
+       "y": 760,
+       "w": 160,
+       "h": 90,
+       "text": "–",
+       "tone": "dim",
+       "cue": "stack of items"
+      },
+      {
+       "id": "s1",
+       "x": 1480,
+       "y": 660,
+       "w": 160,
+       "h": 90,
+       "label": "stack",
+       "text": "–",
+       "tone": "dim",
+       "cue": "stack of items"
+      },
+      {
+       "id": "tp",
+       "x": 1655,
+       "y": 767,
+       "w": 160,
+       "h": 76,
+       "text": "← top",
+       "size": 34,
+       "tone": "warn",
+       "cue": "Push it"
       }
      ],
      "changes": [
@@ -515,6 +639,14 @@
        "cue": "waits too"
       },
       {
+       "id": "tp",
+       "move": [
+        1655,
+        667
+       ],
+       "cue": "waits too"
+      },
+      {
        "id": "i",
        "move": [
         910,
@@ -529,6 +661,14 @@
        "cue": "pop one"
       },
       {
+       "id": "tp",
+       "move": [
+        1655,
+        767
+       ],
+       "cue": "pop one"
+      },
+      {
        "id": "r1",
        "text": "2",
        "tone": "good",
@@ -538,6 +678,14 @@
        "id": "s1",
        "text": "2",
        "tone": "info",
+       "cue": "so push"
+      },
+      {
+       "id": "tp",
+       "move": [
+        1655,
+        667
+       ],
        "cue": "so push"
       }
      ]
@@ -565,28 +713,10 @@
        "x": 910,
        "y": 410,
        "w": 100,
-       "h": 60,
+       "h": 76,
        "text": "i",
-       "tone": "warn"
-      },
-      {
-       "id": "s0",
-       "x": 520,
-       "y": 560,
-       "w": 160,
-       "h": 90,
-       "label": "stack",
-       "text": "2",
-       "tone": "info"
-      },
-      {
-       "id": "s1",
-       "x": 700,
-       "y": 560,
-       "w": 160,
-       "h": 90,
-       "text": "2",
-       "tone": "info"
+       "tone": "warn",
+       "size": 34
       },
       {
        "id": "r0",
@@ -633,6 +763,35 @@
        "h": 100,
        "text": "?",
        "tone": "blue"
+      },
+      {
+       "id": "s0",
+       "x": 1480,
+       "y": 760,
+       "w": 160,
+       "h": 90,
+       "text": "2",
+       "tone": "info"
+      },
+      {
+       "id": "s1",
+       "x": 1480,
+       "y": 660,
+       "w": 160,
+       "h": 90,
+       "label": "stack",
+       "text": "2",
+       "tone": "info"
+      },
+      {
+       "id": "tp",
+       "x": 1655,
+       "y": 667,
+       "w": 160,
+       "h": 76,
+       "text": "← top",
+       "size": 34,
+       "tone": "warn"
       }
      ],
      "changes": [
@@ -648,6 +807,14 @@
        "id": "s1",
        "text": "–",
        "tone": "dim",
+       "cue": "two on top"
+      },
+      {
+       "id": "tp",
+       "move": [
+        1655,
+        767
+       ],
        "cue": "two on top"
       },
       {
@@ -686,6 +853,14 @@
        "id": "s1",
        "text": "3",
        "tone": "info",
+       "cue": "so it waits"
+      },
+      {
+       "id": "tp",
+       "move": [
+        1655,
+        667
+       ],
        "cue": "so it waits"
       },
       {
@@ -814,7 +989,7 @@
     {
      "type": "compare",
      "head": "Follow-ups to expect",
-     "say": "Four follow-ups. Why O of n? Each index is pushed once and popped once. Next smaller, or previous greater? Flip the comparison, or scan from the right. Values or indices? Indices: read the value, subtract positions for distances. Leftovers? Never beaten, so they keep minus one. That answers next greater: one pass.",
+     "say": "Four follow-ups. Why O of n? Each index is pushed once and popped once. Next smaller? Flip the less than. Previous greater? Run the same loop from the right. Values or indices? Indices: read the value, subtract positions for distances. Leftovers? Never beaten, so they keep minus one. That answers next greater: one pass.",
      "heads": [
       "They ask",
       "Answer"
@@ -826,7 +1001,7 @@
       ],
       [
        "Next smaller? Previous greater?",
-       "flip `<`, or scan from the right"
+       "flip `<`; previous greater: loop from the right"
       ],
       [
        "Values or indices?",
@@ -858,7 +1033,7 @@
       "output": "2 comes out first"
      },
      "note": "peek O(1), push/pop O(log n)",
-     "say": "New problem. Items keep arriving, and we always need the smallest now. Push five, twelve, two, then pop: two comes out. Peek must be instant.",
+     "say": "New problem. A scheduler grabs the most urgent job, millions of times. Push five, twelve, two, then pop: two comes out. Lowest number, most urgent. Peek must be instant.",
      "cues": {
       "example": "Push five",
       "output": "two comes out",
@@ -896,7 +1071,7 @@
     {
      "type": "diagram",
      "head": "Push 2: sift up",
-     "say": "A heap is a tree stored in an array. Five on top, twelve below it: a min-heap, smallest on top. Insert two. It lands in the next free slot. Its parent, index i minus one over two, is five. Smaller, so they swap. The array swaps too. Two is on top. Sift up: O of log n.",
+     "say": "Five sits on top, twelve below it, and one free slot. A min-heap: smallest on top. The line is this tree: the smallest is always the root. A heap stores the tree in an array. The free slot is index two. Insert two: here in the tree, here in the array. Its parent, index i minus one over two, is five. Smaller, so they swap. The array swaps too. Two is on top. Sift up: O of log n.",
      "items": [
       {
        "id": "r",
@@ -907,7 +1082,7 @@
        "text": "5",
        "size": 48,
        "tone": "blue",
-       "cue": "Five on top"
+       "cue": "Five sits on top"
       },
       {
        "id": "l",
@@ -926,11 +1101,10 @@
        "y": 420,
        "w": 130,
        "h": 110,
-       "label": "new",
-       "text": "2",
+       "text": "–",
        "size": 48,
-       "tone": "good",
-       "cue": "next free slot"
+       "tone": "dim",
+       "cue": "one free slot"
       },
       {
        "array": {
@@ -938,14 +1112,10 @@
         "values": [
          5,
          12,
-         2
+         "–"
         ],
         "y": 620,
-        "cues": [
-         "stored in an array",
-         "stored in an array",
-         "next free slot"
-        ]
+        "cue": "stores the tree in an array"
        }
       }
      ],
@@ -958,7 +1128,7 @@
       {
        "from": "r",
        "to": "rt",
-       "cue": "next free slot"
+       "cue": "one free slot"
       }
      ],
      "notes": [
@@ -966,7 +1136,7 @@
        "x": 430,
        "y": 270,
        "text": "children: 2i+1, 2i+2",
-       "cue": "twelve below it"
+       "cue": "stores the tree in an array"
       },
       {
        "x": 1230,
@@ -976,6 +1146,35 @@
       }
      ],
      "changes": [
+      {
+       "id": "rt",
+       "glow": true,
+       "tone": "warn",
+       "cue": "is index two"
+      },
+      {
+       "id": "r",
+       "glow": true,
+       "tone": "good",
+       "cue": "The line is this tree"
+      },
+      {
+       "id": "rt",
+       "text": "2",
+       "tone": "good",
+       "cue": "Insert two"
+      },
+      {
+       "id": "h2",
+       "text": "2",
+       "cue": "here in the array"
+      },
+      {
+       "id": "r",
+       "glow": true,
+       "tone": "warn",
+       "cue": "is five"
+      },
       {
        "id": "r",
        "text": "2",
@@ -1182,8 +1381,11 @@
        "cue": "classic slip"
       },
       {
-       "lines": [],
-       "cue": "That answers the problem"
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "extreme item"
       }
      ],
      "output": {
@@ -1271,10 +1473,11 @@
        "x": 460,
        "y": 410,
        "w": 100,
-       "h": 60,
+       "h": 76,
        "text": "i",
        "tone": "warn",
-       "cue": "Three comes in"
+       "cue": "Three comes in",
+       "size": 34
       }
      ],
      "changes": [
@@ -1770,7 +1973,7 @@
      "covers": [
       "cp07"
      ],
-     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? A monotonic stack: pop everything the new item beats, answer them. Why O of n? Each index is pushed once, popped once. Previous greater? Flip the comparison. Values or indices? Indices.",
+     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? A monotonic stack: pop what the newcomer beats. Why O of n? Each index is pushed once, popped once. Previous greater? Same loop, run from the right. Values or indices? Indices.",
      "heads": [
       "They ask",
       "You say"
@@ -1790,7 +1993,7 @@
       ],
       [
        "Previous greater? Values or indices?",
-       "flip the comparison; indices"
+       "same loop, run from the right; indices"
       ]
      ],
      "cues": [
@@ -1842,14 +2045,14 @@
       "cp08"
      ],
      "pause": 5,
-     "say": "Self test. You must keep the three largest numbers from a stream. Which kind of heap, and how big?",
-     "q": "Keep the 3 largest of a stream. Which heap, what size?",
-     "answer": "min-heap, size 3",
+     "say": "Self test. A min heap of size three keeps the largest of one, seven, four, nine, two. What sits on top at the end?",
+     "q": "Size-3 min-heap keeps the top 3 of 1, 7, 4, 9, 2. What is `top()` at the end?",
+     "answer": "4",
      "options": [
-      "max-heap, size 3",
-      "min-heap, size 3",
-      "min-heap, size n",
-      "max-heap, size n"
+      "1",
+      "4",
+      "7",
+      "9"
      ]
     },
     {
@@ -1858,7 +2061,7 @@
      "covers": [
       "cp08"
      ],
-     "say": "Min heap, size three: its top is the weakest keeper. Merge k sorted lists? Heap of the k fronts: pop the smallest, push its next. Cost? O of N log k. A billion numbers, tiny memory? Min heap of size k. Common mistake? Priority queue is a max heap.",
+     "say": "Four: the weakest of four, seven and nine sits on top. Merge k sorted lists? Heap of the k fronts: pop the smallest, push its next. Cost? O of N log k. A billion numbers, tiny memory? Min heap of size k. Common mistake? Priority queue is a max heap.",
      "heads": [
       "They ask",
       "You say"
