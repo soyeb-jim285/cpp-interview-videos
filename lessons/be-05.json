@@ -668,7 +668,7 @@
     {
      "type": "compare",
      "head": "More cache questions",
-     "say": "Two more questions. Redis goes down? Fall back to the database, because a cache is never required. What to cache? Slow, popular, rarely changing data. That answers the stale price.",
+     "say": "Two more questions. Redis goes down? Fall back to the database, because a cache is never required. What to cache? Slow, popular, rarely changing data. That covers stale data and the stampede.",
      "heads": [
       "Question",
       "Answer"
@@ -885,15 +885,15 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Workers are down for an hour, so six hundred jobs pile up in a durable queue. Then the workers restart. What happens next? Pause and predict.",
+     "say": "Your turn. Workers are down for an hour, so six hundred jobs pile up. Then the workers restart. What happens next? Pause and predict.",
      "q": "600 jobs queued, workers restart. What happens?",
      "options": [
-      "600 jobs drain",
-      "Jobs are lost",
-      "Checkout errors",
-      "API slows"
+      "Jobs drain, none lost",
+      "Jobs are dropped",
+      "Checkout gives errors",
+      "Queue refuses jobs"
      ],
-     "answer": "600 jobs drain",
+     "answer": "Jobs drain, none lost",
      "optCue": 0.5
     },
     {
@@ -1214,7 +1214,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Move ack above the charge, and the worker crashes right after the ack. What happens to event nine? Pause and predict.",
-     "q": "ack(msg) moved above the charge, then a crash. Event nine is...",
+     "q": "Ack moved above the charge, then a crash. Event nine?",
      "options": [
       "charged twice",
       "never charged",
@@ -1382,7 +1382,7 @@
     {
      "type": "flow",
      "head": "A message that keeps failing",
-     "say": "And a message that keeps failing? Retry with growing waits, called backoff. Still failing? Park it in a dead letter queue, a side queue. That's how a payment gets charged once.",
+     "say": "And a message that keeps failing? Retry with growing waits, called backoff. Still failing? Park it in a dead letter queue, a side queue. Together they stop one bad message from blocking the rest, and the processed table keeps the charge to once.",
      "items": [
       {
        "label": "message",
@@ -1406,9 +1406,10 @@
       },
       {
        "label": "result",
-       "text": "charged once",
+       "text": "parked",
+       "sub": "rest keep flowing",
        "tone": "good",
-       "cue": "charged once"
+       "cue": "blocking the rest"
       }
      ]
     }
@@ -1462,7 +1463,7 @@
      "covers": [
       "be07"
      ],
-     "say": "Stale data? Delete the key on update. The T T L backs it up. Stampede? One request refills while the rest wait, plus jitter.",
+     "say": "Stale data? Delete the key on update. The T T L backs it up. Stampede? One request refills while the rest wait, plus jitter. Redis down? Fall back to the database.",
      "heads": [
       "They ask",
       "You say"
@@ -1475,11 +1476,16 @@
       [
        "Stampede?",
        "One request refills; add TTL jitter"
+      ],
+      [
+       "Redis down?",
+       "Fall back to the database; cache is optional"
       ]
      ],
      "cues": [
       "Stale data",
-      "Stampede"
+      "Stampede",
+      "Redis down"
      ]
     },
     {
@@ -1488,7 +1494,7 @@
      "covers": [
       "be10"
      ],
-     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? Delivery is at least once: no ack means a retry. Exactly once? Not across systems. An idempotent consumer makes twice equal once.",
+     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? Delivery is at least once: no ack means a retry. Exactly once? Not across systems. An idempotent consumer makes twice equal once. Ack before or after? After the work. A crash means a retry.",
      "heads": [
       "They ask",
       "You say"
@@ -1505,12 +1511,17 @@
       [
        "Exactly once?",
        "Idempotent consumer: twice = once"
+      ],
+      [
+       "Ack before or after?",
+       "After the work; a crash means a retry"
       ]
      ],
      "cues": [
       "Why a queue",
       "Duplicates",
-      "Exactly once"
+      "Exactly once",
+      "Ack before or after"
      ]
     }
    ]
