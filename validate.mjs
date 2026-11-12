@@ -1,6 +1,7 @@
 // Usage: node validate.mjs scripts/q16.json [...]   — static checks, no audio needed. Exit 1 on any problem.
 import fs from "node:fs";
 import { panelFont, boxFont } from "./util.mjs";
+import { expandMacros } from "./scenes-v2.mjs";
 
 let bad = 0;
 const err = (f, m) => { bad++; console.log(`${f}: ${m}`); };
@@ -73,6 +74,7 @@ for (const f of process.argv.slice(2)) {
   if (s.scenes?.at(-1)?.type !== "take") err(f, "last scene must be take");
   if (s.chapters) lessonRules(f, s);
   (s.scenes || []).forEach((sc, i) => {
+    if (sc.type === "diagram") { const ex = expandMacros(sc); sc = { ...sc, items: ex.items, arrows: [...(sc.arrows || []), ...ex.arrows] }; } // lint what build draws: macro cells c0..cN are real ids
     const at = `${f} scene ${i} (${sc.type})`;
     if (!TYPES.has(sc.type)) return err(at, "unknown type");
     if (sc.type === "chapter") return sc.say === undefined ? undefined : err(at, "chapter card must have no say");
