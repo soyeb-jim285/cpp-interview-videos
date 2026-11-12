@@ -247,7 +247,7 @@
     {
      "type": "code",
      "head": "Both in scope: ambiguous",
-     "say": "Ambiguous. Both names are in scope, and the compiler won't guess. A using declaration doesn't fix it. ui's log is still in scope. The standard library lives in namespace s t d, and using namespace s t d in a header silently leaks every standard name into every includer.",
+     "say": "Ambiguous. Both names are in scope, and the compiler won't guess. A using declaration, which imports one name, does not fix it. ui's log is still in scope. The standard library lives in namespace s t d, and using namespace s t d in a header silently leaks every standard name into every includer.",
      "panels": [
       {
        "file": "main.cpp",
@@ -275,6 +275,12 @@
        "cue": "A using declaration"
       },
       {
+       "lines": [
+        2
+       ],
+       "cue": "ui's log is still"
+      },
+      {
        "lines": [],
        "cue": "The standard library"
       },
@@ -299,7 +305,7 @@
       "text": "error: call of overloaded ‘log(const char [3])’ is ambiguous",
       "cue": "Ambiguous",
       "setup": {
-       "main.cpp": "#include <iostream>\nnamespace net { void log(const char* m) { std::cout << m; } }\nnamespace ui  { void log(const char* m) { std::cout << m; } }\n"
+       "main.cpp": "#include <iostream>\nnamespace net { void log(const char* m) { std::cout << m; } }\nnamespace ui  { void log(const char* m) { std::cout << m; } }\nusing namespace net;\nusing namespace ui;\nusing net::log;\n"
       },
       "tone": "bad"
      }
@@ -801,7 +807,7 @@
     {
      "type": "diagram",
      "head": "How can they share a name?",
-     "say": "How can functions share a name? The compiler mangles each one, encoding the parameter types. Print of int becomes a symbol ending in i. Print of double ends in d. The linker, which joins object files, sees two different symbols. C cannot call these directly. A function exposed to C needs extern C.",
+     "say": "How can functions share a name? The compiler mangles each one, encoding the parameter types. Print of int becomes a symbol ending in i. Print of double ends in d. The linker, which joins object files, sees two different symbols. C cannot call these directly. A function exposed to C needs extern C, which switches off mangling, so C can call it.",
      "items": [
       {
        "id": "pi",
@@ -1091,7 +1097,7 @@
     {
      "type": "diagram",
      "head": "A hint, not a command",
-     "say": "No, it is a hint. The compiler decides, with or without the keyword. When it pastes, sq of five becomes five times five, and a good compiler folds it to 25. Some functions are inline for free: members defined in a class body, and constexpr functions. C plus plus seventeen adds inline variables.",
+     "say": "No, it is a hint. The compiler decides, with or without the keyword. When it pastes, sq of five becomes five times five, and a good compiler folds it to 25. Some functions are inline for free: members defined in a class body, and constexpr functions, which can run at compile time. C plus plus seventeen adds inline variables.",
      "items": [
       {
        "id": "c",
@@ -1342,33 +1348,33 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int d;\nstd::cin >> d;\nstd::cout << 10 / d;"
+       "code": "#include <iostream>\nint main() {\n    int d;\n    std::cin >> d;\n    std::cout << 10 / d;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        3,
+        4
        ],
        "cue": "types two"
       },
       {
        "lines": [
-        3
+        5
        ],
        "cue": "Ten divided by two"
       },
       {
        "lines": [
-        1,
-        2
+        3,
+        4
        ],
        "cue": "types zero"
       },
       {
        "lines": [
-        3
+        5
        ],
        "cue": "Ten divided by zero"
       }
@@ -1381,21 +1387,21 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int arr[3] = {1, 2, 3};\narr[5] = 1;\nint big = INT_MAX;\nbig = big + 1;"
+       "code": "#include <climits>\nint main() {\n    int arr[3] = {1, 2, 3};\n    arr[5] = 1;\n    int big = INT_MAX;\n    big = big + 1;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        3,
+        4
        ],
        "cue": "past the end of an array"
       },
       {
        "lines": [
-        3,
-        4
+        5,
+        6
        ],
        "cue": "Signed integer overflow"
       },
@@ -1406,14 +1412,14 @@
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 4,
        "inside": true,
        "text": "UB: out of bounds",
        "tone": "bad",
        "cue": "past the end of an array"
       },
       {
-       "line": 4,
+       "line": 6,
        "inside": true,
        "text": "UB: signed overflow",
        "tone": "bad",
@@ -1484,7 +1490,7 @@
     {
      "type": "code",
      "head": "Catch it with the tools",
-     "say": "Compiler warnings flag simple cases, like two plus plus changes to i in one line. Sanitizers catch the rest at runtime, with the exact line. Works on my machine proves nothing. And that first line has no right answer at all.",
+     "say": "Compiler warnings flag simple cases, like two plus plus changes to i in one line. Sanitizers catch the rest at runtime: built-in checkers that print the exact line. Works on my machine proves nothing. And that first line has no right answer at all.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1534,7 +1540,7 @@
      "statement": "f has two versions: one takes an int, one takes a char pointer. Call it with nothing, three ways.",
      "example": {
       "input": "f(0), f(NULL), f(nullptr)",
-      "output": "int, ambiguous, pointer"
+      "output": "one version runs per call"
      },
      "say": "Quick puzzle. f has an int version and a pointer version. We call it with zero, N U L L, and null p t r. Which runs each time?",
      "cues": {
@@ -1545,7 +1551,7 @@
     {
      "type": "flow",
      "head": "Three ways to hand over nothing",
-     "say": "Think of a form with a pointer box. Zero is a plain number that can slide in. NULL is a macro, a text swap that expands to zero, so also a number. Null p t r is a stamp made only for pointer boxes.",
+     "say": "Think of a form with a pointer box. Zero is a plain number that can slide in. NULL is a macro: an implementation-defined null pointer constant. Null p t r is a stamp made only for pointer boxes.",
      "items": [
       {
        "label": "0",
@@ -1555,8 +1561,8 @@
       },
       {
        "label": "NULL",
-       "text": "macro for 0",
-       "sub": "still an integer",
+       "text": "macro",
+       "sub": "an integer constant",
        "tone": "warn",
        "cue": "NULL is a macro"
       },
@@ -1624,7 +1630,7 @@
     {
      "type": "code",
      "head": "NULL is not a pointer",
-     "say": "Ambiguous. On G C C, NULL is an integer constant. It converts to an int and to a pointer equally well, so the compiler cannot choose. Auto hides the same trap. Auto of NULL is an integer. Auto of null p t r is its own type, not a pointer type.",
+     "say": "Ambiguous. On G C C, NULL is an integer constant. It converts to an int and to a pointer equally well, so the compiler cannot choose. Auto lets the compiler pick a variable's type from its value. Auto hides the same trap. Auto of NULL is an integer. Auto of null p t r is its own type, not a pointer type.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1637,6 +1643,18 @@
         2
        ],
        "cue": "NULL is an integer constant"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Auto lets the compiler"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Auto hides the same trap"
       },
       {
        "lines": [
@@ -1692,7 +1710,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "What is a namespace? A named box for names. How do you reach inside? The double colon, then the name. And using namespace s t d in a header? Never. It leaks into every includer.",
+     "say": "What is a namespace? A named box, so two libraries can reuse one name. How do you reach inside? The double colon, then the name. And using namespace s t d in a header? Never. It leaks into every includer.",
      "heads": [
       "They ask",
       "You say"
@@ -1732,11 +1750,21 @@
        "cue": "Plus plus i versus"
       },
       {
+       "text": "new value",
+       "sub": "++i",
+       "cue": "One returns the new"
+      },
+      {
+       "text": "old value",
+       "sub": "i++",
+       "cue": "the old"
+      },
+      {
        "label": "i = 5",
        "text": "a = 5",
        "sub": "then i = 6",
        "tone": "warn",
-       "cue": "With i equal five"
+       "cue": "a equals i plus plus"
       },
       {
        "label": "Which in loops?",
@@ -1753,7 +1781,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "What is overloading? One name, different parameter lists. Who picks? The compiler, at compile time, from the arguments. Return type alone? Not enough, it is an error. Any gotcha? Two equally good conversions make the call ambiguous.",
+     "say": "What is overloading? One name, different parameter lists. Who picks? The compiler, at compile time. How does it rank? Exact match, then promotion, then conversion. Return type alone? Not enough, it is an error. Any gotcha? Two equally good conversions make the call ambiguous.",
      "heads": [
       "They ask",
       "You say"
@@ -1768,6 +1796,10 @@
        "the compiler, at compile time"
       ],
       [
+       "How does it rank?",
+       "exact match, then promotion, then conversion"
+      ],
+      [
        "Return type only?",
        "not enough: error"
       ],
@@ -1779,6 +1811,7 @@
      "cues": [
       "What is overloading",
       "Who picks",
+      "How does it rank",
       "Return type alone",
       "Any gotcha"
      ],
@@ -1889,7 +1922,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "Zero and NULL? Integers that convert to pointers. NULL is a macro for zero. And null p t r? A true null pointer, with its own type. Why care? A call with NULL can be ambiguous. Null p t r never is.",
+     "say": "Zero and NULL? Integers that convert to pointers. NULL is an implementation-defined null pointer constant, usually zero. And null p t r? Its own type, never a number. A call with NULL can be ambiguous. Null p t r never is.",
      "heads": [
       "They ask",
       "You say"
@@ -1898,6 +1931,10 @@
       [
        "`0` and `NULL`?",
        "integers that can convert to pointers"
+      ],
+      [
+       "What is NULL?",
+       "implementation-defined null pointer constant"
       ],
       [
        "`nullptr`?",
@@ -1910,8 +1947,9 @@
      ],
      "cues": [
       "Zero and NULL",
+      "NULL is an implementation-defined",
       "And null p t r",
-      "Why care"
+      "A call with NULL"
      ],
      "covers": [
       "q15"
