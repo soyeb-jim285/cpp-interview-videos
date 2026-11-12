@@ -65,10 +65,10 @@
       "output": "100,000 req/s served"
      },
      "note": "users stay logged in",
-     "say": "Here is the problem. One server tops out at a thousand requests a second. For example, traffic is a hundred thousand. We want to serve all of it. And users must stay logged in.",
+     "say": "Here is the problem. One server tops out at a thousand requests a second. Example: a hundred thousand arrive every second. We want all of it served. And users must stay logged in.",
      "cues": {
-      "example": "For example",
-      "output": "We want to serve",
+      "example": "Example",
+      "output": "We want all",
       "note": "stay logged in"
      }
     },
@@ -76,7 +76,7 @@
      "type": "chart",
      "head": "One server vs the traffic",
      "unit": "req/s",
-     "say": "These bars show requests per second. One server tops out near a thousand. Your traffic is a hundred thousand. Interviewers love this: it tests whether you measure first.",
+     "say": "These bars show requests per second. One server tops out near a thousand. Your traffic is a hundred thousand.",
      "bars": [
       {
        "label": "One server",
@@ -111,7 +111,7 @@
        "cue": "faster cashier"
       },
       {
-       "label": "option 2: horizontal",
+       "label": "option 2: scale out",
        "text": "more checkouts",
        "sub": "keeps growing",
        "tone": "good",
@@ -324,7 +324,7 @@
     {
      "type": "diagram",
      "head": "State lives outside the app",
-     "say": "A shared store, like Redis. Now any server can read Ana's session. Sessions and cache live in Redis, durable data lives in the database. Kill a server and nobody is logged out. That is how one server becomes many.",
+     "say": "A shared store, like Redis. Memory or disk on one machine fails, and a bigger server is still one machine. Now any server can read Ana's session. Sessions and cache live in Redis, durable data in the database. Kill a server and nobody is logged out. That's how a hundred copies reach a hundred thousand.",
      "items": [
       {
        "id": "lb",
@@ -419,6 +419,11 @@
      ],
      "changes": [
       {
+       "id": "lb",
+       "glow": true,
+       "cue": "bigger server"
+      },
+      {
        "id": "rd",
        "glow": true,
        "tone": "good",
@@ -428,6 +433,12 @@
        "id": "p1",
        "kill": true,
        "cue": "Kill a server"
+      },
+      {
+       "id": "lb",
+       "glow": true,
+       "tone": "good",
+       "cue": "hundred copies"
       }
      ]
     }
@@ -445,9 +456,9 @@
       "output": "the database keeps up"
      },
      "note": "reads must be fresh enough",
-     "say": "New problem. A hundred app servers now share one database. For example, ten thousand queries a second reach it. We want it to keep up. And reads must stay fresh enough.",
+     "say": "Next, the database. A hundred app servers now share one. Example: ten thousand queries a second reach it. We want it to keep up. And reads must stay fresh enough.",
      "cues": {
-      "example": "For example",
+      "example": "Example",
       "output": "We want it",
       "note": "fresh enough"
      }
@@ -545,7 +556,7 @@
     {
      "type": "code",
      "head": "Sharding by user id",
-     "say": "The primary can't keep up? You shard. Split rows across databases by a key. Here the key is user id, and the rule is user id modulo four. Seven goes to database three. Twelve goes to zero. Why user id? Millions of values, spread evenly.",
+     "say": "The primary can't keep up? You shard. Split rows across databases by a key. Here the key is user id, and the rule is user id modulo four, the remainder after dividing by four. Seven goes to database three. Twelve goes to zero. Why user id? Millions of values, spread evenly.",
      "panels": [
       {
        "file": "shard.py",
@@ -700,7 +711,7 @@
     {
      "type": "compare",
      "head": "Whiteboard math",
-     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache absorbs ninety percent. Say eight in ten are reads: eight thousand, over four replicas. Two thousand writes hit the primary. Past that, shard four ways.",
+     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache, fast memory, absorbs ninety percent. The other ten thousand reach the database. Say eight in ten are reads: eight thousand, over four replicas. Two thousand writes hit the primary. Shard past that. Problem solved.",
      "heads": [
       "Layer",
       "100,000 req/s"
@@ -715,7 +726,7 @@
        "10,000 reach the database"
       ],
       [
-       "4 read replicas",
+       "4 read replicas (80% reads)",
        "8,000 reads: 2,000 each"
       ],
       [
@@ -726,7 +737,7 @@
      "cues": [
       "A hundred servers",
       "A cache",
-      "four replicas",
+      "Say eight",
       "Two thousand writes"
      ]
     }
@@ -744,9 +755,9 @@
       "output": "a pick and a reason each"
      },
      "note": "start from access patterns",
-     "say": "New problem. Pick a database for orders, and one for billions of event logs. For example, both. We want a pick and a reason for each. Start from access patterns.",
+     "say": "Mongo or Postgres? Pick a database for orders, another for billions of event logs. Example: orders, and the logs. We want a pick and a reason for each. Start from access patterns.",
      "cues": {
-      "example": "For example",
+      "example": "Example",
       "output": "We want a pick",
       "note": "access patterns"
      }
@@ -755,6 +766,15 @@
      "type": "diagram",
      "head": "Two ways to store an order",
      "say": "Mongo or Postgres? Start from access patterns, not favorites. Two ways to store orders. S Q L is linked spreadsheets: an orders sheet and an items sheet, joined by id. A document store keeps a folder per order, items inside.",
+     "notes": [
+      {
+       "x": 560,
+       "y": 220,
+       "text": "Start from access patterns",
+       "tone": "good",
+       "cue": "Start from access"
+      }
+     ],
      "items": [
       {
        "id": "s1",
@@ -850,6 +870,14 @@
       {
        "lines": [],
        "cue": "Which product"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Easy in S Q L"
       }
      ],
      "output": {
@@ -912,16 +940,16 @@
      "q": "Billions of log lines, read by key, never joined. Best store?",
      "options": [
       "Postgres",
-      "Document store",
-      "Redis cache",
-      "Log files"
+      "Key-value store",
+      "Spreadsheet",
+      "One text file"
      ],
-     "answer": "Document store"
+     "answer": "Key-value store"
     },
     {
      "type": "compare",
      "head": "Match data to store",
-     "say": "A document store. Event logs are huge, appended, and read by key. Money needs Postgres, with all or nothing transactions. Carts and sessions are one lookup by key. Odd extra fields? Postgres has a JSONB type. That defends each pick.",
+     "say": "A key-value or wide column store. Event logs are huge, appended, and read by key. Money needs Postgres, with all or nothing transactions. Carts and sessions are one lookup by key. Odd extra fields? Postgres has a JSONB type. That defends each pick.",
      "heads": [
       "Data",
       "Pick",
@@ -930,7 +958,7 @@
      "rows": [
       [
        "Event logs",
-       "Document store",
+       "Key-value / wide-col",
        "append, huge, key access"
       ],
       [
@@ -950,7 +978,7 @@
       ]
      ],
      "cues": [
-      "A document store",
+      "A key-value or wide",
       "Money needs",
       "Carts and sessions",
       "Odd extra"
@@ -970,9 +998,9 @@
       "output": "x=1 (stale) or an error"
      },
      "note": "you must pick one",
-     "say": "Last problem. Two data centers lose contact. For example, a write lands on A, and a read lands on B. We want a clear answer: stale, or an error. You must pick one.",
+     "say": "Last, the network splits. Two data centers lose contact. Example: a write lands on A, and a read lands on B. We want a clear answer: stale, or an error. You must pick one.",
      "cues": {
-      "example": "For example",
+      "example": "Example",
       "output": "We want a clear",
       "note": "pick one"
      }
@@ -1059,7 +1087,7 @@
     {
      "type": "diagram",
      "head": "A partition: B must choose",
-     "say": "Same thing with data. Replica A and replica B hold x, which is one. The link breaks. That's a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it. Now a read arrives at B. B has exactly two choices.",
+     "say": "Same thing with data. Replica A and replica B hold x, which is one. The link breaks. That's a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it. Now a read arrives at B. Consistency means every read sees the latest write. Availability means every request gets an answer. Partition is the broken link. B can't have both.",
      "items": [
       {
        "id": "ra",
@@ -1127,6 +1155,29 @@
        "cue": "a read arrives"
       }
      ],
+     "notes": [
+      {
+       "x": 640,
+       "y": 560,
+       "text": "C: latest write",
+       "tone": "good",
+       "cue": "Consistency means"
+      },
+      {
+       "x": 640,
+       "y": 640,
+       "text": "A: always answers",
+       "tone": "good",
+       "cue": "Availability means"
+      },
+      {
+       "x": 640,
+       "y": 720,
+       "text": "P: link broken",
+       "tone": "bad",
+       "cue": "Partition is the"
+      }
+     ],
      "changes": [
       {
        "id": "ra",
@@ -1138,7 +1189,7 @@
        "id": "rb",
        "glow": true,
        "tone": "warn",
-       "cue": "two choices"
+       "cue": "can't have both"
       }
      ]
     },
@@ -1147,12 +1198,12 @@
      "say": "Your turn. During the partition, B refuses to answer rather than risk a stale value. Which side of C A P did B choose? Pause and predict.",
      "q": "During a partition, B refuses to answer. It chose...",
      "options": [
-      "Availability (AP)",
-      "Consistency (CP)",
+      "Availability (A)",
+      "Consistency (C)",
       "Both",
       "Neither"
      ],
-     "answer": "Consistency (CP)"
+     "answer": "Consistency (C)"
     },
     {
      "type": "compare",
@@ -1279,15 +1330,15 @@
      "covers": [
       "be11"
      ],
-     "say": "How do you scale a service? Measure, cache, go stateless, add replicas. Shard last. Why stateless? Any server can serve any request. Replica lag? Read your own writes from the primary. Common mistake? Scaling before measuring.",
+     "say": "Scale a service? Measure, cache, stateless servers behind a load balancer, replicas. Shard last. Why stateless? Any server can serve any request. Replica lag? Read your own writes from the primary. Common mistake? Scaling before measuring.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
       [
-       "How do you scale it?",
-       "Measure, cache, scale out, replicas, shard last"
+       "Scale a service?",
+       "Measure; cache; LB + stateless apps; replicas; shard last"
       ],
       [
        "Why stateless?",
@@ -1303,7 +1354,7 @@
       ]
      ],
      "cues": [
-      "How do you scale",
+      "Scale a service",
       "Why stateless",
       "Replica lag",
       "Common mistake"
@@ -1353,7 +1404,7 @@
      "covers": [
       "be12"
      ],
-     "say": "Explain C A P. In a partition you choose consistency or availability. Pick any two? No, partitions are not optional. Eventual consistency? Replicas converge, fine for likes. Conflicting writes? Last write wins, or version vectors.",
+     "say": "Explain C A P. Split: consistency, the latest write, or availability, an answer every time. Pick any two? No, partitions are not optional. Eventual consistency? Replicas converge, fine for likes. Conflicting writes? Last write wins, or version vectors.",
      "heads": [
       "They ask",
       "You say"
@@ -1361,7 +1412,7 @@
      "rows": [
       [
        "Explain CAP.",
-       "In a partition: consistent or available"
+       "C: latest write. A: always answers. Pick one"
       ],
       [
        "Pick any two?",
