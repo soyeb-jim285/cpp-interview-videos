@@ -26,20 +26,20 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Which items fill a four kilo backpack for the most value? The priciest item is not in the best answer. By the end you'll fill knapsack, L I S and L C S tables by hand.",
+     "say": "Which items fill a four kilo backpack for the most value? By the end you'll solve all three by hand. The priciest item is not in the best answer.",
      "lines": [
       {
        "text": "A 4 kg backpack",
        "cue": "Which items"
       },
       {
-       "text": "Priciest item loses",
-       "cue": "priciest item"
+       "text": "3 problems, solved by hand",
+       "cue": "solve all three",
+       "accent": true
       },
       {
-       "text": "3 DP shapes, by hand",
-       "cue": "fill knapsack",
-       "accent": true
+       "text": "Priciest item loses",
+       "cue": "priciest item"
       }
      ]
     },
@@ -436,7 +436,7 @@
     {
      "type": "flow",
      "head": "Beat n squared with tails",
-     "say": "The classic follow-up: can you beat n squared? The simple table looks back at every earlier number. The trick is a list called tails. Slot k holds the smallest end of any rising run of length k plus one. Smaller ends are easier to extend.",
+     "say": "The classic follow-up: can you beat n squared? The simple table looks back at every earlier number. The trick is a list called tails. Slot k holds the smallest end of any rising run of length k. Smaller ends are easier to extend.",
      "items": [
       {
        "label": "simple table",
@@ -453,7 +453,7 @@
       {
        "label": "slot k",
        "text": "smallest end",
-       "sub": "of runs of length k+1",
+       "sub": "of runs of length k",
        "cue": "smallest end"
       },
       {
@@ -812,6 +812,10 @@
        "lower_bound replaces the equal tail, so the run stays strictly rising"
       ],
       [
+       "Upper bound?",
+       "appends a repeat, so the run is not strict"
+      ],
+      [
        "Simple table",
        "O(n²): dp[i] = 1 + best earlier smaller"
       ]
@@ -820,6 +824,7 @@
       "Tails isn't",
       "Only its length",
       "Equal values",
+      "Upper bound would",
       "simple table"
      ]
     }
@@ -872,8 +877,8 @@
     },
     {
      "type": "diagram",
-     "head": "LCS grid: rows A and B",
-     "say": "Now the grid. Rows are the letters of A B C B D A B, columns are B D C A B A. The border is zero: an empty string shares nothing. Row A against B, D, C: no match, so zero. Then A meets A: a match, so diagonal, the up-left cell, plus one makes one. The rest stays one. Row B: B meets B, a match: one. The rest follows the same rule.",
+     "head": "LCS grid: the axes",
+     "say": "Now the grid. Rows are the letters of A B C B D A B, columns are B D C A B A. The border is zero: an empty string shares nothing.",
      "items": [
       {
        "id": "hr1",
@@ -1107,72 +1112,6 @@
        "cue": "border is zero"
       },
       {
-       "id": "g11",
-       "x": 400,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g12",
-       "x": 480,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g13",
-       "x": 560,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g14",
-       "x": 640,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g15",
-       "x": 720,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g16",
-       "x": 800,
-       "y": 360,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
        "id": "g20",
        "x": 320,
        "y": 440,
@@ -1182,72 +1121,6 @@
        "text": "0",
        "tone": "dim",
        "cue": "border is zero"
-      },
-      {
-       "id": "g21",
-       "x": 400,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g22",
-       "x": 480,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g23",
-       "x": 560,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g24",
-       "x": 640,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g25",
-       "x": 720,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g26",
-       "x": 800,
-       "y": 440,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
       },
       {
        "id": "g30",
@@ -1261,72 +1134,6 @@
        "cue": "border is zero"
       },
       {
-       "id": "g31",
-       "x": 400,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g32",
-       "x": 480,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g33",
-       "x": 560,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g34",
-       "x": 640,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g35",
-       "x": 720,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g36",
-       "x": 800,
-       "y": 520,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
        "id": "g40",
        "x": 320,
        "y": 600,
@@ -1336,72 +1143,6 @@
        "text": "0",
        "tone": "dim",
        "cue": "border is zero"
-      },
-      {
-       "id": "g41",
-       "x": 400,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g42",
-       "x": 480,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g43",
-       "x": 560,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g44",
-       "x": 640,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g45",
-       "x": 720,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g46",
-       "x": 800,
-       "y": 600,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
       },
       {
        "id": "g50",
@@ -1415,72 +1156,6 @@
        "cue": "border is zero"
       },
       {
-       "id": "g51",
-       "x": 400,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g52",
-       "x": 480,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g53",
-       "x": 560,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g54",
-       "x": 640,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g55",
-       "x": 720,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g56",
-       "x": 800,
-       "y": 680,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "·",
-       "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
        "id": "g60",
        "x": 320,
        "y": 760,
@@ -1492,6 +1167,624 @@
        "cue": "border is zero"
       },
       {
+       "id": "g70",
+       "x": 320,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "LCS grid, row by row",
+     "say": "Row A against B, D, C: no match, so zero. Then A meets A: a match, so diagonal, the up-left cell, plus one makes one. The rest stays one. Row B: B meets B, a match: one. The rest follows the same rule.",
+     "items": [
+      {
+       "id": "hr1",
+       "x": 400,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr2",
+       "x": 480,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr3",
+       "x": 560,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr4",
+       "x": 640,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr5",
+       "x": 720,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr6",
+       "x": 800,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc1",
+       "x": 240,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc2",
+       "x": 240,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc3",
+       "x": 240,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc4",
+       "x": 240,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc5",
+       "x": 240,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc6",
+       "x": 240,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc7",
+       "x": 240,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "g00",
+       "x": 320,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g01",
+       "x": 400,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g02",
+       "x": 480,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g03",
+       "x": 560,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g04",
+       "x": 640,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g05",
+       "x": 720,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g06",
+       "x": 800,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g10",
+       "x": 320,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g20",
+       "x": 320,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g30",
+       "x": 320,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g40",
+       "x": 320,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g50",
+       "x": 320,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g60",
+       "x": 320,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g70",
+       "x": 320,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g11",
+       "x": 400,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g12",
+       "x": 480,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g13",
+       "x": 560,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g14",
+       "x": 640,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g15",
+       "x": 720,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g16",
+       "x": 800,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g21",
+       "x": 400,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g22",
+       "x": 480,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g23",
+       "x": 560,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g24",
+       "x": 640,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g25",
+       "x": 720,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g26",
+       "x": 800,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g31",
+       "x": 400,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g32",
+       "x": 480,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g33",
+       "x": 560,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g34",
+       "x": 640,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g35",
+       "x": 720,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g36",
+       "x": 800,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g41",
+       "x": 400,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g42",
+       "x": 480,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g43",
+       "x": 560,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g44",
+       "x": 640,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g45",
+       "x": 720,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g46",
+       "x": 800,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g51",
+       "x": 400,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g52",
+       "x": 480,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g53",
+       "x": 560,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g54",
+       "x": 640,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g55",
+       "x": 720,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
+       "id": "g56",
+       "x": 800,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Row A against"
+      },
+      {
        "id": "g61",
        "x": 400,
        "y": 760,
@@ -1500,7 +1793,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g62",
@@ -1511,7 +1804,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g63",
@@ -1522,7 +1815,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g64",
@@ -1533,7 +1826,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g65",
@@ -1544,7 +1837,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g66",
@@ -1555,18 +1848,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
-      },
-      {
-       "id": "g70",
-       "x": 320,
-       "y": 840,
-       "w": 76,
-       "h": 76,
-       "size": 40,
-       "text": "0",
-       "tone": "dim",
-       "cue": "border is zero"
+       "cue": "Row A against"
       },
       {
        "id": "g71",
@@ -1577,7 +1859,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g72",
@@ -1588,7 +1870,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g73",
@@ -1599,7 +1881,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g74",
@@ -1610,7 +1892,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g75",
@@ -1621,7 +1903,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "g76",
@@ -1632,7 +1914,7 @@
        "size": 40,
        "text": "·",
        "tone": "dim",
-       "cue": "Now the grid"
+       "cue": "Row A against"
       },
       {
        "id": "r1",
@@ -3433,7 +3715,7 @@
       "1",
       "2",
       "3",
-      "ABC and ACB share AC"
+      "0"
      ],
      "answer": 1,
      "pause": 5
@@ -3506,7 +3788,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Knapsack? A dp over capacity, loop capacity downward, items times capacity. L I S? Tails with binary search, O of n log n. L C S? A grid: match, diagonal plus one, otherwise best of above, left. Mistake? Capacity upward.",
+     "say": "Knapsack? A dp over capacity, loop capacity downward, items times capacity. Pseudo-polynomial, since capacity is a value. L I S? Tails with binary search, O of n log n. L C S? A grid: match, diagonal plus one, otherwise best of above, left. O of n times m. Mistake? Capacity upward.",
      "rows": [
       [
        "0/1 knapsack?",
@@ -3526,9 +3808,9 @@
       ]
      ],
      "cues": [
-      "Knapsack",
-      "L I S",
-      "L C S",
+      "loop capacity",
+      "Tails",
+      "diagonal",
       "Mistake"
      ]
     }
