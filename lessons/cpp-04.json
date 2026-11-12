@@ -252,7 +252,7 @@
     {
      "type": "code",
      "head": "Prevent it: give it an owner",
-     "say": "Prevention is ownership. Replace the raw pointer with a vector. Its destructor frees the memory on every exit, a return or an exception. For a single object, make unique. No new, no delete, no leak.",
+     "say": "Prevention is ownership. Replace the raw pointer with a vector. Its destructor frees the memory on every exit, a return or an exception. For a single object, make unique. No new, no delete, no leak. Two shared pointers can point at each other, so neither count reaches zero. A weak pointer breaks that cycle.",
      "panels": [
       {
        "file": "main.cpp",
@@ -271,6 +271,14 @@
         6
        ],
        "cue": "make unique"
+      },
+      {
+       "lines": [],
+       "cue": "Two shared pointers"
+      },
+      {
+       "lines": [],
+       "cue": "A weak pointer"
       }
      ],
      "notes": [
@@ -296,7 +304,7 @@
       "input": "q = p; delete[] p; char* w;",
       "output": "none: using any of them is undefined behavior"
      },
-     "say": "Here is the problem. Pointer q is a copy of p, and w was never set. Now we delete p. Which of them are safe? None of them. Using one is undefined behavior, or U B.",
+     "say": "Quick question. Pointer q is a copy of p, and w was never set. Now we delete p. Which of them are safe? None of them. Using one is undefined behavior, or U B.",
      "cues": {
       "example": "w was never set",
       "output": "None of them"
@@ -479,6 +487,12 @@
         7
        ],
        "cue": "It may reallocate"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "so first can point at freed memory"
       }
      ],
      "output": {
@@ -536,13 +550,13 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Look at that last code. A pointer never set, then written through. Is it dangling or wild? Pause and predict.",
+     "say": "Look at that last code. A pointer never set, then written through. Is it dangling or wild? Pause and predict.",
      "q": "`char* p;` never set, then `*p = 'x'`. Dangling or wild?",
      "options": [
       "wild",
       "dangling",
-      "double free",
-      "leaked"
+      "null pointer",
+      "a valid pointer"
      ],
      "answer": "wild"
     },
@@ -591,7 +605,7 @@
       "input": "delete p; then *p = 7",
       "output": "no guaranteed crash"
      },
-     "say": "Here is the problem. A pointer p points to an int. We delete it, then use p anyway. What does the program do? Officially, anything.",
+     "say": "Picture this. A pointer p points to an int. We delete it, then use p anyway. What does the program do? Officially, anything.",
      "cues": {
       "example": "We delete it",
       "output": "Officially, anything"
@@ -739,11 +753,20 @@
        "f": "grep -E \"ERROR|READ|freed by|#0 .* in read|#1 .* in read\" | head -5 | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
       },
       "tone": "bad"
-     }
+     },
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "undefined behavior",
+       "tone": "warn",
+       "cue": "Formally it is undefined"
+      }
+     ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. After delete p, you read star p. What does the standard promise about the value? Pause and predict.",
+     "say": "Quick check. After delete p, you read star p. What does the standard promise about the value? Pause and predict.",
      "q": "After `delete p`, reading `*p` gives...?",
      "options": [
       "always the old value",
@@ -756,7 +779,7 @@
     {
      "type": "compare",
      "head": "What it can do",
-     "say": "The answer is no value, because the standard promises nothing. You may read the old value. You may read garbage. You may read another object's data. Or crash, maybe later. It often seems fine, a classic security hole.",
+     "say": "No value at all, because the standard promises nothing. You may read the old value. You may read garbage. You may read another object's data. Or crash, maybe later. It often seems fine, a classic security hole.",
      "heads": [
       "Outcome",
       "Why"
@@ -793,13 +816,27 @@
    "scenes": [
     {
      "type": "problem",
+     "title": "Who frees the block?",
+     "statement": "Buffer owns 100 bytes and frees them in its destructor.",
+     "example": {
+      "input": "one Buffer, b1",
+      "output": "one destructor, one free"
+     },
+     "say": "Here's the problem. Buffer owns one hundred bytes, and frees them in its destructor. One object, so one free. Simple, so far.",
+     "cues": {
+      "example": "One object",
+      "output": "one free"
+     }
+    },
+    {
+     "type": "problem",
      "title": "Copy a Buffer, free it twice",
-     "statement": "Buffer owns 100 bytes and frees them in its destructor. Copy one Buffer into another. What gets freed?",
+     "statement": "Copy one Buffer into another. What gets freed?",
      "example": {
       "input": "Buffer b2 = b1;",
       "output": "one block, freed twice"
      },
-     "say": "Here's the problem. Buffer owns one hundred bytes, and frees them in its destructor. We copy b1 into b2. Then both objects die. What gets freed?",
+     "say": "We copy b1 into b2. Then both objects die. What gets freed?",
      "cues": {
       "example": "We copy b1",
       "output": "What gets freed"
@@ -893,9 +930,9 @@
       },
       {
        "id": "blk",
-       "kill": true,
-       "cue": "frees the array",
-       "text": "freed"
+       "tone": "dim",
+       "text": "freed",
+       "cue": "frees the array"
       },
       {
        "id": "b1",
@@ -916,6 +953,12 @@
         1
        ],
        "cue": "b1 owns a block"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Buffer b2 equals b1"
       },
       {
        "lines": [
@@ -959,22 +1002,35 @@
         6
        ],
        "cue": "The copy in copyIt"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "in the destructor on line four"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "called from line six"
       }
      ],
      "output": {
       "cmd": "g++ -g -fsanitize=address buffer.cpp && ./a.out 2>&1 | sh f",
       "text": "ERROR: AddressSanitizer: attempting double-free\n    #1 in Buffer::~Buffer() buffer.cpp:4\n    #2 in copyIt() buffer.cpp:6",
-      "cue": "attempting double free",
+      "cue": "Address Sanitizer reports",
       "setup": {
        "buffer.cpp": "void copyIt();\nint main() { copyIt(); }\n#line 0\n",
        "f": "grep -E \"ERROR|#[12] .* in (Buffer|copyIt)\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##' | head -3\n"
       },
       "tone": "bad"
-     }
+     },
+     "hold": 2
     },
     {
      "type": "quiz",
-     "say": "Your turn. Which change makes b2 independent, so each destructor frees its own block? Pause and predict.",
+     "say": "Try this one. Which change makes b2 independent, so each destructor frees its own block? Pause and predict.",
      "q": "Buffer b2 = b1 frees twice. What is the real fix?",
      "options": [
       "set b1.data to nullptr",
@@ -1081,7 +1137,7 @@
       "input": "int* a = new int[4]; a[4] = 1;",
       "output": "heap-buffer-overflow, line 3"
      },
-     "say": "Here is the problem. This program writes one past the end of a four int array. Normally it seems fine. We want the exact line.",
+     "say": "Here's a sneaky one. This program writes one past the end of a four int array. Normally it seems fine. We want the exact line.",
      "cues": {
       "example": "one past the end",
       "output": "We want the exact"
@@ -1246,7 +1302,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. You cannot rebuild the program. Which tool can still check the binary? Pause and predict.",
+     "say": "Suppose you cannot rebuild the program. Which tool can still check the binary? Pause and predict.",
      "q": "No rebuild possible. Which tool still checks the binary?",
      "options": [
       "AddressSanitizer",
@@ -1259,7 +1315,7 @@
     {
      "type": "code",
      "head": "Valgrind: no rebuild",
-     "say": "The answer is Valgrind, because it needs no rebuild. It checks every memory access on a simulated processor. Here it reports the leak: one hundred bytes definitely lost. If you can rebuild, add dash g and it names the line too. The catch: often twenty to thirty times slower. Never run an Address Sanitizer build under it.",
+     "say": "Valgrind, because it needs no rebuild. It checks every memory access on a simulated processor. Here it reports the leak: one hundred bytes definitely lost. If you can rebuild, add dash g and it names the line too. The catch: often twenty to thirty times slower. Never run an Address Sanitizer build under it.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1267,7 +1323,8 @@
       },
       {
        "file": "valgrind.txt",
-       "code": "valgrind --leak-check=full ./app\n100 bytes definitely lost\nat work() main.cpp:2 (needs -g)"
+       "code": "valgrind --leak-check=full ./app\n100 bytes definitely lost\nat work() main.cpp:2 (needs -g)",
+       "label": "abridged"
       }
      ],
      "steps": [
@@ -1410,10 +1467,10 @@
     {
      "type": "take",
      "kicker": "Say it in 20 seconds",
-     "say": "Double free? One block released twice, usually from a copied raw pointer. Shallow versus deep? Pointer copied, versus data copied. Fix? A deep copy, rule of three, or a vector.",
+     "say": "Double free? One block released twice. That is undefined behavior. Shallow versus deep? Shallow copies the pointer, so both objects free one block. Fix? A deep copy, rule of three, or a vector.",
      "lines": [
-      "Double free: one block released twice",
-      "Shallow: pointer copied. Deep: data copied.",
+      "Double free: one block released twice, undefined",
+      "Shallow: pointer copied, so both free one block",
       "Fix: deep copy, rule of three, or vector"
      ],
      "cues": [
