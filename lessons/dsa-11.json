@@ -39,7 +39,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "List every subset of three items: eight of them. By the end you'll list every subset and every permutation with one pattern, and skip dead ends early. Forget one line, and it all breaks.",
+     "say": "List every subset of three items: eight of them. By the end you'll list every subset and every ordering, and skip dead ends early. Forget one line, and you get wrong answers, no error.",
      "lines": [
       {
        "text": "List every subset of 3 items",
@@ -50,13 +50,13 @@
        "cue": "eight of them"
       },
       {
-       "text": "Every permutation too",
-       "cue": "every permutation"
+       "text": "Every ordering too",
+       "cue": "every ordering"
       },
       {
-       "text": "Forget one line: it breaks.",
+       "text": "Forget one line: wrong answers, no error.",
        "cue": "Forget one line",
-       "accent": "breaks"
+       "accent": "wrong answers"
       }
      ]
     },
@@ -126,7 +126,7 @@
     {
      "type": "diagram",
      "head": "Subsets of 1, 2, 3: calls in order",
-     "say": "Same idea with one, two, three. Each box is one call, and each call writes its pizza down. Empty first. Add one. Add two. Add three, and that's a dead end. Undo back, and one three. Undo to the top, try two. Then two three. Last, three alone. Eight boxes, eight subsets.",
+     "say": "Empty first, then the same idea with one, two, three. Each box is one call, and each call writes its pizza down. Add one. Add two. Add three, and that's the longest pizza, nothing left to add. Undo back, and one three. Undo to the top, try two. Then two three. Last, three alone. Eight boxes, eight subsets.",
      "items": [
       {
        "tree": {
@@ -320,13 +320,13 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A pizza place has ten toppings, and you write down every possible pizza. How many pizzas is that? Pause and predict.",
-     "q": "10 toppings, every subset: how many pizzas?",
+     "say": "Your turn. A pizza place has eleven toppings, and you write down every possible pizza. How many pizzas is that? Pause and predict.",
+     "q": "11 toppings, every subset: how many pizzas?",
      "options": [
-      "20",
-      "100",
-      "1,024",
-      "3,628,800"
+      "22",
+      "121",
+      "2,048",
+      "39,916,800"
      ],
      "answer": 2,
      "pause": 5
@@ -335,7 +335,7 @@
      "type": "chart",
      "head": "Each topping doubles the count",
      "unit": "pizzas",
-     "say": "One thousand twenty four. Pizzas by topping count: each topping doubles it. Seven toppings: one twenty eight. Eight: two fifty six. Nine: five twelve. Ten: one thousand twenty four.",
+     "say": "Two thousand forty eight, for eleven toppings. Each topping doubles the count. Seven toppings: one twenty eight. Eight: two fifty six. Nine: five twelve. Ten: one thousand twenty four.",
      "bars": [
       {
        "label": "7 toppings",
@@ -345,7 +345,7 @@
       {
        "label": "8 toppings",
        "value": 256,
-       "cue": "Eight"
+       "cue": "Eight:"
       },
       {
        "label": "9 toppings",
@@ -363,7 +363,7 @@
     {
      "type": "compare",
      "head": "The forgotten undo",
-     "say": "The classic trap. Delete the pop line and cur never shrinks. It writes one two three three, then one two three three two. Still eight boxes, but garbage inside. Every push needs a pop. That's how we list all eight subsets.",
+     "say": "The classic trap. Delete the pop line and cur never shrinks. It writes one two three three, then one two three three two. Still eight boxes, but garbage inside. Every push needs a pop.",
      "heads": [
       "What you do",
       "What happens"
@@ -819,7 +819,7 @@
     {
      "type": "compare",
      "head": "The two used-flag traps",
-     "say": "Two traps. No used reset: every item stays used, so one permutation, not six. No used check: items repeat, like one one one. The fix: undo everything you did before recursing. That's how we list all six orderings.",
+     "say": "Two traps. No used reset: every item stays used, so one permutation, not six. No used check: items repeat, like one one one. The fix: undo everything you did before recursing.",
      "heads": [
       "Mistake",
       "What you get"
@@ -968,7 +968,7 @@
      "changes": [
       {
        "id": "t3",
-       "kill": true,
+       "tone": "dim",
        "cue": "Dead end"
       },
       {
@@ -979,17 +979,17 @@
       },
       {
        "id": "t5",
-       "kill": true,
+       "tone": "dim",
        "cue": "Dead again"
       },
       {
        "id": "t7",
-       "kill": true,
+       "tone": "dim",
        "cue": "One to go"
       },
       {
        "id": "t8",
-       "kill": true,
+       "tone": "dim",
        "cue": "Nothing fits"
       },
       {
@@ -997,6 +997,36 @@
        "glow": true,
        "tone": "good",
        "cue": "alone: found"
+      }
+     ],
+     "notes": [
+      {
+       "x": 330,
+       "y": 850,
+       "text": "1 left, dead",
+       "tone": "warn",
+       "cue": "Dead end"
+      },
+      {
+       "x": 790,
+       "y": 785,
+       "text": "3 is too big",
+       "tone": "warn",
+       "cue": "Dead again"
+      },
+      {
+       "x": 1130,
+       "y": 785,
+       "text": "1 left, dead",
+       "tone": "warn",
+       "cue": "One to go"
+      },
+      {
+       "x": 1160,
+       "y": 340,
+       "text": "1 left, dead",
+       "tone": "warn",
+       "cue": "Nothing fits"
       }
      ]
     },
@@ -1055,15 +1085,15 @@
     },
     {
      "type": "chart",
-     "head": "What the break saves",
+     "head": "What pruning saves",
      "unit": "calls",
-     "say": "Ten primes, two up to twenty nine, and target forty. Without the break: fourteen thousand one hundred eighty four calls. With it: two thousand six hundred seventy eight. Five times fewer.",
+     "say": "Ten primes, two up to twenty nine, and target forty. Without pruning: fourteen thousand one hundred eighty four calls. With it: two thousand six hundred seventy eight. Five times fewer.",
      "bars": [
       {
-       "label": "No break",
+       "label": "No pruning",
        "value": 14184,
        "tone": "bad",
-       "cue": "Without the break"
+       "cue": "Without pruning"
       },
       {
        "label": "Break",
@@ -1428,8 +1458,8 @@
        "w": 300,
        "h": 110,
        "label": "switch",
-       "text": "on",
-       "tone": "good"
+       "text": "off",
+       "tone": "dim"
       },
       {
        "id": "w1",
@@ -1438,8 +1468,8 @@
        "w": 300,
        "h": 110,
        "label": "switch",
-       "text": "off",
-       "tone": "dim"
+       "text": "on",
+       "tone": "good"
       },
       {
        "id": "w2",
@@ -1458,7 +1488,7 @@
        "w": 300,
        "h": 130,
        "label": "mask",
-       "text": "5",
+       "text": "6",
        "size": 56,
        "tone": "warn"
       },
@@ -1469,32 +1499,40 @@
        "w": 1100,
        "h": 110,
        "label": "subset",
-       "text": "{10, 30}",
+       "text": "{20, 30} = 50",
        "size": 48,
-       "tone": "good"
+       "tone": "good",
+       "cue": "Fifty"
       }
      ],
      "changes": [
       {
        "id": "mask",
-       "text": "6",
+       "glow": true,
+       "tone": "warn",
        "cue": "Six is one one zero"
       },
       {
        "id": "w0",
-       "text": "off",
+       "glow": true,
        "tone": "dim",
        "cue": "Bit zero is off"
       },
       {
        "id": "w1",
-       "text": "on",
+       "glow": true,
        "tone": "good",
-       "cue": "bits one and two"
+       "cue": "bits one and two are on"
+      },
+      {
+       "id": "w2",
+       "glow": true,
+       "tone": "good",
+       "cue": "bits one and two are on"
       },
       {
        "id": "sub",
-       "text": "{20, 30} = 50",
+       "glow": true,
        "tone": "good",
        "cue": "twenty plus thirty"
       },
@@ -1508,7 +1546,7 @@
     },
     {
      "type": "chart",
-     "head": "Why bitmasks stop near 20 items",
+     "head": "Why bitmasks stop: bars not to scale",
      "unit": "steps",
      "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million. So masks count subsets, up to twenty items.",
      "bars": [
@@ -1551,6 +1589,63 @@
       "example": "Four, one, two",
       "output": "one loner",
       "note": "no extra memory"
+     }
+    },
+    {
+     "type": "code",
+     "head": "XOR cancels pairs, 1LL for big shifts",
+     "say": "Xor is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. That solves Single Number. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v = {4, 1, 2, 1, 2};\nint r = 0;\nfor (int x : v) r ^= x;\ncout << r << ' ';\ncout << (1LL << 40);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Xor is the star"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "so xoring a whole"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "one L L"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "pairs cancel",
+       "tone": "good",
+       "cue": "cancels every pair"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "plain 1 << 40 overflows",
+       "tone": "warn",
+       "cue": "overflows an int"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4 1099511627776",
+      "cue": "leaves four",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -1839,63 +1934,6 @@
     },
     {
      "type": "code",
-     "head": "XOR cancels pairs, 1LL for big shifts",
-     "say": "Xor is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
-     "panels": [
-      {
-       "file": "main.cpp",
-       "code": "vector<int> v = {4, 1, 2, 1, 2};\nint r = 0;\nfor (int x : v) r ^= x;\ncout << r << ' ';\ncout << (1LL << 40);"
-      }
-     ],
-     "steps": [
-      {
-       "lines": [
-        3
-       ],
-       "cue": "Xor is the star"
-      },
-      {
-       "lines": [
-        1,
-        2,
-        3
-       ],
-       "cue": "so xoring a whole"
-      },
-      {
-       "lines": [
-        5
-       ],
-       "cue": "one L L"
-      }
-     ],
-     "notes": [
-      {
-       "line": 3,
-       "inside": true,
-       "text": "pairs cancel",
-       "tone": "good",
-       "cue": "cancels every pair"
-      },
-      {
-       "line": 5,
-       "inside": true,
-       "text": "plain 1 << 40 overflows",
-       "tone": "warn",
-       "cue": "overflows an int"
-      }
-     ],
-     "output": {
-      "cmd": "./sol",
-      "text": "4 1099511627776",
-      "cue": "leaves four",
-      "setup": {
-       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
-      }
-     }
-    },
-    {
-     "type": "code",
      "head": "Every submask of a mask",
      "say": "Last trick: every submask of m, biggest first. Start at m. Subtract one, then and with m, to skip patterns outside m. Mask five, one zero one, gives five, four, one. Then the empty set, zero, by hand.",
      "panels": [
@@ -1939,7 +1977,7 @@
     {
      "type": "compare",
      "head": "Precedence and shift traps",
-     "say": "Last trap: precedence. Comparison binds tighter than bitwise and, so n and one equals zero is always false. Wrap the and in parentheses. And a plain int shifted by thirty two or more is undefined: use one L L. That's xor, done safely.",
+     "say": "Last trap: precedence. Comparison binds tighter than bitwise and, so n and one equals zero is always false. Wrap the and in parentheses. And a plain int shifted by thirty two or more is undefined: use one L L. That's how you avoid both bit-trick traps.",
      "heads": [
       "Code",
       "Problem"
@@ -1961,7 +1999,7 @@
      "cues": [
       "Comparison binds",
       "Wrap the and",
-      "thirty two or more"
+      "is undefined"
      ]
     }
    ]
@@ -1980,7 +2018,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's backtracking? Choose, explore, undo, with pruning when a branch can't work. Cost? Subsets: n times two to the n. Permutations: n times n factorial. Duplicates? Sort, skip equal neighbours. Mistake? Forgetting the undo.",
+     "say": "What's backtracking? Choose, explore, undo, with pruning when a branch can't work. Cost? Subsets: n times two to the n. Permutations: n times n factorial. Why prune? About fourteen thousand calls drop to about two thousand seven hundred. Mistake? Forgetting the undo.",
      "rows": [
       [
        "What is backtracking?",
@@ -1991,8 +2029,8 @@
        "subsets n·2ⁿ; permutations n·n!"
       ],
       [
-       "Duplicates?",
-       "sort, skip equal neighbours at same level"
+       "Why prune?",
+       "10 primes, target 40: 14,184 → 2,678 calls"
       ],
       [
        "Common mistake?",
@@ -2002,7 +2040,7 @@
      "cues": [
       "What's backtracking",
       "Cost",
-      "Duplicates",
+      "Why prune",
       "Mistake"
      ]
     },
