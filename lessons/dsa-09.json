@@ -68,7 +68,7 @@
      "title": "Shortest way out",
      "statement": "A 5×5 maze: a dot is floor, a hash is a wall. Moving up, down, left or right, what is the fewest steps from top left to bottom right?",
      "example": {
-      "input": "..... / ##.#. / ..... / .###. / .....",
+      "input": ".....\n##.#.\n.....\n.###.\n.....",
       "output": "8 steps"
      },
      "note": "Moves: up, down, left, right. Never through a wall.",
@@ -983,6 +983,11 @@
        "cue": "two, three, four"
       },
       {
+       "id": "m21",
+       "text": "3",
+       "cue": "two, three, four"
+      },
+      {
        "id": "m41",
        "text": "5",
        "tone": "good",
@@ -1074,9 +1079,9 @@
      "cues": {
       "example": "grid of ones",
       "output": "islands? Three",
-      "note": "Touching means"
+      "note": "Touching ones form"
      },
-     "say": "Look at this grid of ones and zeros. Touching ones form an island, so how many islands? Three. Touching means up, down, left, or right."
+     "say": "Look at this grid of ones and zeros. How many islands? Three. Touching ones form an island, meaning up, down, left, or right."
     },
     {
      "type": "flow",
@@ -1795,11 +1800,23 @@
        "from": "i34",
        "to": "i23",
        "tone": "good",
-       "bend": -40,
+       "bend": 0,
        "cue": "at a corner"
       }
      ],
      "changes": [
+      {
+       "id": "i23",
+       "tone": "good",
+       "glow": true,
+       "cue": "at a corner"
+      },
+      {
+       "id": "i34",
+       "tone": "good",
+       "glow": true,
+       "cue": "at a corner"
+      },
       {
        "id": "i34",
        "tone": "warn",
@@ -1870,7 +1887,7 @@
      "title": "Order the courses",
      "statement": "Some courses need others first. Give an order where every prerequisite comes before the course that needs it, or say it is impossible.",
      "example": {
-      "input": "0 before 1, 0 before 2, 1 before 3, 2 before 3",
+      "input": "0 before 1\n0 before 2\n1 before 3\n2 before 3",
       "output": "0 1 2 3 (one valid order)"
      },
      "note": "A loop of prerequisites makes it impossible.",
@@ -2512,7 +2529,7 @@
        "from": "n3",
        "to": "n0",
        "tone": "bad",
-       "bend": -420,
+       "bend": -150,
        "cue": "three to zero"
       }
      ],
@@ -2694,7 +2711,7 @@
      "covers": [
       "cp09"
      ],
-     "say": "How do they work? B F S: queue, layers. D F S: stack, depth. Shortest path? B F S, if unweighted. Cost? O of V plus E. Deep recursion crashes? Use an explicit stack.",
+     "say": "How do they work? B F S: queue, nearest first. D F S: stack, deep. What is D F S for? Connected areas, cycles, reachability. Shortest path? B F S, if unweighted. Dijkstra if weighted. Cost? O of V plus E. Deep recursion crashes? Use an explicit stack.",
      "heads": [
       "They ask",
       "You say"
@@ -2702,11 +2719,15 @@
      "rows": [
       [
        "How do BFS and DFS work?",
-       "BFS: queue, layers · DFS: stack, deep"
+       "BFS: queue, nearest first · DFS: stack, deep, then back up"
+      ],
+      [
+       "What is DFS used for?",
+       "connected areas, cycles, reachability"
       ],
       [
        "Shortest path?",
-       "BFS, if unweighted"
+       "BFS, if unweighted (Dijkstra if weighted)"
       ],
       [
        "Cost?",
@@ -2719,6 +2740,7 @@
      ],
      "cues": [
       "How do they",
+      "What is D F S",
       "Shortest path",
       "Cost",
       "Deep recursion"
