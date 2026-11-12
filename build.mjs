@@ -267,12 +267,28 @@ function sceneTitle(sc, sid, spec) {
 }
 
 function sceneTake(sc, sid, sfx) {
-  const html = `<div class="take" id="${sid}-tk"><div class="kicker">Remember</div>${sc.lines.map((l, i) => `<div class="tl" id="${sid}-t${i}"><s>0${i + 1}</s><span>${hlInline(l.replace(/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")))}</span></div>`).join("")}</div>`;
+  const html = `<div class="take" id="${sid}-tk"><div class="kicker">${esc(sc.kicker || "Remember")}</div>${sc.lines.map((l, i) => `<div class="tl" id="${sid}-t${i}"><s>0${i + 1}</s><span>${hlInline(l.replace(/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")))}</span></div>`).join("")}</div>`;
   const tw = [`tl.fromTo("#${sid}-tk .kicker",{opacity:0,x:-20},{opacity:1,x:0,duration:0.6},${r3(sc.t0 + 0.2)});`];
   sc.lines.forEach((l, i) => {
     const t = r3(cueTime(sc, sc.cues?.[i] ?? i / sc.lines.length));
     tw.push(`tl.fromTo("#${sid}-t${i}",{opacity:0,y:24},{opacity:1,y:0,duration:0.5,ease:"power3.out"},${t});`);
   });
+  sfx.push({ t: r3(sc.t0 + 0.2), file: "sparkle.mp3", vol: 0.12 });
+  return { html, tw };
+}
+
+function sceneProblem(sc, sid, sfx) {
+  const ex = sc.example || {}, c = sc.cues || {};
+  const html = `<div class="prob" id="${sid}-pb"><div class="kicker" id="${sid}-pk">Problem</div><h1 id="${sid}-pt">${hlInline(sc.title)}</h1><p class="pst" id="${sid}-ps">${hlInline(sc.statement)}</p><div class="pio"><div class="pbox" id="${sid}-pi"><b>Input</b><code>${esc(ex.input)}</code></div><div class="pbox out" id="${sid}-po"><b>Output</b><code>${esc(ex.output)}</code></div></div>${sc.note ? `<div class="pnote" id="${sid}-pn">${hlInline(sc.note)}</div>` : ""}</div>`;
+  const tw = [`tl.fromTo("#${sid}-pk",{opacity:0,x:-20},{opacity:1,x:0,duration:0.5},${r3(sc.t0 + 0.2)});`,
+    `tl.fromTo("#${sid}-pt",{opacity:0,y:30},{opacity:1,y:0,duration:0.6,ease:"power3.out"},${r3(sc.t0 + 0.3)});`,
+    `tl.fromTo("#${sid}-ps",{opacity:0,y:20},{opacity:1,y:0,duration:0.6,ease:"power3.out"},${r3(sc.t0 + 0.7)});`];
+  for (const [id, k] of [["pi", "example"], ["po", "output"], ["pn", "note"]]) {
+    if (id === "pn" && !sc.note) continue;
+    const t = r3(cueTime(sc, c[k] ?? (k === "example" ? 0.3 : k === "output" ? 0.6 : 0.8)));
+    tw.push(`tl.fromTo("#${sid}-${id}",{opacity:0,y:30,scale:0.94},{opacity:1,y:0,scale:1,duration:0.45,ease:"back.out(1.6)"},${t});`);
+    sfx.push({ t, file: "pop.mp3", vol: 0.2 });
+  }
   sfx.push({ t: r3(sc.t0 + 0.2), file: "sparkle.mp3", vol: 0.12 });
   return { html, tw };
 }
@@ -310,7 +326,7 @@ function build(specPath) {
     sc.vo = sc.say === undefined ? 0 : durs[`s${i}`].dur; sc.t0 = t;
     const dur = sc.type === "chapter" ? 2.5 : r3(LEAD + sc.vo + (sc.type === "quiz" ? (sc.pause ?? 3) + (sc.hold ?? 3) : sc.hold ?? TAIL));
     const sid = `s${i}`;
-    const r = { title: () => sceneTitle(sc, sid, spec), code: () => sceneCode(sc, sid, sfx), compare: () => sceneCompare(sc, sid, sfx), diagram: () => sceneDiagram(sc, sid, sfx), flow: () => sceneFlow(sc, sid, sfx), take: () => sceneTake(sc, sid, sfx), hook: () => sceneHook(sc, sid, sfx), quiz: () => sceneQuiz(sc, sid, sfx), chapter: () => sceneChapter(sc, sid, sfx), chart: () => sceneChart(sc, sid, sfx) }[sc.type]();
+    const r = { title: () => sceneTitle(sc, sid, spec), code: () => sceneCode(sc, sid, sfx), compare: () => sceneCompare(sc, sid, sfx), diagram: () => sceneDiagram(sc, sid, sfx), flow: () => sceneFlow(sc, sid, sfx), take: () => sceneTake(sc, sid, sfx), problem: () => sceneProblem(sc, sid, sfx), hook: () => sceneHook(sc, sid, sfx), quiz: () => sceneQuiz(sc, sid, sfx), chapter: () => sceneChapter(sc, sid, sfx), chart: () => sceneChart(sc, sid, sfx) }[sc.type]();
     const head = sc.head ? `<div class="head" id="${sid}-head">${hlInline(sc.head)}</div>` : "";
     scenesHtml += `<section id="${sid}" class="clip scene" data-start="${r3(t)}" data-duration="${dur}" data-track-index="1">${head}${r.html}</section>\n`;
     if (sc.head) tws.push(`tl.fromTo("#${sid}-head",{opacity:0,x:-30},{opacity:1,x:0,duration:0.5,ease:"power3.out"},${r3(t + 0.05)});`);

@@ -14,6 +14,8 @@ const good = () => ({
   chapters: [
     { title: "One", scenes: [
       { type: "hook", say: "Why does this crash? Let us find out.", lines: [{ text: "Crash?", cue: "crash" }] },
+      { type: "take", kicker: "Today", say: "Today we find the crash.", lines: ["Find the crash"] },
+      { type: "problem", title: "Why does it crash?", statement: "Given this code, say why it crashes.", say: "Here is the problem. For example, this input should give that output.", example: { input: "int x = 1;", output: "no crash" }, cues: { example: "For example", output: "that output" } },
       { type: "code", say: "Look at this line first, then the second line here.", panels: [{ code: "int x = 1;\nint y = 2;" }], steps: [{ lines: [1], cue: "first" }, { lines: [2], cue: "second" }] },
       { type: "quiz", say: "What prints?", q: "What prints?", options: ["1", "2"], answer: 0 }] },
     { title: "Drill", kind: "drill", scenes: [{ type: "quiz", say: "Quick drill.", q: "Q", options: ["a", "b"], answer: 1, covers: ["a", "b"] }] },
@@ -34,24 +36,31 @@ const bad = (rule, mut) => test(`fails ${rule}`, () => {
 });
 
 test("good lesson passes", () => { const r = check(good()); assert.equal(r.status, 0, r.stdout); assert.match(r.stdout, /ok/); });
+bad("agenda", (L) => { L.chapters[0].scenes[1].kicker = "Remember"; });
+bad("agenda", (L) => { L.chapters[0].scenes.splice(1, 1); });
+bad("problem-first", (L) => { L.chapters[0].scenes.splice(2, 1); });
+bad("problem-first", (L) => { L.chapters.splice(1, 0, { title: "Two", scenes: [{ type: "code", say: "Look.", panels: [{ code: "int x;" }] }, { type: "quiz", say: "Q?", q: "Q", options: ["a", "b"], answer: 0 }, { type: "compare", say: "A. B.", heads: ["a"], rows: [["x"]] }] }); });
+bad("cue-order", (L) => { Object.assign(L.chapters[0].scenes[2], { say: "Here is the output. For example, the input.", cues: { example: "For example", output: "the output" } }); });
 bad("hook-first", (L) => { L.chapters[0].scenes.shift(); });
+bad("problem-length", (L) => { L.chapters[0].scenes[2].statement = "x".repeat(161); });
+bad("problem-length", (L) => { L.chapters[0].scenes[2].example.input = "x".repeat(61); });
 bad("hook-length", (L) => { L.chapters[0].scenes[0].say = w(41); });
 bad("quiz-per-chapter", (L) => { L.chapters[0].scenes.pop(); });
 bad("drill-covers", (L) => { L.chapters[1].scenes[0].covers = ["a"]; });
 bad("drill-covers", (L) => { L.chapters[1].kind = "teach"; });
 bad("recap-last", (L) => { L.chapters[2].kind = "teach"; });
-bad("type-variety", (L) => { L.chapters[0].scenes.splice(1, 1); });
-bad("type-repeat", (L) => { const q = L.chapters[0].scenes[2]; L.chapters[0].scenes.push(q, q); });
-bad("gap", (L) => { L.chapters[0].scenes[1].say = `first ${w(16)} second`; });
-bad("cue-order", (L) => { L.chapters[0].scenes[1].say = "Look at the second line, then the first line here."; });
-bad("say-length", (L) => { L.chapters[0].scenes[2].say = w(91); });
-bad("font-floor", (L) => { L.chapters[0].scenes[1].panels[0].code = "x".repeat(100) + "\ny"; });
-bad("font-floor", (L) => { L.chapters[0].scenes[1].panels[0].code = "x".repeat(76) + "\ny"; });
-bad("note-overlap", (L) => { Object.assign(L.chapters[0].scenes[1], { panels: [{ code: "x".repeat(60) + "\ny" }], steps: [], notes: [{ line: 1, inside: true, text: "short note", cue: "first" }] }); });
-bad("region-title", (L) => { L.chapters[0].scenes.splice(2, 0, { type: "diagram", say: "Array in a window.", items: [{ id: "w", region: true, label: "WINDOW", x: 300, y: 300, w: 800, h: 300 }, { array: { id: "c", values: [1, 2, 3], x: 340, y: 330, cue: "Array" } }] }); });
+bad("type-variety", (L) => { L.chapters[0].scenes.splice(1, 3); });
+bad("type-repeat", (L) => { const q = L.chapters[0].scenes[4]; L.chapters[0].scenes.push(q, q); });
+bad("gap", (L) => { L.chapters[0].scenes[3].say = `first ${w(16)} second`; });
+bad("cue-order", (L) => { L.chapters[0].scenes[3].say = "Look at the second line, then the first line here."; });
+bad("say-length", (L) => { L.chapters[0].scenes[4].say = w(91); });
+bad("font-floor", (L) => { L.chapters[0].scenes[3].panels[0].code = "x".repeat(100) + "\ny"; });
+bad("font-floor", (L) => { L.chapters[0].scenes[3].panels[0].code = "x".repeat(76) + "\ny"; });
+bad("note-overlap", (L) => { Object.assign(L.chapters[0].scenes[3], { panels: [{ code: "x".repeat(60) + "\ny" }], steps: [], notes: [{ line: 1, inside: true, text: "short note", cue: "first" }] }); });
+bad("region-title", (L) => { L.chapters[0].scenes.splice(4, 0, { type: "diagram", say: "Array in a window.", items: [{ id: "w", region: true, label: "WINDOW", x: 300, y: 300, w: 800, h: 300 }, { array: { id: "c", values: [1, 2, 3], x: 340, y: 330, cue: "Array" } }] }); });
 bad("drill-covers", (L) => { L.covers = []; });
 bad("chapter-kind", (L) => { L.chapters[0].kind = "bogus"; });
-bad("gap", (L) => { Object.assign(L.chapters[0].scenes[1], { say: w(16), steps: [{ lines: [1] }] }); });
+bad("gap", (L) => { Object.assign(L.chapters[0].scenes[3], { say: w(16), steps: [{ lines: [1] }] }); });
 
 const miss = (what, mut) => test(`missing ${what} cue fails`, () => {
   const L = good(); mut(L.chapters[0].scenes);
@@ -60,12 +69,13 @@ const miss = (what, mut) => test(`missing ${what} cue fails`, () => {
   assert.match(r.stdout, new RegExp(`${what} cue "nope" not found in say`));
   assert.ok(!r.stdout.includes("[gap]") && !r.stdout.includes("[cue-order]"), r.stdout); // no order/gap noise on a partial cue list
 });
-miss("optCue", (S) => { S[2].optCue = "nope"; });
+miss("optCue", (S) => { S[4].optCue = "nope"; });
 miss("hook line 0", (S) => { S[0].lines[0].cue = "nope"; });
 miss("bar 0", (S) => { S.push({ type: "chart", say: "Linear is small.", bars: [{ label: "n", value: 1, cue: "nope" }] }); });
-miss("panel 0", (S) => { S[1].panels[0].type = true; S[1].panels[0].cue = "nope"; });
+miss("panel 0", (S) => { S[3].panels[0].type = true; S[3].panels[0].cue = "nope"; });
 miss("subCue", (S) => { S.push({ type: "title", say: "Hello there.", subCue: "nope" }); });
-miss("step", (S) => { S[1].steps[0].cue = "nope"; });
+miss("example", (S) => { S[2].cues.example = "nope"; });
+miss("step", (S) => { S[3].steps[0].cue = "nope"; });
 bad("cue-count", (L) => { L.chapters[0].scenes.push({ type: "compare", say: "One row. Two rows.", heads: ["a"], rows: [["x"], ["y"]], cues: ["One row"] }); });
 bad("macro", (L) => { L.chapters[0].scenes.push({ type: "diagram", say: "A tree.", items: [{ tree: { id: "t", nodes: [[1, 5]], cue: "A tree" } }] }); });
 

@@ -5,7 +5,7 @@ import { expandMacros } from "./scenes-v2.mjs";
 
 let bad = 0;
 const err = (f, m) => { bad++; console.log(`${f}: ${m}`); };
-const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take", "hook", "quiz", "chart", "chapter"]);
+const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take", "problem", "hook", "quiz", "chart", "chapter"]);
 const SPOKEN_BAN = [/C\+\+/, /std::/, /->/, /::/, /[{}<>;`]/, /\bnullptr\b(?! t)/i, /\bRAII\b/, /\bSTL\b/];
 
 const wordsBefore = (say, cue) => say.slice(0, say.toLowerCase().indexOf(String(cue).toLowerCase())).split(/\s+/).filter(Boolean).length;
@@ -15,6 +15,7 @@ const cueRefs = (sc) => [
   ...(["compare", "take"].includes(sc.type) ? (sc.cues || []).map((c) => [sc.type === "take" ? "take" : "row", c]) : []),
   ...(sc.items || []).map((b) => [sc.type === "flow" ? "flow item" : `item ${b.id}`, b.cue]),
   ...(sc.arrows || []).map((a, j) => [`arrow ${j}`, a.cue]), ...(sc.changes || []).map((c) => [`change ${c.id}`, c.cue]),
+  ...(sc.type === "problem" ? [["example", sc.cues?.example], ["output", sc.cues?.output], ["note", sc.cues?.note]] : []),
   ...(sc.type === "hook" ? (sc.lines || []).map((l, j) => [`hook line ${j}`, l.cue]) : []),
   ...(sc.bars || []).map((b, j) => [`bar ${j}`, b.cue]), ...(sc.panels || []).map((p, k) => [`panel ${k}`, p.cue]),
   ["optCue", sc.optCue], ["subCue", sc.subCue],
@@ -38,7 +39,7 @@ function lessonScene(s, sc, at, panels, cuesOk) {
   if (!cuesOk) return; // missing cues already reported; order/gap would be computed on a partial list
   const named = (a = []) => a.map((x) => (x && typeof x === "object" ? x.cue : x)).filter((c) => typeof c === "string" && sc.say.toLowerCase().includes(c.toLowerCase()));
   // declared-order groups (diagram items/arrows/changes are time-sorted by build, so skipped)
-  const groups = [sc.steps, sc.notes, sc.type === "compare" && sc.cues, sc.type === "take" && sc.cues, sc.type === "flow" && sc.items, sc.type === "hook" && sc.lines, sc.bars];
+  const groups = [sc.steps, sc.notes, sc.type === "compare" && sc.cues, sc.type === "take" && sc.cues, sc.type === "flow" && sc.items, sc.type === "hook" && sc.lines, sc.bars, sc.type === "problem" && [sc.cues?.example, sc.cues?.output, sc.cues?.note]];
   for (const g of groups) {
     const cs = named(g || []);
     for (let i = 1; i < cs.length; i++) {
@@ -46,9 +47,9 @@ function lessonScene(s, sc, at, panels, cuesOk) {
         err(at, `[cue-order] cue "${cs[i]}" fires before "${cs[i - 1]}"`);
     }
   }
-  const all = [sc.steps, sc.notes, sc.cues, sc.items, sc.arrows, sc.changes, sc.lines, sc.bars, sc.output && [sc.output], sc.panels].flatMap((g) => named(g || []));
+  const all = [sc.steps, sc.notes, Array.isArray(sc.cues) && sc.cues, sc.items, sc.arrows, sc.changes, sc.lines, sc.bars, sc.output && [sc.output], sc.panels, sc.type === "problem" && [sc.cues?.example, sc.cues?.output, sc.cues?.note]].flatMap((g) => named(g || []));
   const n = sc.say.split(/\s+/).length;
-  if (!all.length) { if (["code", "diagram", "compare", "flow", "chart"].includes(sc.type) && n > 15) err(at, `[gap] no reveal for ${n} words (max 15)`); return; }
+  if (!all.length) { if (["code", "diagram", "compare", "flow", "chart", "problem"].includes(sc.type) && n > 15) err(at, `[gap] no reveal for ${n} words (max 15)`); return; }
   const pos = [...new Set(all.map((c) => wordsBefore(sc.say, c)))].sort((a, b) => a - b);
   [0, ...pos, n].forEach((p, i, a) => { if (i && p - a[i - 1] > 15) err(at, `[gap] ${p - a[i - 1]} words between reveals (max 15, ~6 s)`); });
 }
@@ -72,8 +73,12 @@ function lessonRules(f, s) {
   if (first?.type !== "hook") err(f, "[hook-first] first scene after chapter card must be a hook");
   else if (first.say && first.say.split(/\s+/).length > 40) err(f, `[hook-length] hook say is ${first.say.split(/\s+/).length} words (max 40)`);
   const chs = s.chapters.map((c, k) => ({ ...c, sc: sc.slice(c.start, s.chapters[k + 1]?.start ?? sc.length).filter((x) => x.type !== "chapter") }));
-  chs.forEach((c) => {
+  const ag = chs[0]?.sc[1];
+  if (first?.type === "hook" && !(ag?.type === "take" && ag.kicker === "Today")) err(f, '[agenda] the scene right after the hook must be a take with kicker "Today" (<= 3 lines: what we will do)');
+  chs.forEach((c, k) => {
     if ((c.kind || "teach") !== "teach") return;
+    const p0 = c.sc[k ? 0 : 2];
+    if (p0?.type !== "problem") err(f, `[problem-first] chapter "${c.title}" must open with a problem scene (statement + example input/output)${k ? "" : " right after hook + agenda"}`);
     if (!c.sc.some((x) => x.type === "quiz")) err(f, `[quiz-per-chapter] chapter "${c.title}" has no quiz`);
     if (new Set(c.sc.map((x) => x.type)).size < 3) err(f, `[type-variety] chapter "${c.title}" needs >= 3 distinct scene types`);
     c.sc.forEach((x, i) => { if (i >= 2 && x.type === c.sc[i - 1].type && x.type === c.sc[i - 2].type) err(f, `[type-repeat] chapter "${c.title}" has 3 consecutive ${x.type} scenes`); });
@@ -140,6 +145,14 @@ for (const f of process.argv.slice(2)) {
     }
     if (sc.type === "take") {
       if (sc.lines.length > 3) err(at, "take: max 3 lines");
+    }
+    if (sc.type === "problem") {
+      if (!sc.title || !sc.statement || !sc.example?.input || !sc.example?.output) err(at, "problem needs title, statement, example.input, example.output");
+      else {
+        if (sc.statement.length > 160) err(at, `[problem-length] statement is ${sc.statement.length} chars (max 160); shorten it`);
+        for (const k of ["input", "output"]) if (sc.example[k].length > 60) err(at, `[problem-length] example.${k} is ${sc.example[k].length} chars (max 60); shorten it`);
+      }
+      if (!sc.cues?.example || !sc.cues?.output) err(at, "problem needs cues.example and cues.output");
     }
     if (sc.type === "flow") {
       if (sc.items.length > 5) err(at, "flow: max 5 items");

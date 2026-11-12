@@ -40,8 +40,8 @@ You are a senior engineer who has sat on both sides of the interview table, teac
 ## 3. Lesson skeleton
 
 ```
-chapter 1 (teach) : hook → why it matters → [teach beats]
-chapter 2..N (teach): [teach beats]
+chapter 1 (teach) : hook → agenda (take "Today") → problem → why it matters → [teach beats]
+chapter 2..N (teach): problem → [teach beats]
 chapter (drill)   : one rapid Q→A scene per covered question, each with "covers"
 chapter (recap)   : Practice card → take (last scene of the lesson)
 ```
@@ -90,6 +90,17 @@ add the chapter, never a drill-only id.
   Divisible by n"). Order easy → harder. If unsure of a number, pick a more famous problem. Without problems, the card
   is 3 concrete hands-on exercises ("Add an index to `orders.user_id` and compare `EXPLAIN` before/after").
 - `take`: 3 lines, the whole lesson as he would say it in the interview.
+
+### Beginnings: say what we're solving
+
+The viewer must know the problem in the first seconds. No lesson, and no chapter, just starts.
+
+1. **Hook** names the problem in plain words (what we are stuck on, not a teaser).
+2. **Agenda** right after the hook: a `take` with `"kicker": "Today"`, ≤ 3 lines, what we will do.
+3. **Every teach chapter opens with a `problem` scene** (statement + example input → expected output) BEFORE any
+   analogy or technique. In chapter 1 it comes right after the agenda.
+4. Concept lessons (Backend, SWE, C++) frame the chapter's question as the problem: title "Why is this query slow?",
+   statement, example input = the query and table size, example output = the goal "under 5 ms".
 
 ## 4. Hooks and clarity techniques
 
@@ -308,6 +319,18 @@ and stops: never speak the answer inside the quiz. The next scene's first senten
 1/20 of the tallest is a sliver. That's fine when the tininess is the point (200 vs 2 ms); otherwise chart comparable
 values (operations for n = 10, 20, 40), never 10 next to 1,000,000.
 
+### problem — the chapter's question, stated first
+```json
+{"type": "problem", "title": "Pair with target sum", "statement": "Given a sorted array and a target, return two numbers that add up to the target.",
+ "example": {"input": "[1, 3, 4, 6, 8, 11], target 10", "output": "4 + 6"}, "note": "n up to 100,000",
+ "say": "Here is the problem. For example, this sorted array and a target of ten. We want the pair that adds up: four and six. Up to a hundred thousand numbers.",
+ "cues": {"example": "For example", "output": "four and six", "note": "Up to a hundred"}}
+```
+First scene of every teach chapter (after the hook + agenda in chapter 1). `title` ≤ 40 chars, `statement` ≤ 160 chars
+(wraps to ≤ 3 lines), `example.input` / `example.output` ≤ 60 chars each, `note` optional. Title and statement
+appear at scene start; input at `cues.example`, output at `cues.output`, note at `cues.note` (in that order;
+`example` and `output` required). Reveal gaps follow `[gap]` (≤ 15 words), so cue "For example" early.
+
 ### take — the lines to remember
 ```json
 {"type": "take", "say": "So say this. A sliding window adds what enters and subtracts what leaves. Each element moves once, so O of n. Use it for the best contiguous range.",
@@ -315,6 +338,12 @@ values (operations for n = 10, 20, 40), never 10 next to 1,000,000.
  "cues": ["adds what enters", "moves once", "Use it"]}
 ```
 ≤ 3 lines, ≤ 50 chars each, one cue per line. The lesson's last scene must be a `take` (`[recap-last]`).
+`kicker` is optional (default "Remember"). The **agenda** is a take with `"kicker": "Today"`:
+```json
+{"type": "take", "kicker": "Today", "say": "Today you will do three things. Find a pair that hits a target, in one pass. Slide a window instead of recounting. And grow and shrink a window to fit a rule.",
+ "lines": ["Find a pair that hits a target, in one pass", "Slide a window instead of recounting", "Grow and shrink a window to fit a rule"],
+ "cues": ["Find a pair", "Slide a window", "grow and shrink"]}
+```
 
 ### drill scene (the shape every drill scene follows)
 ```json
@@ -384,6 +413,9 @@ go in a temp dir).
 | Lint message | Fix |
 |---|---|
 | `[hook-first]` / `[hook-length]` | first scene of chapter 1 is a `hook`, `say` ≤ 40 words |
+| `[agenda]` | the scene right after the hook is a `take` with `"kicker": "Today"` |
+| `[problem-first]` | every teach chapter's first scene is a `problem` (chapter 1: after hook + agenda) |
+| `[problem-length]` | statement ≤ 160 chars, example input/output ≤ 60 chars each |
 | `[quiz-per-chapter]` | add a quiz to that teach chapter |
 | `[type-variety]` / `[type-repeat]` | ≥ 3 scene types per teach chapter, no type 3× in a row |
 | `[chapter-kind]` | kind is `teach`, `drill` or `recap` |
@@ -448,6 +480,13 @@ both halves of cp06's question.
   {"title": "A million in twenty guesses", "scenes": [
    {"type": "hook", "say": "I'm thinking of a number from one to a million. You get twenty guesses. Sounds impossible? By the end, you'll win every time, and write the code with zero off by one bugs.",
     "lines": [{"text": "1 to 1,000,000", "cue": "number from one"}, {"text": "20 guesses", "cue": "twenty guesses"}, {"text": "Never miss.", "cue": "win every time", "accent": true}]},
+   {"type": "take", "kicker": "Today", "say": "Today you will do three things. Find any value in a sorted list by halving it. Write the loop with no off by one bugs. And search an answer that is not even in an array.",
+    "lines": ["Find a value by halving the range", "Write the loop with no off by one", "Search the answer, not the array"],
+    "cues": ["Find any value", "Write the loop", "search an answer"]},
+   {"type": "problem", "title": "First value at least x", "statement": "Given a sorted array and a number x, find the first position holding a value at least x.",
+    "example": {"input": "[1, 3, 5, 7, 7, 9], x = 7", "output": "index 3"}, "note": "n up to 1,000,000",
+    "say": "Here is the problem. For example, this array and x equal to seven. First big enough spot? Index three. Up to a million items, so no scanning.",
+    "cues": {"example": "For example", "output": "Index three", "note": "Up to a million"}},
    {"type": "flow", "head": "Every guess halves the range",
     "say": "Here's the trick. Guess the middle. Five hundred thousand? Too high, so half the numbers are gone. Guess the middle of what's left. Every guess halves the range, and a million shrinks to one number in twenty guesses. That halving is binary search.",
     "items": [{"label": "start", "text": "1,000,000", "cue": "Guess the middle"}, {"label": "1 guess", "text": "500,000", "cue": "half the numbers"}, {"label": "2 guesses", "text": "250,000", "cue": "middle of what"}, {"label": "20 guesses", "text": "1", "tone": "good", "cue": "shrinks to one"}]},
@@ -480,6 +519,10 @@ both halves of cp06's question.
     "rows": [["`(lo + hi) / 2`", "overflows when both are huge", "`lo + (hi - lo) / 2`"], ["`lo <= hi` with `hi = mid`", "loops forever", "one template, always"], ["read `a[lo]` blindly", "lo can equal `a.size()`", "check `lo < n` first"]],
     "cues": ["Adding lo", "Mixing two", "search for ten"]}]},
   {"title": "Search the answer, not the array", "scenes": [
+   {"type": "problem", "title": "Smallest ship that works", "statement": "Ten packages must ship in five days, in order. Find the smallest ship capacity that makes it.",
+    "example": {"input": "weights 1 to 10, 5 days", "output": "capacity 15"},
+    "say": "New problem, no sorted array. For example, weights one to ten, five days. Smallest capacity that works? Fifteen.",
+    "cues": {"example": "For example", "output": "Fifteen"}},
    {"type": "diagram", "head": "Smallest ship that works in 5 days",
     "say": "Now a problem with no sorted array at all. Ten packages weigh one to ten, and you have five days. What's the smallest ship that works? Ask a yes or no question for each capacity. Twelve: no. Thirteen: no. Fourteen: no. Fifteen: yes. Sixteen: yes. Once it says yes, it stays yes. So binary search for the first yes.",
     "items": [

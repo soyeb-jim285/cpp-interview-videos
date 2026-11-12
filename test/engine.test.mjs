@@ -124,3 +124,21 @@ test("reveals.json: sorted, per-scene, starts at scene start", () => {
   assert.ok(rv.some((r) => r.scene === 2 && r.what !== "scene start"));
   assert.match(rv.find((r) => r.scene === 2).what, /^scene start/);
 });
+
+test("problem scene renders kicker, statement, input/output boxes with cue-timed pops; take kicker overrides", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "t6-"));
+  fs.mkdirSync(path.join(out, "pbfx/assets/vo"), { recursive: true });
+  fs.writeFileSync(path.join(out, "pbfx/assets/vo/durations.json"), JSON.stringify({ s0: { dur: 10 }, s1: { dur: 4 } }));
+  const spec = { id: "pbfx", short: "p", question: "Q", num: 1, scenes: [
+    { type: "problem", title: "Pair with target sum", statement: "Given a sorted array and a target, return two numbers that add up.", example: { input: "[1, 3, 4, 6], target 10", output: "4 + 6" }, note: "n up to 100,000",
+      say: "Here is the problem. For example, take this input. We want this output. Note the size.", cues: { example: "For example", output: "this output", note: "Note" } },
+    { type: "take", kicker: "Today", say: "Today we learn.", lines: ["Find a pair"] }] };
+  fs.writeFileSync(path.join(out, "pb.json"), JSON.stringify(spec));
+  execFileSync("node", [path.join(ROOT, "build.mjs"), path.join(out, "pb.json")], { cwd: out });
+  const h = fs.readFileSync(path.join(out, "pbfx/index.html"), "utf8");
+  for (const t of [">Problem<", "Pair with target sum", "Given a sorted array", "[1, 3, 4, 6], target 10", ">Input<", ">Output<", "4 + 6", "n up to 100,000", ">Today<"]) assert.ok(h.includes(t), t);
+  const at = (id) => Number(h.match(new RegExp(`tl\\.fromTo\\("#s0-${id}",[^\\n]*,([\\d.]+)\\);`))[1]);
+  const t = at("pi"), o = at("po"), n = at("pn");
+  assert.ok(0.45 < t && t < o && o < n, `${t} ${o} ${n}`);
+  assert.ok(at("ps") > at("pt"));
+});
