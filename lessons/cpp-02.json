@@ -1,0 +1,1877 @@
+{
+ "id": "cpp-02",
+ "track": "C++",
+ "num": 2,
+ "title": "Names, Functions & the Rules of the Language",
+ "covers": [
+  "q09",
+  "q10",
+  "q11",
+  "q12",
+  "q13",
+  "q14",
+  "q15"
+ ],
+ "caps": [],
+ "chapters": [
+  {
+   "title": "Two logs, one program",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Five, or six? Take i equal to five. What does a equals i plus plus store? Half of candidates guess wrong. And some code has no right answer at all. By the end, you'll know exactly why.",
+     "lines": [
+      {
+       "text": "i = 5;  a = i++;",
+       "cue": "Take i equal"
+      },
+      {
+       "text": "a is 5? or 6?",
+       "cue": "Half of candidates"
+      },
+      {
+       "text": "Some code has no answer.",
+       "cue": "no right answer",
+       "accent": "no answer"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Keep names apart, and see what plus plus hands back. Pick the right function with overloads, inline, and null p t r. Then tell compile errors from runtime errors, and meet undefined behavior.",
+     "lines": [
+      "Keep names apart; see what ++ returns",
+      "Pick the function: overloads, inline, nullptr",
+      "Compile vs runtime errors, and undefined behavior"
+     ],
+     "cues": [
+      "Keep names apart",
+      "Pick the right function",
+      "Then tell compile"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Two libraries, one name",
+     "statement": "A network library and a UI library each define a function called log. Use both in one program.",
+     "example": {
+      "input": "net has log(), ui has log()",
+      "output": "both callable, no clash"
+     },
+     "say": "Here is the problem. Your network library has a function called log. So does your UI library. We want to call both in one program, with no clash.",
+     "cues": {
+      "example": "Your network library",
+      "output": "We want to call both"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two cities, one Main Street",
+     "say": "Think of two cities. Both have a Main Street. Say Main Street, and nobody knows which one. Add the city name, and the address is unique. A namespace is that city name, and the double colon joins it to the name.",
+     "items": [
+      {
+       "label": "Springfield",
+       "text": "Main Street",
+       "cue": "Both have a Main"
+      },
+      {
+       "label": "Shelbyville",
+       "text": "Main Street",
+       "tone": "bad",
+       "cue": "nobody knows"
+      },
+      {
+       "label": "city + street",
+       "text": "unique address",
+       "tone": "good",
+       "cue": "Add the city name"
+      },
+      {
+       "label": "in C++",
+       "text": "net::log",
+       "sub": "namespace :: name",
+       "tone": "blue",
+       "cue": "A namespace is"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Same name twice: refused",
+     "say": "Here are both log functions in one file. The first prints net, the second prints ui. Same name, same parameters, same scope. The compiler refuses with a redefinition error.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void log(const char* m) {\n    std::cout << \"net: \" << m;\n}\nvoid log(const char* m) {\n    std::cout << \"ui: \" << m;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "first prints net"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "second prints ui"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "same signature",
+       "tone": "bad",
+       "cue": "refuses"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp",
+      "text": "error: redefinition of ‘void log(const char*)’",
+      "cue": "redefinition error",
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Give each log a home",
+     "say": "The fix is two namespaces. Wrap the first log in net. Wrap the second in ui. Now they are different functions. Call them by namespace, double colon, then name. That double colon is the scope resolution operator.",
+     "items": [
+      {
+       "id": "rn",
+       "region": true,
+       "x": 1060,
+       "y": 250,
+       "w": 700,
+       "h": 260,
+       "label": "net",
+       "cue": "first log in net",
+       "tone": "blue"
+      },
+      {
+       "id": "bn",
+       "x": 1120,
+       "y": 340,
+       "w": 580,
+       "h": 130,
+       "text": "net::log()",
+       "cue": "first log in net",
+       "tone": "blue"
+      },
+      {
+       "id": "ru",
+       "region": true,
+       "x": 1060,
+       "y": 570,
+       "w": 700,
+       "h": 260,
+       "label": "ui",
+       "cue": "Wrap the second",
+       "tone": "warn"
+      },
+      {
+       "id": "bu",
+       "x": 1120,
+       "y": 660,
+       "w": 580,
+       "h": 130,
+       "text": "ui::log()",
+       "cue": "Wrap the second",
+       "tone": "warn"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "namespace net {\n    void log(const char* m);\n}\nnamespace ui {\n    void log(const char* m);\n}\nint main() {\n    net::log(\"sent\");\n    ui::log(\"drawn\");\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "first log in net"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "Wrap the second"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "Call them by"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1100,
+       "y": 860,
+       "text": "scope resolution operator",
+       "tone": "good",
+       "cue": "scope resolution"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Suppose a file has using namespace net and using namespace ui, then calls log with the word hi. What happens? Pause and predict.",
+     "q": "using namespace net; using namespace ui; log(\"hi\"); What happens?",
+     "options": [
+      "calls net::log",
+      "calls ui::log",
+      "ambiguous: error",
+      "calls both"
+     ],
+     "answer": "ambiguous: error"
+    },
+    {
+     "type": "code",
+     "head": "Both in scope: ambiguous",
+     "say": "Ambiguous. Both names are in scope, and the compiler won't guess. A using declaration brings in just one name, which is safer. The standard library lives in namespace s t d, and using namespace s t d in a header silently leaks every standard name into every includer.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "using namespace net;\nusing namespace ui;\nlog(\"hi\");\n\nusing net::log;     // one name\nusing namespace std;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Both names are in scope"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "won't guess"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "A using declaration"
+      },
+      {
+       "lines": [],
+       "cue": "The standard library"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "in a header"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "leaks everywhere",
+       "tone": "bad",
+       "cue": "silently leaks"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp",
+      "text": "error: call of overloaded ‘log(const char [3])’ is ambiguous",
+      "cue": "Ambiguous",
+      "tone": "bad"
+     }
+    }
+   ]
+  },
+  {
+   "title": "What ++i and i++ hand back",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Same variable, two results",
+     "statement": "Both ++i and i++ add one to i. Find the value each expression hands back.",
+     "example": {
+      "input": "i = 5; a = i++; b = ++i;",
+      "output": "a = 5, b = 7, i = 7"
+     },
+     "say": "Here is the problem. Start with i at five. Then a equals i plus plus. Then b equals plus plus i. The result is a five, b seven, i seven. Let's see why.",
+     "cues": {
+      "example": "Then a equals",
+      "output": "The result is"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A ticket machine at the deli",
+     "say": "Picture a deli ticket machine. The display is i, showing five. Post increment, i plus plus, hands you ticket five, then the display moves to six. Pre increment, plus plus i, moves the display first, then hands you the new number. Same machine, different moment.",
+     "items": [
+      {
+       "label": "display = i",
+       "text": "5",
+       "cue": "The display is i"
+      },
+      {
+       "label": "i++ hands you",
+       "text": "5",
+       "sub": "then display = 6",
+       "tone": "warn",
+       "cue": "hands you ticket five"
+      },
+      {
+       "label": "display now",
+       "text": "6",
+       "cue": "moves to six"
+      },
+      {
+       "label": "++i hands you",
+       "text": "7",
+       "sub": "display moved first",
+       "tone": "good",
+       "cue": "moves the display first"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Run it line by line",
+     "say": "Run it. i starts at five. Line two, a equals i plus plus. The old value, five, goes to a. Then i becomes six. Line three, b equals plus plus i. i becomes seven first, and that seven goes to b.",
+     "items": [
+      {
+       "id": "i",
+       "x": 1030,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "5",
+       "cue": "i starts at five",
+       "label": "i",
+       "tone": "blue",
+       "size": 56
+      },
+      {
+       "id": "a",
+       "x": 1300,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "?",
+       "cue": "Line two",
+       "label": "a",
+       "size": 56
+      },
+      {
+       "id": "b",
+       "x": 1570,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "?",
+       "cue": "Line three",
+       "label": "b",
+       "size": 56
+      }
+     ],
+     "changes": [
+      {
+       "id": "a",
+       "text": "5",
+       "tone": "warn",
+       "cue": "goes to a"
+      },
+      {
+       "id": "i",
+       "text": "6",
+       "cue": "i becomes six"
+      },
+      {
+       "id": "i",
+       "text": "7",
+       "cue": "i becomes seven"
+      },
+      {
+       "id": "b",
+       "text": "7",
+       "tone": "good",
+       "cue": "seven goes to b"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int i = 5;\nint a = i++;\nint b = ++i;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "i starts at five"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Line two"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Line three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "How a class does it",
+     "say": "Look at how a class does it. Prefix adds one and returns itself, no copy. Postfix copies the old object, adds one, and returns the copy. That copy is why loops prefer plus plus i. The extra int just marks postfix. Run it: five, seven, seven.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct C {\n    int v = 5;\n    C& operator++() { ++v; return *this; }\n    C operator++(int) { C o = *this; ++v; return o; }\n};\nC c;  C a = c++;  C b = ++c;\ncout << a.v << ' ' << b.v << ' ' << c.v;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Prefix adds one"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Postfix copies"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "why loops prefer"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "extra int"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Run it"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "5 7 7",
+      "cue": "five, seven, seven"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. i is five. Then a gets i plus plus. Then b gets i plus plus again. What is a plus b? Pause and predict.",
+     "q": "i = 5; a = i++; b = i++; What is a + b?",
+     "options": [
+      "10",
+      "11",
+      "12",
+      "13"
+     ],
+     "answer": "11"
+    },
+    {
+     "type": "diagram",
+     "head": "a gets 5, b gets 6",
+     "say": "Eleven. The first i plus plus hands out five, and i becomes six. The second hands out six, and i becomes seven. Five plus six is eleven.",
+     "items": [
+      {
+       "id": "i",
+       "x": 1030,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "5",
+       "label": "i",
+       "tone": "blue",
+       "size": 56
+      },
+      {
+       "id": "a",
+       "x": 1300,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "?",
+       "label": "a",
+       "size": 56
+      },
+      {
+       "id": "b",
+       "x": 1570,
+       "y": 450,
+       "w": 220,
+       "h": 150,
+       "text": "?",
+       "label": "b",
+       "size": 56
+      },
+      {
+       "id": "s",
+       "x": 1300,
+       "y": 720,
+       "w": 490,
+       "h": 140,
+       "text": "?",
+       "label": "a + b",
+       "size": 56
+      }
+     ],
+     "changes": [
+      {
+       "id": "a",
+       "text": "5",
+       "tone": "warn",
+       "cue": "hands out five"
+      },
+      {
+       "id": "i",
+       "text": "6",
+       "cue": "i becomes six"
+      },
+      {
+       "id": "b",
+       "text": "6",
+       "tone": "warn",
+       "cue": "hands out six"
+      },
+      {
+       "id": "i",
+       "text": "7",
+       "cue": "i becomes seven"
+      },
+      {
+       "id": "s",
+       "text": "11",
+       "tone": "good",
+       "cue": "Five plus six"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int i = 5;\nint a = i++;\nint b = i++;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The first i plus plus"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "The second hands"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "One name, many functions",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "One print for every type",
+     "statement": "You want print(42) to show an int and print(3.14) to show a double, with the same name.",
+     "example": {
+      "input": "print(42); print(3.14);",
+      "output": "int: 42, double: 3.14"
+     },
+     "say": "Here is the problem. You want one name, print, for ints and doubles. For example, forty two and three point one four. Each gets its own behavior.",
+     "cues": {
+      "example": "For example",
+      "output": "its own behavior"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A receptionist who reads",
+     "say": "Think of a receptionist. One desk, one name on the door. You hand over a form, and she reads what kind it is, then sends you to the right office. The compiler is that receptionist. The form is the argument type.",
+     "items": [
+      {
+       "label": "you hand over",
+       "text": "42",
+       "cue": "hand over a form"
+      },
+      {
+       "label": "she reads",
+       "text": "an int",
+       "cue": "reads what kind"
+      },
+      {
+       "label": "right office",
+       "text": "print(int)",
+       "tone": "good",
+       "cue": "right office"
+      },
+      {
+       "label": "the real thing",
+       "text": "the compiler",
+       "sub": "argument type decides",
+       "tone": "blue",
+       "cue": "The compiler is"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Three prints, one name",
+     "say": "Here is overloading. Three functions share the name print, taking an int, a double, and a string. Call print with forty two, and the compiler sees an int. Three point one four is a double. A string picks the third. All of it is decided at compile time.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void print(int x)    { cout << \"int: \" << x << '\\n'; }\nvoid print(double x) { cout << \"double: \" << x << '\\n'; }\nvoid print(const string& s) { cout << \"string: \" << s << '\\n'; }\nprint(42);\nprint(3.14);\nprint(string(\"hi\"));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Three functions share"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Call print with"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Three point one four"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "A string picks"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "int: 42\ndouble: 3.14\nstring: hi",
+      "cue": "decided at compile"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same three prints, and now the call is print of the character A, in single quotes. Which one runs? Pause and predict.",
+     "q": "print('A') with print(int), print(double), print(string). Which runs?",
+     "options": [
+      "int: 65",
+      "double: 65",
+      "string: A",
+      "ambiguous: error"
+     ],
+     "answer": "int: 65"
+    },
+    {
+     "type": "compare",
+     "head": "How the compiler ranks them",
+     "say": "It prints int sixty five. The compiler ranks the candidates. Exact match wins first. A char promotes to int, which is next best. Converting to double is worse. Two equal conversions tie, and the call is ambiguous.",
+     "heads": [
+      "Rank",
+      "Call",
+      "Picks"
+     ],
+     "rows": [
+      [
+       "1 · exact",
+       "`print(42)`",
+       "`print(int)`"
+      ],
+      [
+       "2 · promotion",
+       "`print('A')`",
+       "`print(int)`"
+      ],
+      [
+       "3 · conversion",
+       "int to long or double",
+       "tie: ambiguous"
+      ]
+     ],
+     "cues": [
+      "Exact match",
+      "A char promotes",
+      "Two equal conversions"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Two traps",
+     "say": "Two traps. First, the return type alone does not count. These two parse functions look identical to the caller, so the second is an error. Second, a call can be ambiguous. Converting five to long or to double is equally good, so the compiler gives up.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int parse(const char* s);\ndouble parse(const char* s);\n\nvoid f(long x);\nvoid f(double x);\nf(5);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "These two parse"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Converting five"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "to long or to double"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "return type only",
+       "tone": "bad",
+       "cue": "the second is an error"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp",
+      "text": "error: ambiguating new declaration of ‘double parse(const char*)’\nerror: call of overloaded ‘f(int)’ is ambiguous",
+      "cue": "gives up",
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "How can they share a name?",
+     "say": "How can functions share a name? The compiler mangles each one, encoding the parameter types. Print of int becomes a symbol ending in i. Print of double ends in d. The linker sees two different symbols. C cannot call these directly. A function exposed to C needs extern C.",
+     "items": [
+      {
+       "id": "pi",
+       "x": 200,
+       "y": 330,
+       "w": 460,
+       "h": 140,
+       "text": "print(int)",
+       "cue": "Print of int",
+       "label": "you write"
+      },
+      {
+       "id": "pd",
+       "x": 200,
+       "y": 620,
+       "w": 460,
+       "h": 140,
+       "text": "print(double)",
+       "cue": "Print of double"
+      },
+      {
+       "id": "mi",
+       "x": 1150,
+       "y": 330,
+       "w": 480,
+       "h": 140,
+       "text": "_Z5printi",
+       "cue": "ending in i",
+       "label": "linker sees",
+       "tone": "good"
+      },
+      {
+       "id": "md",
+       "x": 1150,
+       "y": 620,
+       "w": 480,
+       "h": 140,
+       "text": "_Z5printd",
+       "cue": "ends in d",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pi",
+       "to": "mi",
+       "label": "mangled",
+       "cue": "ending in i"
+      },
+      {
+       "from": "pd",
+       "to": "md",
+       "cue": "ends in d"
+      }
+     ],
+     "changes": [
+      {
+       "id": "mi",
+       "glow": true,
+       "tone": "warn",
+       "cue": "two different symbols"
+      },
+      {
+       "id": "md",
+       "glow": true,
+       "tone": "warn",
+       "cue": "two different symbols"
+      }
+     ],
+     "notes": [
+      {
+       "x": 160,
+       "y": 830,
+       "text": "C has no overloading",
+       "tone": "info",
+       "cue": "C cannot call"
+      },
+      {
+       "x": 1000,
+       "y": 830,
+       "text": "extern \"C\": no mangling",
+       "tone": "warn",
+       "cue": "extern C"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "What inline really does",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Two files include one header",
+     "statement": "A header defines sq. Both source files include it. Build one program from the two files.",
+     "example": {
+      "input": "sq.h included by two .cpp files",
+      "output": "links, prints 25 49"
+     },
+     "say": "Here is the problem. A header defines sq, which squares a number. Two source files include that header. We want one program that links and prints twenty five and forty nine.",
+     "cues": {
+      "example": "Two source files",
+      "output": "We want one program"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Photocopied rule sheets",
+     "say": "Include is a photocopier. It pastes the header into every file. So the first file gets a copy of sq, and the second gets another. The linker then finds two sq functions, and refuses. Inline says the copies are allowed.",
+     "items": [
+      {
+       "label": "first file",
+       "text": "own copy of sq",
+       "cue": "the first file gets"
+      },
+      {
+       "label": "second file",
+       "text": "own copy of sq",
+       "cue": "the second gets"
+      },
+      {
+       "label": "linker",
+       "text": "two sq?!",
+       "tone": "bad",
+       "cue": "two sq functions"
+      },
+      {
+       "label": "with inline",
+       "text": "keeps one",
+       "tone": "good",
+       "cue": "Inline says"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "No inline: link error",
+     "say": "Here is the header, with no inline. Each source file compiles fine on its own. The trouble starts at link time. The linker finds sq defined twice, and stops with multiple definition.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "// sq.h\nint sq(int x) {\n    return x * x;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "compiles fine"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "defined in both files",
+       "tone": "bad",
+       "cue": "link time"
+      }
+     ],
+     "output": {
+      "cmd": "g++ a.cpp b.cpp",
+      "text": "multiple definition of `sq(int)'\ncollect2: error: ld returned 1 exit status",
+      "cue": "multiple definition",
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "code",
+     "head": "With inline: allowed",
+     "say": "Add the word inline. Now identical definitions in many files are allowed, and the linker keeps one. That is the one definition rule. The program prints twenty five and forty nine.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "// sq.h\ninline int sq(int x) {\n    return x * x;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Add the word inline"
+      },
+      {
+       "lines": [],
+       "cue": "linker keeps one"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "identical copies OK",
+       "tone": "good",
+       "cue": "identical definitions"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "25 49",
+      "cue": "prints twenty five"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Inline has an older meaning too. Does the keyword force the compiler to paste the body at every call? Pause and predict.",
+     "q": "`inline int sq(int x)`: must the compiler paste the body at each call?",
+     "options": [
+      "yes, always",
+      "no, it is a hint",
+      "only with -O3",
+      "only in headers"
+     ],
+     "answer": "no, it is a hint"
+    },
+    {
+     "type": "diagram",
+     "head": "A hint, not a command",
+     "say": "No, it is a hint. The compiler decides, with or without the keyword. When it pastes, sq of five becomes five times five, computed ahead of time. Some functions are inline for free: members defined in a class body, and constexpr functions. C plus plus seventeen adds inline variables.",
+     "items": [
+      {
+       "id": "c",
+       "x": 160,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "text": "sq(5)",
+       "cue": "When it pastes",
+       "label": "the call"
+      },
+      {
+       "id": "p",
+       "x": 760,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "text": "5 * 5",
+       "cue": "five times five",
+       "label": "body pasted",
+       "tone": "warn"
+      },
+      {
+       "id": "r",
+       "x": 1360,
+       "y": 300,
+       "w": 440,
+       "h": 150,
+       "text": "25",
+       "cue": "ahead of time",
+       "label": "computed at compile time",
+       "tone": "good",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "c",
+       "to": "p",
+       "cue": "five times five"
+      },
+      {
+       "from": "p",
+       "to": "r",
+       "cue": "ahead of time"
+      }
+     ],
+     "notes": [
+      {
+       "x": 300,
+       "y": 650,
+       "text": "class-body members: inline",
+       "tone": "good",
+       "cue": "defined in a class body"
+      },
+      {
+       "x": 300,
+       "y": 740,
+       "text": "constexpr functions: inline",
+       "tone": "good",
+       "cue": "constexpr functions"
+      },
+      {
+       "x": 300,
+       "y": 830,
+       "text": "C++17: inline variables",
+       "tone": "good",
+       "cue": "inline variables"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When bugs show up, and UB",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which bug reaches your user?",
+     "statement": "Program A has a missing semicolon. Program B divides by a number the user types. Which one can reach a user?",
+     "example": {
+      "input": "int y = 5   vs   10 / d",
+      "output": "A never ships; B crashes at d = 0"
+     },
+     "say": "Here is the problem. Program A forgets a semicolon. Program B divides ten by what the user types. Which can reach a user? Only B, and only when d is zero.",
+     "cues": {
+      "example": "Program B divides",
+      "output": "Only B"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A timeline of mistakes",
+     "say": "Think of an airport. Problems are cheapest at check in. Compile is check in: syntax and types. Link is security: a missing definition. Run is the flight: bad input crashes. Logic errors land in the wrong city: no crash, wrong answer.",
+     "items": [
+      {
+       "label": "compile",
+       "text": "syntax, types",
+       "sub": "no program built",
+       "tone": "good",
+       "cue": "Compile is check in"
+      },
+      {
+       "label": "link",
+       "text": "no definition",
+       "sub": "no program built",
+       "tone": "good",
+       "cue": "Link is security"
+      },
+      {
+       "label": "run",
+       "text": "d = 0",
+       "sub": "fails on some input",
+       "tone": "warn",
+       "cue": "Run is the flight"
+      },
+      {
+       "label": "logic",
+       "text": "wrong answer",
+       "sub": "no crash at all",
+       "tone": "bad",
+       "cue": "land in the wrong city"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Compile time: no program",
+     "say": "A compile time error is caught before the program ever runs. A string where an int belongs. A missing semicolon. No executable is produced, so this bug can never reach a user. That is the good kind.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    int x = \"hello\";\n    int y = 5\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A string where"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A missing semicolon"
+      },
+      {
+       "lines": [],
+       "cue": "never reach a user"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "no semicolon",
+       "tone": "bad",
+       "cue": "A missing semicolon"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp 2>&1 | grep -o \"error:.*\"",
+      "text": "error: invalid conversion from ‘const char*’ to ‘int’ [-fpermissive]\nerror: expected ‘,’ or ‘;’ before ‘}’ token",
+      "cue": "No executable",
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Runtime: it builds, then fails",
+     "say": "A runtime error compiles without complaint, then fails while running. Say the user types two. Ten divided by two is five, fine. Now the user types zero. Ten divided by zero crashes the program. Only that one input breaks it.",
+     "items": [
+      {
+       "id": "inp",
+       "x": 1030,
+       "y": 450,
+       "w": 200,
+       "h": 150,
+       "text": "?",
+       "label": "d",
+       "tone": "blue",
+       "size": 56
+      },
+      {
+       "id": "op",
+       "x": 1310,
+       "y": 450,
+       "w": 200,
+       "h": 150,
+       "text": "10 / d",
+       "label": "the line",
+       "size": 40
+      },
+      {
+       "id": "res",
+       "x": 1590,
+       "y": 450,
+       "w": 200,
+       "h": 150,
+       "text": "?",
+       "label": "result",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "inp",
+       "to": "op"
+      },
+      {
+       "from": "op",
+       "to": "res"
+      }
+     ],
+     "changes": [
+      {
+       "id": "inp",
+       "text": "2",
+       "cue": "types two"
+      },
+      {
+       "id": "res",
+       "text": "5",
+       "tone": "good",
+       "cue": "is five"
+      },
+      {
+       "id": "inp",
+       "text": "0",
+       "tone": "bad",
+       "cue": "types zero"
+      },
+      {
+       "id": "res",
+       "text": "crash",
+       "tone": "bad",
+       "cue": "crashes the program"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int d;\nstd::cin >> d;\nstd::cout << 10 / d;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "types two"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Ten divided by two"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "types zero"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Ten divided by zero"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "No rules at all",
+     "say": "Now the scary part. Some code has undefined behavior, or U B. Reading past the end of an array. Signed integer overflow. The standard places no requirements on what happens. Not an error. Not a guaranteed crash. Anything.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int arr[3] = {1, 2, 3};\narr[5] = 1;\nint big = INT_MAX;\nbig = big + 1;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "past the end of an array"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Signed integer overflow"
+      },
+      {
+       "lines": [],
+       "cue": "no requirements"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "UB: out of bounds",
+       "tone": "bad",
+       "cue": "past the end of an array"
+      },
+      {
+       "line": 4,
+       "inside": true,
+       "text": "UB: signed overflow",
+       "tone": "bad",
+       "cue": "Signed integer overflow"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The code writes to arr index five, but arr has only three slots. What does the standard guarantee? Pause and predict.",
+     "q": "int arr[3]; arr[5] = 1; What does the standard guarantee?",
+     "options": [
+      "a compile error",
+      "a crash",
+      "an exception",
+      "nothing at all"
+     ],
+     "answer": "nothing at all"
+    },
+    {
+     "type": "diagram",
+     "head": "Anything can happen",
+     "say": "Nothing at all. The code may work today. It may print garbage tomorrow. It may crash on another compiler. And the optimizer may assume U B never happens, and delete your safety check.",
+     "items": [
+      {
+       "id": "w",
+       "x": 400,
+       "y": 330,
+       "w": 480,
+       "h": 140,
+       "text": "works today",
+       "cue": "work today",
+       "tone": "good"
+      },
+      {
+       "id": "g",
+       "x": 1040,
+       "y": 330,
+       "w": 480,
+       "h": 140,
+       "text": "garbage tomorrow",
+       "cue": "garbage tomorrow",
+       "tone": "warn"
+      },
+      {
+       "id": "c",
+       "x": 400,
+       "y": 600,
+       "w": 480,
+       "h": 140,
+       "text": "crash elsewhere",
+       "cue": "crash on another",
+       "tone": "bad"
+      },
+      {
+       "id": "d",
+       "x": 1040,
+       "y": 600,
+       "w": 480,
+       "h": 140,
+       "text": "check deleted",
+       "cue": "delete your safety check",
+       "tone": "blue",
+       "sub": "x + 1 < x  becomes  false"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Catch it with the tools",
+     "say": "Compiler warnings flag simple cases, like two plus plus changes to i in one line. Sanitizers catch the rest at runtime, with the exact line. Works on my machine proves nothing. And that first line has no right answer at all.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int i = 1;\ni = i++ + ++i;\nint big = INT_MAX;\nbig = big + 1;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "two plus plus changes"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Sanitizers catch"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "two writes to i",
+       "tone": "bad",
+       "cue": "no right answer"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -Wall -g -fsanitize=undefined",
+      "text": "main.cpp:4:9: runtime error: signed integer overflow:\n2147483647 + 1 cannot be represented in type 'int'",
+      "cue": "exact line",
+      "tone": "bad"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Three ways to say nothing",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which f does the call pick?",
+     "statement": "f has two versions: one takes an int, one takes a char pointer. Call it with nothing, three ways.",
+     "example": {
+      "input": "f(0), f(NULL), f(nullptr)",
+      "output": "int, ambiguous, pointer"
+     },
+     "say": "Here is the problem. f has an int version and a pointer version. We call it with zero, N U L L, and null p t r. Which runs each time?",
+     "cues": {
+      "example": "We call it with",
+      "output": "Which runs"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Three ways to hand over nothing",
+     "say": "Think of a form with a pointer box. Zero is a plain number that can slide in. NULL is a macro for zero, so also a number. Null p t r is a stamp made only for pointer boxes.",
+     "items": [
+      {
+       "label": "0",
+       "text": "an int",
+       "sub": "can slide into pointers",
+       "cue": "Zero is a plain number"
+      },
+      {
+       "label": "NULL",
+       "text": "macro for 0",
+       "sub": "still an integer",
+       "tone": "warn",
+       "cue": "NULL is a macro"
+      },
+      {
+       "label": "nullptr",
+       "text": "pointer only",
+       "sub": "its own type",
+       "tone": "good",
+       "cue": "Null p t r is"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "f(0) and f(nullptr)",
+     "say": "Here are the two versions. Calling f with zero picks the int version, because zero is an int. Calling f with null p t r picks the pointer version, because null p t r converts only to pointers.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void f(int)   { cout << \"int\\n\"; }\nvoid f(char*) { cout << \"pointer\\n\"; }\nf(0);\nf(nullptr);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "two versions"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Calling f with zero"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Calling f with null"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "int\npointer",
+      "cue": "pointer version"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now call f with N U L L, on G C C. Which version runs? Pause and predict.",
+     "q": "On GCC, f(NULL) with f(int) and f(char*): what happens?",
+     "options": [
+      "calls f(int)",
+      "calls f(char*)",
+      "ambiguous: error",
+      "undefined behavior"
+     ],
+     "answer": "ambiguous: error"
+    },
+    {
+     "type": "code",
+     "head": "NULL is not a pointer",
+     "say": "Ambiguous. On G C C, NULL is an integer constant. It converts to an int and to a pointer equally well, so the compiler cannot choose. Auto hides the same trap. Auto of NULL is an integer. Auto of null p t r is a real pointer type.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "f(NULL);\nauto x = NULL;\nauto y = nullptr;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "NULL is an integer constant"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Auto of NULL"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Auto of null p t r"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "ambiguous",
+       "tone": "bad",
+       "cue": "equally well"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "an integer",
+       "tone": "warn",
+       "cue": "Auto of NULL"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "a pointer type",
+       "tone": "good",
+       "cue": "Auto of null p t r"
+      }
+     ],
+     "output": {
+      "cmd": "g++ main.cpp",
+      "text": "error: call of overloaded ‘f(NULL)’ is ambiguous",
+      "cue": "Ambiguous",
+      "tone": "bad"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is a namespace? A named box for names, so libraries can share a name. How do you reach inside? The double colon, then the name. And using namespace s t d in a header? Never. It leaks into every includer.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is a namespace?",
+       "a named box: `net::log`, `ui::log` coexist"
+      ],
+      [
+       "How do you reach inside?",
+       "the scope resolution operator `::`"
+      ],
+      [
+       "`using namespace std` in a header?",
+       "never: leaks into every includer"
+      ]
+     ],
+     "cues": [
+      "What is a namespace",
+      "How do you reach",
+      "And using namespace"
+     ],
+     "covers": [
+      "q09"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Plus plus i versus i plus plus? One returns the new value, one the old. With i equal five, a equals i plus plus gives five, then i is six. Which in loops? Plus plus i. No extra copy for iterators.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`++i` vs `i++`?",
+       "`++i` returns new; `i++` returns old"
+      ],
+      [
+       "`i = 5; a = i++`?",
+       "a = 5, then i = 6"
+      ],
+      [
+       "Which in loops?",
+       "`++i`: no extra copy for iterators"
+      ]
+     ],
+     "cues": [
+      "Plus plus i versus",
+      "With i equal five",
+      "Which in loops"
+     ],
+     "covers": [
+      "q10"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is overloading? One name, different parameter lists. Who picks? The compiler, at compile time, from the arguments. Return type alone? Not enough, it is an error. Any gotcha? Two equally good conversions make the call ambiguous.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is overloading?",
+       "one name, different parameter lists"
+      ],
+      [
+       "Who picks, and when?",
+       "the compiler, at compile time"
+      ],
+      [
+       "Return type only?",
+       "not enough: error"
+      ],
+      [
+       "Any gotcha?",
+       "equal conversions: ambiguous call"
+      ]
+     ],
+     "cues": [
+      "What is overloading",
+      "Who picks",
+      "Return type alone",
+      "Any gotcha"
+     ],
+     "covers": [
+      "q11"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Inline, old meaning? A hint to paste the body. The compiler may ignore it. Modern meaning? Defined in many files, like a header. The linker keeps one. Inline for free? Class body members and constexpr functions.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Old meaning?",
+       "a hint to paste the body; compiler decides"
+      ],
+      [
+       "Modern meaning?",
+       "defined in many files; linker keeps one"
+      ],
+      [
+       "Inline for free?",
+       "class-body members, `constexpr`"
+      ]
+     ],
+     "cues": [
+      "Inline, old meaning",
+      "Modern meaning",
+      "Inline for free"
+     ],
+     "covers": [
+      "q12"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Compile time errors? The compiler rejects the code, and no program is built. Runtime errors? It builds, then fails on some input, like dividing by zero. Which do you prefer? Compile time: strong types, const, and static assert.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Compile-time error?",
+       "compiler rejects it; no program built"
+      ],
+      [
+       "Runtime error?",
+       "builds, then fails: `10 / 0`"
+      ],
+      [
+       "Which do you prefer?",
+       "compile time: types, `static_assert`"
+      ]
+     ],
+     "cues": [
+      "Compile time errors",
+      "Runtime errors",
+      "Which do you prefer"
+     ],
+     "covers": [
+      "q13"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is undefined behavior? The standard makes no promises. Anything can happen. Examples? Out of bounds access, null dereference, signed overflow. Why dangerous? It often seems to work, and the optimizer assumes it never happens. How do you catch it? Warnings and sanitizers.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is UB?",
+       "no promises: anything can happen"
+      ],
+      [
+       "Examples?",
+       "out of bounds, null deref, overflow"
+      ],
+      [
+       "Why dangerous?",
+       "often seems to work; optimizer assumes no UB"
+      ],
+      [
+       "How to catch it?",
+       "`-Wall`, `-fsanitize=undefined`"
+      ]
+     ],
+     "cues": [
+      "What is undefined",
+      "Examples",
+      "Why dangerous",
+      "How do you catch"
+     ],
+     "covers": [
+      "q14"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Zero and NULL? Integers that can convert to pointers. NULL is a macro for zero. And null p t r? A true null pointer, with its own type. Why care? NULL can make a call ambiguous. Null p t r never does.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`0` and `NULL`?",
+       "integers that can convert to pointers"
+      ],
+      [
+       "`nullptr`?",
+       "a true null pointer: `std::nullptr_t`"
+      ],
+      [
+       "Why does it matter?",
+       "`f(NULL)` can be ambiguous; `nullptr` not"
+      ]
+     ],
+     "cues": [
+      "Zero and NULL",
+      "And null p t r",
+      "Why care"
+     ],
+     "covers": [
+      "q15"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next, all integer edge cases. LeetCode nine, palindrome number: reverse half the digits to avoid overflow. LeetCode seven, reverse integer: check overflow first. LeetCode twenty nine, divide two integers: the smallest int divided by minus one overflows.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 9 · Palindrome Number",
+       "reverse half: no overflow risk"
+      ],
+      [
+       "LeetCode 7 · Reverse Integer",
+       "check overflow before it happens"
+      ],
+      [
+       "LeetCode 29 · Divide Two Integers",
+       "INT_MIN / -1 overflows"
+      ]
+     ],
+     "cues": [
+      "LeetCode nine",
+      "LeetCode seven",
+      "LeetCode twenty nine"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Namespaces and overloads are resolved by the compiler. Plus plus i is new, i plus plus is old. Inline lets headers hold code. Catch errors early, and fear undefined behavior. Always write null p t r.",
+     "lines": [
+      "Names and overloads: the compiler resolves them.",
+      "`++i` new, `i++` old. `inline` allows header code.",
+      "Fear UB. Catch errors early. Write `nullptr`."
+     ],
+     "cues": [
+      "Namespaces and overloads",
+      "Plus plus i is new",
+      "Catch errors early"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
