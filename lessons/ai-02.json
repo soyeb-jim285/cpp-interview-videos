@@ -38,7 +38,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Grade answers with a rubric that two people share. Compare two answers when no checklist fits. And judge an agent by every step it took.",
+     "say": "Today you will do three things. Grade answers with a rubric, a mark scheme two people share. Compare two answers when no checklist fits. And judge an agent by every step it took. An agent is a model that calls tools.",
      "lines": [
       "Grade with a rubric two people share",
       "Compare A and B when no checklist fits",
@@ -47,7 +47,7 @@
      "cues": [
       "Grade answers with",
       "Compare two answers",
-      "judge an agent"
+      "every step it took"
      ]
     },
     {
@@ -440,7 +440,7 @@
       "output": "Fail: it broke an explicit rule"
      },
      "note": "Same rubric, one yes or no per line",
-     "say": "A trap. The prompt wants exactly two sentences. The response reads well, but has three short ones. Does it pass? No, it broke a rule. A quick reader misses that. Same rubric, one yes or no per line.",
+     "say": "A trap. The prompt wants exactly two sentences. Here the response has three short ones. It reads well. Does it pass? No, it broke a rule. A quick reader misses that. Same rubric, one yes or no per line.",
      "cues": {
       "example": "three short ones",
       "output": "it broke a rule",
@@ -458,8 +458,6 @@
       },
       {
        "file": "response.txt",
-       "label": "3 sentences",
-       "tone": "warn",
        "code": "The city opened a bridge.\nIt cuts commutes by 12 min.\nIt cost 40 million."
       }
      ],
@@ -499,10 +497,10 @@
       {
        "panel": 1,
        "line": 3,
-       "inside": true,
-       "text": "Too many!",
+       "text": "3 sents!",
        "tone": "bad",
-       "cue": "careful grader"
+       "cue": "three.",
+       "inside": true
       }
      ]
     },
@@ -580,8 +578,8 @@
     },
     {
      "type": "quiz",
-     "say": "Now change one number. The response says four hundred million. The text said forty. Which check fails? Pause and predict.",
-     "q": "The text says 40 million; the response says 400 million. Which check fails?",
+     "say": "Now a new response. Two sentences this time, but it says four hundred million. The text said forty. Which check fails? Pause and predict.",
+     "q": "Two sentences, but it says 400 million. The text says 40. Which check fails?",
      "options": [
       "Facts match",
       "Rules followed",
@@ -594,7 +592,7 @@
     {
      "type": "diagram",
      "head": "Four checks, pass or fail",
-     "say": "Facts match fails. The text says forty million. The response says four hundred million. Rules followed now passes. Nothing invented still passes, because only a number is wrong. One failed check, one reason.",
+     "say": "Facts match fails. The text says forty million, and the response says four hundred million. Rules followed passes: two sentences. Nothing invented passes, since it adds no new claim. Clear and short passes. One failed check, one reason.",
      "items": [
       {
        "id": "c0",
@@ -603,8 +601,11 @@
        "w": 380,
        "h": 200,
        "label": "Facts match",
-       "text": "?",
-       "size": 56
+       "text": "fail",
+       "sub": "400 vs 40 million",
+       "size": 56,
+       "tone": "bad",
+       "cue": "Facts match fails"
       },
       {
        "id": "c1",
@@ -613,8 +614,11 @@
        "w": 380,
        "h": 200,
        "label": "Rules followed",
-       "text": "?",
-       "size": 56
+       "text": "pass",
+       "sub": "2 sentences",
+       "size": 56,
+       "tone": "good",
+       "cue": "Rules followed passes"
       },
       {
        "id": "c2",
@@ -624,8 +628,10 @@
        "h": 200,
        "label": "Nothing invented",
        "text": "pass",
+       "sub": "no new claim",
        "size": 56,
-       "tone": "good"
+       "tone": "good",
+       "cue": "Nothing invented passes"
       },
       {
        "id": "c3",
@@ -636,27 +642,8 @@
        "label": "Clear and short",
        "text": "pass",
        "size": 56,
-       "tone": "good"
-      }
-     ],
-     "changes": [
-      {
-       "id": "c0",
-       "text": "fail",
-       "tone": "bad",
-       "cue": "Facts match fails"
-      },
-      {
-       "id": "c1",
-       "text": "pass",
        "tone": "good",
-       "cue": "now passes"
-      },
-      {
-       "id": "c2",
-       "glow": true,
-       "tone": "good",
-       "cue": "still passes"
+       "cue": "Clear and short passes"
       }
      ],
      "notes": [
@@ -707,37 +694,43 @@
      "title": "Which reply sounds better?",
      "statement": "Two replies to an angry customer. No checklist captures sounds better. How do you pick a winner that holds up?",
      "example": {
-      "input": "Reply A vs Reply B, same prompt",
+      "input": "A: Sorry! Refund sent. B: Refund sent. Anything else?",
       "output": "A winner plus a written reason"
      },
-     "say": "Now there is no checklist at all. Two replies to an angry customer, reply A and reply B. Which sounds better? Pick a winner, and write down a reason that holds up.",
+     "say": "Now there is no checklist at all. Two replies to an angry customer. Here they are, reply A and reply B. Which sounds better? Pick a winner, and write down a reason that holds up.",
      "cues": {
-      "example": "reply A and reply B",
+      "example": "Here they are",
       "output": "Pick a winner"
      }
     },
     {
      "type": "flow",
      "head": "Pairwise: a blind taste test",
-     "say": "Think of a blind taste test. Nobody scores flavor. You taste two cups, pick one, say why. Answers work the same: two answers, a winner, a reason.",
+     "say": "Think of a blind taste test. You pick the better cup. Replies work the same. Reply A says sorry, then refund sent. Reply B asks, anything else? Pick the winner, then write the reason.",
      "items": [
       {
-       "label": "two cups",
-       "text": "A and B",
-       "sub": "two answers, one prompt",
-       "cue": "two cups"
+       "label": "reply A",
+       "text": "A",
+       "sub": "Sorry! Refund sent.",
+       "cue": "Reply A"
       },
       {
-       "label": "pick one",
+       "label": "reply B",
+       "text": "B",
+       "sub": "Refund sent. Anything else?",
+       "cue": "Reply B"
+      },
+      {
+       "label": "pick",
        "text": "winner",
-       "sub": "the better answer",
-       "cue": "pick one"
+       "sub": "the better reply",
+       "cue": "Pick the winner"
       },
       {
        "label": "say why",
        "text": "reason",
        "sub": "written down",
-       "cue": "say why"
+       "cue": "write the reason"
       }
      ]
     },
