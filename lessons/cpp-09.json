@@ -1,0 +1,1483 @@
+{
+ "id": "cpp-09",
+ "track": "C++",
+ "num": 9,
+ "title": "Objects Under the Hood",
+ "covers": [
+  "q54",
+  "q55",
+  "q56",
+  "q57",
+  "q58",
+  "q59",
+  "q60"
+ ],
+ "caps": [
+  [
+   "v pointer",
+   "vptr"
+  ],
+  [
+   "v table",
+   "vtable"
+  ],
+  [
+   "unique pointer",
+   "unique_ptr"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Overloading vs overriding",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "A base pointer, a missing keyword, and a thousand bytes gone for good. By the end, you'll draw the vtable behind a virtual call, and name the five special functions.",
+     "lines": [
+      {
+       "text": "1 missing keyword",
+       "cue": "missing keyword"
+      },
+      {
+       "text": "1,000 bytes gone for good",
+       "cue": "gone for good"
+      },
+      {
+       "text": "Draw the vtable",
+       "cue": "draw the vtable",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Tell overloading from overriding, and plug a leak. Know the rule of three, five, zero. And draw the vtable, and fix the diamond.",
+     "lines": [
+      "Overriding, overloading, virtual destructors",
+      "Know the rule of 3, 5, 0",
+      "Draw the vtable; fix the diamond"
+     ],
+     "cues": [
+      "Tell overloading",
+      "Know the rule",
+      "draw the vtable"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Overloading or overriding?",
+     "statement": "Two similar words, two different mechanisms. Say which is chosen at compile time and which at runtime.",
+     "example": {
+      "input": "print(42) versus b.draw()",
+      "output": "compile time versus runtime"
+     },
+     "say": "Print of forty two, and draw called through a base reference. Interviewers love this pair, because the words sound alike.",
+     "cues": {
+      "example": "Print of forty two",
+      "output": "Interviewers love"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Overloading: same name, new parameters",
+     "say": "Overloading: one name, several parameter lists, in one scope. The compiler matches argument types at compile time. Forty two picks int. Three point one four picks double. But you cannot overload on the return type alone.",
+     "panels": [
+      {
+       "file": "over.cpp",
+       "code": "void print(int x)    { cout << \"int \" << x; }\nvoid print(double x) { cout << \"double \" << x; }\nvoid print(string s) { cout << \"string \" << s; }\nprint(42);\nprint(3.14);\nprint(string(\"hi\"));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "several parameter lists"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Forty two"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Three point one four"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "return type alone"
+      }
+     ],
+     "output": {
+      "cmd": "./over",
+      "text": "int 42 double 3.14 string hi",
+      "cue": "compile time"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Overriding: replace a virtual",
+     "say": "Overriding: a derived class replaces a base virtual, same signature. Here b is a Base reference, but the object is a Derived. So Derived's draw runs, decided at runtime. Always write override.",
+     "panels": [
+      {
+       "file": "over2.cpp",
+       "code": "struct Base {\n    virtual void draw() const { cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n    void draw() const override { cout << \"Derived\\n\"; }\n};\nDerived d;\nBase& b = d;\nb.draw();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "replaces a base"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Base reference"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "decided at runtime"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "write override"
+      }
+     ],
+     "output": {
+      "cmd": "./over2",
+      "text": "Derived",
+      "cue": "draw runs"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Base has f of int and f of double. Derived declares only f of int. We call d dot f with two point five. Which version runs? Pause and predict.",
+     "q": "Derived declares only `f(int)`. What does `d.f(2.5)` call?",
+     "options": [
+      "Base::f(double)",
+      "Derived::f(int)",
+      "ambiguous error",
+      "both"
+     ],
+     "answer": "Derived::f(int)"
+    },
+    {
+     "type": "code",
+     "head": "The trap: a derived name hides base overloads",
+     "say": "Derived f of int. A derived f hides every base f, including the double one. So two point five quietly converts to int, and Derived's version runs. The fix is a using declaration, using Base f, which brings the base overloads back.",
+     "panels": [
+      {
+       "file": "hide.cpp",
+       "code": "struct Base {\n    void f(int)    { cout << \"Base::f(int)\\n\"; }\n    void f(double) { cout << \"Base::f(double)\\n\"; }\n};\nstruct Derived : Base {\n    // using Base::f;   <- the fix\n    void f(int) { cout << \"Derived::f(int)\\n\"; }\n};\nDerived d; d.f(2.5);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7
+       ],
+       "cue": "hides every base"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "converts to int"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "using declaration"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "hides f(double)",
+       "tone": "bad",
+       "cue": "quietly converts"
+      }
+     ],
+     "output": {
+      "cmd": "./hide",
+      "text": "Derived::f(int)",
+      "tone": "bad",
+      "cue": "brings the base"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Overloading versus overriding",
+     "say": "Scope? One scope, versus base and derived. Signature? Differs, versus matches. When? Compile time, versus runtime. Keyword? None, versus override. So overloading is compile time polymorphism, overriding is runtime.",
+     "heads": [
+      "",
+      "Overloading",
+      "Overriding"
+     ],
+     "rows": [
+      [
+       "scope",
+       "same scope",
+       "base and derived"
+      ],
+      [
+       "signature",
+       "must differ",
+       "must match"
+      ],
+      [
+       "resolved",
+       "compile time",
+       "runtime, via virtual"
+      ],
+      [
+       "keyword",
+       "none",
+       "`override`"
+      ]
+     ],
+     "cues": [
+      "Scope",
+      "Signature",
+      "When",
+      "Keyword"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The virtual destructor",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why a virtual destructor?",
+     "statement": "Delete a Derived object through a Base pointer. The Derived owns a 1 KB buffer. Does the buffer get freed?",
+     "example": {
+      "input": "Base* p = new Derived; delete p;",
+      "output": "without virtual: the 1 KB leaks"
+     },
+     "say": "Picture a Derived holding one kilobyte, deleted through a Base pointer. Is the buffer freed?",
+     "cues": {
+      "example": "Picture a Derived",
+      "output": "Is the buffer freed"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "delete through a base pointer",
+     "say": "P is a Base pointer to a Derived object. The Derived part owns a one kilobyte heap buffer. Delete p, with no virtual destructor. Only Base's destructor runs. Derived's never does, so the buffer leaks.",
+     "items": [
+      {
+       "id": "p",
+       "x": 200,
+       "y": 470,
+       "w": 260,
+       "h": 120,
+       "label": "Base* p",
+       "text": "p",
+       "tone": "warn",
+       "cue": "P is a Base"
+      },
+      {
+       "id": "base",
+       "x": 640,
+       "y": 340,
+       "w": 440,
+       "h": 120,
+       "label": "Derived object",
+       "text": "Base part",
+       "tone": "blue",
+       "cue": "Derived object"
+      },
+      {
+       "id": "der",
+       "x": 640,
+       "y": 500,
+       "w": 440,
+       "h": 120,
+       "text": "Derived part",
+       "tone": "blue",
+       "cue": "Derived part owns"
+      },
+      {
+       "id": "buf",
+       "x": 1300,
+       "y": 500,
+       "w": 380,
+       "h": 120,
+       "label": "heap",
+       "text": "1 KB buffer",
+       "tone": "info",
+       "cue": "heap buffer"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "base",
+       "cue": "P is a Base"
+      },
+      {
+       "from": "der",
+       "to": "buf",
+       "cue": "heap buffer"
+      }
+     ],
+     "changes": [
+      {
+       "id": "base",
+       "text": "~Base ran",
+       "tone": "dim",
+       "cue": "only Base's destructor"
+      },
+      {
+       "id": "der",
+       "text": "~Derived skipped",
+       "tone": "bad",
+       "cue": "never does"
+      },
+      {
+       "id": "buf",
+       "text": "leaked 1 KB",
+       "tone": "bad",
+       "cue": "buffer leaks"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now we make Base's destructor virtual. Both destructors print their name. What gets printed when we delete p? Pause and predict.",
+     "q": "With `virtual ~Base()`, `delete p;` prints...",
+     "options": [
+      "~Base only",
+      "~Derived, ~Base",
+      "~Base, ~Derived",
+      "nothing"
+     ],
+     "answer": "~Derived, ~Base"
+    },
+    {
+     "type": "code",
+     "head": "The fix: one keyword",
+     "say": "Derived first, then Base. The destructor is virtual, so delete looks up the real type at runtime. Derived's destructor runs first, then Base's: the reverse of construction. A unique pointer to Base needs this too.",
+     "panels": [
+      {
+       "file": "vdtor.cpp",
+       "code": "struct Base {\n    virtual ~Base() { cout << \"~Base\\n\"; }\n};\nstruct Derived : Base {\n    ~Derived() override { cout << \"~Derived\\n\"; }\n};\nBase* p = new Derived;\ndelete p;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "virtual"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "real type"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "runs first"
+      }
+     ],
+     "output": {
+      "cmd": "./vdtor",
+      "text": "~Derived\n~Base",
+      "cue": "reverse of construction"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The rule, and two follow-ups",
+     "say": "The rule: a polymorphic base gets a public virtual destructor. Or make it protected and non virtual, so deleting through the base won't compile. A shared pointer remembers the real type, but don't rely on that.",
+     "panels": [
+      {
+       "file": "rule.cpp",
+       "code": "struct Shape {\n    virtual void draw() const = 0;\n    virtual ~Shape() = default;\n};\nstruct Mixin {\nprotected:\n    ~Mixin() = default;\n};\nshared_ptr<Base> sp = make_shared<Derived>();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "public virtual destructor"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "protected and non virtual"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "shared pointer"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When a constructor throws",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "What if a constructor throws?",
+     "statement": "A Car builds an engine and wheels, then its constructor throws. Which destructors run, and in what order?",
+     "example": {
+      "input": "Part engine; Part wheels; throw",
+      "output": "destroy built members; no ~Car"
+     },
+     "say": "A Car builds its engine, then its wheels, then throws. Which destructors run?",
+     "cues": {
+      "example": "A Car builds",
+      "output": "Which destructors"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Car has two Part members, and a destructor that prints ~Car. The constructor body throws. Does ~Car run? Pause and predict.",
+     "q": "Constructor body throws. Does `~Car()` run?",
+     "options": [
+      "yes, first",
+      "yes, last",
+      "no",
+      "only if caught"
+     ],
+     "answer": "no"
+    },
+    {
+     "type": "code",
+     "head": "Built members are destroyed, Car is not",
+     "say": "No. The object never finished construction, so its lifetime never began. Nothing for ~Car to destroy. Members already built are destroyed in reverse. Each Part prints plus when built, minus when destroyed: plus engine, plus wheels, minus wheels, minus engine.",
+     "panels": [
+      {
+       "file": "car.cpp",
+       "code": "struct Car {\n    Part engine{\"engine\"};\n    Part wheels{\"wheels\"};\n    Car() { throw runtime_error(\"no fuel\"); }\n    ~Car() { cout << \"~Car \"; }\n};\ntry { Car c; } catch (...) { }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "never finished"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Nothing for"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "already built"
+      }
+     ],
+     "output": {
+      "cmd": "./car",
+      "text": "+engine +wheels -wheels -engine",
+      "cue": "plus engine"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The trap: raw resources leak",
+     "say": "Raw resources in constructors are dangerous. On the left, new allocates, then connect throws. The destructor never runs, so the buffer leaks. On the right, a vector member is fully built, so it is destroyed. That is R A I I.",
+     "panels": [
+      {
+       "file": "raw.cpp",
+       "label": "leaks",
+       "tone": "bad",
+       "code": "class Widget {\n    int* buf;\npublic:\n    Widget()\n      : buf(new int[1000]) {\n        connect();  // throws\n    }\n    ~Widget() { delete[] buf; }\n};"
+      },
+      {
+       "file": "raii.cpp",
+       "label": "safe",
+       "tone": "good",
+       "code": "class Widget {\n    vector<int> buf;\npublic:\n    Widget() : buf(1000) {\n        connect();  // throws\n    }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "panel": 0,
+       "cue": "new allocates"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "panel": 0,
+       "cue": "connect throws"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "panel": 0,
+       "cue": "never runs"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "vector member"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Two more facts interviewers like",
+     "say": "Two more facts. A throwing constructor inside new frees the memory, and the pointer is never assigned. A function try block can catch, but then rethrows. And throwing is how a constructor reports failure.",
+     "heads": [
+      "Situation",
+      "What happens"
+     ],
+     "rows": [
+      [
+       "`new Widget` throws",
+       "memory freed, pointer unassigned"
+      ],
+      [
+       "function try block",
+       "can catch; exception is rethrown"
+      ],
+      [
+       "constructor failure",
+       "throw: it has no return value"
+      ]
+     ],
+     "cues": [
+      "inside new",
+      "function try block",
+      "reports failure"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Copy, assign, and the rule",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Copy constructor or copy assignment?",
+     "statement": "Three lines copy one T into another. Which of them call the copy constructor, and which call copy assignment?",
+     "example": {
+      "input": "T b = a;  T c(a);  c = b;",
+      "output": "ctor, ctor, assign"
+     },
+     "say": "Three lines: T b equals a, T c of a, and c equals b. Which one is assignment?",
+     "cues": {
+      "example": "Three lines",
+      "output": "Which one"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Ask one question: does the object on the left already exist? Now, T b equals a. Which function runs? Pause and predict.",
+     "q": "`T b = a;` calls the...",
+     "options": [
+      "copy constructor",
+      "copy assignment",
+      "move constructor",
+      "both"
+     ],
+     "answer": "copy constructor"
+    },
+    {
+     "type": "code",
+     "head": "Which one runs?",
+     "say": "The copy constructor. B is created right there, even with an equals sign. Same for c of a. Only c equals b, where c already exists, calls copy assignment. Passing or returning by value also uses the copy constructor.",
+     "panels": [
+      {
+       "file": "copy.cpp",
+       "code": "struct T {\n    T() {}\n    T(const T&)            { cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { cout << \"copy assign\\n\"; return *this; }\n};\nT a;\nT b = a;\nT c(a);\nc = b;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "copy constructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "even with an equals"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "c of a"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "c already exists"
+      }
+     ],
+     "output": {
+      "cmd": "./copy",
+      "text": "copy ctor\ncopy ctor\ncopy assign",
+      "cue": "returning by value"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Why assignment has more work",
+     "say": "Assignment is harder, because the target already owns memory. First, guard against self assignment. Then make a fresh copy, delete the old block, and adopt the new one. Return star this, so assignments chain. A copy constructor needs none of this.",
+     "panels": [
+      {
+       "file": "assign.cpp",
+       "code": "Buffer& operator=(const Buffer& o) {\n    if (this == &o) return *this;\n    int* fresh = new int[o.n];\n    copy(o.data, o.data + o.n, fresh);\n    delete[] data;\n    data = fresh;\n    n = o.n;\n    return *this;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "self assignment"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "fresh copy"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "delete the old"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "adopt the new"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "star this"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Rule of three, five, zero",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Rule of three, five, zero",
+     "statement": "A class owns heap memory and frees it in its destructor. Copy it, and the program crashes. Why, and what do you write?",
+     "example": {
+      "input": "Buffer b = a;  // then ~b, ~a",
+      "output": "double delete; write 3, 5, or 0"
+     },
+     "say": "A Buffer owns an array and frees it in its destructor. We copy it, and at the end of main the program dies. Why?",
+     "cues": {
+      "example": "A Buffer owns",
+      "output": "at the end"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "The bug: default copy copies the pointer",
+     "say": "Buffer a owns an array of three. Default copy copies the pointer, so b gets the same one. At the end, b frees the array. Then a deletes it again. A double delete: undefined behavior.",
+     "items": [
+      {
+       "id": "a",
+       "x": 250,
+       "y": 340,
+       "w": 300,
+       "h": 120,
+       "label": "Buffer a",
+       "text": "data",
+       "tone": "blue",
+       "cue": "Buffer a owns"
+      },
+      {
+       "id": "b",
+       "x": 250,
+       "y": 580,
+       "w": 300,
+       "h": 120,
+       "label": "Buffer b",
+       "text": "data",
+       "tone": "warn",
+       "cue": "b gets the same"
+      },
+      {
+       "id": "arr",
+       "x": 1100,
+       "y": 460,
+       "w": 420,
+       "h": 140,
+       "label": "heap",
+       "text": "int[3]",
+       "tone": "info",
+       "cue": "Buffer a owns"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "a",
+       "to": "arr",
+       "cue": "Buffer a owns"
+      },
+      {
+       "from": "b",
+       "to": "arr",
+       "cue": "b gets the same"
+      }
+     ],
+     "changes": [
+      {
+       "id": "arr",
+       "kill": true,
+       "cue": "frees the array"
+      },
+      {
+       "id": "arr",
+       "glow": true,
+       "tone": "bad",
+       "cue": "deletes it again"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Rule of three, then five",
+     "say": "The rule of three: write one of destructor, copy constructor, or copy assignment, and you need all three, with deep copies. Rule of five adds a move constructor and move assignment, which steal the pointer.",
+     "panels": [
+      {
+       "file": "five.cpp",
+       "code": "class Buffer {\n    int* data;\n    int n;\npublic:\n    ~Buffer();                         // 1\n    Buffer(const Buffer&);             // 2\n    Buffer& operator=(const Buffer&);  // 3\n    Buffer(Buffer&&) noexcept;         // 4\n    Buffer& operator=(Buffer&&) noexcept; // 5\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "destructor"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "copy constructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "copy assignment"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "Rule of five"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A class declares a destructor and a copy constructor, but no move. We write S b equals move of a. Which function runs? Pause and predict.",
+     "q": "`S` declares `~S()` and a copy ctor, no move. `S b = std::move(a);` runs...",
+     "options": [
+      "implicit move",
+      "the copy ctor",
+      "compile error",
+      "undefined behavior"
+     ],
+     "answer": "the copy ctor"
+    },
+    {
+     "type": "code",
+     "head": "Declare one, lose the moves",
+     "say": "The copy constructor. Once you declare a destructor, the compiler stops generating moves, so your moves silently become copies. Even better: the rule of zero. Hold the resource in a member, and write none.",
+     "panels": [
+      {
+       "file": "zero.cpp",
+       "code": "struct S {\n    S() {}\n    ~S() {}\n    S(const S&) { cout << \"copy\"; }\n};\nS a;\nS b = std::move(a);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "declare a destructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "become copies"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "no implicit move",
+       "tone": "warn",
+       "cue": "stops generating"
+      }
+     ],
+     "output": {
+      "cmd": "./zero",
+      "text": "copy",
+      "tone": "bad",
+      "cue": "rule of zero"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Rule of zero: let members own it",
+     "say": "In the rule of zero, you write none. A vector member copies deeply and moves cheaply, and the compiler's own copies call the vector's. Prefer zero. Use five only to own a resource.",
+     "panels": [
+      {
+       "file": "zero2.cpp",
+       "code": "class Buffer {\n    vector<int> data;\npublic:\n    Buffer(int n) : data(n) {}\n};\nBuffer a(3);\nBuffer b = a;             // deep copy\nBuffer c = std::move(a);  // cheap move"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "vector member"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "copies deeply"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "moves cheaply"
+      },
+      {
+       "lines": [],
+       "cue": "Prefer zero"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The diamond problem",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "The diamond problem",
+     "statement": "A Bat is a Mammal and a Bird, and both are Animals. How many Animals does a Bat hold, and what does b.id mean?",
+     "example": {
+      "input": "Bat : Mammal, Bird; both : Animal",
+      "output": "one Animal, shared: virtual"
+     },
+     "say": "A Bat is a Mammal and a Bird, and both are Animals. How many Animals sit inside one Bat?",
+     "cues": {
+      "example": "A Bat is",
+      "output": "How many"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Inside a Bat",
+     "say": "With ordinary inheritance, each path brings its own base. Mammal holds an Animal. Bird holds another. So one Bat contains two Animals, each with its own id, and b dot id is ambiguous. Now inherit virtually. Both paths share one Animal, and b dot id just works.",
+     "items": [
+      {
+       "id": "mam",
+       "x": 250,
+       "y": 340,
+       "w": 360,
+       "h": 120,
+       "label": "Bat contains",
+       "text": "Mammal part",
+       "tone": "blue",
+       "cue": "Mammal holds"
+      },
+      {
+       "id": "brd",
+       "x": 250,
+       "y": 580,
+       "w": 360,
+       "h": 120,
+       "text": "Bird part",
+       "tone": "blue",
+       "cue": "Bird holds"
+      },
+      {
+       "id": "ca",
+       "x": 1100,
+       "y": 340,
+       "w": 420,
+       "h": 120,
+       "label": "Animal",
+       "text": "Animal id",
+       "tone": "warn",
+       "cue": "Mammal holds"
+      },
+      {
+       "id": "cb",
+       "x": 1100,
+       "y": 580,
+       "w": 420,
+       "h": 120,
+       "label": "Animal",
+       "text": "Animal id",
+       "tone": "warn",
+       "cue": "Bird holds"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "mam",
+       "to": "ca",
+       "cue": "Mammal holds"
+      },
+      {
+       "from": "brd",
+       "to": "cb",
+       "cue": "Bird holds"
+      },
+      {
+       "from": "brd",
+       "to": "ca",
+       "tone": "good",
+       "cue": "share one Animal"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ca",
+       "glow": true,
+       "tone": "bad",
+       "cue": "two Animals"
+      },
+      {
+       "id": "cb",
+       "fade": true,
+       "cue": "inherit virtually"
+      },
+      {
+       "id": "a1",
+       "fade": true,
+       "cue": "inherit virtually"
+      },
+      {
+       "id": "ca",
+       "text": "one shared Animal",
+       "tone": "good",
+       "cue": "share one Animal"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now the bases are virtual. Mammal passes id one to Animal. Bird passes two. Bat's own constructor passes three. What is b dot id? Pause and predict.",
+     "q": "Virtual bases. Mammal passes 1, Bird 2, Bat 3. What is `b.id`?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "ambiguous"
+     ],
+     "answer": "3"
+    },
+    {
+     "type": "code",
+     "head": "Who constructs the shared base?",
+     "say": "Three. With a virtual base, the most derived class constructs it directly, here Bat. The middle classes' calls to Animal are ignored. If Bat didn't call an Animal constructor, Animal would need a default one.",
+     "panels": [
+      {
+       "file": "bat.cpp",
+       "code": "struct Animal { int id; Animal(int i) : id(i) {} };\nstruct Mammal : virtual Animal { Mammal() : Animal(1) {} };\nstruct Bird   : virtual Animal { Bird()   : Animal(2) {} };\nstruct Bat : Mammal, Bird { Bat() : Animal(3) {} };\nBat b;\ncout << b.id;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "most derived"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "are ignored"
+      }
+     ],
+     "output": {
+      "cmd": "./bat",
+      "text": "3",
+      "cue": "default one"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Inside a virtual call",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "How does virtual dispatch work?",
+     "statement": "A call through a base pointer lands on the derived function. What data structure makes that happen, and what does it cost?",
+     "example": {
+      "input": "Shape* s = new Circle; s->area();",
+      "output": "vptr to vtable, then slot zero"
+     },
+     "say": "s points at a Circle, and we call area. The compiler can't see the type, yet the right function runs. How?",
+     "cues": {
+      "example": "s points",
+      "output": "yet the right"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "One hidden pointer, one table per class",
+     "say": "Each class with virtual functions gets one v table: an array of function pointers, one slot per virtual function. Circle overrides area, so its slot holds Circle's area. Draw isn't overridden, so that slot still points to Shape's. Every Circle object carries a hidden v pointer to this table, set by its constructor.",
+     "items": [
+      {
+       "id": "obj",
+       "x": 200,
+       "y": 470,
+       "w": 360,
+       "h": 130,
+       "label": "Circle object",
+       "text": "vptr, r",
+       "tone": "warn",
+       "cue": "hidden v pointer"
+      },
+      {
+       "id": "s0",
+       "x": 900,
+       "y": 300,
+       "w": 700,
+       "h": 100,
+       "label": "Circle's vtable",
+       "text": "area: Circle::area",
+       "tone": "good",
+       "cue": "one v table"
+      },
+      {
+       "id": "s1",
+       "x": 900,
+       "y": 430,
+       "w": 700,
+       "h": 100,
+       "text": "draw: Shape::draw",
+       "tone": "dim",
+       "cue": "Draw isn't overridden"
+      },
+      {
+       "id": "s2",
+       "x": 900,
+       "y": 560,
+       "w": 700,
+       "h": 100,
+       "text": "dtor: Circle's",
+       "tone": "blue",
+       "cue": "one slot per virtual"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "obj",
+       "to": "s0",
+       "label": "vptr",
+       "cue": "hidden v pointer"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Circle overrides area"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "What s->area() compiles to",
+     "say": "What does s arrow area compile to? Three steps. First, load the v pointer from the object. Second, read slot zero, because area is always slot zero. Third, call through it. Whatever the type, its own table finds the override.",
+     "items": [
+      {
+       "label": "step 1",
+       "text": "load the vptr",
+       "cue": "load the v pointer"
+      },
+      {
+       "label": "step 2",
+       "text": "read slot zero",
+       "cue": "read slot zero"
+      },
+      {
+       "label": "step 3",
+       "text": "call through it",
+       "tone": "good",
+       "cue": "call through it"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Plain has one int. Virtual has one int and one virtual function. On a typical sixty four bit build, how many bytes is Virtual? Pause and predict.",
+     "q": "`struct Virtual { int x; virtual void f() {} };` `sizeof` on 64-bit?",
+     "options": [
+      "4",
+      "8",
+      "12",
+      "16"
+     ],
+     "answer": "16"
+    },
+    {
+     "type": "code",
+     "head": "The costs",
+     "say": "Sixteen. Four bytes of int, an eight byte v pointer, and padding. Tables are shared, but every object carries a pointer. Each call is an extra hop, usually not inlined. In a base constructor, the v pointer still points to the base table.",
+     "panels": [
+      {
+       "file": "cost.cpp",
+       "code": "struct Plain   { int x; };\nstruct Virtual {\n    int x;\n    virtual void f() {}\n};\ncout << sizeof(Plain) << ' ';\ncout << sizeof(Virtual);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Four bytes"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "eight byte"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "every object"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "extra hop"
+      }
+     ],
+     "output": {
+      "cmd": "./cost",
+      "text": "4 16",
+      "cue": "base constructor"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Overloading versus overriding? Overloading: same name, different parameters, chosen at compile time. Overriding: a derived class replaces a base virtual, chosen at runtime. Trap? Name hiding: fix with using.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Overloading?",
+       "same name, new parameters: compile time"
+      ],
+      [
+       "Overriding?",
+       "derived replaces base `virtual`: runtime"
+      ],
+      [
+       "Trap?",
+       "derived name hides base overloads: `using`"
+      ]
+     ],
+     "cues": [
+      "Overloading versus",
+      "Overriding: a derived",
+      "Trap"
+     ],
+     "covers": [
+      "q54"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Why a virtual destructor? Else the derived destructor is skipped. What goes wrong? Undefined behavior, and leaked resources. Rule? A public virtual destructor, or a protected one.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why virtual dtor?",
+       "else derived dtor is skipped"
+      ],
+      [
+       "What goes wrong?",
+       "UB, leaked resources"
+      ],
+      [
+       "Rule?",
+       "public virtual, or protected non-virtual"
+      ]
+     ],
+     "cues": [
+      "Why a virtual",
+      "What goes wrong",
+      "Rule"
+     ],
+     "covers": [
+      "q55"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "A constructor throws? The object never existed, so no destructor runs. Cleaned up? Built members, in reverse. And? Use R A I I members, and new frees its memory.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Ctor throws?",
+       "object never existed: no destructor"
+      ],
+      [
+       "Cleaned up?",
+       "built members, reverse order"
+      ],
+      [
+       "And?",
+       "RAII members; `new` frees its memory"
+      ]
+     ],
+     "cues": [
+      "A constructor throws",
+      "Cleaned up",
+      "And? Use"
+     ],
+     "covers": [
+      "q56"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Constructor versus assignment? New object versus existing. T b equals a is construction. Assignment must free old state, and survive self assignment. Rule of three, five, zero? Destructor, copy, assign. Add moves. Or write none.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Ctor vs assign?",
+       "new object vs existing; `T b = a` is ctor"
+      ],
+      [
+       "Assignment must?",
+       "free old state, survive `b = b`"
+      ],
+      [
+       "Rule of 3, 5, 0?",
+       "dtor+copy+assign; +2 moves; or none"
+      ]
+     ],
+     "cues": [
+      "Constructor versus",
+      "Assignment must",
+      "Rule of three"
+     ],
+     "covers": [
+      "q57",
+      "q58"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "The diamond problem? One base through two paths means two copies, and ambiguous names. Fix? Virtual inheritance: one shared base. Who constructs it? The most derived class.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Diamond problem?",
+       "same base via two paths: two copies"
+      ],
+      [
+       "Fix?",
+       "virtual inheritance: one shared base"
+      ],
+      [
+       "Who constructs it?",
+       "the most derived class"
+      ]
+     ],
+     "cues": [
+      "The diamond problem",
+      "Fix",
+      "Who constructs"
+     ],
+     "covers": [
+      "q59"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Vtables and vptrs? One table of function pointers per class, one hidden pointer per object. A virtual call? Load the vptr, pick a fixed slot, call. Cost? Eight bytes per object, one hop.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "vtable and vptr?",
+       "per-class table; hidden pointer per object"
+      ],
+      [
+       "A virtual call?",
+       "load vptr, fixed slot, call"
+      ],
+      [
+       "Cost?",
+       "8 bytes per object, one hop"
+      ]
+     ],
+     "cues": [
+      "Vtables and vptrs",
+      "A virtual call",
+      "Cost"
+     ],
+     "covers": [
+      "q60"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Try these three. LeetCode two oh six, reverse linked list, is pointer ownership. LeetCode one thirty eight, copy list with random pointer, is a deep copy. LeetCode one forty six, LRU cache, owns and frees nodes.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 206 · Reverse Linked List",
+       "pointer ownership"
+      ],
+      [
+       "LeetCode 138 · Copy List with Random Pointer",
+       "a deep copy, by hand"
+      ],
+      [
+       "LeetCode 146 · LRU Cache",
+       "own and free nodes correctly"
+      ]
+     ],
+     "cues": [
+      "two oh six",
+      "one thirty eight",
+      "one forty six"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Virtual calls go vptr to vtable to slot. A polymorphic base needs a virtual destructor. And a class that owns a resource needs the rule of five, or better, the rule of zero.",
+     "lines": [
+      "vptr, vtable, slot: that is a virtual call.",
+      "Polymorphic base: virtual destructor.",
+      "Own a resource: rule of five, or zero."
+     ],
+     "cues": [
+      "vptr to vtable",
+      "polymorphic base",
+      "rule of five"
+     ]
+    }
+   ]
+  }
+ ]
+}
