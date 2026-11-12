@@ -249,7 +249,7 @@
     {
      "type": "code",
      "head": "Insertion sort in code",
-     "say": "In code, the key is a of i. While the cell on its left is bigger, copy it one step right. Then drop the key in the gap. Worst case, a reversed array: every key slides past everything before it, about n squared over two moves. Already sorted? Nothing slides.",
+     "say": "In code, the key is a of i. While the cell on its left is bigger, copy it one step right. Then drop the key in the gap. Worst case, a reversed array: every key slides past everything before it, about n squared over two moves. Already sorted? Nothing slides. O of n means work grows in step with n.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -527,7 +527,7 @@
     {
      "type": "diagram",
      "head": "Merge sort, step 2: merge",
-     "say": "Now merge back up. To merge two sorted piles, compare the fronts and take the smaller. Five and two: two goes first. Six and one: one goes first. Merge two five with four: two, four, five. Merge one six with three: one, three, six. Last merge: one through six. Every level touches all six cards. Three levels: O of n log n.",
+     "say": "Now merge back up. To merge two sorted piles, compare the fronts and take the smaller. Five and two: two goes first. Six and one: one goes first. Merge the pair two and five with four: two, four, five. Merge one and six with three: one, three, six. Last merge: one through six. Every level touches all six cards. Three levels: O of n log n.",
      "items": [
       {
        "id": "t0",
@@ -661,6 +661,12 @@
        "id": "t0",
        "glow": true,
        "cue": "Every level touches"
+      },
+      {
+       "id": "l1",
+       "glow": true,
+       "tone": "good",
+       "cue": "Three levels"
       }
      ]
     },
@@ -851,7 +857,7 @@
       "input": "[5, 2, 4, 6, 1, 3], pivot 3",
       "output": "3 lands at index 2: smaller left, bigger right"
      },
-     "say": "Can we sort without any extra memory, fixing one element's final spot at a time? Take five, two, four, six, one, three, with pivot three. Three lands at index two, smaller cards left, bigger right.",
+     "say": "Can we sort without any extra memory, fixing one element's final spot at a time? Take five, two, four, six, one, three, with the boss, the pivot, three. Three lands at index two, smaller cards left, bigger right.",
      "cues": {
       "example": "Take five, two",
       "output": "Three lands"
@@ -1236,7 +1242,7 @@
      "notes": [
       {
        "x": 520,
-       "y": 830,
+       "y": 740,
        "text": "n rounds × n work = O(n²)",
        "tone": "bad",
        "cue": "That's n rounds"
@@ -1275,7 +1281,7 @@
       "input": "words by length: banana, fig, apple, kiwi",
       "output": "fig, kiwi, apple, banana"
      },
-     "say": "What does s t d colon colon sort do? Can you set your own order? Say, words by length: fig, kiwi, apple, banana. An introsort with a comparator.",
+     "say": "What does s t d colon colon sort do? Can you set your own order? Say, words by length: fig, kiwi, apple, banana. It's an introsort: a mix of three sorts. A comparator says which item comes first.",
      "cues": {
       "example": "Say, words",
       "output": "An introsort"
@@ -1713,7 +1719,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Insertion and merge, 20 seconds",
      "covers": [
       "cp21"
      ],
@@ -1721,11 +1727,11 @@
       "They ask",
       "You say"
      ],
-     "say": "Insertion sort? Slide each card into place, quadratic. Merge sort? Split, sort the halves, merge. Why n log n? Log n levels of halving, and each level merges n items.",
+     "say": "Insertion sort? Slide each card into place, quadratic, or linear if already sorted. Merge sort? Split, sort the halves, merge. Why n log n? Log n levels of halving, and each level merges n items.",
      "rows": [
       [
        "Insertion sort?",
-       "slide each card into place: O(n²)"
+       "slide each card into place: O(n²); O(n) if already sorted"
       ],
       [
        "Merge sort?",
@@ -1752,7 +1758,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Stable? Equal items keep their order. When insertion sort? Tiny or nearly sorted arrays, where it's O of n. Common mistake? Less than instead of less or equal in the merge.",
+     "say": "Stable? Equal items keep their order. When insertion sort? Tiny or nearly sorted arrays, where it's O of n. Common mistake? Less than instead of less or equal breaks stability: equal items can swap.",
      "rows": [
       [
        "What does stable mean?",
@@ -1764,7 +1770,7 @@
       ],
       [
        "Common mistake?",
-       "`<` instead of `<=` in the merge"
+       "breaks stability: equal items can swap"
       ]
      ],
      "cues": [
@@ -1781,11 +1787,15 @@
      "pause": 5,
      "say": "Quick self test. A million integers, each up to a billion. Counting sort, or s t d colon colon sort? Pause and predict.",
      "q": "1M ints up to 10⁹: which sort?",
-     "answer": "std::sort"
+     "options": [
+      "Counting sort",
+      "std::sort"
+     ],
+     "answer": 1
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Quicksort, 20 seconds",
      "covers": [
       "cp22"
      ],
