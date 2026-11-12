@@ -47,15 +47,15 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Two threads add one to a counter, two hundred thousand times in total. It ends short, every run. By the end, you'll explain why, fix it two ways, and read any modern C plus plus.",
+     "say": "Two threads add one to a counter, two hundred thousand times in total. It can end short, and the total changes between runs. By the end, you'll explain why, fix it two ways, and read any modern C plus plus.",
      "lines": [
       {
        "text": "2 threads, 200,000 adds",
        "cue": "Two threads"
       },
       {
-       "text": "The counter ends short.",
-       "cue": "ends short"
+       "text": "The counter can end short.",
+       "cue": "end short"
       },
       {
        "text": "Explain it. Fix it twice.",
@@ -67,7 +67,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Interviewers expect modern C plus plus, and a counter that survives threads. Today you tour C plus plus eleven, then lambdas and templates. Then you break a counter with two threads, and fix it twice.",
+     "say": "Interviewers expect modern C plus plus. Today you tour C plus plus eleven, then lambdas and templates. Then you break a counter with two threads, and fix it twice.",
      "lines": [
       "Tour C++11, auto, lambdas, templates",
       "Break a counter with two threads",
@@ -96,26 +96,38 @@
     {
      "type": "flow",
      "head": "Three drawers of new tools",
-     "say": "Think of C plus plus eleven as a toolbox with three drawers. Drawer one makes code shorter: auto, range for, lambdas, null pointer, brace initialization. Drawer two is faster and safer: move semantics, smart pointers, constexpr. Drawer three is parallel: threads, mutexes, atomics.",
+     "say": "Think of C plus plus eleven as a toolbox with five drawers. Drawer one makes code shorter: auto, lambdas, range for, null pointer. Drawer two is faster: move semantics hands over the guts, no copy. Drawer three is safer: smart pointers free their memory for you. Drawer four is constexpr: it runs a function at compile time. Drawer five is parallel: threads, mutexes, atomics.",
      "items": [
       {
        "label": "1: shorter",
-       "text": "auto, lambdas",
-       "cue": "Drawer one",
-       "sub": "range-for, nullptr"
+       "text": "auto",
+       "sub": "lambdas, range-for, nullptr",
+       "cue": "Drawer one"
       },
       {
-       "label": "2: faster, safer",
-       "text": "move, smart ptr",
-       "cue": "Drawer two",
-       "sub": "constexpr"
+       "label": "2: faster",
+       "text": "move",
+       "sub": "move semantics",
+       "cue": "Drawer two"
       },
       {
-       "label": "3: parallel",
-       "text": "thread, atomic",
-       "cue": "Drawer three",
-       "sub": "memory model",
-       "tone": "good"
+       "label": "3: safer",
+       "text": "smart ptr",
+       "sub": "unique_ptr",
+       "cue": "Drawer three"
+      },
+      {
+       "label": "4: compile",
+       "text": "constexpr",
+       "sub": "compile time",
+       "cue": "Drawer four"
+      },
+      {
+       "label": "5: parallel",
+       "text": "threads",
+       "sub": "mutex, atomic",
+       "tone": "good",
+       "cue": "Drawer five"
       }
      ]
     },
@@ -126,7 +138,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "auto i = 42;\nauto d = 3.14;\nauto s = \"hi\";\nmap<string, int> m;\nauto it = m.begin();"
+       "code": "auto i = 42;\nauto d = 3.14;\nauto s = \"hi\";\nmap<string, int> m;\nauto it = m.begin();\n// auto nothing;"
       }
      ],
      "steps": [
@@ -184,6 +196,13 @@
        "text": "map<...>::iterator",
        "tone": "good",
        "cue": "writes itself"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "error: no initializer",
+       "tone": "warn",
+       "cue": "With no initializer"
       }
      ]
     },
@@ -546,7 +565,7 @@
     {
      "type": "problem",
      "title": "One max for every type",
-     "statement": "Write max once, so it works for int, double and string. Then make it right for C strings.",
+     "statement": "Write max once, so it works for int, double and string.",
      "example": {
       "input": "maxOf(3, 7), maxOf(2.5, 1.5)",
       "output": "7 and 2.5"
@@ -744,9 +763,9 @@
      "statement": "Two threads each add one to a shared counter, one hundred thousand times. We expect two hundred thousand.",
      "example": {
       "input": "2 threads × 100,000 ++counter",
-      "output": "expect 200000; one run: 125574"
+      "output": "expect 200000; one run: 122042"
      },
-     "say": "Now for the bug in the hook. Two threads, one counter. For example, a hundred thousand adds each. We expect two hundred thousand. One run printed one hundred twenty five thousand.",
+     "say": "Now for the bug in the hook. Two threads, one counter. For example, a hundred thousand adds each. We expect two hundred thousand. One run printed one hundred twenty two thousand, forty two.",
      "cues": {
       "example": "For example",
       "output": "One run printed"
@@ -838,11 +857,13 @@
     {
      "type": "code",
      "head": "That is a data race",
-     "say": "This is the code. Both threads touch the same int, and one writes, with no lock. That's a data race, and in C plus plus it's undefined behavior. A race condition is broader: any timing bug, even with atomics. Run it, and the total is short, and differs every run.",
+     "say": "This is the code. Both threads touch the same int, and one writes, with no lock. That's a data race, and in C plus plus it's undefined behavior. A race condition is broader: any timing bug, even with atomics. Run it a few times with optimization off, and the total can come up short and change between runs. With optimization on, it may still print two hundred thousand. The bug is still there.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int counter = 0;\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;\n}\nthread a(work), b(work);\na.join(); b.join();\ncout << counter;"
+       "code": "int counter = 0;\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;\n}\nthread a(work), b(work);\na.join(); b.join();\ncout << counter;",
+       "label": "g++ -O0",
+       "tone": "warn"
       }
      ],
      "steps": [
@@ -868,7 +889,19 @@
        "lines": [
         8
        ],
-       "cue": "the total is short"
+       "cue": "Run it a few times"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "the total can come up short"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "With optimization on"
       }
      ],
      "notes": [
@@ -896,36 +929,43 @@
     {
      "type": "code",
      "head": "Two fixes: atomic or mutex",
-     "say": "Atomic. It makes plus plus one indivisible step, with no lock. The fix is a mutex: lock, add, unlock. Both give two hundred thousand, every time. N is a hundred thousand.",
+     "say": "Atomic is the right answer. volatile is not atomic, long still races, and sleep only changes timing. Atomic makes plus plus one indivisible step, with no lock. The fix is a mutex: lock, add, unlock. Both give two hundred thousand, every time. N is a hundred thousand.",
      "panels": [
       {
        "file": "atomic.cpp",
        "label": "atomic",
        "tone": "good",
-       "code": "atomic<int> n{0};\n\nvoid work() {\n  for (int i = 0; i < N; ++i)\n    ++n;\n}"
+       "code": "const int N = 100000;\natomic<int> n{0};\n\nvoid work() {\n  for (int i = 0; i < N; ++i)\n    ++n;\n}"
       },
       {
        "file": "mutex.cpp",
        "label": "mutex",
        "tone": "good",
-       "code": "mutex m;\nint n = 0;\nvoid work() {\n  for (int i = 0; i < N; ++i) {\n    lock_guard<mutex> g(m);\n    ++n;\n  }\n}"
+       "code": "const int N = 100000;\nmutex m;\nint n = 0;\nvoid work() {\n  for (int i = 0; i < N; ++i) {\n    lock_guard<mutex> g(m);\n    ++n;\n  }\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
         2,
         3,
         4,
-        5
+        5,
+        6
        ],
        "cue": "Atomic",
        "panel": 0
       },
       {
        "lines": [
-        5
+        1
+       ],
+       "cue": "not atomic",
+       "panel": 0
+      },
+      {
+       "lines": [
+        6
        ],
        "cue": "indivisible step",
        "panel": 0
@@ -939,7 +979,8 @@
         5,
         6,
         7,
-        8
+        8,
+        9
        ],
        "cue": "mutex",
        "panel": 1
@@ -955,7 +996,7 @@
     {
      "type": "code",
      "head": "Why lock_guard, not lock()",
-     "say": "Why not call lock and unlock yourself? Every path out must unlock. An early return skips it. If process throws, it's skipped too, and the next thread hangs forever. Lock guard is tiny. Its constructor locks, its destructor unlocks, so every exit unlocks. That's R A I I.",
+     "say": "Why not call lock and unlock yourself? Every path out must unlock. An early return skips it. If process throws, it's skipped too, and the next thread hangs forever. Lock guard is tiny. Its constructor locks, its destructor unlocks, so every exit unlocks. That's R A I I, resource acquisition is initialization. The guard releases the lock when it leaves scope.",
      "panels": [
       {
        "file": "manual.cpp",
@@ -1016,6 +1057,14 @@
         9
        ],
        "cue": "destructor unlocks",
+       "panel": 1
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "resource acquisition",
        "panel": 1
       }
      ]
@@ -1141,7 +1190,7 @@
     {
      "type": "code",
      "head": "std::async: a task with a future",
-     "say": "Terminate. That's why async exists. It runs the function and hands back a future. Get waits, then returns the value, or rethrows compute's exception, here, in your thread. With launch async it runs on a new thread. With the default policy, it may run lazily inside get.",
+     "say": "Terminate. A joinable thread's destructor calls terminate, so the program aborts. That's why async exists. It runs the function and hands back a future. Get waits, then returns the value, or rethrows compute's exception, here, in your thread. With launch async it runs on a new thread. With the default policy, it may run lazily inside get.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1149,6 +1198,13 @@
       }
      ],
      "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "That's why async"
+      },
       {
        "lines": [
         1,
@@ -1270,13 +1326,34 @@
       [
        "Trap?",
        "drops `&` and top-level const: copies"
+      ],
+      [
+       "Fix?",
+       "`auto&` avoids the copies"
       ]
      ],
      "cues": [
       "What does auto",
-      "drops references"
+      "drops references",
+      "write auto ampersand"
      ],
      "covers": [
+      "q87"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "Remember the first pair. Auto deduces the type from the initializer, at compile time. It drops references, so write auto ampersand to avoid copies.",
+     "lines": [
+      "Auto: type from the initializer",
+      "Drops & and const: write auto& to copy less"
+     ],
+     "cues": [
+      "Auto deduces",
+      "It drops references"
+     ],
+     "covers": [
+      "q86",
       "q87"
      ]
     },
@@ -1343,6 +1420,24 @@
      ]
     },
     {
+     "type": "take",
+     "say": "Remember the pair. A lambda is a class with a call operator. Capture by value copies. Capture by reference links. If it outlives the scope, capture by value.",
+     "lines": [
+      "Lambda: a class with operator()",
+      "By value copies; by reference links",
+      "Outlives the scope? By value."
+     ],
+     "cues": [
+      "A lambda is a class",
+      "Capture by value copies",
+      "If it outlives"
+     ],
+     "covers": [
+      "q88",
+      "q89"
+     ]
+    },
+    {
      "type": "compare",
      "head": "Say it in 20 seconds",
      "say": "What are templates? Code parameterized by type, written once. The compiler instantiates a version per type, at compile time. No runtime cost, but longer builds. Usually in headers.",
@@ -1401,6 +1496,22 @@
       "Used for"
      ],
      "covers": [
+      "q91"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "Remember the pair. A template is one recipe, stamped per type, at compile time. Specialization gives one type its own version.",
+     "lines": [
+      "Template: one recipe, stamped per type",
+      "Specialization: a custom version for one type"
+     ],
+     "cues": [
+      "A template is one recipe",
+      "Specialization gives one type"
+     ],
+     "covers": [
+      "q90",
       "q91"
      ]
     },
@@ -1467,6 +1578,24 @@
      ]
     },
     {
+     "type": "take",
+     "say": "Remember the pair. Thread starts now, returns nothing, and needs a join. Async returns a future. A race needs unsynchronized writes. Fix it with a mutex or an atomic.",
+     "lines": [
+      "Thread: starts now, no result, must join",
+      "Async: a future, get brings the value",
+      "Race: unsynchronized writes; use a mutex"
+     ],
+     "cues": [
+      "Thread starts now",
+      "Async returns a future",
+      "A race needs"
+     ],
+     "covers": [
+      "q92",
+      "q93"
+     ]
+    },
+    {
      "type": "compare",
      "head": "Say it in 20 seconds",
      "say": "Mutex and lock guard? A mutex is a lock only one thread holds. Lock guard locks in its constructor, unlocks in its destructor. Returns and exceptions release it. Keep the locked scope small.",
@@ -1484,13 +1613,18 @@
        "RAII: lock in constructor, unlock in destructor"
       ],
       [
-       "Why not manual?",
-       "a return or throw skips unlock: deadlock"
+       "Returns, throws?",
+       "the destructor still unlocks"
+      ],
+      [
+       "Scope?",
+       "keep the locked part small"
       ]
      ],
      "cues": [
       "Mutex and lock guard",
       "Lock guard locks",
+      "Returns and exceptions",
       "Keep the locked"
      ],
      "covers": [
@@ -1564,7 +1698,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Auto and lambdas copy by default, so write the ampersand when you mean it. Plus plus is three steps, so two threads lose adds. Fix it with an atomic for one variable, or a lock guard for a block.",
+     "say": "So say this. Auto and lambdas copy by default. Write the ampersand on purpose. Plus plus is three steps, so two threads lose adds. Fix it with an atomic for one variable, or a lock guard for a block.",
      "lines": [
       "`auto` and lambdas copy; add `&` on purpose.",
       "`++counter` is three steps: threads lose adds.",
