@@ -35,7 +35,7 @@
      "lines": [
       {
        "text": "Two numbers that add to 10",
-       "cue": "two numbers"
+       "cue": "An interviewer"
       },
       {
        "text": "Two loops. One eyebrow.",
@@ -88,13 +88,13 @@
       },
       {
        "label": "too high?",
-       "text": "move right in",
+       "text": "R steps left",
        "sub": "drop the priciest",
        "cue": "Total too high"
       },
       {
        "label": "too low?",
-       "text": "move left in",
+       "text": "L steps right",
        "sub": "drop the cheapest",
        "cue": "Total too low"
       }
@@ -102,8 +102,8 @@
     },
     {
      "type": "diagram",
-     "head": "Sorted [1, 3, 4, 6, 8, 11], target 10",
-     "say": "Here is the sorted array, and the target is ten. L sits on the one, R on the eleven. One plus eleven is twelve. Too high, and the eleven is too big for any partner, so R moves left. One plus eight is nine. Too low, so L moves right. Three plus eight is eleven. Too high, so R steps left. Three plus six is nine. Too low, so L steps right. Four plus six is ten. Found, in five steps.",
+     "head": "Gifts 1, 3, 4, 6, 8, 11: budget 10",
+     "say": "Here are the sorted gift prices, and the budget is ten. L sits on the cheapest, the one. R sits on the priciest, the eleven. One plus eleven is twelve. Too high even with the cheapest partner, so the eleven fits nobody, and R moves left. One plus eight is nine. Too low, so L moves right. Three plus eight is eleven. Too high, so R steps left. Three plus six is nine. Too low, so L steps right. Four plus six is ten. Found, in five steps.",
      "items": [
       {
        "array": {
@@ -117,7 +117,7 @@
          11
         ],
         "y": 380,
-        "cue": "sorted array"
+        "cue": "sorted gift prices"
        }
       },
       {
@@ -130,7 +130,7 @@
        "text": "10",
        "size": 56,
        "tone": "info",
-       "cue": "target is ten"
+       "cue": "budget is ten"
       },
       {
        "id": "pl",
@@ -150,7 +150,7 @@
        "h": 70,
        "text": "R",
        "tone": "good",
-       "cue": "R on the eleven"
+       "cue": "R sits"
       },
       {
        "id": "sum",
@@ -459,7 +459,7 @@
       {
        "line": 3,
        "inside": true,
-       "text": "a number pairs with itself",
+       "text": "pairs with itself",
        "tone": "bad",
        "cue": "Nobody is"
       }
@@ -473,8 +473,8 @@
     },
     {
      "type": "code",
-     "head": "Second flavor: slow and fast",
-     "say": "The second flavor: slow and fast pointers. Slow w marks where the next kept value goes. The loop is the fast pointer. A new value gets copied to w. One, one, two, two, two, three becomes one, two, three. Same family: three sum, container with most water.",
+     "head": "Slow and fast, on sorted input",
+     "say": "The second flavor: slow and fast pointers. On sorted input, equal values sit side by side. Slow w marks where the next kept value goes. The loop is the fast pointer. A new value gets copied to w. One, one, two, two, two, three becomes one, two, three. Same family: three sum, container with most water.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -482,6 +482,12 @@
       }
      ],
      "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "On sorted input"
+      },
       {
        "lines": [
         2
@@ -556,7 +562,7 @@
     {
      "type": "diagram",
      "head": "Window of 3: slide, don't recount",
-     "say": "Array two, one, five, one, three, two. Window of three. The first window sums to eight. That's our best so far. Slide right. The two leaves, so subtract two. The next one enters, so add one. Seven. Slide again. One out, three in: nine. New best. Slide once more. Five out, two in: six. Two operations per step.",
+     "say": "Array two, one, five, one, three, two. Window of three, like the three seats. The first window sums to eight. That's our best so far. Slide right. The two leaves, so subtract two. The next one enters, so add one. Seven. Slide again. One out, three in: nine. New best. Slide once more. Five out, two in: six. Two operations per step.",
      "items": [
       {
        "array": {
@@ -569,7 +575,7 @@
          3,
          2
         ],
-        "y": 380,
+        "y": 430,
         "cue": "two, one, five"
        }
       },
@@ -579,7 +585,7 @@
        "x": 410,
        "y": 330,
        "w": 560,
-       "h": 250,
+       "h": 280,
        "label": "WINDOW",
        "tone": "warn",
        "cue": "Window of three"
@@ -755,7 +761,7 @@
       "9",
       "10",
       "11",
-      "12"
+      "7"
      ],
      "answer": "10"
     },
@@ -775,7 +781,7 @@
          3,
          2
         ],
-        "y": 380
+        "y": 430
        }
       },
       {
@@ -784,7 +790,7 @@
        "x": 410,
        "y": 330,
        "w": 740,
-       "h": 250,
+       "h": 280,
        "label": "WINDOW",
        "tone": "warn"
       },
@@ -832,13 +838,13 @@
      "type": "chart",
      "head": "100,000 numbers, window of 1,000",
      "unit": "ops",
-     "say": "Recounting costs ninety nine million additions, enough to warm the room. Sliding: two hundred thousand. Five hundred times less.",
+     "say": "Recounting: ninety nine million additions. Sliding: two hundred thousand. Five hundred times less.",
      "bars": [
       {
        "label": "Recount",
        "value": 99000000,
        "tone": "bad",
-       "cue": "Recounting costs"
+       "cue": "Recounting:"
       },
       {
        "label": "Slide",
@@ -847,7 +853,7 @@
        "cue": "Sliding:"
       }
      ],
-     "hold": 0.3
+     "hold": 1.0
     }
    ]
   },
@@ -857,7 +863,7 @@
     {
      "type": "diagram",
      "head": "Longest run with no repeat",
-     "say": "Interviewers love this one: longest stretch with no repeated letter. Here is the string: a, b, c, a, b, c, b, b. L and R start on the first letter. R moves right, reading b. Then c. Three different letters. Now R reads a second a. A repeat! The bouncer says no, so L steps right, past the first a. Still three.",
+     "say": "Interviewers love this one: longest stretch with no repeated letter. Here is the string: a, b, c, a, b, c, b, b. L and R start on the first letter. R moves right, reading b. Then c. Three different letters. Now R reads a second a. A repeat! So L steps right, past the first a. Still three.",
      "items": [
       {
        "array": {
@@ -879,7 +885,7 @@
       {
        "id": "pl",
        "x": 270,
-       "y": 570,
+       "y": 560,
        "w": 120,
        "h": 70,
        "text": "L",
@@ -889,7 +895,7 @@
       {
        "id": "pr",
        "x": 270,
-       "y": 660,
+       "y": 640,
        "w": 120,
        "h": 70,
        "text": "R",
@@ -899,9 +905,9 @@
       {
        "id": "len",
        "x": 500,
-       "y": 780,
+       "y": 810,
        "w": 400,
-       "h": 110,
+       "h": 100,
        "label": "window length",
        "text": "3",
        "size": 56,
@@ -911,9 +917,9 @@
       {
        "id": "best",
        "x": 1100,
-       "y": 780,
+       "y": 810,
        "w": 400,
-       "h": 110,
+       "h": 100,
        "label": "longest so far",
        "text": "3",
        "size": 56,
@@ -931,7 +937,7 @@
        "id": "pr",
        "move": [
         450,
-        660
+        640
        ],
        "cue": "reading b"
       },
@@ -944,7 +950,7 @@
        "id": "pr",
        "move": [
         630,
-        660
+        640
        ],
        "cue": "Then c"
       },
@@ -957,7 +963,7 @@
        "id": "pr",
        "move": [
         810,
-        660
+        640
        ],
        "cue": "second a"
       },
@@ -976,7 +982,7 @@
        "id": "pl",
        "move": [
         450,
-        570
+        560
        ],
        "cue": "L steps right"
       },
@@ -1016,7 +1022,7 @@
       {
        "id": "pl",
        "x": 450,
-       "y": 570,
+       "y": 560,
        "w": 120,
        "h": 70,
        "text": "L",
@@ -1025,7 +1031,7 @@
       {
        "id": "pr",
        "x": 810,
-       "y": 660,
+       "y": 640,
        "w": 120,
        "h": 70,
        "text": "R",
@@ -1034,9 +1040,9 @@
       {
        "id": "len",
        "x": 500,
-       "y": 780,
+       "y": 810,
        "w": 400,
-       "h": 110,
+       "h": 100,
        "label": "window length",
        "text": "3",
        "size": 56,
@@ -1045,9 +1051,9 @@
       {
        "id": "best",
        "x": 1100,
-       "y": 780,
+       "y": 810,
        "w": 400,
-       "h": 110,
+       "h": 100,
        "label": "longest so far",
        "text": "3",
        "size": 56,
@@ -1064,7 +1070,7 @@
        "id": "pr",
        "move": [
         990,
-        660
+        640
        ],
        "cue": "next b"
       },
@@ -1078,7 +1084,7 @@
        "id": "pl",
        "move": [
         630,
-        570
+        560
        ],
        "cue": "L drops the b"
       },
@@ -1091,7 +1097,7 @@
        "id": "pr",
        "move": [
         1170,
-        660
+        640
        ],
        "cue": "R moves to c"
       },
@@ -1105,7 +1111,7 @@
        "id": "pl",
        "move": [
         810,
-        570
+        560
        ],
        "cue": "L drops the c"
       },
@@ -1118,7 +1124,7 @@
        "id": "pr",
        "move": [
         1350,
-        660
+        640
        ],
        "cue": "R reaches b"
       },
@@ -1126,7 +1132,7 @@
        "id": "pl",
        "move": [
         1170,
-        570
+        560
        ],
        "cue": "drop two letters"
       },
@@ -1149,7 +1155,7 @@
        "id": "pr",
        "move": [
         1530,
-        660
+        640
        ],
        "cue": "The last b"
       },
@@ -1157,7 +1163,7 @@
        "id": "pl",
        "move": [
         1530,
-        570
+        560
        ],
        "cue": "L drops c"
       },
@@ -1277,7 +1283,7 @@
       {
        "id": "pl",
        "x": 450,
-       "y": 570,
+       "y": 560,
        "w": 120,
        "h": 70,
        "text": "L",
@@ -1287,7 +1293,7 @@
       {
        "id": "pr",
        "x": 450,
-       "y": 660,
+       "y": 640,
        "w": 120,
        "h": 70,
        "text": "R",
@@ -1297,9 +1303,9 @@
       {
        "id": "len",
        "x": 430,
-       "y": 780,
+       "y": 810,
        "w": 330,
-       "h": 110,
+       "h": 100,
        "label": "window length",
        "text": "1",
        "size": 56,
@@ -1308,9 +1314,9 @@
       {
        "id": "best",
        "x": 800,
-       "y": 780,
+       "y": 810,
        "w": 330,
-       "h": 110,
+       "h": 100,
        "label": "longest so far",
        "text": "1",
        "size": 56,
@@ -1320,7 +1326,7 @@
      "notes": [
       {
        "x": 1180,
-       "y": 805,
+       "y": 820,
        "text": "p, w, k, e skips a w",
        "tone": "bad",
        "cue": "Not contiguous"
@@ -1331,7 +1337,7 @@
        "id": "pr",
        "move": [
         630,
-        660
+        640
        ],
        "cue": "then w"
       },
@@ -1339,7 +1345,7 @@
        "id": "pr",
        "move": [
         810,
-        660
+        640
        ],
        "cue": "second w"
       },
@@ -1352,7 +1358,7 @@
        "id": "pl",
        "move": [
         810,
-        570
+        560
        ],
        "cue": "L jumps"
       },
@@ -1370,7 +1376,7 @@
        "id": "pr",
        "move": [
         990,
-        660
+        640
        ],
        "cue": "reads k"
       },
@@ -1378,7 +1384,7 @@
        "id": "pr",
        "move": [
         1170,
-        660
+        640
        ],
        "cue": "then e"
       },
@@ -1396,7 +1402,7 @@
        "id": "pr",
        "move": [
         1350,
-        660
+        640
        ],
        "cue": "w again"
       },
@@ -1409,7 +1415,7 @@
        "id": "pl",
        "move": [
         990,
-        570
+        560
        ],
        "cue": "L moves one"
       },
@@ -1486,7 +1492,7 @@
     {
      "type": "code",
      "head": "The trap: negative numbers",
-     "say": "Three. The window grows to one, minus one, six: sum six, length three recorded. Then it shrinks past the one. The six alone is never tested. Wrong answer, quietly. Negatives break shrinking, because dropping a number can raise the sum.",
+     "say": "Three. The window grows to one, minus one, six: sum six, length three recorded. Then it shrinks past the one. The six alone is never tested. Wrong answer, quietly. Negatives break shrinking, because dropping a number can raise the sum. The fix is prefix sums with a deque, and that's its own lesson.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1520,6 +1526,13 @@
        "text": "want 1, got 3",
        "tone": "bad",
        "cue": "Wrong answer"
+      },
+      {
+       "line": 1,
+       "inside": true,
+       "text": "fix: prefix sums + deque",
+       "tone": "good",
+       "cue": "prefix sums"
       }
      ],
      "output": {
@@ -1528,128 +1541,6 @@
       "tone": "bad",
       "cue": "Three"
      }
-    },
-    {
-     "type": "diagram",
-     "head": "The fix: prefix sums + deque",
-     "say": "Here's the fix. Prefix sums are running totals: zero, one, zero, six. A deque keeps the useful starting points. Index zero goes in. Then index one. Index two has total zero, no bigger than those, so they leave. Index three has total six. Six minus zero is six: length one.",
-     "items": [
-      {
-       "id": "p0",
-       "x": 610,
-       "y": 380,
-       "w": 160,
-       "h": 160,
-       "label": "running totals",
-       "text": "0",
-       "size": 56,
-       "tone": "blue",
-       "cue": "running totals"
-      },
-      {
-       "id": "p1",
-       "x": 790,
-       "y": 380,
-       "w": 160,
-       "h": 160,
-       "text": "1",
-       "size": 56,
-       "tone": "blue",
-       "cue": "running totals"
-      },
-      {
-       "id": "p2",
-       "x": 970,
-       "y": 380,
-       "w": 160,
-       "h": 160,
-       "text": "0",
-       "size": 56,
-       "tone": "blue",
-       "cue": "running totals"
-      },
-      {
-       "id": "p3",
-       "x": 1150,
-       "y": 380,
-       "w": 160,
-       "h": 160,
-       "text": "6",
-       "size": 56,
-       "tone": "blue",
-       "cue": "running totals"
-      },
-      {
-       "id": "dq",
-       "x": 610,
-       "y": 650,
-       "w": 700,
-       "h": 110,
-       "label": "deque of start indexes",
-       "text": "[ ]",
-       "size": 52,
-       "tone": "warn",
-       "cue": "A deque keeps"
-      },
-      {
-       "id": "best",
-       "x": 610,
-       "y": 810,
-       "w": 340,
-       "h": 100,
-       "label": "shortest",
-       "text": "-",
-       "size": 52,
-       "tone": "good",
-       "cue": "Six minus zero"
-      }
-     ],
-     "changes": [
-      {
-       "id": "dq",
-       "text": "[0]",
-       "cue": "Index zero"
-      },
-      {
-       "id": "p0",
-       "glow": true,
-       "tone": "good",
-       "cue": "Index zero"
-      },
-      {
-       "id": "dq",
-       "text": "[0, 1]",
-       "cue": "Then index one"
-      },
-      {
-       "id": "p1",
-       "glow": true,
-       "tone": "good",
-       "cue": "Then index one"
-      },
-      {
-       "id": "dq",
-       "text": "[2]",
-       "cue": "so they leave"
-      },
-      {
-       "id": "p2",
-       "glow": true,
-       "tone": "good",
-       "cue": "Index two"
-      },
-      {
-       "id": "p3",
-       "glow": true,
-       "tone": "good",
-       "cue": "Index three"
-      },
-      {
-       "id": "best",
-       "text": "1",
-       "cue": "length one"
-      }
-     ]
     },
     {
      "type": "compare",
@@ -1724,19 +1615,23 @@
       "They ask",
       "You say"
      ],
-     "say": "When do you use two pointers? Sorted data with a pair rule, like sum ten. Unsorted? Sort first, or use a hash map. Complexity? O of n, constant memory. Common mistake? L less than or equal to R pairs a number with itself.",
+     "say": "When do you use two pointers? Sorted data with a pair rule, like sum ten. Why drop an end? Too high even with its best partner. Unsorted? Sort first, O of n log n, or use a hash map. Complexity? O of n after that. Mistake? L less than or equal to R.",
      "rows": [
       [
        "When do you use two pointers?",
        "Sorted + pair rule: squeeze"
       ],
       [
+       "Why drop that end?",
+       "Too high: it fits no partner"
+      ],
+      [
        "Unsorted input?",
-       "Sort first, or hash map"
+       "Sort first, O(n log n), or hash map"
       ],
       [
        "Complexity?",
-       "O(n) time, O(1) memory"
+       "O(n), plus the sort if needed"
       ],
       [
        "Common mistake?",
@@ -1745,9 +1640,10 @@
      ],
      "cues": [
       "When do you",
+      "Why drop",
       "Unsorted",
       "Complexity",
-      "Common mistake"
+      "Mistake"
      ]
     },
     {
