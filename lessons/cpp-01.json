@@ -57,20 +57,20 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Eight questions open every C plus plus interview. Follow one variable, int x equals five, from source code to R A M. You'll answer all eight.",
+     "say": "This line is fine in C, and fails in C plus plus. Why? By the end, you'll explain it, and answer all eight core questions out loud.",
      "lines": [
       {
-       "text": "8 questions open every interview",
-       "cue": "Eight questions"
+       "text": "int* p = malloc(sizeof(int));",
+       "cue": "This line is fine in C"
       },
       {
-       "text": "int x = 5",
-       "cue": "int x equals five"
-      },
-      {
-       "text": "Source code to RAM.",
-       "cue": "from source code",
+       "text": "Fails in C++.",
+       "cue": "fails in C plus plus",
        "accent": true
+      },
+      {
+       "text": "Answer all eight, out loud.",
+       "cue": "By the end"
       }
      ]
     },
@@ -97,28 +97,28 @@
       "input": "The same tiny job, in C and in C++",
       "output": "Safer memory, templates, the STL"
      },
-     "say": "First question. C plus plus began as C with classes. For example, the same tiny job, written twice. We want what C plus plus adds, in one sentence.",
+     "say": "In nineteen seventy nine, Bjarne Stroustrup added classes to C. Take one tiny job, written in both languages. The question: what does C plus plus add, in one sentence?",
      "cues": {
-      "example": "For example",
-      "output": "We want what"
+      "example": "Take one tiny job",
+      "output": "what does C plus plus add"
      }
     },
     {
      "type": "code",
      "head": "Same job, two languages",
-     "say": "Same job, twice. In C, you call malloc, and you must remember free. Forget it, and memory leaks. In C plus plus, a vector frees its own memory at the closing brace. That is R A I I. And the speed stays: zero overhead means you don't pay for features you don't use.",
+     "say": "Same job, twice. In C, you call malloc, and you must remember free. Forget it, and memory leaks. In C plus plus, a vector frees its own memory at the closing brace. That's R A I I: the object cleans up after itself. And the speed stays: zero overhead means you don't pay for features you don't use.",
      "panels": [
       {
        "file": "stack.c",
        "label": "C",
        "tone": "warn",
-       "code": "int* d = malloc(\n    10 * sizeof(int));\nd[0] = 42;\nfree(d);  // you must remember"
+       "code": "int* d = malloc(\n    10 * sizeof(int));\nd[0] = 42;\nfree(d);"
       },
       {
        "file": "stack.cpp",
        "label": "C++",
        "tone": "good",
-       "code": "std::vector<int> d(10);\nd[0] = 42;\n// freed at the closing brace"
+       "code": "std::vector<int> d(10);\nd[0] = 42;"
       }
      ],
      "steps": [
@@ -145,11 +145,12 @@
        "cue": "a vector frees"
       },
       {
-       "lines": [
-        3
-       ],
-       "panel": 1,
+       "lines": [],
        "cue": "closing brace"
+      },
+      {
+       "lines": [],
+       "cue": "cleans up after itself"
       },
       {
        "lines": [],
@@ -200,7 +201,7 @@
     {
      "type": "compare",
      "head": "C versus C++",
-     "say": "Style: C is procedural. C plus plus adds objects and generics. Memory: malloc and free, against R A I I and smart pointers. Generic code: macros, against templates. Errors: return codes, plus exceptions. Library: small, against the S T L. Names: one global space, against namespaces.",
+     "say": "Style: C is procedural. C plus plus adds classes and generics. Memory: malloc and free, against R A I I, where smart pointers free themselves. Generic code: macros, against templates. Library: small, against the S T L, with containers and algorithms.",
      "heads": [
       "C",
       "C++"
@@ -208,44 +209,32 @@
      "rows": [
       [
        "procedural",
-       "procedural, OOP, generic"
+       "procedural, plus classes, generics"
       ],
       [
        "`malloc` / `free`",
-       "`new`/`delete`, RAII, smart pointers"
+       "RAII: smart pointers free themselves"
       ],
       [
        "macros, `void*`",
        "templates, type-safe"
       ],
       [
-       "return codes",
-       "exceptions, too"
-      ],
-      [
        "small library",
        "STL: containers, algorithms"
-      ],
-      [
-       "one global namespace",
-       "namespaces, overloading"
       ]
      ],
      "cues": [
       "Style",
       "Memory",
       "Generic code",
-      "Errors",
-      "Library",
-      "Names"
+      "Library"
      ],
      "rowHeads": [
       "style",
       "memory",
       "generic",
-      "errors",
-      "library",
-      "names"
+      "library"
      ]
     },
     {
@@ -258,12 +247,13 @@
       "Warning only",
       "Runs, then leaks"
      ],
-     "answer": "Error: void* to int*"
+     "answer": "Error: void* to int*",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
      "head": "Why C++ is not a perfect superset",
-     "say": "Error. C plus plus won't convert a void pointer to an int pointer silently, so add a cast. And class is a keyword in C plus plus, so rename that variable. So C plus plus is almost a superset of C.",
+     "say": "Error. C plus plus won't convert a void pointer to an int pointer silently, so add a cast. And class is a keyword in C plus plus, so rename that variable. So C plus plus is almost a superset of C. In one sentence: C plus plus is C, plus R A I I, templates, and the S T L, at zero overhead.",
      "panels": [
       {
        "file": "legacy.c",
@@ -307,6 +297,14 @@
        ],
        "panel": 1,
        "cue": "rename that variable"
+      },
+      {
+       "lines": [],
+       "cue": "In one sentence"
+      },
+      {
+       "lines": [],
+       "cue": "templates"
       }
      ],
      "output": {
@@ -329,10 +327,10 @@
       "input": "main.cpp  ->  ?  ->  main.o  ->  ?  ->  a.out",
       "output": "preprocess, compile, assemble, link"
      },
-     "say": "Question two. One command looks like one step. For example, main dot c p p in, a dot out out. We want the tools in between.",
+     "say": "One command looks like one step. Start with main dot c p p, and finish with a dot out. Which tools run in between, and in what order?",
      "cues": {
-      "example": "For example",
-      "output": "We want the tools"
+      "example": "Start with",
+      "output": "Which tools run"
      }
     },
     {
@@ -450,7 +448,8 @@
       "Assembler",
       "Linker"
      ],
-     "answer": "Linker"
+     "answer": "Linker",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
@@ -591,10 +590,10 @@
       "input": "extern int g;   vs   int g = 3;",
       "output": "a name only   vs   memory reserved"
      },
-     "say": "Question three. Two lines look alike. For example, extern int g, and int g equals three. One only names. The other creates.",
+     "say": "Two lines look almost alike. Mix them up, and the linker rejects your build. Here they are: extern int g, and int g equals three. Which only names, and which creates?",
      "cues": {
-      "example": "For example",
-      "output": "One only names"
+      "example": "Here they are",
+      "output": "Which only names"
      }
     },
     {
@@ -624,7 +623,7 @@
      "panels": [
       {
        "file": "example.cpp",
-       "code": "extern int g;            // declaration\nint add(int a, int b);   // declaration\nstruct Point;            // declaration\n\nint g = 3;               // definition\nint add(int a, int b) {  // definition\n    return a + b;\n}\nstruct Point { int x, y; };  // definition"
+       "code": "extern int g;\nint add(int a, int b);\nstruct Point;\n\nint g = 3;\nint add(int a, int b) {\n    return a + b;\n}\nstruct Point { int x, y; };"
       }
      ],
      "steps": [
@@ -762,7 +761,8 @@
       "Linker: defined twice",
       "Linker: undefined"
      ],
-     "answer": "Linker: defined twice"
+     "answer": "Linker: defined twice",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
@@ -778,6 +778,12 @@
        "label": "2nd definition",
        "tone": "bad",
        "code": "int counter = 0;\nint main() {}"
+      },
+      {
+       "file": "counter.h",
+       "label": "the fix",
+       "tone": "good",
+       "code": "extern int counter;"
       }
      ],
      "steps": [
@@ -796,7 +802,10 @@
        "cue": "two definitions"
       },
       {
-       "lines": [],
+       "lines": [
+        1
+       ],
+       "panel": 2,
        "cue": "The fix"
       },
       {
@@ -809,6 +818,10 @@
       "text": "multiple definition of `counter'",
       "tone": "bad",
       "cue": "of counter"
+     },
+     "area": {
+      "x": 100,
+      "w": 1720
      }
     }
    ]
@@ -824,10 +837,10 @@
       "input": "n = 5, then addOne(n)",
       "output": "value: 5, reference: 6, pointer: 6"
      },
-     "say": "Questions six and seven. One variable, n equals five, goes into addOne. For example, three ways to hand it over. We want to know which ones change n.",
+     "say": "A function adds one to a variable. Our variable n equals five. Three ways to hand it over. Which ones let the function change n?",
      "cues": {
-      "example": "For example",
-      "output": "We want to know"
+      "example": "Our variable n equals five",
+      "output": "Which ones let"
      }
     },
     {
@@ -878,7 +891,7 @@
        "h": 160,
        "text": "5",
        "cue": "makes x",
-       "label": "addOne: x",
+       "label": "photocopy of n",
        "size": 64,
        "tone": "warn"
       }
@@ -911,13 +924,13 @@
      ]
     },
     {
-     "type": "diagram",
+     "type": "code",
      "head": "2 · By reference: an alias",
-     "say": "By reference. The ampersand means x is not a copy. It's a second name on the same document. Add one through x, and n itself becomes six. Nothing was copied.",
+     "say": "By reference. The ampersand means x is not a copy. It's a second name on the same document. Add one through x, and n itself becomes six. Nothing was copied. Print n, and it shows six.",
      "panels": [
       {
        "file": "reference.cpp",
-       "code": "void addOne(int& x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n}"
+       "code": "void addOne(int& x) {\n    x = x + 1;\n}\n\nint main() {\n    int n = 5;\n    addOne(n);\n    cout << n;\n}"
       }
      ],
      "steps": [
@@ -929,68 +942,37 @@
       },
       {
        "lines": [
+        1
+       ],
+       "cue": "second name"
+      },
+      {
+       "lines": [
         2
        ],
        "cue": "Add one through x"
-      }
-     ],
-     "items": [
-      {
-       "id": "n",
-       "x": 1060,
-       "y": 400,
-       "w": 300,
-       "h": 160,
-       "text": "5",
-       "label": "main: n",
-       "size": 64,
-       "tone": "blue"
       },
       {
-       "id": "x",
-       "x": 1500,
-       "y": 400,
-       "w": 300,
-       "h": 160,
-       "text": "= n",
-       "cue": "second name",
-       "label": "addOne: x",
-       "size": 64,
-       "tone": "ghost"
+       "lines": [
+        7
+       ],
+       "cue": "Nothing was copied"
       }
      ],
-     "arrows": [
-      {
-       "from": "x",
-       "to": "n",
-       "cue": "second name"
+     "output": {
+      "cmd": "./reference",
+      "text": "6",
+      "tone": "good",
+      "cue": "it shows six",
+      "setup": {
+       "reference.cpp": "#include <iostream>\nusing namespace std;"
       }
-     ],
-     "changes": [
-      {
-       "id": "n",
-       "text": "6",
-       "tone": "good",
-       "cue": "n itself becomes six"
-      }
-     ]
-    },
-    {
-     "type": "quiz",
-     "say": "Your turn. Now the function takes a pointer. Main passes the address of n. The function adds one to whatever star x points at. What is n afterwards? Pause and predict.",
-     "q": "`addOne(&n)` runs `*x = *x + 1` with n = 5. What is n afterwards?",
-     "options": [
-      "5",
-      "6",
-      "An address",
-      "Crash"
-     ],
-     "answer": "6"
+     }
     },
     {
      "type": "diagram",
      "head": "3 · By pointer: a copy of the address",
-     "say": "Six. x holds a copy of n's address, a note saying where n lives. Star x follows the note to the real n, and adds one. The caller wrote ampersand n, so it's obvious n may change. But x could be null, so check it first.",
+     "say": "By pointer. x holds a copy of n's address, a note saying where n lives. Star x follows the note to the real n, and adds one. The caller wrote ampersand n, so it's obvious n may change. But x could be null, so check it first.",
      "panels": [
       {
        "file": "pointer.cpp",
@@ -1074,13 +1056,91 @@
      ]
     },
     {
+     "type": "quiz",
+     "say": "Your turn. Same pointer, new rule: multiply the value by three, not add one. Start with n equal to five. What is n afterwards? Pause and predict.",
+     "q": "Same pointer, but `*x = *x * 3` with n = 5. What is n afterwards?",
+     "options": [
+      "5",
+      "8",
+      "15",
+      "Crash"
+     ],
+     "answer": "15",
+     "optCue": "Your turn"
+    },
+    {
+     "type": "diagram",
+     "head": "Same pointer, times three",
+     "say": "Fifteen. Star x follows the note to n, and multiplies its value by three. The note never changes. Only the value at its target does.",
+     "panels": [
+      {
+       "file": "pointer.cpp",
+       "code": "void addOne(int* x) {\n    *x = *x * 3;\n}\n\nint main() {\n    int n = 5;\n    addOne(&n);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "multiplies its value"
+      }
+     ],
+     "items": [
+      {
+       "id": "n",
+       "x": 1060,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "5",
+       "label": "main: n",
+       "size": 64,
+       "tone": "blue"
+      },
+      {
+       "id": "x",
+       "x": 1500,
+       "y": 400,
+       "w": 300,
+       "h": 160,
+       "text": "&n",
+       "label": "addOne: x",
+       "size": 64,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "x",
+       "to": "n",
+       "bend": -70,
+       "cue": "follows the note"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n",
+       "text": "15",
+       "tone": "good",
+       "cue": "Fifteen"
+      },
+      {
+       "id": "x",
+       "glow": true,
+       "tone": "warn",
+       "cue": "The note never changes"
+      }
+     ]
+    },
+    {
      "type": "code",
      "head": "One assignment tells them apart",
      "say": "Now pointer against reference. Both start at a. The pointer p stores a's address. The reference r is not a separate variable. It's another name for a. Point p at b, and p moves. But r equals b copies twenty into a, because r is a, forever. Print them: twenty, twenty, twenty.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int main() {\n    int a = 10, b = 20;\n    int* p = &a;   // stores a's address\n    int& r = a;    // r IS a\n    p = &b;        // p points to b\n    r = b;         // copies 20 into a!\n    cout << a << ' ' << b << ' ' << *p;\n}"
+       "code": "int main() {\n    int a = 10, b = 20;\n    int* p = &a;\n    int& r = a; \n    p = &b;     \n    r = b;      \n    cout << a << ' ' << b << ' ' << *p;\n}"
       }
      ],
      "steps": [
@@ -1131,7 +1191,7 @@
      "panels": [
       {
        "file": "rules.cpp",
-       "code": "int main() {\n    int* q = nullptr;  // allowed\n    int& r;            // no value\n    int arr[3] = {1, 2, 3};\n    int* it = arr;\n    it++;  // now at arr[1]\n}"
+       "code": "int main() {\n    int* q = nullptr;\n    int& r;\n    int arr[3] = {1, 2, 3};\n    int* it = arr;\n    it++;\n}"
       }
      ],
      "steps": [
@@ -1227,16 +1287,16 @@
       "input": "f(): a = 5, p = new int(42)",
       "output": "a, p on the stack; 42 on the heap"
      },
-     "say": "Question four. Two places hold your data. For example, a function with a local a, and a new int. We want to know who lives where, and when each disappears.",
+     "say": "Two places hold your data. Take a function with a local a, and a new int. Who lives where, and when does each one disappear?",
      "cues": {
-      "example": "For example",
-      "output": "We want to know"
+      "example": "Take a function",
+      "output": "Who lives where"
      }
     },
     {
      "type": "flow",
      "head": "Plates and a warehouse",
-     "say": "Think of two storage spaces. The stack is a pile of plates: the newest goes on top, and it's cleared automatically. The heap is a warehouse: you ask for space, and you must give it back.",
+     "say": "Think of two storage spaces. The stack is a pile of plates. Newest goes on top, and it's cleared automatically. The heap is a warehouse. You ask for space, and you must give it back.",
      "items": [
       {
        "label": "stack",
@@ -1385,7 +1445,7 @@
     {
      "type": "compare",
      "head": "Stack versus heap",
-     "say": "Who manages it? The compiler, against you or a smart pointer. Lifetime: until the scope ends, against until freed. Speed: the stack just moves one pointer. Size: a few megabytes, against most of the R A M. Typical bugs: overflow, against leaks and dangling pointers.",
+     "say": "Who manages it? The compiler, against you or a smart pointer. Lifetime: until the scope ends, against until freed. Speed: the stack moves one pointer. Size: a few megabytes, against most of the R A M. Typical bugs: overflow, against leaks and dangling pointers.",
      "heads": [
       "Stack",
       "Heap"
@@ -1437,12 +1497,13 @@
       "Compile error",
       "Heap takes over"
      ],
-     "answer": "Stack overflow crash"
+     "answer": "Stack overflow crash",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
      "head": "Size matters",
-     "say": "A stack overflow: it usually crashes, as the stack is small. A vector fixes it. The vector object sits on the stack, but its ten million elements live on the heap, and it frees them itself. Prefer the stack, and reach the heap through vector, not raw new.",
+     "say": "A stack overflow: it usually crashes, since the stack is small, often one to eight megabytes. A vector fixes it. The vector object sits on the stack, but its ten million elements live on the heap, and it frees them itself. Prefer the stack, and reach the heap through vector, not raw new.",
      "panels": [
       {
        "file": "bad.cpp",
@@ -1500,10 +1561,10 @@
       "input": "static  ·  const  ·  constexpr",
       "output": "lifetime · can it change · compile time"
      },
-     "say": "Question five. Three keywords that look related. For example, static, const, constexpr. We want what each one promises.",
+     "say": "Three keywords look related, and people mix them up. Here they are, side by side. What does each one promise?",
      "cues": {
-      "example": "For example",
-      "output": "We want what"
+      "example": "Here they are",
+      "output": "What does each one promise"
      }
     },
     {
@@ -1535,7 +1596,7 @@
     {
      "type": "code",
      "head": "static: how long it lives",
-     "say": "First, static as lifetime. A static local is created once, the first time the function runs, and keeps its value between calls. Call counter twice. Then print the third call. It prints three, not one.",
+     "say": "First, static as lifetime. A static local is initialized once, and keeps its value between calls. Call counter twice. Then print the third call. It prints three, not one.",
      "panels": [
       {
        "file": "counter.cpp",
@@ -1547,7 +1608,7 @@
        "lines": [
         2
        ],
-       "cue": "created once"
+       "cue": "initialized once"
       },
       {
        "lines": [
@@ -1586,7 +1647,7 @@
      "panels": [
       {
        "file": "player.cpp",
-       "code": "static int helper() { return 1; }\n\nclass Player {\npublic:\n    static int count;\n    Player() { ++count; }\n};\nint Player::count = 0;\n\nPlayer a, b, c;   // count is 3"
+       "code": "static int helper() { return 1; }\n\nclass Player {\npublic:\n    static int count;\n    Player() { ++count; }\n};\nint Player::count = 0;\n\nPlayer a, b, c;"
       }
      ],
      "steps": [
@@ -1630,7 +1691,8 @@
       "Both fail",
       "Neither fails"
      ],
-     "answer": "constexpr int b = n;"
+     "answer": "constexpr int b = n;",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
@@ -1733,10 +1795,10 @@
       "input": "struct A { int x; };  class B { int x; };",
       "output": "A::x is public, B::x is private"
      },
-     "say": "Question eight, the shortest answer of all. For example, two types with one member each. We want the difference, and which to pick.",
+     "say": "The answer is short, but it's a common trap. Two types, one member each. What is the difference, and which one do you pick?",
      "cues": {
-      "example": "For example",
-      "output": "We want the difference"
+      "example": "Two types",
+      "output": "What is the difference"
      }
     },
     {
@@ -1792,7 +1854,8 @@
       "Only inside D",
       "Warning only"
      ],
-     "answer": "No: private base"
+     "answer": "No: private base",
+     "optCue": "Your turn"
     },
     {
      "type": "code",
@@ -1801,7 +1864,7 @@
      "panels": [
       {
        "file": "inherit.cpp",
-       "code": "struct Base { int v; };\n\nstruct D1 : Base {};  // public\nclass  D2 : Base {};  // private\n\nint main() {\n    D1 d1;  d1.v = 1;\n    D2 d2;  d2.v = 1;\n}"
+       "code": "struct Base { int v; };\n\nstruct D1 : Base {};\nclass  D2 : Base {};\n\nint main() {\n    D1 d1;  d1.v = 1;\n    D2 d2;  d2.v = 1;\n}"
       }
      ],
      "steps": [
@@ -1910,34 +1973,38 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "What happens when you compile and run? Preprocess, compile, assemble, link. Which tool reports? Types, the compiler. Undefined reference, the linker. Then? The O S loads it, calls main. Return value is the exit code.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Compile and run?",
-       "Preprocess, compile, assemble, link"
-      ],
-      [
-       "Who reports what?",
-       "Types: compiler. Undefined reference: linker"
-      ],
-      [
-       "Then?",
-       "OS loads it, calls main; return = exit code"
-      ]
-     ],
-     "cues": [
-      "What happens",
-      "Which tool",
-      "Then"
-     ],
+     "type": "flow",
+     "head": "Compile and run, in order",
      "covers": [
       "q02"
+     ],
+     "say": "What happens when you compile and run? Four tools: preprocess, compile, assemble, link. Compiler reports types. Linker reports undefined references. The O S loads it.",
+     "items": [
+      {
+       "label": "1",
+       "text": "preprocess",
+       "sub": "headers, macros",
+       "cue": "preprocess"
+      },
+      {
+       "label": "2",
+       "text": "compile",
+       "sub": "type errors",
+       "cue": "compile,"
+      },
+      {
+       "label": "3",
+       "text": "assemble",
+       "sub": "machine code",
+       "cue": "assemble"
+      },
+      {
+       "label": "4",
+       "text": "link",
+       "sub": "undefined reference",
+       "tone": "good",
+       "cue": "link."
+      }
      ]
     },
     {
@@ -2003,70 +2070,69 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "What does static mean? Lifetime and visibility, not constant. Const? Read only after it's set, maybe at run time. Constexpr? Known at compile time, and implies const.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "static?",
-       "Lifetime and visibility, not constness"
-      ],
-      [
-       "const?",
-       "Read-only once set; may be set at run time"
-      ],
-      [
-       "constexpr?",
-       "Known at compile time; implies const"
-      ]
-     ],
-     "cues": [
-      "What does static",
-      "Const",
-      "Constexpr"
-     ],
+     "type": "flow",
+     "head": "Static, const, constexpr",
      "covers": [
       "q05"
+     ],
+     "say": "What does static mean? Lifetime and visibility, not constness. Const? Read only once set, maybe at run time. Constexpr? Known at compile time, and it implies const.",
+     "items": [
+      {
+       "label": "static",
+       "text": "lifetime",
+       "sub": "and visibility",
+       "cue": "What does static"
+      },
+      {
+       "label": "const",
+       "text": "read only",
+       "sub": "once set",
+       "cue": "Const? Read"
+      },
+      {
+       "label": "constexpr",
+       "text": "compile time",
+       "sub": "implies const",
+       "tone": "good",
+       "cue": "Constexpr?"
+      }
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "By value? A copy, so the caller is unchanged. By reference? An alias, no copy, and the caller sees changes. By pointer? A copy of an address, which can be null, so check it. Big read only objects? Const reference.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "By value?",
-       "A copy: caller unchanged"
-      ],
-      [
-       "By reference?",
-       "An alias: no copy, caller sees changes"
-      ],
-      [
-       "By pointer?",
-       "Copy of an address: can be null, check it"
-      ],
-      [
-       "Big read-only object?",
-       "`const T&`"
-      ]
-     ],
-     "cues": [
-      "By value",
-      "By reference",
-      "By pointer",
-      "Big read"
-     ],
+     "type": "flow",
+     "head": "Value, reference, pointer",
      "covers": [
       "q06"
+     ],
+     "say": "By value? A copy, so the caller is unchanged. By reference? An alias, no copy, and the caller sees changes. By pointer? A copy of an address, which can be null, so check it. Big read only objects? Const reference.",
+     "items": [
+      {
+       "label": "by value",
+       "text": "a copy",
+       "sub": "caller unchanged",
+       "cue": "By value?"
+      },
+      {
+       "label": "by reference",
+       "text": "an alias",
+       "sub": "caller sees changes",
+       "tone": "good",
+       "cue": "By reference?"
+      },
+      {
+       "label": "by pointer",
+       "text": "an address",
+       "sub": "can be null",
+       "tone": "warn",
+       "cue": "By pointer?"
+      },
+      {
+       "label": "big, read only",
+       "text": "const T&",
+       "sub": "no copy",
+       "tone": "blue",
+       "cue": "Big read"
+      }
      ]
     },
     {
@@ -2101,35 +2167,68 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Struct versus class? Only default access: public, or private. Inheritance? Same default. Which one do you use? Struct for plain data, class for invariants.",
-     "heads": [
-      "They ask",
-      "You say"
+     "type": "quiz",
+     "say": "Your turn, a self-test. Box is a struct, Tag is a class, and each has one int v. Which assignment fails to compile? Pause and predict.",
+     "q": "Box is a struct with one int v. Tag is a class with one int v. Which assignment fails?",
+     "options": [
+      "b.v = 1 on Box",
+      "t.v = 1 on Tag",
+      "Both fail",
+      "Neither fails"
      ],
-     "rows": [
-      [
-       "struct vs class?",
-       "Only default access: public vs private"
-      ],
-      [
-       "Inheritance?",
-       "Same default: public vs private"
-      ],
-      [
-       "Which to use?",
-       "struct: plain data; class: invariants"
-      ]
-     ],
-     "cues": [
-      "Struct versus",
-      "Inheritance",
-      "Which one"
-     ],
+     "answer": "t.v = 1 on Tag",
+     "pause": 5,
+     "optCue": "Your turn"
+    },
+    {
+     "type": "code",
+     "head": "Struct versus class, in one run",
      "covers": [
       "q08"
-     ]
+     ],
+     "say": "The Tag line fails. Box is a struct, so v is public. Tag is a class, so v is private. Struct versus class: only default access. Inheritance: same default. Struct for plain data, class for invariants.",
+     "panels": [
+      {
+       "file": "tag.cpp",
+       "code": "struct Box { int v; };\nclass Tag { int v; };\n\nint main() {\n    Box b;  b.v = 1;\n    Tag t;  t.v = 1;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6
+       ],
+       "cue": "The Tag line fails"
+      },
+      {
+       "lines": [
+        1,
+        5
+       ],
+       "cue": "Box is a struct"
+      },
+      {
+       "lines": [
+        2,
+        6
+       ],
+       "cue": "Tag is a class"
+      },
+      {
+       "lines": [],
+       "cue": "only default access"
+      },
+      {
+       "lines": [],
+       "cue": "Struct for plain data"
+      }
+     ],
+     "output": {
+      "cmd": "g++ tag.cpp 2>&1 | grep error",
+      "text": "tag.cpp:6:15: error: ‘int Tag::v’ is private within this context",
+      "tone": "bad",
+      "cue": "The Tag line fails"
+     }
     }
    ]
   },
