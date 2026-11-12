@@ -4,10 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const SFX = new URL("./sfx", import.meta.url).pathname;
-const LEAD = 0.45, TAIL = 0.8;
+import { LEAD, TAIL, esc, r3, hlInline, cueTime } from "./util.mjs";
+import { sceneHook, sceneQuiz, sceneChapter, sceneChart, expandMacros } from "./scenes-v2.mjs";
+
 const SFXLEN = { "click.mp3": 0.37, "click-soft.mp3": 0.37, "error.mp3": 1.62, "key-press.mp3": 0.4, "pop.mp3": 0.72, "sparkle.mp3": 1.8, "whoosh.mp3": 0.57, "whoosh-short.mp3": 0.57 };
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const r3 = (n) => Math.round(n * 1000) / 1000;
 
 // ---------- tiny highlighter (language from panel file extension) ----------
 const KWS = {
@@ -44,15 +44,6 @@ function hl(line, lang = "cpp") {
 }
 const langOf = (file) => LANG[(file || "main.cpp").split(".").pop().toLowerCase()] || "cpp";
 
-// ---------- timing ----------
-function cueTime(sc, cue) {
-  if (cue === undefined || cue === null) return sc.t0 + LEAD;
-  if (typeof cue === "number") return sc.t0 + LEAD + cue * sc.vo;
-  const i = sc.say.toLowerCase().indexOf(cue.toLowerCase());
-  if (i < 0) throw new Error(`cue "${cue}" not in: ${sc.say}`);
-  return sc.t0 + LEAD + (i / sc.say.length) * sc.vo;
-}
-
 // ---------- scene renderers: return {html, tw:[js lines], sfx:[{t,file,vol}]} ----------
 function codePanels(sc, sid, panels, area) {
   let html = "", tw = [];
@@ -61,17 +52,31 @@ function codePanels(sc, sid, panels, area) {
   panels.forEach((p, k) => {
     const lines = p.code.replace(/\n$/, "").split("\n");
     const maxC = Math.max(...lines.map((l) => l.length), 20);
-    const fs_ = Math.floor(Math.min(p.size || 46, (pw - 150) / (maxC * 0.61), (area.h - 90) / (lines.length * 1.55)));
+    const fs_ = Math.max(32, Math.floor(Math.min(p.size || 46, (pw - 150) / (maxC * 0.61), (area.h - 90) / (lines.length * 1.55))));
     const lh = Math.round(fs_ * 1.55);
     const h = lines.length * lh + 96;
     const x = area.x + k * (pw + gap);
     const pid = `${sid}-p${k}`;
     html += `<div class="panel" id="${pid}" style="left:${x}px;top:${area.y}px;width:${pw}px;height:${h}px">
 <div class="bar" data-layout-ignore><b></b><b></b><b></b><span>${esc(p.file || "main.cpp")}</span>${p.label ? `<em class="tag ${p.tone || ""}">${esc(p.label)}</em>` : ""}</div>
-<pre style="font-size:${fs_}px;line-height:${lh}px">${lines.map((l, j) => `<div class="ln" id="${pid}-l${j + 1}"><u>${j + 1}</u>${hl(l, langOf(p.file))}</div>`).join("")}</pre></div>`;
+<pre style="font-size:${fs_}px;line-height:${lh}px">${lines.map((l, j) => `<div class="ln" id="${pid}-l${j + 1}"><u>${j + 1}</u>${p.type ? `<span class="tx">${hl(l, langOf(p.file))}</span>` : hl(l, langOf(p.file))}</div>`).join("")}${p.type ? `<div class="caret" id="${pid}-c" style="height:${lh - 8}px"></div>` : ""}</pre></div>`;
     tw.push(`tl.fromTo("#${pid}",{opacity:0,y:30},{opacity:1,y:0,duration:0.5,ease:"power3.out"},${r3(sc.t0 + 0.1 + k * 0.15)});`);
-    tw.push(`tl.fromTo("#${pid} .ln",{opacity:0,x:-12},{opacity:1,x:0,duration:0.25,stagger:0.035,ease:"power2.out"},${r3(sc.t0 + 0.3 + k * 0.15)});`);
     p._geo = { x, y: area.y, w: pw, h, lh, top: area.y + 48 + 24, n: lines.length, pid };
+    if (p.type) { // typewriter: clip each line open in char steps, caret follows
+      let ts = Math.max(sc.t0 + 0.3 + k * 0.15, p.cue !== undefined ? cueTime(sc, p.cue) : 0);
+      const cw = fs_ * 0.6;
+      lines.forEach((l, j) => {
+        if (!l.length) return;
+        const d = Math.min(0.6, Math.max(0.12, l.length * 0.025));
+        tw.push(`tl.fromTo("#${pid}-l${j + 1} .tx",{clipPath:"inset(-8px 100% -8px 0)"},{clipPath:"inset(-8px -12px -8px 0)",duration:${r3(d)},ease:"steps(${l.length})"},${r3(ts)});`);
+        tw.push(`tl.set("#${pid}-c",{opacity:1},${r3(ts)});tl.fromTo("#${pid}-c",{x:0,y:${j * lh}},{x:${r3(l.length * cw)},duration:${r3(d)},ease:"steps(${l.length})"},${r3(ts)});`);
+        ts += d + 0.05;
+      });
+      tw.push(`tl.set("#${pid}-c",{opacity:0},${r3(ts + 0.5)});`);
+      sc._revealEnd = Math.max(sc._revealEnd || 0, ts + 0.2);
+      return;
+    }
+    tw.push(`tl.fromTo("#${pid} .ln",{opacity:0,x:-12},{opacity:1,x:0,duration:0.25,stagger:0.035,ease:"power2.out"},${r3(sc.t0 + 0.3 + k * 0.15)});`);
     sc._revealEnd = Math.max(sc._revealEnd || 0, sc.t0 + 0.3 + k * 0.15 + 0.035 * lines.length + 0.3);
   });
   return { html, tw };
@@ -157,10 +162,9 @@ function sceneCompare(sc, sid, sfx) {
   void cols;
   return { html: html + "</div>", tw };
 }
-// `code` inside backticks in prose cells
-const hlInline = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
 
 function sceneDiagram(sc, sid, sfx) {
+  const ex = expandMacros(sc); sc.items = ex.items; sc.arrows = [...(sc.arrows || []), ...ex.arrows];
   let html = `<svg class="wires" width="1920" height="1080" viewBox="0 0 1920 1080">`, tw = [];
   let pre = "";
   if (sc.panels) {
@@ -171,11 +175,11 @@ function sceneDiagram(sc, sid, sfx) {
   let divs = "";
   for (const b of sc.items || []) {
     const id = `${sid}-${b.id}`, t = r3(cueTime(sc, b.cue));
-    const vals = [b.text ?? "", ...(sc.changes || []).filter((c) => c.id === b.id && c.text !== undefined).map((c) => c.text)];
+    const vals = [b.text ?? "", ...(sc.changes || []).filter((c) => c.id === b.id && c.text !== undefined).map((c) => c.text), ...(sc.changes || []).filter((c) => c.id === b.id && c.count).map((c) => c.count[1])];
     if (b.region) {
       divs += `<div class="region ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px"><span>${esc(b.label)}</span></div>`;
     } else {
-      divs += `<div class="box ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px">${b.label ? `<div class="lbl">${hlInline(b.label)}</div>` : ""}<div class="val" style="font-size:${Math.floor(Math.min(b.size || 40, (b.w - 28) / (Math.max(...vals.map((v) => String(v).replace(/`/g, "").length), 1) * 0.62)))}px">${vals.map((v, k) => `<span id="${id}-v${k}" style="opacity:${k ? 0 : 1}">${hlInline(v)}</span>`).join("")}</div>${b.sub ? `<div class="sub">${hlInline(b.sub)}</div>` : ""}</div>`;
+      divs += `<div class="box ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px">${b.label ? `<div class="lbl">${hlInline(b.label)}</div>` : ""}<div class="val" style="font-size:${Math.max(32, Math.floor(Math.min(b.size || 40, (b.w - 28) / (Math.max(...vals.map((v) => String(v).replace(/`/g, "").length), 1) * 0.62))))}px">${vals.map((v, k) => `<span id="${id}-v${k}" style="opacity:${k ? 0 : 1}">${hlInline(v)}</span>`).join("")}</div>${b.sub ? `<div class="sub">${hlInline(b.sub)}</div>` : ""}</div>`;
     }
     tw.push(`tl.fromTo("#${id}",{opacity:0,scale:0.92},{opacity:1,scale:1,duration:0.45,ease:"back.out(1.6)"},${t});`);
     if (!b.region && b.cue !== undefined) tw.push(glow(id, b.tone, t + 0.2));
@@ -216,6 +220,7 @@ function sceneDiagram(sc, sid, sfx) {
       tw.push(`tl.to("#${id}",{scale:1.08,duration:0.15,yoyo:true,repeat:1},${t});`, glow(id, c.tone, t));
       sfx.push({ t, file: "click.mp3", vol: 0.2 });
     }
+    if (c.count) tw.push(`tl.fromTo("#${id}-v0",{innerText:${c.count[0]}},{innerText:${c.count[1]},duration:${c.dur ?? 1},ease:"power1.out",snap:{innerText:1}},${t});`, glow(id, c.tone, t));
     const col = { bad: "#f07178", good: "#aad94c", warn: "#ffb454", info: "#59c2ff", dim: "#4a5060" }[c.tone];
     if (col && /^a\d+$/.test(c.id)) tw.push(`tl.to("#${id}-p",{stroke:"${col}",duration:0.3},${t});tl.to("#${id}-h",{fill:"${col}",duration:0.3},${t});`);
     else if (col) tw.push(`tl.to("#${id}",{borderColor:"${col}",duration:0.3},${t});`);
@@ -284,20 +289,21 @@ function build(specPath) {
   let t = 0, scenesHtml = "", tws = [], audio = "", caps = "";
   const sfx = [];
   spec.scenes.forEach((sc, i) => {
-    sc.vo = durs[`s${i}`].dur; sc.t0 = t;
-    const dur = r3(LEAD + sc.vo + (sc.hold ?? TAIL));
+    if (sc.say === undefined && sc.type !== "chapter") throw new Error(`scene ${i} (${sc.type}) needs "say"`);
+    sc.vo = sc.say === undefined ? 0 : durs[`s${i}`].dur; sc.t0 = t;
+    const dur = sc.type === "chapter" ? 2.5 : r3(LEAD + sc.vo + (sc.type === "quiz" ? sc.pause ?? 3 : 0) + (sc.hold ?? TAIL));
     const sid = `s${i}`;
-    const r = { title: () => sceneTitle(sc, sid, spec), code: () => sceneCode(sc, sid, sfx), compare: () => sceneCompare(sc, sid, sfx), diagram: () => sceneDiagram(sc, sid, sfx), flow: () => sceneFlow(sc, sid, sfx), take: () => sceneTake(sc, sid, sfx) }[sc.type]();
+    const r = { title: () => sceneTitle(sc, sid, spec), code: () => sceneCode(sc, sid, sfx), compare: () => sceneCompare(sc, sid, sfx), diagram: () => sceneDiagram(sc, sid, sfx), flow: () => sceneFlow(sc, sid, sfx), take: () => sceneTake(sc, sid, sfx), hook: () => sceneHook(sc, sid, sfx), quiz: () => sceneQuiz(sc, sid, sfx), chapter: () => sceneChapter(sc, sid, sfx), chart: () => sceneChart(sc, sid, sfx) }[sc.type]();
     const head = sc.head ? `<div class="head" id="${sid}-head">${hlInline(sc.head)}</div>` : "";
     scenesHtml += `<section id="${sid}" class="clip scene" data-start="${r3(t)}" data-duration="${dur}" data-track-index="1">${head}${r.html}</section>\n`;
     if (sc.head) tws.push(`tl.fromTo("#${sid}-head",{opacity:0,x:-30},{opacity:1,x:0,duration:0.5,ease:"power3.out"},${r3(t + 0.05)});`);
-    tws.push(...r.tw);
+    tws.push(`// ${sid} t0=${r3(t)}`, ...r.tw);
     // scene exit
     tws.push(`tl.to("#${sid} > *",{opacity:0,duration:0.3},${r3(t + dur - 0.35)});`);
-    audio += `<audio id="vo${i}" class="clip" src="assets/vo/s${i}.wav" data-start="${r3(t + LEAD)}" data-duration="${sc.vo}" data-track-index="10" data-volume="1"></audio>\n`;
+    if (sc.say !== undefined) audio += `<audio id="vo${i}" class="clip" src="assets/vo/s${i}.wav" data-start="${r3(t + LEAD)}" data-duration="${sc.vo}" data-track-index="10" data-volume="1"></audio>\n`;
     if (i > 0) sfx.push({ t: r3(t), file: i % 2 ? "whoosh-short.mp3" : "whoosh.mp3", vol: 0.1 });
     // captions: sentence-level, timed by character position
-    const sents = (sc.say.match(/[^.!?]+[.!?]+["')]*\s*|[^.!?]+$/g) || [sc.say]).flatMap((s) => {
+    const sents = sc.say === undefined ? [] : (sc.say.match(/[^.!?]+[.!?]+["')]*\s*|[^.!?]+$/g) || [sc.say]).flatMap((s) => {
       if (s.split(/\s+/).length <= 14) return [s];
       const parts = s.match(/[^,;:]+[,;:]?\s*/g), out = [];
       for (const p of parts) { if (out.length && (out.at(-1) + p).split(/\s+/).length <= 14) out[out.length - 1] += p; else out.push(p); }
@@ -323,11 +329,11 @@ function build(specPath) {
     audio += `<audio id="fx${k++}" class="clip" src="assets/sfx/${s.file}" data-start="${s.t}" data-duration="${SFXLEN[s.file]}" data-track-index="${11 + (k % 2)}" data-volume="${s.vol}"></audio>\n`;
   }
   const total = r3(t);
-  const html = fs.readFileSync("template.html", "utf8")
+  const html = fs.readFileSync(new URL("./template.html", import.meta.url), "utf8")
     .replace("%TITLE%", esc(`${spec.series ? spec.series + " " : "Q"}${spec.num}: ${spec.question}`))
     .replaceAll("%DUR%", total).replace("%BRAND%", ({ Backend: "BE", SWE: "SWE", DSA: "DSA", Frontend: "FE", "AI Eval": "AI" })[spec.series] || "C++").replace("%QCHIP%", `${spec.series ? esc(spec.series) + " " : "Q"}${spec.num} · ${esc(spec.short)}`)
     .replace("%SCENES%", scenesHtml).replace("%CAPS%", caps).replace("%AUDIO%", audio)
-    .replace("%TWEENS%", tws.join("\n") + `\ntl.fromTo("#prog",{scaleX:0},{scaleX:1,duration:${total},ease:"none"},0);`);
+    .replace("%TWEENS%", tws.join("\n") + `\n// global\ntl.fromTo("#prog",{scaleX:0},{scaleX:1,duration:${total},ease:"none"},0);`);
   fs.writeFileSync(path.join(dir, "index.html"), html);
   console.log(`${dir}: ${spec.scenes.length} scenes, ${total}s`);
 }

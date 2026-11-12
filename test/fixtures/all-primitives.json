@@ -1,0 +1,39 @@
+{
+ "id": "t1fx",
+ "num": 99,
+ "series": "DSA",
+ "short": "All primitives",
+ "question": "Engine v2 fixture",
+ "scenes": [
+  {"type": "hook", "say": "Ever recount a window from scratch? Stop doing that. There is a better way.",
+   "lines": [{"text": "Recount every window?", "cue": "Ever recount"}, {"text": "Stop.", "cue": "Stop doing that"}, {"text": "Slide it.", "cue": "better way", "accent": "Slide"}]},
+  {"type": "chapter", "n": 1, "title": "Sliding window"},
+  {"type": "diagram", "head": "Array, count, move, glow",
+   "say": "Here is our array. The sum counts up. Then the window moves over.",
+   "items": [
+    {"array": {"id": "arr", "values": [2, 1, 5, 1, 3], "y": 380, "cue": "Here is our array"}},
+    {"id": "sum", "x": 760, "y": 640, "w": 400, "h": 160, "text": "0", "size": 80, "tone": "warn", "label": "sum", "cue": "The sum"},
+    {"id": "win", "x": 330, "y": 760, "w": 300, "h": 100, "text": "window", "tone": "good", "cue": "Here is our array"}
+   ],
+   "arrows": [{"from": "arr0", "to": "sum", "cue": "The sum"}],
+   "changes": [
+    {"id": "sum", "count": [0, 8], "cue": "counts up"},
+    {"id": "win", "move": [1000, 900], "cue": "window moves"},
+    {"id": "arr2", "glow": true, "tone": "good", "cue": "window moves"}
+   ]},
+  {"type": "diagram", "head": "Tree", "say": "A tree has a root and two children.",
+   "items": [{"tree": {"id": "tr", "nodes": [[8, -1], [3, 0], [10, 0], [1, 1], [6, 1]], "cue": "A tree"}}]},
+  {"type": "diagram", "head": "List and stack", "say": "A linked list points along. A stack grows upward.",
+   "items": [
+    {"list": {"id": "ls", "values": [4, 7, 9], "y": 300, "cue": "A linked list"}},
+    {"stack": {"id": "st", "values": ["a", "b", "c"], "x": 760, "y": 700, "cue": "A stack"}}
+   ]},
+  {"type": "chart", "head": "Growth", "say": "Linear is small. Quadratic is bigger. Cubic explodes.", "unit": "ops",
+   "bars": [{"label": "O(n)", "value": 10, "tone": "good", "cue": "Linear"}, {"label": "O(n2)", "value": 100, "tone": "warn", "cue": "Quadratic"}, {"label": "O(n3)", "value": 1000, "tone": "bad", "cue": "Cubic"}]},
+  {"type": "code", "head": "Typed code", "say": "Watch this code type itself out line by line.",
+   "panels": [{"file": "a.cpp", "type": true, "code": "int sum = 0;\nfor (int i = 0; i < 3; i++)\n  sum += a[i];\n"}]},
+  {"type": "quiz", "q": "Which is O(n)?", "options": ["Nested loop", "Sliding window", "Sort", "Binary search"], "answer": 1, "pause": 3,
+   "say": "Quick quiz. Which one is linear? Think."},
+  {"type": "take", "say": "Remember this.", "lines": ["Add and subtract"]}
+ ]
+}
