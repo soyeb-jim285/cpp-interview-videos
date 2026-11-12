@@ -58,6 +58,16 @@ chapter (recap)   : Practice card → take (last scene of the lesson)
 5. **Common trap.** The mistake candidates make, shown (red note on the bad line, a `compare` bug/fix table, an
    output that is wrong).
 
+### Story, stakes, shown answers
+
+- **Story & stakes.** Every teach chapter opens with a tiny story or stake: a real interview moment, a production
+  outage, a puzzle, or "most candidates do X, and fail because...". One light touch of humor or surprise per chapter
+  (a dry aside, an absurd example). Still no hype words.
+- **Quiz answers are shown.** The scene after a quiz must visually demonstrate the answer (diagram change, chart,
+  code output), not only say it.
+- **No dead narration.** No scene may end with more than 4 s (about 11 words) of narration after its last reveal. Put
+  the explanation where something moves.
+
 Order may flex (a trap can come before the quiz), but every teach chapter has a quiz, ≥ 3 distinct scene types, and
 no type three times in a row. Chapter 1 (a teach chapter) opens with the hook, then **why it matters**, both inside it: one scene stating, in outcome
 language, what the viewer gains (the thesis lands by beat 2). Split the lesson into 3–5 teach chapters of 4–8 scenes;
@@ -262,7 +272,7 @@ Ops combine in one object when they are one motion: `{"id": "v0", "text": "no", 
 - **steps:** highlight `lines` (others dim) at `cue`; `{"lines": [], "cue": …}` un-dims all; `panel` picks the panel.
   Steps fire only after the code has finished appearing (about a second).
 - **notes:** pinned to code `line`. With one full-width panel always use `"inside": true` (the note sits at the
-  right end of the line). ≤ 32 chars. `bad` notes play an error sound: use them for the trap line.
+  right end of the line). ≤ 32 chars. A pinned note must not cover code: `[note-overlap]` fails if it would sit on its line's text (shorten the line or the note, or use a free-position `x`,`y` note). `bad` notes play an error sound: use them for the trap line.
 - **output:** terminal below the code: `cmd`, `text` (`\n` between lines, ≤ 3 lines), `cue`, `"tone": "bad"`
   for an error or wrong result. It must be the real output (§ 10).
 - Two panels: `"panels": [{…"label": "before"}, {…"label": "after"}]` for before/after or bug/fix.
@@ -383,6 +393,7 @@ go in a temp dir).
 | `[gap] no reveal for N words` | that scene has no cue phrases at all |
 | `[cue-order]` | reorder the list or pick a phrase that first occurs later |
 | `[say-length]` | `say` ≤ 90 words: split the scene |
+| `[note-overlap]` | shorten that code line or the note text, or use a free-position note (`x`,`y`) |
 | `[font-floor]` | shorten code lines / box text, fewer lines, or widen the box |
 | `… cue "…" not found in say` | every cue (steps, notes, output, rows, items, arrows, changes, hook lines, bars, panels, `optCue`) must be an exact substring of that scene's `say`; order/gap checks wait until all are found |
 | `[cue-count]` | one cue per compare row / take line |

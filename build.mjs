@@ -93,7 +93,7 @@ function focusSteps(sc, panels, steps = []) {
         return;
       }
       if (st.panel !== undefined && st.panel !== k) return;
-      tw.push(`tl.to("${all}",{opacity:0.38,backgroundColor:"rgba(0,0,0,0)",duration:0.3},${t});`);
+      tw.push(`tl.to("${all}",{opacity:0.6,backgroundColor:"rgba(0,0,0,0)",duration:0.3},${t});`);
       if (want.length) tw.push(`tl.to("${want.map((j) => `#${g.pid}-l${j}`).join(",")}",{opacity:1,backgroundColor:"rgba(255,180,84,0.16)",duration:0.3},${t});`);
     });
   }
@@ -145,7 +145,8 @@ function sceneCode(sc, sid, sfx) {
 
 function sceneCompare(sc, sid, sfx) {
   const cols = sc.heads.length + (sc.rowHeads ? 1 : 0);
-  let html = `<div class="cmp" id="${sid}-cmp" style="grid-template-columns:${sc.rowHeads ? "300px " : ""}repeat(${sc.heads.length},1fr)">`;
+  const big = sc.rows.length <= 3, small = sc.rows.length >= 6; // few rows: scale text and padding up to fill the band
+  let html = `<div class="cmp" id="${sid}-cmp" style="--cf:${big ? 46 : small ? 34 : 40}px;--rf:${big ? 40 : 32}px;--cp:${big ? 40 : small ? 18 : 28}px;grid-template-columns:${sc.rowHeads ? "300px " : ""}repeat(${sc.heads.length},1fr)">`;
   if (sc.rowHeads) html += `<div class="ch" style="background:none"></div>`;
   sc.heads.forEach((h, k) => (html += `<div class="ch h${k}">${esc(h)}</div>`));
   const tw = [`tl.fromTo("#${sid}-cmp .ch",{opacity:0,y:-16},{opacity:1,y:0,duration:0.4,stagger:0.1},${r3(sc.t0 + 0.2)});`];

@@ -53,6 +53,20 @@ function lessonScene(s, sc, at, panels, cuesOk) {
   [0, ...pos, n].forEach((p, i, a) => { if (i && p - a[i - 1] > 15) err(at, `[gap] ${p - a[i - 1]} words between reveals (max 15, ~6 s)`); });
 }
 
+// Pinned notes must not cover code: inside notes need to start past the end of nearby lines; outside notes must fit in frame.
+function noteOverlap(at, sc, panels, n) {
+  const a = sc.type === "code" ? { x: 160, w: 1600, h: sc.output ? 560 : 720, ...sc.area } : { x: 120, w: 840, h: 700, ...sc.area };
+  const k = n.panel || 0, pw = (a.w - 40 * (panels.length - 1)) / panels.length, x = a.x + k * (pw + 40);
+  const fs = Math.max(32, panelFont(panels[k], pw, a)), noteW = (n.text || "").length * 18 + 44;
+  const lines = panels[k].code.replace(/\n$/, "").split("\n");
+  if (!n.inside) { // ponytail: ignores side:"left"
+    if (n.side !== "left" && x + pw + 18 + noteW > 1880) err(at, `[note-overlap] note "${n.text}" runs off the frame; shorten the text, use "inside", or a free-position note`);
+    return;
+  }
+  const end = x + 90 + lines[n.line - 1].length * fs * 0.6;
+  if (x + pw - 24 - noteW < end + 12) err(at, `[note-overlap] note "${n.text}" covers code at line ${n.line}; shorten the line or the note, or use a free-position note`);
+}
+
 function lessonRules(f, s) {
   const sc = s.scenes || [], first = sc.find((x) => x.type !== "chapter");
   if (first?.type !== "hook") err(f, "[hook-first] first scene after chapter card must be a hook");
@@ -114,6 +128,7 @@ for (const f of process.argv.slice(2)) {
       for (const l of st.lines || []) if (!nLines[k] || l < 1 || l > nLines[k]) err(at, `step line ${l} out of range for panel ${k}`);
     }
     for (const n of sc.notes || []) {
+      if (s.chapters && n.line && panels[n.panel || 0]) noteOverlap(at, sc, panels, n);
       if (n.line && (!nLines[n.panel || 0] || n.line > nLines[n.panel || 0])) err(at, `note line ${n.line} out of range`);
       if (!n.line && (n.x === undefined || n.y === undefined)) err(at, "note needs line (code) or x,y (diagram)");
       if ((n.text || "").length > 32) err(at, `note text too long: "${n.text}"`);

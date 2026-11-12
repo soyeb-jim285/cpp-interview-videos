@@ -47,6 +47,7 @@ bad("cue-order", (L) => { L.chapters[0].scenes[1].say = "Look at the second line
 bad("say-length", (L) => { L.chapters[0].scenes[2].say = w(91); });
 bad("font-floor", (L) => { L.chapters[0].scenes[1].panels[0].code = "x".repeat(100) + "\ny"; });
 bad("font-floor", (L) => { L.chapters[0].scenes[1].panels[0].code = "x".repeat(76) + "\ny"; });
+bad("note-overlap", (L) => { Object.assign(L.chapters[0].scenes[1], { panels: [{ code: "x".repeat(60) + "\ny" }], steps: [], notes: [{ line: 1, inside: true, text: "short note", cue: "first" }] }); });
 bad("drill-covers", (L) => { L.covers = []; });
 bad("chapter-kind", (L) => { L.chapters[0].kind = "bogus"; });
 bad("gap", (L) => { Object.assign(L.chapters[0].scenes[1], { say: w(16), steps: [{ lines: [1] }] }); });
