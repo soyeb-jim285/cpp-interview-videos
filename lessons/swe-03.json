@@ -366,7 +366,7 @@
        "y": 700,
        "text": "+1 class, 0 edits",
        "tone": "good",
-       "cue": "add code, edit nothing"
+       "cue": "That answers"
       }
      ],
      "changes": [
@@ -1157,7 +1157,7 @@
      "covers": [
       "sw04"
      ],
-     "say": "Strategy lets me swap behavior without editing old code. A factory keeps creation logic in one place. Observer lets many listeners react to one event, but it hides coupling and forgotten unsubscribes. Injection hands in a fake, so tests are fast and safe. And I always name where I used one.",
+     "say": "Strategy lets me swap behavior without editing old code. A factory keeps creation logic in one place. Observer lets many react to one event, with some hidden coupling. Injection hands in a fake, so tests are fast and safe. And I always name where I used one.",
      "items": [
       {
        "label": "swap",
