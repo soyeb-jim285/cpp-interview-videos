@@ -248,28 +248,57 @@
      "answer": 2
     },
     {
-     "type": "chart",
+     "type": "diagram",
      "head": "Steps for n = 100,000",
-     "unit": "steps",
-     "say": "Steps needed at a hundred thousand items. O of n and n log n fit. Plain n is a hundred thousand steps, n log n under two million. N squared needs ten billion. At a hundred million a second, that's a hundred seconds.",
-     "bars": [
+     "say": "Answer: O of n and n log n fit. Plain n is a hundred thousand steps. N log n is under two million. N squared needs ten billion. At a hundred million a second, that's a hundred seconds.",
+     "items": [
       {
-       "label": "n",
-       "value": 100000,
+       "id": "ln",
+       "x": 200,
+       "y": 420,
+       "w": 440,
+       "h": 200,
+       "label": "O(n)",
+       "text": "100 thousand",
+       "size": 44,
        "tone": "good",
        "cue": "Plain n is"
       },
       {
-       "label": "n log n",
-       "value": 1700000,
+       "id": "nl",
+       "x": 740,
+       "y": 420,
+       "w": 440,
+       "h": 200,
+       "label": "O(n log n)",
+       "text": "1.7 million",
+       "size": 44,
        "tone": "good",
        "cue": "under two million"
       },
       {
-       "label": "n squared",
-       "value": 10000000000,
+       "id": "sq",
+       "x": 1280,
+       "y": 420,
+       "w": 440,
+       "h": 200,
+       "label": "O(n²)",
+       "text": "10 billion",
+       "size": 44,
        "tone": "bad",
        "cue": "N squared needs"
+      },
+      {
+       "id": "sec",
+       "x": 1280,
+       "y": 700,
+       "w": 440,
+       "h": 150,
+       "label": "100 million a second",
+       "text": "100 seconds",
+       "size": 40,
+       "tone": "bad",
+       "cue": "a hundred seconds"
       }
      ]
     }
@@ -286,11 +315,13 @@
       "input": "n ≤ 1,000,000",
       "output": "O(n log n), or O(n)"
      },
-     "say": "Every limit on n is a hint. A million? Then n log n, or plain n, is expected. Read any n that way.",
+     "say": "Every limit on n is a hint. A million? Then n log n, or plain n, is expected. Read any n that way, before you write one line of code.",
      "cues": {
       "example": "A million?",
-      "output": "n log n, or plain n"
-     }
+      "output": "n log n, or plain n",
+      "note": "Read any n that way"
+     },
+     "note": "read n first, then pick"
     },
     {
      "type": "flow",
@@ -416,6 +447,13 @@
        "sub": "too slow",
        "tone": "bad",
        "cue": "twenty seven billion"
+      },
+      {
+       "label": "rule",
+       "text": "one more loop",
+       "sub": "out of budget",
+       "tone": "bad",
+       "cue": "one more loop"
       }
      ]
     }
@@ -608,7 +646,7 @@
     {
      "type": "code",
      "head": "The fix: remember what you saw",
-     "say": "The fix: remember. For each x, the notebook already knows how many minus x came before. Add that to the count, then write x down. One pass, O of n. On our array, it prints four.",
+     "say": "The fix: remember. The notebook is a hash map: each lookup takes one step. For each x, it already knows how many minus x came before. Add that to the count, then write x down. One pass, O of n. On our array, it prints four.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -620,7 +658,7 @@
        "lines": [
         2
        ],
-       "cue": "remember"
+       "cue": "hash map"
       },
       {
        "lines": [
@@ -660,22 +698,56 @@
      }
     },
     {
-     "type": "chart",
+     "type": "diagram",
      "head": "n = 200,000: two prices",
-     "unit": "steps",
      "say": "Steps for our pair counting problem, two ways. The brute force needs twenty billion checks, about two hundred seconds. The map needs two hundred thousand lookups. That's the whole lesson: the limit chose the algorithm.",
-     "bars": [
+     "items": [
       {
-       "label": "brute",
-       "value": 20000000000,
+       "id": "br",
+       "x": 300,
+       "y": 360,
+       "w": 560,
+       "h": 200,
+       "label": "brute force",
+       "text": "20 billion",
+       "size": 44,
        "tone": "bad",
        "cue": "brute force needs"
       },
       {
+       "id": "sec",
+       "x": 300,
+       "y": 680,
+       "w": 560,
+       "h": 150,
+       "label": "100 million a second",
+       "text": "about 200 seconds",
+       "size": 36,
+       "tone": "bad",
+       "cue": "about two hundred seconds"
+      },
+      {
+       "id": "mp",
+       "x": 1060,
+       "y": 360,
+       "w": 560,
+       "h": 200,
        "label": "map",
-       "value": 200000,
+       "text": "200 thousand",
+       "size": 44,
        "tone": "good",
        "cue": "map needs"
+      },
+      {
+       "id": "lim",
+       "x": 1060,
+       "y": 680,
+       "w": 560,
+       "h": 150,
+       "text": "limit chose the map",
+       "size": 36,
+       "tone": "good",
+       "cue": "the limit chose"
       }
      ]
     },
@@ -806,61 +878,97 @@
       "They ask",
       "You say"
      ],
-     "say": "What can you afford? A hundred million steps a second. n of two hundred thousand? N log n or better. Squared is forty billion. Cheat sheet? Twenty, two to the n. Five thousand, n squared.",
+     "say": "What can you afford? About a hundred million steps a second. N of two hundred thousand? N log n or better. Brute force? Forty billion steps, two hundred seconds.",
      "rows": [
       [
        "What can you afford?",
-       "~10⁸ simple steps per second"
+       "about 10⁸ simple steps per second"
       ],
       [
        "n = 200,000?",
-       "n log n or better: n² is 4·10¹⁰"
+       "n log n or better"
       ],
       [
-       "Cheat sheet?",
-       "20: 2ⁿ · 5,000: n² · 10⁶: n log n"
+       "Brute force?",
+       "n² is 40 billion steps: 200 seconds"
       ]
      ],
      "cues": [
       "What can you afford",
-      "n of two hundred",
-      "Cheat sheet"
+      "N of two hundred",
+      "Brute force"
      ]
     },
     {
      "type": "compare",
-     "head": "The follow-ups",
+     "head": "Cheat sheet, one row each",
      "covers": [
       "cp01"
      ],
      "heads": [
-      "They ask",
-      "You say"
+      "n up to",
+      "You can afford"
      ],
-     "say": "Two second limit? The budget doubles. Does n log n always pass? Not with a big constant. Memory? A million ints is four megabytes. Mistake? Coding brute force before reading n.",
+     "say": "Cheat sheet, one row each. Ten: n factorial, try every order. Twenty: two to the n, try every subset. Five hundred: n cubed. Five thousand: n squared. A million: n log n, or plain n.",
      "rows": [
       [
-       "Time limit is 2 seconds?",
-       "budget doubles"
+       "10",
+       "n!: try every order"
       ],
       [
-       "n log n always passes?",
-       "not with a big constant"
+       "20",
+       "2ⁿ: try every subset"
       ],
       [
-       "Memory?",
-       "10⁶ ints = 4 MB"
+       "500",
+       "n³: three nested loops"
       ],
       [
-       "Common mistake",
-       "brute force before reading `n`"
+       "5,000",
+       "n²: two nested loops"
+      ],
+      [
+       "1,000,000",
+       "n log n, or n"
       ]
      ],
      "cues": [
-      "Two second limit",
-      "Does n log n",
-      "Memory?",
-      "Mistake?"
+      "Ten",
+      "Twenty",
+      "Five hundred",
+      "Five thousand",
+      "A million"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Follow-up: 100,000 items",
+     "covers": [
+      "cp01"
+     ],
+     "say": "Three thousand items, n squared? Nine million steps, easy. A hundred thousand, n squared? Ten billion, too slow. Then n log n: about 1.7 million, fine.",
+     "items": [
+      {
+       "label": "n² at 3,000",
+       "text": "9 million",
+       "sub": "fits",
+       "tone": "good",
+       "cue": "Three thousand items"
+      },
+      {
+       "label": "n² at 100,000",
+       "text": "10 billion",
+       "sub": "too slow",
+       "tone": "bad",
+       "cue": "A hundred thousand"
+      },
+      {
+       "label": "n log n at 100,000",
+       "text": "1.7 million",
+       "sub": "fine",
+       "tone": "good",
+       "cue": "Then n log n"
+      }
      ]
     }
    ]
