@@ -16,7 +16,7 @@ const flat = JSON.parse(fs.readFileSync(path.join(tmp, "build/fx-01.json"), "utf
 
 test("flatten inserts chapter cards and chapters index", () => {
   assert.deepEqual(flat.scenes.map((s) => s.type), ["chapter", "hook", "take", "chapter", "take"]);
-  assert.deepEqual(flat.chapters, [{ title: "First", start: 0 }, { title: "Second", start: 3 }]);
+  assert.deepEqual(flat.chapters, [{ title: "First", start: 0, kind: "teach" }, { title: "Second", start: 3, kind: "recap" }]);
   assert.equal(flat.series, "FX"); assert.equal(flat.num, 1); assert.equal(flat.question, "Fixture lesson");
   assert.equal(flat.scenes[3].n, 2);
 });
@@ -51,8 +51,8 @@ test("intro line when a scene precedes chapter 1", () => {
   assert.equal(lines.length, 3);
 });
 
-test("validate accepts flattened lesson and legacy script; flatten rejects no chapters", () => {
-  run("validate.mjs", "build/fx-01.json");
+test("validate runs lesson rules on flattened lesson (toy fixture fails), accepts legacy script; flatten rejects no chapters", () => {
+  assert.throws(() => execFileSync("node", [path.join(ROOT, "validate.mjs"), "build/fx-01.json"], { cwd: tmp, stdio: "pipe" }));
   execFileSync("node", [path.join(ROOT, "validate.mjs"), path.join(ROOT, "scripts/q01.json")]);
   fs.writeFileSync(path.join(tmp, "lessons/nc-01.json"), JSON.stringify({ id: "nc-01", track: "X", num: 1, title: "t" }));
   assert.throws(() => execFileSync("node", [path.join(ROOT, "flatten.mjs"), "lessons/nc-01.json"], { cwd: tmp, stdio: "pipe" }));

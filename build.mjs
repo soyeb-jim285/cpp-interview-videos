@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const SFX = new URL("./sfx", import.meta.url).pathname;
-import { LEAD, TAIL, esc, r3, hlInline, cueTime } from "./util.mjs";
+import { LEAD, TAIL, esc, r3, hlInline, cueTime, panelFont, boxFont } from "./util.mjs";
 import { sceneHook, sceneQuiz, sceneChapter, sceneChart, expandMacros } from "./scenes-v2.mjs";
 
 const SFXLEN = { "click.mp3": 0.37, "click-soft.mp3": 0.37, "error.mp3": 1.62, "key-press.mp3": 0.4, "pop.mp3": 0.72, "sparkle.mp3": 1.8, "whoosh.mp3": 0.57, "whoosh-short.mp3": 0.57 };
@@ -51,8 +51,7 @@ function codePanels(sc, sid, panels, area) {
   const pw = (area.w - gap * (n - 1)) / n;
   panels.forEach((p, k) => {
     const lines = p.code.replace(/\n$/, "").split("\n");
-    const maxC = Math.max(...lines.map((l) => l.length), 20);
-    const fs_ = Math.max(32, Math.floor(Math.min(p.size || 46, (pw - 150) / (maxC * 0.61), (area.h - 90) / (lines.length * 1.55))));
+    const fs_ = Math.max(32, panelFont(p, pw, area));
     const lh = Math.round(fs_ * 1.55);
     const h = lines.length * lh + 96;
     const x = area.x + k * (pw + gap);
@@ -179,7 +178,7 @@ function sceneDiagram(sc, sid, sfx) {
     if (b.region) {
       divs += `<div class="region ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px"><span>${esc(b.label)}</span></div>`;
     } else {
-      divs += `<div class="box ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px">${b.label ? `<div class="lbl">${hlInline(b.label)}</div>` : ""}<div class="val" style="font-size:${Math.max(32, Math.floor(Math.min(b.size || 40, (b.w - 28) / (Math.max(...vals.map((v) => String(v).replace(/`/g, "").length), 1) * 0.62))))}px">${vals.map((v, k) => `<span id="${id}-v${k}" style="opacity:${k ? 0 : 1}">${hlInline(v)}</span>`).join("")}</div>${b.sub ? `<div class="sub">${hlInline(b.sub)}</div>` : ""}</div>`;
+      divs += `<div class="box ${b.tone || ""}" id="${id}" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px">${b.label ? `<div class="lbl">${hlInline(b.label)}</div>` : ""}<div class="val" style="font-size:${Math.max(32, boxFont(b, vals))}px">${vals.map((v, k) => `<span id="${id}-v${k}" style="opacity:${k ? 0 : 1}">${hlInline(v)}</span>`).join("")}</div>${b.sub ? `<div class="sub">${hlInline(b.sub)}</div>` : ""}</div>`;
     }
     tw.push(`tl.fromTo("#${id}",{opacity:0,scale:0.92},{opacity:1,scale:1,duration:0.45,ease:"back.out(1.6)"},${t});`);
     if (!b.region && b.cue !== undefined) tw.push(glow(id, b.tone, t + 0.2));

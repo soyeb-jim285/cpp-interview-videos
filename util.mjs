@@ -13,3 +13,10 @@ export function cueTime(sc, cue) {
   if (i < 0) throw new Error(`cue "${cue}" not in: ${sc.say}`);
   return sc.t0 + LEAD + (i / sc.say.length) * sc.vo;
 }
+
+// Raw (pre-floor) auto-fit font sizes; build clamps to 32, validate fails below the floor.
+export const panelFont = (p, pw, area) => {
+  const lines = p.code.replace(/\n$/, "").split("\n"), maxC = Math.max(...lines.map((l) => l.length), 20);
+  return Math.floor(Math.min(p.size || 46, (pw - 150) / (maxC * 0.61), (area.h - 90) / (lines.length * 1.55)));
+};
+export const boxFont = (b, vals) => Math.floor(Math.min(b.size || 40, (b.w - 28) / (Math.max(...vals.map((v) => String(v).replace(/`/g, "").length), 1) * 0.62)));

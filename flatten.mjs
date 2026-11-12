@@ -9,10 +9,10 @@ if (L.id !== stem) { console.error(`${f}: id '${L.id}' must equal filename '${st
 if (!Array.isArray(L.chapters) || !L.chapters.length) { console.error(`${f}: lesson needs a non-empty "chapters" array`); process.exit(1); }
 const scenes = [], chapters = [];
 L.chapters.forEach((c, k) => {
-  chapters.push({ title: c.title, start: scenes.length });
+  chapters.push({ title: c.title, start: scenes.length, kind: c.kind || "teach" });
   scenes.push({ type: "chapter", n: k + 1, title: c.title }, ...c.scenes);
 });
-const out = { id: L.id, num: L.num, series: L.track, short: L.title, question: L.title, caps: L.caps, voice: L.voice, speed: L.speed, chapters, scenes };
+const out = { id: L.id, num: L.num, series: L.track, track: L.track, covers: L.covers, short: L.title, question: L.title, caps: L.caps, voice: L.voice, speed: L.speed, chapters, scenes };
 fs.mkdirSync("build", { recursive: true });
 fs.writeFileSync(`build/${L.id}.json`, JSON.stringify(out, null, 1));
 console.log(`build/${L.id}.json: ${chapters.length} chapters, ${scenes.length} scenes`);
