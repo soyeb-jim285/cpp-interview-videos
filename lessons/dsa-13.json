@@ -34,7 +34,7 @@
       },
       {
        "text": "3 problems, solved by hand",
-       "cue": "solve all three",
+       "cue": "By the end you'll",
        "accent": true
       },
       {
@@ -46,7 +46,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Fill a knapsack table by hand. Build the longest increasing run with a tails list. And fill a grid for the longest common subsequence.",
+     "say": "Today you will do three things. Fill a knapsack table by hand. Find the length of the longest increasing run with a tails list. And fill a grid for the longest common subsequence.",
      "lines": [
       "Knapsack: take or leave, by hand",
       "LIS: the tails list",
@@ -54,7 +54,7 @@
      ],
      "cues": [
       "Fill a knapsack",
-      "Build the longest",
+      "Find the length of the longest",
       "fill a grid"
      ]
     },
@@ -136,7 +136,7 @@
     {
      "type": "diagram",
      "head": "dp over capacity, item by item",
-     "say": "Let dp of c be the best value at capacity c. All start at zero. Item A: one kilo, fifteen dollars. Every capacity from one up can hold it, so all become fifteen. Item B: three kilos, twenty. Capacity three becomes twenty. Capacity four takes B plus A's last kilo: thirty five. Item C: four kilos, thirty. That's less than thirty five, so nothing changes.",
+     "say": "Dynamic programming, DP for short, reuses smaller answers. Let dp of c be the best value at capacity c. All start at zero. Item A: one kilo, fifteen dollars. Every capacity from one up can hold it, so all become fifteen. Item B: three kilos, twenty. Capacity three becomes twenty. Capacity four takes B plus A's last kilo: thirty five. Item C: four kilos, thirty. That's less than thirty five, so nothing changes.",
      "items": [
       {
        "array": {
@@ -699,7 +699,7 @@
     {
      "type": "code",
      "head": "LIS with binary search",
-     "say": "In code, lower bound finds the first tail not smaller than x. None found means x is bigger than all: append. Otherwise overwrite that tail. Its twin, upper bound, finds the first tail bigger than x. One binary search per number: O of n log n. On our array it prints four.",
+     "say": "In code, lower bound finds the first tail not smaller than x. None found means x is bigger than all: append. Otherwise overwrite that tail. Its twin, upper bound, finds the first tail above x. One binary search per number: O of n log n. On our array it prints four.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -2066,7 +2066,15 @@
       "setup": {
        "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
       }
-     }
+     },
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "s[i-1] = letter i (1-based dp)",
+       "tone": "info"
+      }
+     ]
     },
     {
      "type": "diagram",
@@ -3755,11 +3763,11 @@
      "rows": [
       [
        "Less memory?",
-       "two rows: each needs only the one above"
+       "each row needs only the row above, plus its left cell"
       ],
       [
        "Index slip",
-       "dp[i][j] compares `s[i-1]`, `t[j-1]`"
+       "s[i-1] vs t[j-1]"
       ],
       [
        "Subsequence vs substring",
@@ -3792,11 +3800,15 @@
      "rows": [
       [
        "0/1 knapsack?",
-       "dp over capacity, loop downward, n × cap"
+       "dp over capacity, loop downward (each item once)"
+      ],
+      [
+       "Cost?",
+       "n x cap: pseudo-polynomial"
       ],
       [
        "LIS?",
-       "tails + binary search, O(n log n)"
+       "tails[k] = smallest end of a rising run of length k; binary search, O(n log n)"
       ],
       [
        "LCS?",
@@ -3809,6 +3821,7 @@
      ],
      "cues": [
       "loop capacity",
+      "Pseudo-polynomial",
       "Tails",
       "diagonal",
       "Mistake"
