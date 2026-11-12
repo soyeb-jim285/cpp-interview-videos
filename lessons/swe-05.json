@@ -158,7 +158,7 @@
      "type": "chart",
      "head": "Hunting through 100 commits",
      "unit": "tests",
-     "say": "This chart counts tests. Commit one worked, commit one hundred broke. Checking one by one could take ninety eight tests. Halving the range takes seven.",
+     "say": "Tests needed to find the bad commit among a hundred. Checking one by one, up to ninety eight. Halving the range, seven.",
      "bars": [
       {
        "label": "One by one",
@@ -371,7 +371,7 @@
     {
      "type": "code",
      "head": "Let git do the halving",
-     "say": "Ten, because two to the tenth is one thousand twenty four. For our hundred, seven halvings are enough. Tell git the current commit is bad, and the commit ninety nine back is good. Bisect run feeds it a test script. Exit zero means good. This run took seven tests, and names the culprit.",
+     "say": "Ten, because two to the tenth is one thousand twenty four. For our hundred, seven halvings are enough. Tell git the current commit is bad, and the commit ninety nine back is good. Bisect run feeds it a test script. Exit zero means good. Grep counts the runs. The log line names the culprit. Seven tests.",
      "panels": [
       {
        "file": "run.sh",
@@ -415,9 +415,15 @@
       },
       {
        "lines": [
+        2
+       ],
+       "cue": "Grep counts"
+      },
+      {
+       "lines": [
         3
        ],
-       "cue": "names the culprit"
+       "cue": "The log line"
       }
      ],
      "output": {
@@ -426,7 +432,7 @@
        "run.sh": "git init -q -b main\ngit config user.email a@b.c\ngit config user.name t\nfor i in $(seq 1 100); do\n  if [ $i -ge 64 ]; then echo bad > state.txt; else echo ok > state.txt; fi\n  echo $i > n.txt\n  git add -A\n  if [ $i = 64 ]; then m=\"order id from seconds\"; else m=\"c$i\"; fi\n  git commit -qm \"$m\"\ndone\nprintf '#!/bin/sh\\ngrep -q ok state.txt\\n' > test.sh\nchmod +x test.sh"
       },
       "text": "7\norder id from seconds",
-      "cue": "This run took"
+      "cue": "Seven tests"
      }
     }
    ]
@@ -492,7 +498,7 @@
     {
      "type": "code",
      "head": "A flaky test: ids from the clock",
-     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. The test passes only when the clock ticks between two orders. Don't wait for luck. Pass the time in, and it fails every run.",
+     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. A real test reads the clock itself, and passes only when it ticks between two orders. Here we pass the time in, so we control it, and the bug shows every run.",
      "panels": [
       {
        "file": "orders.py",
@@ -512,7 +518,7 @@
         5,
         6
        ],
-       "cue": "clock ticks"
+       "cue": "ticks between"
       },
       {
        "lines": [
@@ -521,7 +527,7 @@
         5,
         6
        ],
-       "cue": "Pass the time in"
+       "cue": "pass the time in"
       }
      ],
      "notes": [
@@ -531,6 +537,13 @@
        "text": "id = whole seconds",
        "tone": "bad",
        "cue": "from the clock"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "now = parameter",
+       "tone": "info",
+       "cue": "pass the time in"
       }
      ]
     },
@@ -819,7 +832,7 @@
     {
      "type": "diagram",
      "head": "Merge: one commit, two parents",
-     "say": "Merge adds one new commit with two parents: the tip of main and the tip of your branch. Nothing old is touched. History shows the work really happened in parallel. The cost: extra merge commits, and a graph that can tangle.",
+     "say": "Merge adds one new commit with two parents: the tip of main and the tip of your branch. Think of stapling your pages into the book, with a note naming both sides. Nothing old is touched. History shows the work really happened in parallel. The cost: extra merge commits, and a graph that can tangle.",
      "items": [
       {
        "id": "m1",
@@ -924,6 +937,11 @@
        "id": "mg",
        "glow": true,
        "tone": "good",
+       "cue": "stapling your pages"
+      },
+      {
+       "id": "m2",
+       "glow": true,
        "cue": "Nothing old"
       },
       {
@@ -998,7 +1016,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Rebase is the other way to combine: it copies your commits onto the tip of main. Same branch, rebased onto M three. How many new commits does git create? Pause and predict.",
+     "say": "Your turn. Rebase copies each of your commits, one by one, onto main's newest commit. Same branch, rebased onto M three. How many new commits does git create? Pause and predict.",
      "q": "Rebase F1, F2 onto M3. New commits created?",
      "options": [
       "0",
@@ -1011,7 +1029,7 @@
     {
      "type": "diagram",
      "head": "Rebase: replay on top",
-     "say": "Two. Rebase replays each of your commits as a copy on top of M three: F one prime and F two prime. The result is a straight line. But the copies have new hashes, and the old F one and F two are abandoned. You rewrote history, so never rebase commits other people already have.",
+     "say": "Two. Rebase is like recopying your pages onto the newest book. Each commit is replayed as a copy on top of M three: F one prime and F two prime. The result is a straight line. The copies get new IDs, called hashes, because an ID depends on its parent. The old F one and F two are abandoned. You rewrote history, so never rebase commits other people already have.",
      "items": [
       {
        "id": "m1",
@@ -1124,21 +1142,32 @@
      ],
      "changes": [
       {
+       "id": "m3",
+       "glow": true,
+       "cue": "newest book"
+      },
+      {
+       "id": "g1",
+       "glow": true,
+       "tone": "good",
+       "cue": "new IDs"
+      },
+      {
        "id": "f1",
        "kill": true,
-       "cue": "old F one"
+       "cue": "The old F one"
       },
       {
        "id": "f2",
        "kill": true,
-       "cue": "old F one"
+       "cue": "The old F one"
       }
      ]
     },
     {
      "type": "compare",
      "head": "Follow-ups on merge and rebase",
-     "say": "Follow ups. Which do you use? Rebase mine, merge shared branches. Rebase went badly? Rebase abort puts you back. Pushing after a rebase? Force with lease, only on my own branch. Mistake: rebasing a branch others already pulled.",
+     "say": "Follow ups. Which do you use? Rebase mine, merge shared branches. Rebase went badly? Rebase abort puts you back. Pushing after a rebase? Force with lease, only on my own branch. Mistake: rebasing a branch others already pulled. So all five commits end up in one history: merge joins it, rebase straightens it.",
      "heads": [
       "They ask",
       "You say"
@@ -1159,13 +1188,18 @@
       [
        "Common mistake?",
        "Rebasing a branch others already pulled"
+      ],
+      [
+       "Did we get one history?",
+       "Yes: merge joins it, rebase straightens it"
       ]
      ],
      "cues": [
       "Which do you",
       "Rebase went",
       "Pushing after",
-      "Mistake"
+      "Mistake",
+      "So all five"
      ]
     }
    ]
@@ -1253,10 +1287,10 @@
      "say": "Your turn. Four ways to say the action part. Which one lands the offer? Pause and predict.",
      "q": "Which Action line lands the offer?",
      "options": [
-      "We debugged a lot",
-      "I looked at commits",
+      "I debugged it two days",
+      "I read recent commits",
       "Bisected in 7 runs",
-      "The team fixed it"
+      "I added some logging"
      ],
      "answer": 2
     },
@@ -1380,10 +1414,10 @@
      "covers": [
       "sw10"
      ],
-     "say": "Merge versus rebase? Merge: a commit with two parents. Rebase: replay, new hashes. Conflicts? Edit, delete markers, add, continue. Which one? Rebase mine, merge shared, then force with lease.",
+     "say": "Merge versus rebase? Merge: a commit with two parents. Rebase: replay, new hashes. Conflicts? Edit, add, then commit, or continue in a rebase. Which one? Rebase mine, merge shared, then force with lease.",
      "lines": [
       "Merge: two parents. Rebase: replay, new hashes.",
-      "Conflict: edit, delete markers, add, continue.",
+      "Conflict: edit, add, commit (rebase: --continue).",
       "Rebase mine, merge shared. Then force-with-lease."
      ],
      "cues": [
