@@ -1,0 +1,1386 @@
+{
+ "id": "cpp-08",
+ "track": "C++",
+ "num": 8,
+ "title": "Thinking in Objects",
+ "covers": [
+  "q46",
+  "q47",
+  "q48",
+  "q49",
+  "q50",
+  "q51",
+  "q52",
+  "q53"
+ ],
+ "caps": [
+  [
+   "v pointer",
+   "vptr"
+  ],
+  [
+   "v table",
+   "vtable"
+  ],
+  [
+   "unique pointer",
+   "unique_ptr"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Four pillars, one Shape",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Delete one word, virtual, and every shape prints zero. By the end, you'll explain the four pillars of O O P, and show when virtual picks the function.",
+     "lines": [
+      {
+       "text": "Delete one word: virtual",
+       "cue": "Delete one word"
+      },
+      {
+       "text": "Every shape prints 0",
+       "cue": "prints zero",
+       "accent": "0"
+      },
+      {
+       "text": "4 pillars, 1 example",
+       "cue": "four pillars"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Explain the four pillars with one Shape example. Tell inheritance, and its types, from polymorphism. And show when virtual, pure virtual, and abstract classes change the call.",
+     "lines": [
+      "Explain the four pillars with one example",
+      "Tell inheritance from polymorphism",
+      "Know virtual, pure virtual, abstract"
+     ],
+     "cues": [
+      "Explain the four",
+      "Tell inheritance",
+      "show when virtual"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "What are the four pillars of OOP?",
+     "statement": "Explain the four pillars of object oriented programming with one example, and prove it with code.",
+     "example": {
+      "input": "Shape, Circle (r = 2), Square (s = 3)",
+      "output": "areas 12.57 and 9"
+     },
+     "say": "Here is the problem. For example, a Circle of radius two, and a Square of side three. Areas: twelve point five seven, and nine. Name four pillars with this.",
+     "cues": {
+      "example": "For example",
+      "output": "Areas"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Four pillars, one Shape",
+     "say": "Four pillars, one Shape. Encapsulation: Circle keeps its radius private, so nobody sets it to minus five. Abstraction: Shape promises an area, and says nothing about how. Inheritance: a Circle is a Shape. Polymorphism: one call to area, and each shape answers for itself.",
+     "items": [
+      {
+       "id": "en",
+       "x": 300,
+       "y": 330,
+       "w": 560,
+       "h": 120,
+       "label": "encapsulation",
+       "text": "r stays private",
+       "tone": "blue",
+       "cue": "Encapsulation"
+      },
+      {
+       "id": "ab",
+       "x": 1060,
+       "y": 330,
+       "w": 560,
+       "h": 120,
+       "label": "abstraction",
+       "text": "area() is the interface",
+       "size": 36,
+       "tone": "info",
+       "cue": "Abstraction"
+      },
+      {
+       "id": "in",
+       "x": 300,
+       "y": 620,
+       "w": 560,
+       "h": 120,
+       "label": "inheritance",
+       "text": "Circle is-a Shape",
+       "tone": "warn",
+       "cue": "Inheritance"
+      },
+      {
+       "id": "po",
+       "x": 1060,
+       "y": 620,
+       "w": 560,
+       "h": 120,
+       "label": "polymorphism",
+       "text": "one call, many forms",
+       "tone": "good",
+       "cue": "Polymorphism"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Abstraction and encapsulation in code",
+     "say": "In code. Shape says what every shape can do: an area. Equals zero means no body here. That is abstraction. Circle hides its radius as private, and the constructor guards it. That is encapsulation.",
+     "panels": [
+      {
+       "file": "shape.cpp",
+       "code": "struct Shape {\n    virtual double area() const = 0;\n};\nclass Circle : public Shape {\n    double r;\npublic:\n    Circle(double r) : r(r>0 ? r : 0) {}\n    double area() const override { return 3.14159*r*r; }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "what every shape"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "That is abstraction"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "as private"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "constructor guards"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We build a Circle with radius minus five. The constructor guards it. What does area print? Pause and predict.",
+     "q": "What does `Circle(-5).area()` return?",
+     "options": [
+      "78.54",
+      "0",
+      "-78.54",
+      "compile error"
+     ],
+     "answer": "0"
+    },
+    {
+     "type": "code",
+     "head": "Inheritance and polymorphism",
+     "say": "Zero. The guard made the radius zero. Now Square also derives from Shape, so each one is a Shape. Put all three in a Shape pointer array, and loop. Same call, p arrow area, and each object runs its own formula: circle, square, and the guarded circle.",
+     "panels": [
+      {
+       "file": "loop.cpp",
+       "code": "struct Square : Shape {\n    double s;\n    Square(double s) : s(s) {}\n    double area() const override { return s * s; }\n};\nCircle c(2), bad(-5); Square q(3);\nShape* v[] = {&c, &q, &bad};\nfor (Shape* p : v) cout << p->area() << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "derives from Shape"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Shape pointer array"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "p arrow area"
+      }
+     ],
+     "output": {
+      "cmd": "./loop",
+      "text": "12.5664 9 0",
+      "cue": "circle, square"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Guard inside, simplify outside",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Encapsulation or abstraction?",
+     "statement": "Two words that sound alike. Give each one a one-line definition and a code example.",
+     "example": {
+      "input": "private balance vs Storage::save()",
+      "output": "guard the inside vs simplify the outside"
+     },
+     "say": "Here is the problem. For example, a private balance, and a Storage with save. Both hide something. What is the difference?",
+     "cues": {
+      "example": "For example",
+      "output": "What is the difference"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. An Account keeps its balance private. Outside code tries to set the balance to minus a thousand. What happens? Pause and predict.",
+     "q": "`acc.balance = -1000;` where `balance` is private. Result?",
+     "options": [
+      "balance is -1000",
+      "silently ignored",
+      "compile error",
+      "an exception"
+     ],
+     "answer": "compile error"
+    },
+    {
+     "type": "code",
+     "head": "Guard the inside, simplify the outside",
+     "say": "A compile error. Account bundles the balance with deposit, which rejects bad amounts. That is encapsulation. On the right, backup only knows save. Where it goes, it never sees. That is abstraction, like push back on a vector.",
+     "panels": [
+      {
+       "file": "acct.cpp",
+       "label": "encapsulation",
+       "code": "class Account {\n    double balance = 0;\npublic:\n    void deposit(double a) {\n        if (a > 0) balance += a;\n    }\n};"
+      },
+      {
+       "file": "store.cpp",
+       "label": "abstraction",
+       "code": "struct Storage {\n    virtual void save() = 0;\n};\nvoid backup(Storage& s) {\n    s.save();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "compile error"
+      },
+      {
+       "lines": [
+        2,
+        4
+       ],
+       "panel": 0,
+       "cue": "bundles the balance"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "panel": 0,
+       "cue": "rejects bad amounts"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "panel": 1,
+       "cue": "only knows save"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "panel": 1,
+       "cue": "That is abstraction"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Encapsulation vs abstraction",
+     "say": "Goal? Protect data, versus reduce complexity. It hides? State, versus details. It answers? Who may touch this, versus what does this do. They work together.",
+     "heads": [
+      "",
+      "Encapsulation",
+      "Abstraction"
+     ],
+     "rows": [
+      [
+       "goal",
+       "protect data and rules",
+       "reduce complexity"
+      ],
+      [
+       "hides",
+       "internal state",
+       "implementation details"
+      ],
+      [
+       "answers",
+       "who may touch this?",
+       "what does this do?"
+      ]
+     ],
+     "cues": [
+      "Goal",
+      "It hides",
+      "It answers"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Inheritance and the diamond",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "What is inheritance, and what kinds?",
+     "statement": "A Dog is an Animal. Show what a Dog inherits, name the types of inheritance, and explain the diamond.",
+     "example": {
+      "input": "class Dog : public Animal",
+      "output": "Dog gets eat(); age is protected"
+     },
+     "say": "Here is the problem. For example, Dog derives from Animal. What does Dog get for free? What kinds of inheritance exist? And what goes wrong when two bases share a base?",
+     "cues": {
+      "example": "For example",
+      "output": "What kinds"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A Dog is an Animal",
+     "say": "Animal is the base class. Dog derives from it, so a Dog is an Animal. Dog gets eat for free, and adds its own bark. Age is protected: hidden from the outside, but visible to derived classes like Dog.",
+     "panels": [
+      {
+       "file": "dog.cpp",
+       "code": "class Animal {\npublic:    void eat() { cout << \"eating\\n\"; }\nprotected: int age = 0;\n};\nclass Dog : public Animal {\npublic: void bark() { cout << \"woof at \" << age << '\\n'; }\n};\nDog d; d.eat(); d.bark();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "derives from it"
+      },
+      {
+       "lines": [
+        2,
+        8
+       ],
+       "cue": "eat for free"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Age is protected"
+      }
+     ],
+     "output": {
+      "cmd": "./dog",
+      "text": "eating\nwoof at 0",
+      "cue": "visible to derived"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Types of inheritance, by structure",
+     "say": "Single: one base, one derived. Multilevel: a chain, Shape to Polygon to Square. Multiple: two bases at once, which C plus plus allows. Hierarchical: many classes sharing one base. Mix them, and you get hybrid, with its famous problem, the diamond.",
+     "heads": [
+      "Type",
+      "Shape of it"
+     ],
+     "rows": [
+      [
+       "single",
+       "`class B : A`"
+      ],
+      [
+       "multilevel",
+       "`Shape` → `Polygon` → `Square`"
+      ],
+      [
+       "multiple",
+       "`class C : A, B`"
+      ],
+      [
+       "hierarchical",
+       "`Circle`, `Square` ← `Shape`"
+      ],
+      [
+       "hybrid",
+       "mix: the diamond problem"
+      ]
+     ],
+     "cues": [
+      "Single",
+      "Multilevel",
+      "Multiple",
+      "Hierarchical",
+      "hybrid"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The diamond, fixed with virtual",
+     "say": "A Copier is a Scanner and a Printer, and both are Devices. Marking the bases virtual makes them share one single Device. So c dot id just works, and prints seven.",
+     "panels": [
+      {
+       "file": "diamond.cpp",
+       "code": "struct Device  { int id = 0; };\nstruct Scanner : virtual Device {};\nstruct Printer : virtual Device {};\nstruct Copier  : Scanner, Printer {};\n\nCopier c;\nc.id = 7;\ncout << c.id;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "virtual"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "just works"
+      }
+     ],
+     "output": {
+      "cmd": "./diamond",
+      "text": "7",
+      "cue": "prints seven"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Remove the word virtual from both bases. Now what does c dot id do? Pause and predict.",
+     "q": "Without `virtual`, what happens to `c.id = 7;`?",
+     "options": [
+      "sets one shared id",
+      "sets the first id",
+      "compile error: ambiguous",
+      "undefined behavior"
+     ],
+     "answer": "compile error: ambiguous"
+    },
+    {
+     "type": "code",
+     "head": "Without virtual: two Devices",
+     "say": "A compile error: ambiguous. Without virtual, a Copier holds two separate Device parts, one through Scanner, one through Printer. The compiler can't tell which id you mean.",
+     "panels": [
+      {
+       "file": "diamond.cpp",
+       "label": "no virtual",
+       "tone": "bad",
+       "code": "struct Device  { int id = 0; };\nstruct Scanner : Device {};\nstruct Printer : Device {};\nstruct Copier  : Scanner, Printer {};\n\nCopier c;\nc.id = 7;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "through Scanner"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "through Printer"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "which id"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -c diamond.cpp",
+      "text": "error: request for member ‘id’ is ambiguous",
+      "tone": "bad",
+      "cue": "A compile error"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Types by access mode",
+     "say": "Base private members always stay hidden. Public inheritance keeps public public: the normal is a. Protected makes both protected. Private makes both private: implemented in terms of. Defaults: struct public, class private.",
+     "heads": [
+      "Inheritance",
+      "Base public becomes",
+      "Base protected becomes"
+     ],
+     "rows": [
+      [
+       "`public`",
+       "public",
+       "protected"
+      ],
+      [
+       "`protected`",
+       "protected",
+       "protected"
+      ],
+      [
+       "`private`",
+       "private",
+       "private"
+      ],
+      [
+       "default",
+       "`struct`: public",
+       "`class`: private"
+      ]
+     ],
+     "cues": [
+      "Public inheritance",
+      "Protected makes",
+      "Private makes",
+      "Defaults"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Which function runs?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which function runs?",
+     "statement": "A base pointer points at a derived object. Which version of the function runs, and when is that decided?",
+     "example": {
+      "input": "Animal* a = new Dog; a->speak();",
+      "output": "Woof, chosen at runtime"
+     },
+     "say": "Here is the problem. For example, an Animal pointer holding a Dog. We call speak. Which version runs, and when is that decided? One keyword decides.",
+     "cues": {
+      "example": "For example",
+      "output": "when is that decided"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Runtime polymorphism: virtual",
+     "say": "Animal declares speak as virtual. Dog and Cat each override it. The loop holds pointers to Animal, and calls speak. Each object runs its own version: woof, then meow. Add a Cow later, and the loop works unchanged.",
+     "panels": [
+      {
+       "file": "zoo.cpp",
+       "code": "struct Animal {\n    virtual void speak() { cout << \"...\\n\"; }\n};\nstruct Dog : Animal { void speak() override { cout << \"Woof\\n\"; } };\nstruct Cat : Animal { void speak() override { cout << \"Meow\\n\"; } };\nAnimal* zoo[] = {new Dog, new Cat};\nfor (Animal* a : zoo) a->speak();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "declares speak"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Dog and Cat"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "The loop holds"
+      }
+     ],
+     "output": {
+      "cmd": "./zoo",
+      "text": "Woof\nMeow",
+      "cue": "woof, then meow"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Back to shapes. Delete the word virtual from Shape's area. The loop still calls p arrow area on a Circle and a Square. What prints? Pause and predict.",
+     "q": "Without `virtual`, `p->area()` on a Circle(2) and Square(3) prints...",
+     "options": [
+      "12.57 9",
+      "0 0",
+      "compile error",
+      "a crash"
+     ],
+     "answer": "0 0"
+    },
+    {
+     "type": "code",
+     "head": "Without virtual: the pointer's type decides",
+     "say": "Zero, zero. Without virtual, the compiler goes by the pointer's type. The pointer says Shape, so Shape's area runs, for both. That is early binding. With virtual, the object's real type decides, at runtime.",
+     "panels": [
+      {
+       "file": "novirt.cpp",
+       "code": "struct Shape { double area() const { return 0; } };\nstruct Circle : Shape {\n    double area() const { return 12.56; }\n};\nstruct Square : Shape { double area() const { return 9; } };\nCircle c; Square q;\nShape* v[] = {&c, &q};\nfor (Shape* p : v) cout << p->area() << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "pointer's type"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "so Shape's area"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "not virtual",
+       "tone": "bad",
+       "cue": "early binding"
+      }
+     ],
+     "output": {
+      "cmd": "./novirt",
+      "text": "0 0",
+      "tone": "bad",
+      "cue": "object's real type"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "How a virtual call finds its function",
+     "say": "Here pet points at a Dog object. Each object carries a hidden v pointer, which leads to the class's v table: an array of function pointers. The speak slot holds Dog speak. If the input said cat, the same call lands on Cat speak.",
+     "items": [
+      {
+       "id": "pet",
+       "x": 200,
+       "y": 470,
+       "w": 260,
+       "h": 130,
+       "label": "pet",
+       "text": "Animal*",
+       "tone": "warn",
+       "cue": "pet points"
+      },
+      {
+       "id": "obj",
+       "x": 640,
+       "y": 470,
+       "w": 360,
+       "h": 130,
+       "label": "object (has a vptr)",
+       "text": "Dog object",
+       "tone": "blue",
+       "cue": "Dog object"
+      },
+      {
+       "id": "vt",
+       "x": 1180,
+       "y": 330,
+       "w": 480,
+       "h": 130,
+       "label": "its vtable",
+       "text": "Dog's table",
+       "tone": "info",
+       "cue": "v table"
+      },
+      {
+       "id": "fn",
+       "x": 1180,
+       "y": 640,
+       "w": 480,
+       "h": 130,
+       "text": "Dog::speak",
+       "tone": "good",
+       "cue": "slot holds"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pet",
+       "to": "obj",
+       "cue": "pet points"
+      },
+      {
+       "from": "obj",
+       "to": "vt",
+       "label": "vptr",
+       "cue": "v pointer, which"
+      },
+      {
+       "from": "vt",
+       "to": "fn",
+       "cue": "slot holds"
+      }
+     ],
+     "changes": [
+      {
+       "id": "obj",
+       "text": "Cat object",
+       "cue": "input said cat"
+      },
+      {
+       "id": "vt",
+       "text": "Cat's table",
+       "cue": "input said cat"
+      },
+      {
+       "id": "fn",
+       "text": "Cat::speak",
+       "cue": "lands on Cat speak"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Trap one: virtual calls in a constructor",
+     "say": "Two traps. First, a virtual call inside a constructor. While Base is being built, the Derived part doesn't exist yet. So the call goes to Base's version, not Derived's.",
+     "panels": [
+      {
+       "file": "ctor.cpp",
+       "code": "struct Base {\n    Base() { init(); }\n    virtual void init() { cout << \"Base::init \"; }\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void init() override { cout << \"Derived::init \"; }\n};\nDerived d;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "inside a constructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Derived part"
+      }
+     ],
+     "output": {
+      "cmd": "./ctor",
+      "text": "Base::init",
+      "tone": "bad",
+      "cue": "Base's version"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Trap two: the signature must match",
+     "say": "Second, a signature mismatch. Run taking long does not override run taking int. Without override, that silently makes a new function. With override, the compiler refuses. So always write override.",
+     "panels": [
+      {
+       "file": "trap.cpp",
+       "code": "struct Base {\n    virtual void run(int) {}\n};\nstruct Derived : Base {\n    void run(long) override {}\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "taking long"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "int vs long",
+       "tone": "bad",
+       "cue": "silently makes"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -c trap.cpp",
+      "text": "error: ‘void Derived::run(long int)’ marked ‘override’, but does not override",
+      "tone": "bad",
+      "cue": "always write override"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Compile time vs runtime",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Compile-time or runtime?",
+     "statement": "Two ways to get one name, many behaviors. When is each decided, and what does each cost?",
+     "example": {
+      "input": "add(1, 2) vs a->speak()",
+      "output": "decided by the compiler vs by the object"
+     },
+     "say": "Here is the problem. For example, add with ints, and speak through an Animal pointer. One is settled before the program runs. The other, while it runs.",
+     "cues": {
+      "example": "For example",
+      "output": "settled before"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Compile time: overloads and templates",
+     "say": "Overloading: the same name, different parameters. The compiler picks from the argument types. Templates: one piece of code, stamped out for each type you use. Both are settled before the program runs.",
+     "panels": [
+      {
+       "file": "ct.cpp",
+       "code": "int add(int a, int b) { return a + b; }\ndouble add(double a, double b) { return a + b; }\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\ncout << add(1, 2) << ' ' << add(1.5, 2.5) << ' ';\ncout << biggest(3, 7) << ' ' << biggest('a', 'z');"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Overloading"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Templates"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "settled before"
+      }
+     ],
+     "output": {
+      "cmd": "./ct",
+      "text": "3 4 7 z",
+      "cue": "before the program"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Compile time versus runtime",
+     "say": "When? While compiling, versus while running. How? Overloads and templates, versus virtual functions through a base pointer. Call cost? Direct and inlinable, versus one indirect hop. Trade-off? Code bloat and slow builds, versus a small runtime overhead.",
+     "heads": [
+      "",
+      "Compile-time",
+      "Runtime"
+     ],
+     "rows": [
+      [
+       "when",
+       "compiler decides",
+       "object decides"
+      ],
+      [
+       "how",
+       "overloads, templates",
+       "virtual + base pointer"
+      ],
+      [
+       "call",
+       "direct, inlinable",
+       "indirect via vtable"
+      ],
+      [
+       "cost",
+       "code bloat, slow builds",
+       "small overhead"
+      ]
+     ],
+     "cues": [
+      "When",
+      "How",
+      "Call cost",
+      "Trade-off"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A function takes an Animal by value, and we pass a Dog. It calls speak. Animal's speak prints three dots, Dog's prints woof. What prints? Pause and predict.",
+     "q": "`void f(Animal a) { a.speak(); }` called with a `Dog`. Prints...",
+     "options": [
+      "Woof",
+      "...",
+      "a crash",
+      "compile error"
+     ],
+     "answer": "..."
+    },
+    {
+     "type": "code",
+     "head": "The trap: slicing",
+     "say": "Three dots. Passing by value copies only the Animal part, so the Dog is sliced away. By reference, the real type survives. Polymorphism needs virtual, override, and a pointer or reference.",
+     "panels": [
+      {
+       "file": "slice.cpp",
+       "code": "void byValue(Animal a) { a.speak(); }\nvoid byRef(const Animal& a) { a.speak(); }\n\nDog d;\nbyValue(d);\nbyRef(d);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "copies only"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "By reference"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "sliced",
+       "tone": "bad",
+       "cue": "sliced away"
+      }
+     ],
+     "output": {
+      "cmd": "./slice",
+      "text": "...\nWoof",
+      "cue": "real type survives"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Pure virtual and abstract",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Pure virtual and abstract",
+     "statement": "Make a Shape that can't be created, yet forces every derived class to supply an area.",
+     "example": {
+      "input": "virtual double area() const = 0;",
+      "output": "Shape s; is an error"
+     },
+     "say": "Here is the problem. For example, area with equals zero. A plain Shape can't compute it, so creating one is an error.",
+     "cues": {
+      "example": "For example",
+      "output": "creating one"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Pure virtual makes a class abstract",
+     "say": "Equals zero makes area pure virtual. A class with one is abstract: you can't create a Shape. Circle overrides area, so Circle is concrete. Shape pointers can still point at concrete objects.",
+     "panels": [
+      {
+       "file": "shape.cpp",
+       "code": "struct Shape {\n    virtual double area() const = 0;\n};\nclass Circle : public Shape {\npublic:\n    double area() const override { return 3.14; }\n};\nShape s;                 // error: abstract\nShape* p = new Circle;   // OK: a pointer\nCircle c;                // OK: concrete"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Equals zero"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "you can't create"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Circle overrides"
+      },
+      {
+       "lines": [
+        9,
+        10
+       ],
+       "cue": "Shape pointers"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "An abstract class with real content",
+     "say": "Abstract does not mean empty. Employee has a constructor, real data, and a normal function, printSlip. Only pay is missing, because the base can't know how an employee is paid. That is the template method pattern. A class of only pure virtuals is an interface.",
+     "panels": [
+      {
+       "file": "emp.cpp",
+       "code": "class Employee {\npublic:\n    Employee(string n) : name(n) {}\n    virtual ~Employee() = default;\n    virtual double pay() const = 0;\n    void printSlip() const {\n        cout << name << \": \" << pay() << '\\n';\n    }\nprotected:\n    string name;\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "a constructor"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "real data"
+      },
+      {
+       "lines": [
+        6,
+        7,
+        8
+       ],
+       "cue": "normal function"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Only pay"
+      },
+      {
+       "lines": [],
+       "cue": "can't know"
+      },
+      {
+       "lines": [],
+       "cue": "template method"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Polygon derives from Shape, adds a sides function, but never overrides area. We write Polygon p. What happens? Pause and predict.",
+     "q": "Polygon inherits pure `area()` and doesn't override it. `Polygon p;` is...",
+     "options": [
+      "fine",
+      "a compile error",
+      "a runtime crash",
+      "fine, area is 0"
+     ],
+     "answer": "a compile error"
+    },
+    {
+     "type": "code",
+     "head": "The obligation passes down",
+     "say": "A compile error. Polygon still has the unimplemented area, so it is still abstract. The obligation passes down until some class overrides it.",
+     "panels": [
+      {
+       "file": "poly.cpp",
+       "code": "class Polygon : public Shape {\npublic:\n    int sides() const { return 0; }\n};\nPolygon p;   // area() never overridden"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "still has"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "passes down"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -c poly.cpp",
+      "text": "error: cannot declare variable ‘p’ to be of abstract type ‘Polygon’",
+      "tone": "bad",
+      "cue": "A compile error"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Surprise: a pure virtual can have a body",
+     "say": "Interview surprise. A pure virtual function can still have a body, defined outside the class. Derived classes call it explicitly as a default. A pure virtual destructor must have a body, because every derived destructor calls it. Forget it, and you get a linker error.",
+     "panels": [
+      {
+       "file": "logger.cpp",
+       "code": "class Logger {\npublic:\n    virtual void log(string m) = 0;\n    virtual ~Logger() = 0;\n};\nvoid Logger::log(string m) { cout << m; }\nLogger::~Logger() {}   // body REQUIRED\nclass FileLogger : public Logger {\npublic:\n    void log(string m) override { Logger::log(m); }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6
+       ],
+       "cue": "defined outside"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "call it explicitly"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "pure virtual destructor"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "must have a body"
+      },
+      {
+       "lines": [
+        8,
+        9,
+        10
+       ],
+       "cue": "every derived destructor"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Example? Shape: private radius, area, Circle is a Shape. Encapsulation versus abstraction? Guard the inside, simplify the outside.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Four pillars?",
+       "encapsulation, abstraction, inheritance, polymorphism"
+      ],
+      [
+       "Example?",
+       "`Shape`: private `r`, `area()`, `Circle` is a `Shape`"
+      ],
+      [
+       "Enc. vs abs.?",
+       "guard the inside, simplify the outside"
+      ]
+     ],
+     "cues": [
+      "Four pillars",
+      "Example",
+      "Encapsulation versus"
+     ],
+     "covers": [
+      "q46",
+      "q47"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is inheritance? A derived class reuses a base, and public means is a. Types? Single, multilevel, multiple, hierarchical, hybrid. Diamond? Two copies of the base, fixed with virtual inheritance. Access modes? Public, protected, private.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is inheritance?",
+       "derived reuses base; public = is-a"
+      ],
+      [
+       "Types?",
+       "single, multilevel, multiple, hierarchical, hybrid"
+      ],
+      [
+       "Diamond?",
+       "two bases: fix with `virtual` inheritance"
+      ],
+      [
+       "Access modes?",
+       "public, protected, private"
+      ]
+     ],
+     "cues": [
+      "What is inheritance",
+      "Types",
+      "Diamond",
+      "Access modes"
+     ],
+     "covers": [
+      "q48"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is polymorphism? One interface, behavior chosen by the actual type. Compile time versus runtime? Overloads and templates, versus virtual functions. Cost? Direct call versus one vtable hop. Trap? Slicing: pass by reference or pointer.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is polymorphism?",
+       "one interface, behavior by actual type"
+      ],
+      [
+       "Compile vs runtime?",
+       "overloads, templates vs `virtual`"
+      ],
+      [
+       "Cost?",
+       "direct, inlinable vs one vtable hop"
+      ],
+      [
+       "Trap?",
+       "slicing: pass by reference"
+      ]
+     ],
+     "cues": [
+      "What is polymorphism",
+      "Compile time versus",
+      "Cost",
+      "Trap"
+     ],
+     "covers": [
+      "q49",
+      "q50"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is a virtual function? Chosen at runtime by the object's real type. How? A hidden vptr to the class's vtable. Traps? Constructor calls stay in Base, and always write override.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Virtual function?",
+       "chosen by the object's real type"
+      ],
+      [
+       "How does it work?",
+       "hidden vptr, class vtable"
+      ],
+      [
+       "Traps?",
+       "ctor calls stay in Base; use `override`"
+      ]
+     ],
+     "cues": [
+      "virtual function",
+      "How",
+      "Traps"
+     ],
+     "covers": [
+      "q51"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Pure virtual? Declared with equals zero. Abstract class? Has one, so can't be created. Can it have a body? Yes, and a pure virtual destructor must. Can an abstract class have data and a constructor? Yes, used through pointers.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Pure virtual?",
+       "`= 0`: derived classes must override"
+      ],
+      [
+       "Abstract class?",
+       "has one: can't instantiate"
+      ],
+      [
+       "Pure body?",
+       "allowed; pure dtor must have one"
+      ],
+      [
+       "Data, constructor?",
+       "yes; use via pointer or reference"
+      ]
+     ],
+     "cues": [
+      "Pure virtual",
+      "Abstract class",
+      "body",
+      "Can an abstract"
+     ],
+     "covers": [
+      "q52",
+      "q53"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Try these three. LeetCode seven oh seven, design linked list, is private state behind a clean interface. LeetCode six forty one, design circular deque, hides a ring buffer. LeetCode one forty six, LRU cache, is an API over hidden structures.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 707 · Design Linked List",
+       "private state, public interface"
+      ],
+      [
+       "LeetCode 641 · Design Circular Deque",
+       "encapsulate a ring buffer"
+      ],
+      [
+       "LeetCode 146 · LRU Cache",
+       "abstract API over hidden structures"
+      ]
+     ],
+     "cues": [
+      "seven oh seven",
+      "six forty one",
+      "one forty six"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Encapsulation guards the inside, abstraction simplifies the outside. Inheritance is an is a relationship, and virtual makes the object's real type choose the function. Pure virtual makes a class abstract.",
+     "lines": [
+      "Encapsulation guards, abstraction simplifies.",
+      "`virtual`: the real type picks the function.",
+      "Pure virtual = abstract: override to be concrete."
+     ],
+     "cues": [
+      "Encapsulation guards",
+      "virtual makes",
+      "Pure virtual makes"
+     ]
+    }
+   ]
+  }
+ ]
+}
