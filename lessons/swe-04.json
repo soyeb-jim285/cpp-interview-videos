@@ -470,8 +470,8 @@
      ],
      "notes": [
       {
-       "x": 560,
-       "y": 880,
+       "x": 720,
+       "y": 780,
        "text": "vary the inputs",
        "tone": "info",
        "cue": "varied inputs"
@@ -542,7 +542,7 @@
     {
      "type": "diagram",
      "head": "The test pyramid",
-     "say": "Think of building a car. First, check each bolt alone. That's a unit test: one function, milliseconds, no database. Many of them, about seventy percent. Next, engine and gearbox on a bench: integration, about twenty. Last, test drive the whole car: end to end, slow, about ten.",
+     "say": "Three kinds of test, and why one flakes. Think of building a car. First, check each bolt alone. That's a unit test: one function, milliseconds, no database. Many of them, about seventy percent. Next, engine and gearbox on a bench: integration, about twenty. Last, test drive the whole car: end to end, slow, about ten.",
      "items": [
       {
        "id": "e2e",
@@ -659,7 +659,7 @@
     {
      "type": "code",
      "head": "A mock stands in for slow things",
-     "say": "A mock replaces something slow or outside your control, like an email service. The test hands checkout a stand-in mailer, so no email is sent. It checks the return value, fifty, and that send was called once with receipt. A fake works like the real thing. A mock also records calls.",
+     "say": "A mock replaces something slow or outside your control, like an email service. The test hands checkout a stand-in mailer, so no email is sent. It checks the return value, fifty, and that send was called once with receipt. A fake is a simple working copy, like an in-memory mailer. A mock only records calls.",
      "panels": [
       {
        "file": "test_app.py",
@@ -697,7 +697,7 @@
        "lines": [
         6
        ],
-       "cue": "A fake works"
+       "cue": "A fake is"
       }
      ],
      "output": {
@@ -841,7 +841,7 @@
       "output": "[[1,6],[8,10]]"
      },
      "note": "50 hidden cases",
-     "say": "Here's the problem. Design a task a program can grade, with no way to cheat. For example, merge overlapping intervals. This input must give this output, on fifty hidden cases.",
+     "say": "Here's the problem. Design a task a program can grade, with no way to cheat. For example, merge overlapping intervals. This input must give this output, graded against a trusted reference on fifty seeded hidden cases.",
      "cues": {
       "example": "For example",
       "output": "this output",
@@ -938,7 +938,7 @@
     {
      "type": "code",
      "head": "A seed makes the cases repeatable",
-     "say": "The generator takes a seed. Seed zero always builds the same list, so a failure on seed thirty one reproduces on any machine, every run. Each case has zero to eight intervals, so the empty list is covered on purpose.",
+     "say": "The generator takes a seed, a number that fixes the random generator. Seed zero always builds the same list, so a failure on seed thirty one reproduces on any machine, every run. Each case has zero to eight intervals, so the empty list is covered on purpose.",
      "panels": [
       {
        "file": "gen.py",
@@ -1029,7 +1029,7 @@
      "notes": [
       {
        "x": 1060,
-       "y": 790,
+       "y": 740,
        "text": "edge cases on purpose",
        "tone": "info",
        "cue": "edge cases"
@@ -1095,8 +1095,8 @@
      "q": "The cheater passes the sample. How does it do on the 50 hidden cases?",
      "options": [
       "all 50",
-      "most of them",
-      "only the empty cases",
+      "about half",
+      "a handful of them",
       "none"
      ],
      "answer": 2
@@ -1111,13 +1111,13 @@
        "label": "Real",
        "value": 50,
        "tone": "good",
-       "cue": "passes fifty"
+       "cue": "Here's how many"
       },
       {
        "label": "Cheater",
        "value": 5,
        "tone": "bad",
-       "cue": "passes five"
+       "cue": "The cheater passes"
       }
      ]
     },
@@ -1253,39 +1253,21 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
+     "kicker": "Say it",
      "covers": [
       "sw05"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "say": "Unit, integration, end to end? One function, parts together, whole flow. Keep tests reliable? Pass in time and randomness. Mock or fake? A mock records calls. Mistake: mocking so much the test proves nothing.",
-     "rows": [
-      [
-       "Unit vs integration vs end to end?",
-       "One function, parts together, whole flow"
-      ],
-      [
-       "Keep tests reliable?",
-       "Inject time, randomness, I/O"
-      ],
-      [
-       "Mock or fake?",
-       "Mock records calls; fake just works"
-      ],
-      [
-       "Common mistake?",
-       "Mocking so much nothing is proven"
-      ]
+     "say": "Unit, integration, end to end? Many fast ones, few slow ones. Keep tests reliable? Pass in time and randomness. Mock or fake? A mock records calls, a fake is a simple working copy.",
+     "lines": [
+      "Unit, integration, e2e: many fast, few slow.",
+      "Reliable: pass in time, randomness, I/O.",
+      "Mock records calls; fake is a working copy."
      ],
      "cues": [
       "Unit, integration",
       "Keep tests",
-      "Mock or fake",
-      "Mistake"
+      "Mock or fake"
      ]
     },
     {
@@ -1302,7 +1284,7 @@
      "rows": [
       [
        "Design a verifier?",
-       "Spec, reference, seeded hidden tests"
+       "Spec + reference + seeded tests"
       ],
       [
        "Many valid answers?",
