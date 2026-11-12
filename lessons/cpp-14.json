@@ -349,6 +349,13 @@
      "steps": [
       {
        "lines": [
+        3
+       ],
+       "panel": 0,
+       "cue": "catches it at once"
+      },
+      {
+       "lines": [
         4
        ],
        "panel": 0,
@@ -827,6 +834,12 @@
        "text": "delete again",
        "tone": "bad",
        "cue": "deletes the same address again"
+      },
+      {
+       "id": "b",
+       "text": "delete again",
+       "tone": "bad",
+       "cue": "A double delete"
       }
      ]
     },
