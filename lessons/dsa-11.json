@@ -63,7 +63,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. List every subset. This pattern is called backtracking: choose, explore, undo. Without it you'd need a nested loop for every item. Prune dead branches in permutations and sums. And do it again with bit tricks.",
+     "say": "Today you will do three things. List every subset. This pattern is called backtracking: choose, explore, undo. Prune dead branches, meaning cut a path once it can't work. Permutations and sums too. Then do it again with bit tricks.",
      "lines": [
       "Backtracking: choose, explore, undo",
       "Permutations, and pruned searches",
@@ -71,8 +71,8 @@
      ],
      "cues": [
       "This pattern is called",
-      "Prune dead branches",
-      "bit tricks"
+      "meaning cut a path",
+      "Then do it again"
      ]
     },
     {
@@ -943,7 +943,7 @@
     {
      "type": "diagram",
      "head": "Target 7 from 2, 3, 6, 7 (reuse OK)",
-     "say": "Candidates two, three, six, seven. Target seven, and numbers may repeat. Start empty. Add two. Now two again. A third two leaves one, too small for any candidate. Dead end. Add three instead: that's seven exactly. Found. Back up. Two then three leaves only two. Dead again.",
+     "say": "Candidates two, three, six, seven. Target seven, and numbers may repeat. Start empty. Add two. Now two again. A third two leaves one, too small for any candidate. Dead end. Add three instead: that's seven exactly. Found. Back up. Two then three leaves only two. Dead again, since we only move forward, so no going back to two.",
      "items": [
       {
        "tree": {
@@ -1154,19 +1154,19 @@
      "type": "chart",
      "head": "What pruning saves",
      "unit": "calls",
-     "say": "Ten primes, two up to twenty nine, and target forty. Without the break, but with a bounds check: fourteen thousand one hundred eighty four calls. With the break: two thousand six hundred seventy eight. Five times fewer.",
+     "say": "Ten primes, two up to twenty nine, and target forty. Without any pruning, every candidate recurses: fourteen thousand one hundred eighty four calls. Pruned: two thousand six hundred seventy eight. Five times fewer.",
      "bars": [
       {
-       "label": "No break",
+       "label": "No pruning",
        "value": 14184,
        "tone": "bad",
-       "cue": "Without the break"
+       "cue": "Without any pruning"
       },
       {
-       "label": "Break",
+       "label": "Prune",
        "value": 2678,
        "tone": "good",
-       "cue": "With the break"
+       "cue": "Pruned"
       }
      ]
     },
@@ -1608,30 +1608,36 @@
        "glow": true,
        "tone": "bad",
        "cue": "bits zero and one"
+      },
+      {
+       "id": "i1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "ten plus twenty"
       }
      ]
     },
     {
      "type": "chart",
      "head": "Steps grow about twenty times per four items",
-     "unit": "steps",
-     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million, twenty times the one before. Twenty four: four hundred million, nineteen times more. So masks count subsets, up to twenty items.",
+     "unit": "million steps",
+     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million, nineteen times more. So masks count subsets, up to twenty items.",
      "bars": [
       {
        "label": "n = 16",
-       "value": 1048576,
+       "value": 1.05,
        "tone": "good",
        "cue": "Sixteen items"
       },
       {
        "label": "n = 20 x20",
-       "value": 20971520,
+       "value": 20.97,
        "tone": "warn",
        "cue": "Twenty"
       },
       {
        "label": "n = 24 x19",
-       "value": 402653184,
+       "value": 402.65,
        "tone": "bad",
        "cue": "four hundred million"
       }
@@ -2002,11 +2008,13 @@
     {
      "type": "code",
      "head": "Every submask of a mask",
-     "say": "Last trick: every submask of m, biggest first. Start at m. Subtract one, then and with m, to skip patterns outside m. Mask five, one zero one, gives five, four, one. Then the empty set, zero, by hand.",
+     "say": "A submask is any mask whose one bits all sit inside m. Last trick: every submask of m, biggest first. Start at m. Subtract one, then and with m, to skip patterns outside m. Mask five, one zero one, gives five, four, one. Then the empty set, zero, by hand.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int m = 5;\nfor (int s = m; s > 0; s = (s - 1) & m)\n    cout << s << ' ';\ncout << 0;"
+       "code": "int m = 5;\nfor (int s = m; s > 0; s = (s - 1) & m)\n    cout << s << ' ';\ncout << 0;",
+       "type": true,
+       "cue": "Last trick"
       }
      ],
      "steps": [
@@ -2085,7 +2093,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's backtracking? Choose, explore, undo, with pruning when a branch can't work. Cost? Subsets: n times two to the n. Permutations: n times n factorial. Why prune? About fourteen thousand calls drop to about two thousand seven hundred. Mistake? Forgetting the undo.",
+     "say": "What's backtracking? Choose, explore, undo, with pruning when a branch can't work. Cost? Subsets: n times two to the n. Permutations: n times n factorial. Why prune? Fourteen thousand calls with no pruning, about two thousand seven hundred with it. Mistake? Forgetting the undo.",
      "rows": [
       [
        "What is backtracking?",
@@ -2097,7 +2105,7 @@
       ],
       [
        "Why prune?",
-       "10 primes, target 40: 14,184 → 2,678 calls"
+       "No pruning: 14,184 → pruned: 2,678 calls"
       ],
       [
        "Common mistake?",
