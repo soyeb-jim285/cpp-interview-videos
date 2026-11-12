@@ -61,6 +61,35 @@
      ]
     },
     {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Explain how a transfer stays all or nothing. Reproduce a lost update, and fix it three ways. And say what each isolation level allows.",
+     "lines": [
+      "Make a transfer all or nothing",
+      "Reproduce a lost update, fix it 3 ways",
+      "Say what each isolation level allows"
+     ],
+     "cues": [
+      "Explain how",
+      "Reproduce a lost",
+      "say what each"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "How can a transfer half-happen?",
+     "statement": "Moving 100 dollars takes two steps. If the server crashes between them, money vanishes.",
+     "example": {
+      "input": "Alice 500, Bob 200, crash after step 1",
+      "output": "nobody loses money: all or nothing"
+     },
+     "say": "Here's the problem. A transfer takes two steps, and the server can crash between. For example, Alice has five hundred, Bob two hundred, crash after step one. We want nobody to lose money.",
+     "cues": {
+      "example": "For example",
+      "output": "We want nobody"
+     }
+    },
+    {
      "type": "flow",
      "head": "Two steps, one promise",
      "say": "Start smaller. Move one hundred dollars from Alice to Bob. That's two steps: take it from Alice, give it to Bob. Think of handing cash through a window: the whole handoff happens, or the cash goes back. A transaction is that promise.",
@@ -338,6 +367,20 @@
    "title": "One balance, two withdrawals",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Why do two withdrawals lose one?",
+     "statement": "The balance is 100. Two requests withdraw 30 and 20 at once. It should end at 50.",
+     "example": {
+      "input": "balance 100, withdraw 30 and 20",
+      "output": "final balance 50, every time"
+     },
+     "say": "Next problem. Two requests withdraw thirty and twenty from a balance of one hundred. For example, both start together. It should end at fifty, but does it?",
+     "cues": {
+      "example": "For example",
+      "output": "It should end"
+     }
+    },
+    {
      "type": "flow",
      "head": "Two cashiers, one notepad",
      "say": "Now the real trouble. Picture two cashiers sharing one notepad, which says one hundred. It's a database row, and they're two requests. Each cashier reads it, subtracts in their head, then writes the answer back. Read, think, write.",
@@ -592,6 +635,20 @@
   {
    "title": "Three ways to stop it",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "How do we make it come out 50?",
+     "statement": "Make both concurrent withdrawals count, every single time.",
+     "example": {
+      "input": "the same race: 30 and 20 from 100",
+      "output": "50 every time, no lost update"
+     },
+     "say": "Now the fix. We need both withdrawals to count. For example, the same race, thirty and twenty from one hundred. We want fifty, every time. There are three ways.",
+     "cues": {
+      "example": "For example",
+      "output": "We want fifty"
+     }
+    },
     {
      "type": "code",
      "head": "Fix one: one atomic statement",
@@ -924,6 +981,20 @@
   {
    "title": "Isolation levels and deadlocks",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "What can one transaction see?",
+     "statement": "Transactions run at the same time. What may one see of another's work, and what if they wait on each other?",
+     "example": {
+      "input": "T1 reads twice, T2 commits between",
+      "output": "know what each level allows"
+     },
+     "say": "Last problem. Transactions run at the same time. For example, T1 reads twice, and T2 commits in between. We want to know what each isolation level allows, and what a deadlock is.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to know"
+     }
+    },
     {
      "type": "flow",
      "head": "A whiteboard with drafts",

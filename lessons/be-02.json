@@ -63,11 +63,11 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "One query reads a million rows to find one person. By the end, you'll make it read four, and spot the hidden fifty one queries behind a single blog page.",
+     "say": "Finding one user among a million rows should not mean reading all of them. By the end, you'll make it read four, and spot the hidden fifty one queries behind a blog page.",
      "lines": [
       {
        "text": "Find 1 user in 1,000,000",
-       "cue": "One query"
+       "cue": "Finding one user"
       },
       {
        "text": "Read 4 rows, not 1,000,000",
@@ -79,6 +79,35 @@
        "accent": true
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Make a lookup read four rows instead of a million. Know when an index backfires. And spot and fix the hidden fifty one queries.",
+     "lines": [
+      "Read 4 rows, not a million",
+      "Know when an index backfires",
+      "Spot and fix the N+1 queries"
+     ],
+     "cues": [
+      "Make a lookup",
+      "index backfires",
+      "spot and fix"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Why is this lookup slow?",
+     "statement": "A users table has a million rows. Finding one user by email takes far too long.",
+     "example": {
+      "input": "1,000,000 users, find one email",
+      "output": "read about 4 rows, not 1,000,000"
+     },
+     "say": "Here's the problem. A million rows, and finding one email is slow. For example, one email among a million users. We want to read about four rows, not a million.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to read"
+     }
     },
     {
      "type": "chart",
@@ -345,6 +374,20 @@
    "title": "When an index backfires",
    "scenes": [
     {
+     "type": "problem",
+     "title": "When does an index backfire?",
+     "statement": "Indexes speed up reads, but every write pays for them. Which indexes help, and which hurt?",
+     "example": {
+      "input": "orders table, 3 indexes, 1 insert",
+      "output": "index only what you filter, join, sort"
+     },
+     "say": "Next problem. Indexes speed up reads, but every write pays for them. For example, a table with three indexes and one insert. We want to know which indexes earn their cost.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to know"
+     }
+    },
+    {
      "type": "diagram",
      "head": "Every index is extra work",
      "say": "Picture a team that indexes every column, to be safe. Now one insert arrives. The row goes into the table. It also goes into the email index. And into the name index. One insert, three writes. Every extra index repeats it, and costs disk too.",
@@ -583,6 +626,20 @@
   {
    "title": "The hidden 51 queries",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does one page run 51 queries?",
+     "statement": "A blog page shows 50 posts with author names, and it is slow. Find out why, and fix it.",
+     "example": {
+      "input": "50 posts, each shows its author",
+      "output": "2 queries instead of 51"
+     },
+     "say": "Next problem. A blog page shows fifty posts with author names, and it is slow. For example, fifty posts, each with an author. We want two queries, not fifty one.",
+     "cues": {
+      "example": "For example",
+      "output": "We want two"
+     }
+    },
     {
      "type": "flow",
      "head": "A shopping trip",
@@ -904,6 +961,20 @@
   {
    "title": "Catch it before users do",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "A page is slow. Where do we start?",
+     "statement": "Someone says add an index. How do we find the real cause before changing anything?",
+     "example": {
+      "input": "slow page, cause unknown",
+      "output": "find it, fix one thing, measure"
+     },
+     "say": "Last problem. A page is slow, and someone says add an index. For example, a slow page with no known cause. We want to find the real cause, fix one thing, and measure.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to find"
+     }
+    },
     {
      "type": "flow",
      "head": "Slow page? Follow the order",

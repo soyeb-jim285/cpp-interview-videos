@@ -19,22 +19,53 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Your checkout has a forty line if chain, and a new payment method is due Monday. By the end you'll turn it into clean classes, and name the pattern while you do it.",
+     "say": "Your checkout is a forty line if chain, and a new payment method is due Monday. How do you add it without breaking the others? By the end you'll know, and name the pattern.",
      "lines": [
       {
        "text": "40-line if / elif chain",
        "cue": "forty line"
       },
       {
-       "text": "New payment method: Monday",
+       "text": "New method due Monday",
        "cue": "due Monday"
       },
       {
-       "text": "Clean classes. Named pattern.",
-       "cue": "clean classes",
-       "accent": "Named pattern"
+       "text": "Add it. Break nothing.",
+       "cue": "without breaking",
+       "accent": "Break nothing"
       }
      ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you'll do three things. Replace an if chain with classes. Name strategy, factory, observer and injection. And explain SOLID with an example.",
+     "lines": [
+      "Replace an if chain with classes.",
+      "Name strategy, factory, observer, injection.",
+      "Explain SOLID with an example."
+     ],
+     "cues": [
+      "Replace an if",
+      "Name strategy",
+      "explain SOLID"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Add a payment method safely",
+     "statement": "Checkout is one if/elif chain. Add crypto without editing the old branches.",
+     "example": {
+      "input": "if method == \"card\" ... elif \"paypal\"",
+      "output": "a new class, zero edits"
+     },
+     "note": "Old branches stay untouched",
+     "say": "Here's the problem. Checkout is one long if chain. For example, card, paypal, and now crypto is due. The answer: a new class, and zero edits to the old branches.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "Old branches"
+     }
     },
     {
      "type": "flow",
@@ -123,7 +154,7 @@
     {
      "type": "code",
      "head": "One class per rule",
-     "say": "Now each rule is its own class. The base class is the socket: it promises a pay method. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
+     "say": "That's our answer to the problem. Each rule is its own class. The base class is the socket: it promises a pay method. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
      "panels": [
       {
        "file": "app.py",
@@ -359,6 +390,22 @@
    "title": "SOLID, one habit at a time",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Explain SOLID with an example",
+     "statement": "Five principles, one line each, shown on our checkout. Then the follow-ups.",
+     "example": {
+      "input": "SOLID, Liskov, four pillars",
+      "output": "an answer with an example"
+     },
+     "note": "Never recite without an example",
+     "say": "Here's the problem. The interviewer says: explain SOLID, with an example. For example, we use our checkout. The answer: five one-liners, each tied to code. Never recite without an example.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "Never recite"
+     }
+    },
+    {
      "type": "compare",
      "head": "SOLID on our checkout",
      "say": "Five letters, each one line. Single responsibility: the checkout charges, a mailer emails. Open closed: add a class, don't edit. Liskov: a subclass works anywhere its parent does. Interface segregation: small interfaces, not one giant one. Dependency inversion: depend on the socket, not the details.",
@@ -591,6 +638,22 @@
    "title": "A factory picks the strategy",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Who picks the strategy?",
+     "statement": "A config string says \"paypal\". Turn it into the right object, in one place.",
+     "example": {
+      "input": "\"paypal\" from a config file",
+      "output": "a PayPal() object"
+     },
+     "note": "Callers must not know the classes",
+     "say": "Here's the problem. Config gives us a string. For example, paypal. We need the matching object. And callers shouldn't know which class it is.",
+     "cues": {
+      "example": "For example",
+      "output": "We need the matching",
+      "note": "And callers"
+     }
+    },
+    {
      "type": "flow",
      "head": "Who builds the strategy?",
      "say": "A config file says paypal. It's a string. A factory turns it into a PayPal object. Skip it, and the if chain returns.",
@@ -709,6 +772,22 @@
   {
    "title": "Observers and injection",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "React and test without coupling",
+     "statement": "A paid order must trigger email and stock, and tests must not charge real cards.",
+     "example": {
+      "input": "order paid; test the checkout",
+      "output": "no edits to Order; test in ms"
+     },
+     "note": "Two problems, two patterns",
+     "say": "Here's the problem. When an order is paid, email and stock must react. For example, add analytics later. We want zero edits to Order, and tests in milliseconds.",
+     "cues": {
+      "example": "For example",
+      "output": "We want zero",
+      "note": "in milliseconds"
+     }
+    },
     {
      "type": "diagram",
      "head": "Observer: publish, react",

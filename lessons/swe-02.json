@@ -31,7 +31,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "A hundred downloads, a second each. One way takes a hundred seconds. Another takes one. By the end you'll know why, and you'll spot the Python bugs interviewers plant.",
+     "say": "A hundred downloads, a second each. One way takes a hundred seconds. Another takes one. Which tool? By the end you'll know, and spot the Python bugs interviewers plant.",
      "lines": [
       {
        "text": "100 downloads × 1 second",
@@ -43,15 +43,46 @@
        "accent": "1"
       },
       {
-       "text": "Same machine. Same Python.",
-       "cue": "know why"
+       "text": "Which tool? Why?",
+       "cue": "Which tool"
       }
      ]
     },
     {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you'll do three things. Pick a process, a thread, or async for the job. Explain the GIL, races and deadlocks. And dodge the classic Python traps.",
+     "lines": [
+      "Pick process, thread or async.",
+      "Explain the GIL, races, deadlocks.",
+      "Dodge the classic Python traps."
+     ],
+     "cues": [
+      "Pick a process",
+      "Explain the GIL",
+      "dodge the classic"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Process, thread, or async?",
+     "statement": "Three ways to do many things at once. Say what each one shares, and what each one costs.",
+     "example": {
+      "input": "100 downloads, 1 s each",
+      "output": "about 1 s, with the right tool"
+     },
+     "note": "Interviewers ask this one first",
+     "say": "Here's the problem. Three ways to do many things at once. For example, a hundred downloads, a second each. The answer: about one second, with the right tool. Interviewers ask this first.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "Interviewers ask"
+     }
+    },
+    {
      "type": "flow",
      "head": "The puzzle we'll solve",
-     "say": "Here's today's puzzle. Downloads one by one: a hundred seconds. A pool of ten threads: about ten. Asyncio: about one. Then the twist. The same threads on number crunching: no faster at all.",
+     "say": "Here's where we're heading. Downloads one by one: a hundred seconds. A pool of ten threads: about ten. Asyncio: about one. Then the twist. The same threads on number crunching: no faster at all.",
      "items": [
       {
        "label": "one by one",
@@ -247,6 +278,22 @@
    "title": "100 downloads in 1 second",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Make 100 downloads take 1 s",
+     "statement": "A scraper fetches 100 URLs, one at a time. Make it fast without adding CPU.",
+     "example": {
+      "input": "100 URLs × 1 s, one by one",
+      "output": "100 s becomes about 1 s"
+     },
+     "note": "Time is spent waiting, not computing",
+     "say": "Here's the problem. A scraper fetches URLs one at a time. For example, a hundred URLs, a second each. We want one second, not a hundred. The time is spent waiting.",
+     "cues": {
+      "example": "For example",
+      "output": "We want one second",
+      "note": "The time is spent"
+     }
+    },
+    {
      "type": "code",
      "head": "The slow scraper",
      "say": "A new hire writes a scraper. A for loop, one URL at a time. A hundred pages, a second each: a hundred seconds. The CPU isn't busy. It's waiting on the network. And waiting is the part we can overlap.",
@@ -333,7 +380,7 @@
      "type": "chart",
      "head": "More workers, fewer rounds",
      "unit": "seconds",
-     "say": "Five seconds: a hundred over twenty is five rounds. One worker takes a hundred. Ten workers take ten. Twenty take five. But asyncio does it in about one second, with no extra threads.",
+     "say": "Total time. Twenty workers: five seconds, since a hundred over twenty is five rounds. One worker takes a hundred. Ten workers take ten. Twenty take five. But asyncio does it in about one second, with no extra threads.",
      "bars": [
       {
        "label": "1 worker",
@@ -362,7 +409,7 @@
     {
      "type": "code",
      "head": "Async: one thread, 100 tasks",
-     "say": "Here is how. At await, the function says: I'm waiting, run something else. Gather starts all hundred together. Every sleep overlaps, so the whole thing takes about a second, on a single thread.",
+     "say": "That's our answer to the problem. At await, the function says: I'm waiting, run something else. Gather starts all hundred together. Every sleep overlaps, so the whole thing takes about a second, on a single thread.",
      "panels": [
       {
        "file": "app.py",
@@ -535,6 +582,22 @@
    "title": "One microphone: the GIL",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Why are threads no faster?",
+     "statement": "Four CPU-heavy jobs on four threads take as long as one by one. Why, and what works?",
+     "example": {
+      "input": "4 jobs × 5M squares, 4 threads",
+      "output": "about 10 s; processes are faster"
+     },
+     "note": "Pure number crunching",
+     "say": "Here's the problem. Four jobs that crunch numbers, run on four threads. For example, five million squares each. It takes as long as one by one. Why, and what works?",
+     "cues": {
+      "example": "For example",
+      "output": "It takes as long",
+      "note": "Why, and what"
+     }
+    },
+    {
      "type": "diagram",
      "head": "The GIL: one microphone",
      "say": "Standard Python has a rule: the G I L, the global interpreter lock. Picture one microphone. Only one thread may run Python code at a time. A thread waiting on the network hands the mic over. Number crunching never waits, so threads just take turns.",
@@ -698,6 +761,22 @@
    "title": "Races, locks, deadlocks",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Why does the counter come up short?",
+     "statement": "Two threads each add one to a shared counter, 100,000 times. The total should be 200,000.",
+     "example": {
+      "input": "2 threads × 100,000 adds",
+      "output": "exactly 200,000, every run"
+     },
+     "note": "Shared memory is the catch",
+     "say": "Here's the problem. Two threads share one counter. For example, each adds one, a hundred thousand times. We need exactly two hundred thousand, every run. Shared memory is the catch.",
+     "cues": {
+      "example": "For example",
+      "output": "We need exactly",
+      "note": "Shared memory"
+     }
+    },
+    {
      "type": "diagram",
      "head": "A race condition",
      "say": "Even with the GIL, shared data breaks. The counter is five. Thread one reads five. Thread two reads five, before one writes. Both write six. Two adds, but the counter moved once. The result depends on timing. That's a race condition.",
@@ -779,7 +858,7 @@
     {
      "type": "code",
      "head": "The fix: a lock",
-     "say": "The fix is a lock. With lock means only one thread is inside that block at a time. Two threads each add a hundred thousand times, and every run gives exactly two hundred thousand. The other fix is to avoid shared state.",
+     "say": "That's our answer to the problem: a lock. With lock means only one thread is inside that block at a time. Two threads each add a hundred thousand times, and every run gives exactly two hundred thousand. The other fix is to avoid shared state.",
      "panels": [
       {
        "file": "app.py",
@@ -923,6 +1002,22 @@
   {
    "title": "Names, defaults, lambdas",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Spot the Python gotchas",
+     "statement": "Snippets that look right but print surprises. Predict each one before you run it.",
+     "example": {
+      "input": "add(1), add(2) with items=[]",
+      "output": "you expect [1] then [2]"
+     },
+     "note": "Plus late-binding lambdas, is vs ==",
+     "say": "Here's the problem. Code that looks right and lies. For example, a function with an empty list default, called twice. You expect one, then two. Watch what happens.",
+     "cues": {
+      "example": "For example",
+      "output": "You expect",
+      "note": "Watch what"
+     }
+    },
     {
      "type": "diagram",
      "head": "A name is a sticky note",
@@ -1189,6 +1284,22 @@
    "title": "Lazy generators, wrapped functions",
    "scenes": [
     {
+     "type": "problem",
+     "title": "A million squares, little memory",
+     "statement": "Sum a million squares without holding them all, and wrap a function without losing its name.",
+     "example": {
+      "input": "sum of i*i for i < 1,000,000",
+      "output": "tiny memory, name kept"
+     },
+     "note": "Generators and decorators",
+     "say": "Here's the problem. Add up a million squares. For example, i times i, for i under a million. We want it in tiny memory. Then wrap a function, and keep its name.",
+     "cues": {
+      "example": "For example",
+      "output": "We want it",
+      "note": "Then wrap"
+     }
+    },
+    {
      "type": "code",
      "head": "Generators are lazy",
      "say": "A generator uses yield. Yield pauses the function and hands back one value. Next resumes it. The first next gives zero. The second gives one. Nothing is computed early.",
@@ -1228,7 +1339,7 @@
      "type": "chart",
      "head": "A million squares: bytes",
      "unit": "bytes",
-     "say": "Measure it with get size of. The list of a million squares: over eight million bytes. The generator for the same million: two hundred eight.",
+     "say": "Here we compare memory, with get size of. The list of a million squares: over eight million bytes. The generator for the same million: two hundred eight.",
      "bars": [
       {
        "label": "list",

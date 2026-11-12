@@ -1,0 +1,3564 @@
+{
+ "id": "dsa-13",
+ "track": "DSA",
+ "num": 13,
+ "title": "Classic DP: Knapsack, LIS, LCS",
+ "covers": [
+  "cp13"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Knapsack: take or leave",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Which items fill a four kilo backpack for the most value? The priciest item is not in the best answer. By the end you'll fill knapsack, L I S and L C S tables by hand.",
+     "lines": [
+      {
+       "text": "A 4 kg backpack",
+       "cue": "Which items"
+      },
+      {
+       "text": "Priciest item loses",
+       "cue": "priciest item"
+      },
+      {
+       "text": "3 DP shapes, by hand",
+       "cue": "fill knapsack",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Fill a knapsack table by hand. Build the longest increasing run with a tails list. And fill a grid for the longest common subsequence.",
+     "lines": [
+      "Knapsack: take or leave, by hand",
+      "LIS: the tails list",
+      "LCS: fill the grid"
+     ],
+     "cues": [
+      "Fill a knapsack",
+      "Build the longest",
+      "fill a grid"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "0/1 knapsack",
+     "statement": "Each item is taken once or left. Maximize value within the weight limit.",
+     "example": {
+      "input": "weights 1, 3, 4 · values 15, 20, 30 · cap 4",
+      "output": "35"
+     },
+     "say": "Here is the problem. For example, weights one, three, four, capacity four. The best value is thirty five.",
+     "cues": {
+      "example": "For example",
+      "output": "thirty five"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Backpack: 4 kg, three items",
+     "say": "Item A weighs one kilo and is worth fifteen dollars. Item B, three kilos, twenty. Item C, four kilos, thirty. Each is taken or left, never split. Grabbing the priciest, C, fills the bag: thirty. But A and B together weigh four kilos and give thirty five.",
+     "items": [
+      {
+       "id": "ia",
+       "x": 200,
+       "y": 260,
+       "w": 440,
+       "h": 130,
+       "text": "A: 1 kg, $15",
+       "tone": "blue",
+       "cue": "Item A"
+      },
+      {
+       "id": "ib",
+       "x": 700,
+       "y": 260,
+       "w": 440,
+       "h": 130,
+       "text": "B: 3 kg, $20",
+       "tone": "blue",
+       "cue": "Item B"
+      },
+      {
+       "id": "ic",
+       "x": 1200,
+       "y": 260,
+       "w": 440,
+       "h": 130,
+       "text": "C: 4 kg, $30",
+       "tone": "blue",
+       "cue": "Item C"
+      },
+      {
+       "id": "r1",
+       "x": 200,
+       "y": 640,
+       "w": 640,
+       "h": 130,
+       "label": "grab the priciest",
+       "text": "C alone = $30",
+       "size": 48,
+       "tone": "bad",
+       "cue": "Grabbing the priciest"
+      },
+      {
+       "id": "r2",
+       "x": 900,
+       "y": 640,
+       "w": 740,
+       "h": 130,
+       "label": "A + B (4 kg)",
+       "text": "$15 + $20 = $35",
+       "size": 48,
+       "tone": "good",
+       "cue": "But A and B"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "dp over capacity, item by item",
+     "say": "Let dp of c be the best value at capacity c. All start at zero. Item A: one kilo, fifteen dollars. Every capacity from one up can hold it, so all become fifteen. Item B: three kilos, twenty. Capacity three becomes twenty. Capacity four takes B plus A's last kilo: thirty five. Item C: four kilos, thirty. That's less than thirty five, so nothing changes.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "y": 330,
+        "cue": "Let dp of c"
+       }
+      },
+      {
+       "id": "hand",
+       "x": 520,
+       "y": 640,
+       "w": 900,
+       "h": 110,
+       "label": "item in hand",
+       "text": "none",
+       "size": 44,
+       "tone": "info",
+       "cue": "All start at zero"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1000,
+       "y": 820,
+       "text": "dp[4] = dp[1] + 20 = 35",
+       "tone": "good",
+       "cue": "plus A's last kilo"
+      }
+     ],
+     "changes": [
+      {
+       "id": "hand",
+       "text": "A: 1 kg, $15",
+       "cue": "Item A"
+      },
+      {
+       "id": "c1",
+       "text": "15",
+       "tone": "good",
+       "cue": "all become fifteen"
+      },
+      {
+       "id": "c2",
+       "text": "15",
+       "tone": "good",
+       "cue": "all become fifteen"
+      },
+      {
+       "id": "c3",
+       "text": "15",
+       "tone": "good",
+       "cue": "all become fifteen"
+      },
+      {
+       "id": "c4",
+       "text": "15",
+       "tone": "good",
+       "cue": "all become fifteen"
+      },
+      {
+       "id": "hand",
+       "text": "B: 3 kg, $20",
+       "cue": "Item B"
+      },
+      {
+       "id": "c3",
+       "text": "20",
+       "tone": "good",
+       "cue": "Capacity three becomes"
+      },
+      {
+       "id": "c4",
+       "text": "35",
+       "tone": "good",
+       "cue": "Capacity four takes"
+      },
+      {
+       "id": "hand",
+       "text": "C: 4 kg, $30",
+       "cue": "Item C"
+      },
+      {
+       "id": "c4",
+       "glow": true,
+       "tone": "warn",
+       "cue": "nothing changes"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Knapsack in six lines",
+     "say": "In code, one array over capacity. For each item, loop capacity from the top down, and ask: better to leave the item, or take it plus the best of what's left? It prints thirty five. Cost is items times capacity: pseudo-polynomial, since capacity is a value.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int w[] = {1, 3, 4}, v[] = {15, 20, 30}, cap = 4;\nvector<int> dp(cap + 1, 0);\nfor (int i = 0; i < 3; i++)\n    for (int c = cap; c >= w[i]; c--)\n        dp[c] = max(dp[c], dp[c - w[i]] + v[i]);\ncout << dp[cap];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "For each item"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "from the top down"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "better to leave"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "down: item used once",
+       "tone": "warn",
+       "cue": "top down"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "O(items × cap)",
+       "tone": "info",
+       "cue": "Cost is items"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "35",
+      "cue": "prints thirty five"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Only item A, one kilo, fifteen dollars, capacity four. This time the capacity loop runs upward, from one to four. What does dp of four end up as? Pause and predict.",
+     "q": "One item (1 kg, $15), c loops 1 up to 4. dp[4]?",
+     "options": [
+      "15",
+      "30",
+      "45",
+      "60"
+     ],
+     "answer": 3,
+     "pause": 6
+    },
+    {
+     "type": "code",
+     "head": "Trap: capacity loop upward",
+     "say": "Sixty. Upward, dp of one is fifteen. Then dp of two reuses that cell: thirty. Then forty five, then sixty. One item, used four times. Downward avoids it.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "int w = 1, v = 15, cap = 4;\nvector<int> dp(cap + 1, 0);\nfor (int c = w; c <= cap; c++)\n    dp[c] = max(dp[c], dp[c - w] + v);\ncout << dp[cap];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Upward"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "reuses that cell"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "upward: item reused",
+       "tone": "bad",
+       "cue": "used four times"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "60",
+      "tone": "bad",
+      "cue": "then sixty"
+     }
+    }
+   ]
+  },
+  {
+   "title": "LIS: the tails list",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Longest increasing subsequence",
+     "statement": "Keep the order, skip freely. Find the longest strictly rising run.",
+     "example": {
+      "input": "[10, 9, 2, 5, 3, 7, 101, 18]",
+      "output": "4"
+     },
+     "say": "New problem. For example, ten, nine, two, five, three, seven, one hundred one, eighteen. Longest rising run? Four.",
+     "cues": {
+      "example": "For example",
+      "output": "rising run"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Longest increasing subsequence",
+     "say": "Look at the array. Two, then three, then seven, then eighteen: each bigger than the last. Length four. Nothing longer exists.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         10,
+         9,
+         2,
+         5,
+         3,
+         7,
+         101,
+         18
+        ],
+        "y": 380,
+        "cue": "Look at the array"
+       }
+      },
+      {
+       "id": "len",
+       "x": 700,
+       "y": 700,
+       "w": 520,
+       "h": 130,
+       "label": "longest rising run",
+       "text": "4",
+       "size": 56,
+       "tone": "good",
+       "cue": "Length four"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c2",
+       "glow": true,
+       "tone": "good",
+       "cue": "Two, then"
+      },
+      {
+       "id": "c4",
+       "glow": true,
+       "tone": "good",
+       "cue": "then three"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "tone": "good",
+       "cue": "then seven"
+      },
+      {
+       "id": "c7",
+       "glow": true,
+       "tone": "good",
+       "cue": "then eighteen"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Beat n squared with tails",
+     "say": "The classic follow-up: can you beat n squared? The simple table looks back at every earlier number. The trick is a list called tails. Slot k holds the smallest end of any rising run of length k plus one. Smaller ends are easier to extend.",
+     "items": [
+      {
+       "label": "simple table",
+       "text": "look back",
+       "sub": "O(n²)",
+       "tone": "warn",
+       "cue": "simple table"
+      },
+      {
+       "label": "tails list",
+       "text": "one per length",
+       "cue": "called tails"
+      },
+      {
+       "label": "slot k",
+       "text": "smallest end",
+       "sub": "of runs of length k+1",
+       "cue": "smallest end"
+      },
+      {
+       "label": "why smallest",
+       "text": "easy to extend",
+       "tone": "good",
+       "cue": "easier to extend"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Tails: first four numbers",
+     "say": "Keep the list tails. Ten arrives, so tails is ten. Nine arrives, smaller, so it replaces ten. Two arrives, smaller again: it replaces nine. Five arrives, bigger than all: it extends the list.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         10,
+         9,
+         2,
+         5,
+         3,
+         7,
+         101,
+         18
+        ],
+        "y": 300
+       }
+      },
+      {
+       "id": "t0",
+       "x": 430,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 1",
+       "text": "–",
+       "size": 48,
+       "tone": "dim",
+       "cue": "Keep the list"
+      },
+      {
+       "id": "t1",
+       "x": 670,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 2",
+       "text": "–",
+       "size": 48,
+       "tone": "dim",
+       "cue": "Keep the list"
+      },
+      {
+       "id": "t2",
+       "x": 910,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 3",
+       "text": "–",
+       "size": 48,
+       "tone": "dim",
+       "cue": "Keep the list"
+      },
+      {
+       "id": "t3",
+       "x": 1150,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 4",
+       "text": "–",
+       "size": 48,
+       "tone": "dim",
+       "cue": "Keep the list"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "glow": true,
+       "cue": "Ten arrives"
+      },
+      {
+       "id": "t0",
+       "text": "10",
+       "tone": "blue",
+       "cue": "tails is ten"
+      },
+      {
+       "id": "c1",
+       "glow": true,
+       "cue": "Nine arrives"
+      },
+      {
+       "id": "t0",
+       "text": "9",
+       "cue": "it replaces ten"
+      },
+      {
+       "id": "c2",
+       "glow": true,
+       "cue": "Two arrives"
+      },
+      {
+       "id": "t0",
+       "text": "2",
+       "cue": "it replaces nine"
+      },
+      {
+       "id": "c3",
+       "glow": true,
+       "cue": "Five arrives"
+      },
+      {
+       "id": "t1",
+       "text": "5",
+       "tone": "blue",
+       "cue": "extends the list"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Tails: the last four numbers",
+     "say": "Three arrives and replaces five: two, three is a better start than two, five. Seven arrives, bigger than all: it extends. One hundred one extends again. Eighteen arrives and replaces one hundred one. Four slots are used, so the answer is four.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         10,
+         9,
+         2,
+         5,
+         3,
+         7,
+         101,
+         18
+        ],
+        "y": 300
+       }
+      },
+      {
+       "id": "t0",
+       "x": 430,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 1",
+       "text": "2",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "t1",
+       "x": 670,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 2",
+       "text": "5",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "t2",
+       "x": 910,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 3",
+       "text": "–",
+       "size": 48,
+       "tone": "dim"
+      },
+      {
+       "id": "t3",
+       "x": 1150,
+       "y": 640,
+       "w": 200,
+       "h": 120,
+       "label": "length 4",
+       "text": "–",
+       "size": 48,
+       "tone": "dim"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c4",
+       "glow": true,
+       "cue": "Three arrives"
+      },
+      {
+       "id": "t1",
+       "text": "3",
+       "cue": "replaces five"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "cue": "Seven arrives"
+      },
+      {
+       "id": "t2",
+       "text": "7",
+       "tone": "blue",
+       "cue": "it extends"
+      },
+      {
+       "id": "c6",
+       "glow": true,
+       "cue": "One hundred one"
+      },
+      {
+       "id": "t3",
+       "text": "101",
+       "tone": "blue",
+       "cue": "extends again"
+      },
+      {
+       "id": "c7",
+       "glow": true,
+       "cue": "Eighteen arrives"
+      },
+      {
+       "id": "t3",
+       "text": "18",
+       "cue": "replaces one hundred one"
+      },
+      {
+       "id": "t3",
+       "glow": true,
+       "tone": "good",
+       "cue": "the answer is four"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "LIS with binary search",
+     "say": "In code, lower bound finds the first tail not smaller than x. None found means x is bigger than all: append. Otherwise overwrite that tail. One binary search per number: O of n log n. On our array it prints four.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int lis(vector<int> a) {\n    vector<int> tails;\n    for (int x : a) {\n        auto it = lower_bound(begin(tails), end(tails), x);\n        if (it == tails.end()) tails.push_back(x); else *it = x;\n    }\n    return tails.size();\n}\nint main() { cout << lis({10,9,2,5,3,7,101,18}); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "lower bound finds"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "None found"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "overwrite that tail"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "O(n log n) total",
+       "tone": "good",
+       "cue": "One binary search"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4",
+      "cue": "prints four"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Array four, one, five, two, six. Run the tails list by hand. How long is tails at the end? Pause and predict.",
+     "q": "Array [4, 1, 5, 2, 6]: final length of tails?",
+     "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": 1,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "tails for 4, 1, 5, 2, 6",
+     "say": "Three. Four starts the list. One replaces four. Five extends it. Two replaces five. Six extends it: one, two, six. Length three.",
+     "items": [
+      {
+       "label": "read 4",
+       "text": "4",
+       "cue": "Four starts"
+      },
+      {
+       "label": "read 1",
+       "text": "1",
+       "cue": "One replaces"
+      },
+      {
+       "label": "read 5",
+       "text": "1 5",
+       "cue": "Five extends"
+      },
+      {
+       "label": "read 2",
+       "text": "1 2",
+       "cue": "Two replaces"
+      },
+      {
+       "label": "read 6",
+       "text": "1 2 6",
+       "tone": "good",
+       "cue": "Six extends"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three LIS traps",
+     "say": "Tails isn't the run. For three, five, one it ends as one, five. Only its length is real. Equal values? Lower bound is strict, upper bound allows equals. The simple table is O of n squared.",
+     "heads": [
+      "Trap",
+      "Fact"
+     ],
+     "rows": [
+      [
+       "Printing `tails` as the run",
+       "[3,5,1] ends as [1,5]: out of order"
+      ],
+      [
+       "What is real?",
+       "only the length"
+      ],
+      [
+       "Equal values?",
+       "lower_bound strict; upper_bound allows equal"
+      ],
+      [
+       "Simple table",
+       "O(n²): dp[i] = 1 + best earlier smaller"
+      ]
+     ],
+     "cues": [
+      "Tails isn't",
+      "Only its length",
+      "Equal values",
+      "simple table"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "LCS: a grid of prefixes",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Longest common subsequence",
+     "statement": "Find the longest sequence that appears, in order, in both strings.",
+     "example": {
+      "input": "\"ABCBDAB\" and \"BDCABA\"",
+      "output": "4"
+     },
+     "say": "Last problem. Two strings, A B C B D A B and B D C A B A. Longest common subsequence? Four.",
+     "cues": {
+      "example": "A B C B D A B",
+      "output": "Longest common"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two strings, one grid",
+     "say": "Diff tools compare files this way. Take two strings, A B C B D A B and B D C A B A. A subsequence skips letters but keeps order. Longest common has length four. Cell i j holds the answer for the first i and first j letters.",
+     "items": [
+      {
+       "label": "string 1",
+       "text": "ABCBDAB",
+       "cue": "A B C B D A B"
+      },
+      {
+       "label": "string 2",
+       "text": "BDCABA",
+       "cue": "B D C A B A"
+      },
+      {
+       "label": "LCS length",
+       "text": "4",
+       "tone": "good",
+       "cue": "Longest common"
+      },
+      {
+       "label": "dp[i][j]",
+       "text": "prefix pairs",
+       "cue": "Cell i j"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "LCS grid: rows A and B",
+     "say": "Now the grid. Rows are the letters of A B C B D A B, columns are B D C A B A. The border is zero: an empty string shares nothing. Row A against B, D, C: no match, so zero. Then A meets A: a match, so diagonal plus one makes one. The rest stays one. Row B: B meets B, a match: one. The rest follows the same rule.",
+     "items": [
+      {
+       "id": "hr1",
+       "x": 320,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hr2",
+       "x": 400,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hr3",
+       "x": 480,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hr4",
+       "x": 560,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hr5",
+       "x": 640,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hr6",
+       "x": 720,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn",
+       "cue": "columns are"
+      },
+      {
+       "id": "hc1",
+       "x": 240,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc2",
+       "x": 240,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc3",
+       "x": 240,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc4",
+       "x": 240,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc5",
+       "x": 240,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc6",
+       "x": 240,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "hc7",
+       "x": 240,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Rows are"
+      },
+      {
+       "id": "g00",
+       "x": 320,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g01",
+       "x": 400,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g02",
+       "x": 480,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g03",
+       "x": 560,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g04",
+       "x": 640,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g05",
+       "x": 720,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g06",
+       "x": 800,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g10",
+       "x": 320,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g11",
+       "x": 400,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g12",
+       "x": 480,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g13",
+       "x": 560,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g14",
+       "x": 640,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g15",
+       "x": 720,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g16",
+       "x": 800,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g20",
+       "x": 320,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g21",
+       "x": 400,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g22",
+       "x": 480,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g23",
+       "x": 560,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g24",
+       "x": 640,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g25",
+       "x": 720,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g26",
+       "x": 800,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g30",
+       "x": 320,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g31",
+       "x": 400,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g32",
+       "x": 480,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g33",
+       "x": 560,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g34",
+       "x": 640,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g35",
+       "x": 720,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g36",
+       "x": 800,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g40",
+       "x": 320,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g41",
+       "x": 400,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g42",
+       "x": 480,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g43",
+       "x": 560,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g44",
+       "x": 640,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g45",
+       "x": 720,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g46",
+       "x": 800,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g50",
+       "x": 320,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g51",
+       "x": 400,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g52",
+       "x": 480,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g53",
+       "x": 560,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g54",
+       "x": 640,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g55",
+       "x": 720,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g56",
+       "x": 800,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g60",
+       "x": 320,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g61",
+       "x": 400,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g62",
+       "x": 480,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g63",
+       "x": 560,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g64",
+       "x": 640,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g65",
+       "x": 720,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g66",
+       "x": 800,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g70",
+       "x": 320,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim",
+       "cue": "border is zero"
+      },
+      {
+       "id": "g71",
+       "x": 400,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g72",
+       "x": 480,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g73",
+       "x": 560,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g74",
+       "x": 640,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g75",
+       "x": 720,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "g76",
+       "x": 800,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim",
+       "cue": "Now the grid"
+      },
+      {
+       "id": "r1",
+       "x": 1060,
+       "y": 300,
+       "w": 700,
+       "h": 120,
+       "label": "letters match",
+       "text": "diagonal + 1",
+       "size": 44,
+       "tone": "good",
+       "cue": "a match, so"
+      },
+      {
+       "id": "r2",
+       "x": 1060,
+       "y": 560,
+       "w": 700,
+       "h": 120,
+       "label": "no match",
+       "text": "max(above, left)",
+       "size": 44,
+       "tone": "warn",
+       "cue": "no match"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g11",
+       "text": "0",
+       "tone": "blue",
+       "cue": "so zero"
+      },
+      {
+       "id": "g12",
+       "text": "0",
+       "tone": "blue",
+       "cue": "so zero"
+      },
+      {
+       "id": "g13",
+       "text": "0",
+       "tone": "blue",
+       "cue": "so zero"
+      },
+      {
+       "id": "g14",
+       "text": "1",
+       "tone": "good",
+       "cue": "makes one"
+      },
+      {
+       "id": "g15",
+       "text": "1",
+       "tone": "blue",
+       "cue": "stays one"
+      },
+      {
+       "id": "g16",
+       "text": "1",
+       "tone": "good",
+       "cue": "stays one"
+      },
+      {
+       "id": "g21",
+       "text": "1",
+       "tone": "good",
+       "cue": "B meets B"
+      },
+      {
+       "id": "g22",
+       "text": "1",
+       "tone": "blue",
+       "cue": "same rule"
+      },
+      {
+       "id": "g23",
+       "text": "1",
+       "tone": "blue",
+       "cue": "same rule"
+      },
+      {
+       "id": "g24",
+       "text": "1",
+       "tone": "blue",
+       "cue": "same rule"
+      },
+      {
+       "id": "g25",
+       "text": "2",
+       "tone": "good",
+       "cue": "same rule"
+      },
+      {
+       "id": "g26",
+       "text": "2",
+       "tone": "blue",
+       "cue": "same rule"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The grid in code",
+     "say": "Same rule in code, with a zero border. If the letters match, take the diagonal plus one. Otherwise take the better of above and left. The corner prints four. Cost: n times m.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "string s = \"ABCBDAB\", t = \"BDCABA\";\nvector<vector<int>> dp(8, vector<int>(7, 0));\nfor (int i = 1; i <= 7; i++)\n    for (int j = 1; j <= 6; j++)\n        if (s[i-1] == t[j-1])\n            dp[i][j] = dp[i-1][j-1] + 1;\n        else\n            dp[i][j] = max(dp[i-1][j], dp[i][j-1]);\ncout << dp[7][6];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "zero border"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "the diagonal plus one"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "better of above"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "The corner prints"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4",
+      "cue": "prints four"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "LCS grid: rows C, B, D",
+     "say": "Row C: the C against C match gives two. Row B: two matches, reaching three. Row D: one match, D against D. Each cell reads only above, left, and diagonal.",
+     "items": [
+      {
+       "id": "hr1",
+       "x": 320,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr2",
+       "x": 400,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr3",
+       "x": 480,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr4",
+       "x": 560,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr5",
+       "x": 640,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr6",
+       "x": 720,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc1",
+       "x": 240,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc2",
+       "x": 240,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc3",
+       "x": 240,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc4",
+       "x": 240,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc5",
+       "x": 240,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc6",
+       "x": 240,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc7",
+       "x": 240,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "g00",
+       "x": 320,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g01",
+       "x": 400,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g02",
+       "x": 480,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g03",
+       "x": 560,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g04",
+       "x": 640,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g05",
+       "x": 720,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g06",
+       "x": 800,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g10",
+       "x": 320,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g11",
+       "x": 400,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g12",
+       "x": 480,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g13",
+       "x": 560,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g14",
+       "x": 640,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g15",
+       "x": 720,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g16",
+       "x": 800,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g20",
+       "x": 320,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g21",
+       "x": 400,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g22",
+       "x": 480,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g23",
+       "x": 560,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g24",
+       "x": 640,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g25",
+       "x": 720,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "g26",
+       "x": 800,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g30",
+       "x": 320,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g31",
+       "x": 400,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g32",
+       "x": 480,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g33",
+       "x": 560,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g34",
+       "x": 640,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g35",
+       "x": 720,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g36",
+       "x": 800,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g40",
+       "x": 320,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g41",
+       "x": 400,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g42",
+       "x": 480,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g43",
+       "x": 560,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g44",
+       "x": 640,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g45",
+       "x": 720,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g46",
+       "x": 800,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g50",
+       "x": 320,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g51",
+       "x": 400,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g52",
+       "x": 480,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g53",
+       "x": 560,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g54",
+       "x": 640,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g55",
+       "x": 720,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g56",
+       "x": 800,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g60",
+       "x": 320,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g61",
+       "x": 400,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g62",
+       "x": 480,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g63",
+       "x": 560,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g64",
+       "x": 640,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g65",
+       "x": 720,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g66",
+       "x": 800,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g70",
+       "x": 320,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g71",
+       "x": 400,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g72",
+       "x": 480,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g73",
+       "x": 560,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g74",
+       "x": 640,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g75",
+       "x": 720,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g76",
+       "x": 800,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "r1",
+       "x": 1060,
+       "y": 300,
+       "w": 700,
+       "h": 120,
+       "label": "letters match",
+       "text": "diagonal + 1",
+       "size": 44,
+       "tone": "good"
+      },
+      {
+       "id": "r2",
+       "x": 1060,
+       "y": 560,
+       "w": 700,
+       "h": 120,
+       "label": "no match",
+       "text": "max(above, left)",
+       "size": 44,
+       "tone": "warn"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g31",
+       "text": "1",
+       "tone": "blue",
+       "cue": "Row C"
+      },
+      {
+       "id": "g32",
+       "text": "1",
+       "tone": "blue",
+       "cue": "Row C"
+      },
+      {
+       "id": "g33",
+       "text": "2",
+       "tone": "good",
+       "cue": "Row C"
+      },
+      {
+       "id": "g34",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row C"
+      },
+      {
+       "id": "g35",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row C"
+      },
+      {
+       "id": "g36",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row C"
+      },
+      {
+       "id": "g41",
+       "text": "1",
+       "tone": "good",
+       "cue": "Row B"
+      },
+      {
+       "id": "g42",
+       "text": "1",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g43",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g44",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g45",
+       "text": "3",
+       "tone": "good",
+       "cue": "Row B"
+      },
+      {
+       "id": "g46",
+       "text": "3",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g51",
+       "text": "1",
+       "tone": "blue",
+       "cue": "Row D"
+      },
+      {
+       "id": "g52",
+       "text": "2",
+       "tone": "good",
+       "cue": "Row D"
+      },
+      {
+       "id": "g53",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row D"
+      },
+      {
+       "id": "g54",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row D"
+      },
+      {
+       "id": "g55",
+       "text": "3",
+       "tone": "blue",
+       "cue": "Row D"
+      },
+      {
+       "id": "g56",
+       "text": "3",
+       "tone": "blue",
+       "cue": "Row D"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "LCS grid: the last rows",
+     "say": "Row A: A meets A, and the row builds up to four. Row B: B matches too. The corner holds four. One common subsequence is B C B A.",
+     "items": [
+      {
+       "id": "hr1",
+       "x": 320,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr2",
+       "x": 400,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr3",
+       "x": 480,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr4",
+       "x": 560,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr5",
+       "x": 640,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hr6",
+       "x": 720,
+       "y": 200,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc1",
+       "x": 240,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc2",
+       "x": 240,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc3",
+       "x": 240,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "text": "C",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc4",
+       "x": 240,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc5",
+       "x": 240,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "text": "D",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc6",
+       "x": 240,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "text": "A",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "hc7",
+       "x": 240,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "text": "B",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "g00",
+       "x": 320,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g01",
+       "x": 400,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g02",
+       "x": 480,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g03",
+       "x": 560,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g04",
+       "x": 640,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g05",
+       "x": 720,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g06",
+       "x": 800,
+       "y": 280,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g10",
+       "x": 320,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g11",
+       "x": 400,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g12",
+       "x": 480,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g13",
+       "x": 560,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "blue"
+      },
+      {
+       "id": "g14",
+       "x": 640,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g15",
+       "x": 720,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g16",
+       "x": 800,
+       "y": 360,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g20",
+       "x": 320,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g21",
+       "x": 400,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g22",
+       "x": 480,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g23",
+       "x": 560,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g24",
+       "x": 640,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g25",
+       "x": 720,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "g26",
+       "x": 800,
+       "y": 440,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g30",
+       "x": 320,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g31",
+       "x": 400,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g32",
+       "x": 480,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g33",
+       "x": 560,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "g34",
+       "x": 640,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g35",
+       "x": 720,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g36",
+       "x": 800,
+       "y": 520,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g40",
+       "x": 320,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g41",
+       "x": 400,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "g42",
+       "x": 480,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g43",
+       "x": 560,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g44",
+       "x": 640,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g45",
+       "x": 720,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "3",
+       "tone": "good"
+      },
+      {
+       "id": "g46",
+       "x": 800,
+       "y": 600,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "g50",
+       "x": 320,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g51",
+       "x": 400,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "g52",
+       "x": 480,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "g53",
+       "x": 560,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g54",
+       "x": 640,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "g55",
+       "x": 720,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "g56",
+       "x": 800,
+       "y": 680,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "g60",
+       "x": 320,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g61",
+       "x": 400,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g62",
+       "x": 480,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g63",
+       "x": 560,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g64",
+       "x": 640,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g65",
+       "x": 720,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g66",
+       "x": 800,
+       "y": 760,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g70",
+       "x": 320,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "g71",
+       "x": 400,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g72",
+       "x": 480,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g73",
+       "x": 560,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g74",
+       "x": 640,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g75",
+       "x": 720,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "g76",
+       "x": 800,
+       "y": 840,
+       "w": 76,
+       "h": 76,
+       "size": 40,
+       "text": "·",
+       "tone": "dim"
+      },
+      {
+       "id": "r1",
+       "x": 1060,
+       "y": 300,
+       "w": 700,
+       "h": 120,
+       "label": "letters match",
+       "text": "diagonal + 1",
+       "size": 44,
+       "tone": "good"
+      },
+      {
+       "id": "r2",
+       "x": 1060,
+       "y": 560,
+       "w": 700,
+       "h": 120,
+       "label": "no match",
+       "text": "max(above, left)",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "ans",
+       "x": 1060,
+       "y": 790,
+       "w": 700,
+       "h": 100,
+       "text": "B C B A",
+       "size": 48,
+       "tone": "good",
+       "cue": "One common"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g61",
+       "text": "1",
+       "tone": "blue",
+       "cue": "Row A"
+      },
+      {
+       "id": "g62",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row A"
+      },
+      {
+       "id": "g63",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row A"
+      },
+      {
+       "id": "g64",
+       "text": "3",
+       "tone": "good",
+       "cue": "Row A"
+      },
+      {
+       "id": "g65",
+       "text": "3",
+       "tone": "blue",
+       "cue": "Row A"
+      },
+      {
+       "id": "g66",
+       "text": "4",
+       "tone": "good",
+       "cue": "Row A"
+      },
+      {
+       "id": "g71",
+       "text": "1",
+       "tone": "good",
+       "cue": "Row B"
+      },
+      {
+       "id": "g72",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g73",
+       "text": "2",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g74",
+       "text": "3",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g75",
+       "text": "4",
+       "tone": "good",
+       "cue": "Row B"
+      },
+      {
+       "id": "g76",
+       "text": "4",
+       "tone": "blue",
+       "cue": "Row B"
+      },
+      {
+       "id": "g76",
+       "glow": true,
+       "tone": "good",
+       "cue": "The corner"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Two short strings: A B C and A C B. What is the length of their longest common subsequence? Pause and predict.",
+     "q": "LCS length of \"ABC\" and \"ACB\"?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "flow",
+     "head": "ABC vs ACB",
+     "say": "Two. A B is in order in both. So is A C. But B and C come in opposite orders, so all three can't fit.",
+     "items": [
+      {
+       "label": "string 1",
+       "text": "ABC",
+       "cue": "A B is"
+      },
+      {
+       "label": "string 2",
+       "text": "ACB",
+       "cue": "So is A C"
+      },
+      {
+       "label": "common",
+       "text": "AB or AC",
+       "sub": "length 2",
+       "tone": "good",
+       "cue": "opposite orders"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three LCS follow-ups",
+     "say": "Memory: keep two rows. Off by one: cell i j compares letters i minus one and j minus one. Substring can't skip letters, subsequence can.",
+     "heads": [
+      "Follow-up",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Less memory?",
+       "two rows: each needs only the one above"
+      ],
+      [
+       "Index slip",
+       "dp[i][j] compares `s[i-1]`, `t[j-1]`"
+      ],
+      [
+       "Subsequence vs substring",
+       "subsequence may skip letters"
+      ]
+     ],
+     "cues": [
+      "Memory",
+      "Off by one",
+      "Substring can't"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp13"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Knapsack? A dp over capacity, loop capacity downward, items times capacity. L I S? Tails with binary search, O of n log n. L C S? A grid: match, diagonal plus one, otherwise best of above, left. Mistake? Capacity upward.",
+     "rows": [
+      [
+       "0/1 knapsack?",
+       "dp over capacity, loop downward, n × cap"
+      ],
+      [
+       "LIS?",
+       "tails + binary search, O(n log n)"
+      ],
+      [
+       "LCS?",
+       "match: diagonal + 1; else max(above, left)"
+      ],
+      [
+       "Common mistake?",
+       "capacity loop upward reuses an item"
+      ]
+     ],
+     "cues": [
+      "Knapsack",
+      "L I S",
+      "L C S",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode four sixteen, Partition Equal Subset Sum, is knapsack. LeetCode three hundred, Longest Increasing Subsequence, is tails. LeetCode eleven forty three, Longest Common Subsequence, is the grid.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 416 · Partition Equal Subset Sum",
+       "0/1 knapsack, capacity downward"
+      ],
+      [
+       "LeetCode 300 · Longest Increasing Subsequence",
+       "tails + binary search"
+      ],
+      [
+       "LeetCode 1143 · Longest Common Subsequence",
+       "the 2D grid"
+      ]
+     ],
+     "cues": [
+      "four sixteen",
+      "three hundred",
+      "eleven forty three"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Knapsack: dp over capacity, take or leave each item, loop capacity downward. L I S: a tails list with binary search. L C S: a grid where a match means diagonal plus one.",
+     "lines": [
+      "Knapsack: dp over capacity; loop it downward.",
+      "LIS: tails list + binary search, O(n log n).",
+      "LCS: grid; match = diagonal + 1, else max."
+     ],
+     "cues": [
+      "Knapsack",
+      "L I S",
+      "L C S"
+     ]
+    }
+   ]
+  }
+ ]
+}

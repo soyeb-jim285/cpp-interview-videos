@@ -77,6 +77,35 @@
      ]
     },
     {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Store passwords and read a token. Log in with Google safely. And stop one client flooding your API.",
+     "lines": [
+      "Store passwords, read a token",
+      "Log in with Google safely",
+      "Stop one client flooding your API"
+     ],
+     "cues": [
+      "Store passwords",
+      "Log in with Google",
+      "stop one client"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "How do we store passwords?",
+     "statement": "Users sign up with passwords. If the database leaks, nobody's password should leak with it.",
+     "example": {
+      "input": "the password hunter2",
+      "output": "a stored value nobody can reverse"
+     },
+     "say": "Here's the problem. Users sign up with passwords, and the database may leak one day. For example, the password hunter two. We want to store something nobody can turn back into it.",
+     "cues": {
+      "example": "For example",
+      "output": "We want to store"
+     }
+    },
+    {
      "type": "flow",
      "head": "A hash is a meat grinder",
      "say": "Start with passwords. Never store them. Think of beef, a meat grinder, and mince. Nobody turns mince back into beef. A hash works the same: no way back. At login, grind what they typed, and compare.",
@@ -305,6 +334,20 @@
   {
    "title": "Sessions or tokens?",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "How does the server know it's you?",
+     "statement": "After login, every request must prove who is calling, without sending the password again.",
+     "example": {
+      "input": "a request carrying a cookie or token",
+      "output": "the server knows: user 42"
+     },
+     "say": "Next problem. After login, every request must prove who is calling, without the password. For example, a request with a cookie. We want the server to know it is user forty two.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the server"
+     }
+    },
     {
      "type": "flow",
      "head": "A coat check ticket",
@@ -561,6 +604,20 @@
    "title": "Log in with Google",
    "scenes": [
     {
+     "type": "problem",
+     "title": "How do we log in with Google?",
+     "statement": "Let people sign in with Google while the app never sees their Google password.",
+     "example": {
+      "input": "click Log in with Google",
+      "output": "the app learns who you are, nothing more"
+     },
+     "say": "Next problem. Sign in with Google, but our app never sees the password. For example, one click on log in with Google. We want the app to learn who you are, nothing more.",
+     "cues": {
+      "example": "For example",
+      "output": "We want the app"
+     }
+    },
+    {
      "type": "flow",
      "head": "A valet key",
      "say": "Log in with Google. The app wants to know who you are, not your Google password. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key.",
@@ -743,6 +800,20 @@
   {
    "title": "One bucket per caller",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "How do we stop one client flooding?",
+     "statement": "We know it's user 42. Now limit how much they may call: bursts are fine, floods are not.",
+     "example": {
+      "input": "user 42 sends 15 requests at once",
+      "output": "10 pass, 5 get 429"
+     },
+     "say": "Next problem. We know it's user forty two. Now limit how much they may call. For example, fifteen requests at once. We want ten to pass and five to get four twenty nine.",
+     "cues": {
+      "example": "For example",
+      "output": "We want ten"
+     }
+    },
     {
      "type": "flow",
      "head": "From who to how much",
@@ -1026,6 +1097,20 @@
   {
    "title": "Rate limits at scale",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "One limit across many servers",
+     "statement": "Two servers each count requests. How do we enforce one limit for the user across both?",
+     "example": {
+      "input": "2 servers, limit 10, 20 requests",
+      "output": "only 10 pass in total"
+     },
+     "say": "Last problem. Two servers each count requests. For example, a limit of ten, and twenty requests split across them. We want only ten to pass in total.",
+     "cues": {
+      "example": "For example",
+      "output": "We want only"
+     }
+    },
     {
      "type": "compare",
      "head": "Three algorithms, one catch each",

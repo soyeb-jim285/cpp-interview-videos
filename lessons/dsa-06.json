@@ -1,0 +1,2686 @@
+{
+ "id": "dsa-06",
+ "track": "DSA",
+ "num": 6,
+ "title": "Linked Lists & Their Classic Tricks",
+ "covers": [
+  "cp23",
+  "cp24"
+ ],
+ "caps": [
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Pointers instead of shifting",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Add one item to the front of a million. An array shifts them all. A list re-points two links. By the end you'll reverse a list, find its middle, catch a cycle, with zero extra memory.",
+     "lines": [
+      {
+       "text": "Insert at the front of 1,000,000",
+       "cue": "front of a million"
+      },
+      {
+       "text": "Array: shift them all",
+       "cue": "shifts them all"
+      },
+      {
+       "text": "List: re-point 2 links",
+       "cue": "re-points two links",
+       "accent": true
+      },
+      {
+       "text": "Reverse · middle · cycle",
+       "cue": "catch a cycle"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Insert and delete by re-pointing. Reverse a list in one pass. Then find a middle, catch a cycle, and merge.",
+     "lines": [
+      "Insert and delete by re-pointing",
+      "Reverse a list in one pass",
+      "Middle, cycle, merge: three classics"
+     ],
+     "cues": [
+      "Insert and delete",
+      "Reverse a list",
+      "Then find a middle"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Insert at the front",
+     "statement": "Add a new value at the front of a sequence of a million items as cheaply as possible.",
+     "example": {
+      "input": "1,000,000 items, insert 5 first",
+      "output": "array shifts all; list re-points 2"
+     },
+     "say": "Here is the problem. A million items, and a new five goes first. An array shifts every item. A list re-points two links.",
+     "cues": {
+      "example": "A million items",
+      "output": "An array shifts"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A treasure hunt",
+     "say": "Think of a treasure hunt. The start card is the head: it says where clue one is. Each clue is a node: a prize, plus where the next clue is. That where is a pointer. The last clue says nowhere. To reach clue three, follow every clue before it.",
+     "items": [
+      {
+       "label": "head",
+       "text": "start card",
+       "sub": "where clue 1 is",
+       "cue": "the head"
+      },
+      {
+       "label": "node",
+       "text": "clue: 10",
+       "sub": "prize + pointer",
+       "cue": "Each clue is a node"
+      },
+      {
+       "label": "node",
+       "text": "clue: 20",
+       "sub": "prize + pointer",
+       "cue": "That where is a pointer"
+      },
+      {
+       "label": "end",
+       "text": "nowhere",
+       "sub": "null pointer",
+       "cue": "says nowhere"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Insert 5 at the head",
+     "say": "Start with ten, twenty, thirty. Head points at ten. Now insert five at the front. First, make the new node. Second, point it at ten, the old first. Third, move head to the new node. Nothing shifted. Two assignments, so O of one.",
+     "items": [
+      {
+       "id": "hd",
+       "x": 140,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "head",
+       "tone": "warn",
+       "cue": "Head points at ten"
+      },
+      {
+       "id": "n10",
+       "x": 480,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "10",
+       "tone": "blue",
+       "cue": "Start with ten"
+      },
+      {
+       "id": "n20",
+       "x": 760,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "20",
+       "tone": "blue",
+       "cue": "twenty"
+      },
+      {
+       "id": "n30",
+       "x": 1040,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "30",
+       "tone": "blue",
+       "cue": "thirty"
+      },
+      {
+       "id": "nul",
+       "x": 1320,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "null",
+       "tone": "dim",
+       "cue": "thirty"
+      },
+      {
+       "id": "new5",
+       "x": 480,
+       "y": 250,
+       "w": 170,
+       "h": 130,
+       "label": "new",
+       "text": "5",
+       "tone": "good",
+       "cue": "make the new node"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "hd",
+       "to": "n10",
+       "cue": "Head points at ten"
+      },
+      {
+       "from": "n10",
+       "to": "n20",
+       "cue": "twenty"
+      },
+      {
+       "from": "n20",
+       "to": "n30",
+       "cue": "thirty"
+      },
+      {
+       "from": "n30",
+       "to": "nul",
+       "cue": "thirty"
+      },
+      {
+       "from": "new5",
+       "to": "n10",
+       "cue": "point it at ten"
+      },
+      {
+       "from": "hd",
+       "to": "new5",
+       "tone": "good",
+       "cue": "move head to the new node"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1000,
+       "y": 290,
+       "text": "O(1): two assignments",
+       "tone": "good",
+       "cue": "Two assignments"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a0",
+       "fade": true,
+       "cue": "move head to the new node"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A node and insertHead",
+     "say": "A node is a value and a pointer to the next node. The print helper follows pointers until null. Insert at the head: make the node, point it at the old first, move head.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "struct Node { int val; Node* next; };\nvoid print(Node* p) {\n    while (p) { cout << p->val << ' '; p = p->next; }\n}\nvoid insertHead(Node*& head, int v) {\n    Node* n = new Node{v, nullptr};\n    n->next = head;\n    head = n;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "a value and a pointer"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "print helper"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Insert at the head"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Make the node"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "point it at the old first"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "move head"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Swap the last two steps. Move head first, then point the new node at head. What does the list look like?",
+     "q": "Run `head = n;` before `n->next = head;`. What happens?",
+     "options": [
+      "5 10 20 30",
+      "just 5, then null",
+      "5 pointing at 5",
+      "compile error"
+     ],
+     "answer": "5 pointing at 5"
+    },
+    {
+     "type": "diagram",
+     "head": "Order matters",
+     "say": "Five pointing at five. Head moved first, so when the new node copies head, it copies itself. Walk the list: five, five, five, forever. And ten, twenty, thirty? Nothing points at them anymore. Lost, and leaked. Re-point the new node first, then move head.",
+     "items": [
+      {
+       "id": "hd",
+       "x": 140,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "head",
+       "tone": "warn"
+      },
+      {
+       "id": "n10",
+       "x": 480,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "10",
+       "tone": "blue"
+      },
+      {
+       "id": "n20",
+       "x": 760,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "20",
+       "tone": "blue"
+      },
+      {
+       "id": "n30",
+       "x": 1040,
+       "y": 480,
+       "w": 170,
+       "h": 130,
+       "text": "30",
+       "tone": "blue"
+      },
+      {
+       "id": "nul",
+       "x": 1320,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "null",
+       "tone": "dim"
+      },
+      {
+       "id": "new5",
+       "x": 480,
+       "y": 250,
+       "w": 170,
+       "h": 130,
+       "label": "new",
+       "text": "5",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n10",
+       "to": "n20",
+       "tone": "dim"
+      },
+      {
+       "from": "n20",
+       "to": "n30",
+       "tone": "dim"
+      },
+      {
+       "from": "n30",
+       "to": "nul",
+       "tone": "dim"
+      },
+      {
+       "from": "hd",
+       "to": "new5",
+       "tone": "good",
+       "cue": "Head moved first"
+      }
+     ],
+     "notes": [
+      {
+       "x": 760,
+       "y": 290,
+       "text": "next of 5 is 5",
+       "tone": "bad",
+       "cue": "copies itself"
+      },
+      {
+       "x": 1150,
+       "y": 290,
+       "text": "fix: re-point first",
+       "tone": "good",
+       "cue": "Re-point the new node first"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n10",
+       "kill": true,
+       "cue": "Nothing points at them"
+      },
+      {
+       "id": "n20",
+       "kill": true,
+       "cue": "Nothing points at them"
+      },
+      {
+       "id": "n30",
+       "kill": true,
+       "cue": "Nothing points at them"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Build a list, then print it",
+     "say": "Build back to front. Insert thirty, then twenty, then ten, then five. Print follows the pointers from head: five, ten, twenty, thirty. An empty list is just head equal to null, and the same code works.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Node* head = nullptr;\ninsertHead(head, 30);\ninsertHead(head, 20);\ninsertHead(head, 10);\ninsertHead(head, 5);\nprint(head);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "Insert thirty"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Print follows"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "empty list"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 10 20 30",
+      "cue": "Five, ten"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Splice in the middle",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Delete a value",
+     "statement": "Remove the node holding 20 from the list 5, 10, 20, 30.",
+     "example": {
+      "input": "5 → 10 → 20 → 30, delete 20",
+      "output": "5 → 10 → 30"
+     },
+     "say": "Next problem. Delete twenty from five, ten, twenty, thirty. We should end with five, ten, thirty.",
+     "cues": {
+      "example": "Delete twenty",
+      "output": "We should end"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Delete 20",
+     "say": "Walk to the node before it. That's ten. Call it p. Remember the doomed node, twenty, as dead. Point ten past it, straight at thirty. Twenty is cut out of the chain. Then delete it, or the memory leaks.",
+     "items": [
+      {
+       "id": "hd",
+       "x": 140,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "head",
+       "tone": "warn"
+      },
+      {
+       "id": "n5",
+       "x": 420,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "5",
+       "tone": "blue"
+      },
+      {
+       "id": "n10",
+       "x": 680,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "10",
+       "tone": "blue"
+      },
+      {
+       "id": "n20",
+       "x": 940,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "20",
+       "tone": "blue"
+      },
+      {
+       "id": "n30",
+       "x": 1200,
+       "y": 480,
+       "w": 150,
+       "h": 130,
+       "text": "30",
+       "tone": "blue"
+      },
+      {
+       "id": "nul",
+       "x": 1460,
+       "y": 480,
+       "w": 140,
+       "h": 130,
+       "text": "null",
+       "tone": "dim"
+      },
+      {
+       "id": "p",
+       "x": 690,
+       "y": 680,
+       "w": 130,
+       "h": 70,
+       "text": "p",
+       "tone": "warn",
+       "cue": "call it p"
+      },
+      {
+       "id": "dead",
+       "x": 950,
+       "y": 680,
+       "w": 130,
+       "h": 70,
+       "text": "dead",
+       "tone": "bad",
+       "cue": "as dead"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "hd",
+       "to": "n5"
+      },
+      {
+       "from": "n5",
+       "to": "n10"
+      },
+      {
+       "from": "n10",
+       "to": "n20"
+      },
+      {
+       "from": "n20",
+       "to": "n30"
+      },
+      {
+       "from": "n30",
+       "to": "nul"
+      },
+      {
+       "from": "n10",
+       "to": "n30",
+       "tone": "good",
+       "bend": -170,
+       "cue": "Point ten past it"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n10",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Walk to the node"
+      },
+      {
+       "id": "a2",
+       "fade": true,
+       "cue": "Point ten past it"
+      },
+      {
+       "id": "n20",
+       "kill": true,
+       "cue": "cut out of the chain"
+      },
+      {
+       "id": "dead",
+       "fade": true,
+       "cue": "delete it"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "eraseAfter",
+     "say": "Three lines. Remember the doomed node. Skip over it. Then free it. Run it, and ten now points to thirty. Finding p costs O of n if you don't hold it. The unlinking itself is O of one.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void eraseAfter(Node* p) {\n    Node* dead = p->next;\n    p->next = dead->next;\n    delete dead;\n}\neraseAfter(head->next);\nprint(head);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Remember the doomed node"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Skip over it"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "free it"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Run it"
+      },
+      {
+       "lines": [],
+       "cue": "Finding p"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "unlinking itself"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 10 30",
+      "cue": "now points to thirty"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A million nodes, and you hold a pointer to one in the middle. What does inserting right after it cost?",
+     "q": "Insert right after a node you hold, in 1,000,000 nodes. Cost?",
+     "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n²)"
+     ],
+     "answer": "O(1)"
+    },
+    {
+     "type": "code",
+     "head": "insertAfter",
+     "say": "O of one. Only two pointers change, however long the list is. The new node takes over p's old next, then p points at the new node. From five, ten, thirty, put seven after ten.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void insertAfter(Node* p, int v) {\n    p->next = new Node{v, p->next};\n}\ninsertAfter(head->next, 7);\nprint(head);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Only two pointers"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "however long"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "takes over"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "then p points"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "put seven after ten"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 10 7 30",
+      "cue": "put seven"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "List versus array",
+     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Next to a node you hold: constant for a list. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node directly. C plus plus ships both, singly and doubly. In practice, vector usually wins.",
+     "heads": [
+      "",
+      "Array",
+      "Linked list"
+     ],
+     "rows": [
+      [
+       "read item k",
+       "O(1)",
+       "O(n) walk"
+      ],
+      [
+       "insert at front",
+       "O(n) shift",
+       "O(1)"
+      ],
+      [
+       "insert next to held node",
+       "O(n) shift",
+       "O(1)"
+      ],
+      [
+       "memory",
+       "one block, cache friendly",
+       "scattered, pointer on every node"
+      ],
+      [
+       "doubly linked",
+       "-",
+       "prev too: unlink a held node"
+      ],
+      [
+       "in C++",
+       "`vector`",
+       "`std::list`, `std::forward_list`"
+      ]
+     ],
+     "cues": [
+      "Reading item",
+      "Inserting at the front",
+      "Next to a node",
+      "Memory",
+      "A doubly linked",
+      "C plus plus ships"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Flip every arrow",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Reverse a list",
+     "statement": "Reverse a singly linked list in place.",
+     "example": {
+      "input": "1 → 2 → 3 → 4",
+      "output": "4 → 3 → 2 → 1"
+     },
+     "note": "O(n) time, O(1) memory",
+     "say": "The classic. Reverse one, two, three, four into four, three, two, one. Linear time, and no extra memory.",
+     "cues": {
+      "example": "Reverse one",
+      "output": "into four",
+      "note": "Linear time"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A line holding hands",
+     "say": "Reversing a list is a favorite warm up. Picture four people in a line, each holding the next person's hand. Each one remembers who is next, lets go, and grabs the hand behind. Flip every hold, and the line runs the other way.",
+     "items": [
+      {
+       "label": "the line",
+       "text": "1 2 3 4",
+       "sub": "hand = next pointer",
+       "cue": "four people"
+      },
+      {
+       "label": "remember",
+       "text": "who is next",
+       "sub": "save next first",
+       "cue": "remembers who is next"
+      },
+      {
+       "label": "grab",
+       "text": "hand behind",
+       "sub": "point at prev",
+       "cue": "grabs the hand behind"
+      },
+      {
+       "label": "result",
+       "text": "4 3 2 1",
+       "tone": "good",
+       "cue": "runs the other way"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Reverse 1, 2, 3, 4",
+     "say": "Reverse one, two, three, four. Prev starts at null, head at one. Save node two, so we don't lose it. Now flip: one points back at null. Slide prev and head forward. Two points back at one. Slide once more. Three points back at two. And slide. Four points back at three. Head runs off the end, so prev, at four, is the new front.",
+     "items": [
+      {
+       "id": "ln",
+       "x": 100,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "null",
+       "tone": "dim",
+       "cue": "Prev starts at null"
+      },
+      {
+       "id": "n1",
+       "x": 330,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "1",
+       "tone": "blue",
+       "cue": "one, two, three, four"
+      },
+      {
+       "id": "n2",
+       "x": 590,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "2",
+       "tone": "blue",
+       "cue": "one, two, three, four"
+      },
+      {
+       "id": "n3",
+       "x": 850,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "3",
+       "tone": "blue",
+       "cue": "one, two, three, four"
+      },
+      {
+       "id": "n4",
+       "x": 1110,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "4",
+       "tone": "blue",
+       "cue": "one, two, three, four"
+      },
+      {
+       "id": "rn",
+       "x": 1370,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "null",
+       "tone": "dim",
+       "cue": "one, two, three, four"
+      },
+      {
+       "id": "prev",
+       "x": 120,
+       "y": 640,
+       "w": 120,
+       "h": 70,
+       "text": "prev",
+       "tone": "warn",
+       "cue": "Prev starts at null"
+      },
+      {
+       "id": "hd",
+       "x": 350,
+       "y": 640,
+       "w": 120,
+       "h": 70,
+       "text": "head",
+       "tone": "good",
+       "cue": "head at one"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2",
+       "cue": "one, two, three, four"
+      },
+      {
+       "from": "n2",
+       "to": "n3",
+       "cue": "one, two, three, four"
+      },
+      {
+       "from": "n3",
+       "to": "n4",
+       "cue": "one, two, three, four"
+      },
+      {
+       "from": "n4",
+       "to": "rn",
+       "cue": "one, two, three, four"
+      },
+      {
+       "from": "n1",
+       "to": "ln",
+       "tone": "good",
+       "cue": "one points back at null"
+      },
+      {
+       "from": "n2",
+       "to": "n1",
+       "tone": "good",
+       "cue": "Two points back at one"
+      },
+      {
+       "from": "n3",
+       "to": "n2",
+       "tone": "good",
+       "cue": "Three points back at two"
+      },
+      {
+       "from": "n4",
+       "to": "n3",
+       "tone": "good",
+       "cue": "Four points back at three"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n2",
+       "glow": true,
+       "cue": "Save node two"
+      },
+      {
+       "id": "a0",
+       "fade": true,
+       "cue": "one points back at null"
+      },
+      {
+       "id": "prev",
+       "move": [
+        350,
+        640
+       ],
+       "cue": "Slide prev and head forward"
+      },
+      {
+       "id": "hd",
+       "move": [
+        610,
+        640
+       ],
+       "cue": "Slide prev and head forward"
+      },
+      {
+       "id": "a1",
+       "fade": true,
+       "cue": "Two points back at one"
+      },
+      {
+       "id": "prev",
+       "move": [
+        610,
+        640
+       ],
+       "cue": "Slide once more"
+      },
+      {
+       "id": "hd",
+       "move": [
+        870,
+        640
+       ],
+       "cue": "Slide once more"
+      },
+      {
+       "id": "a2",
+       "fade": true,
+       "cue": "Three points back at two"
+      },
+      {
+       "id": "prev",
+       "move": [
+        870,
+        640
+       ],
+       "cue": "And slide"
+      },
+      {
+       "id": "hd",
+       "move": [
+        1130,
+        640
+       ],
+       "cue": "And slide"
+      },
+      {
+       "id": "a3",
+       "fade": true,
+       "cue": "Four points back at three"
+      },
+      {
+       "id": "prev",
+       "move": [
+        1130,
+        640
+       ],
+       "cue": "runs off the end"
+      },
+      {
+       "id": "hd",
+       "move": [
+        1390,
+        640
+       ],
+       "cue": "runs off the end"
+      },
+      {
+       "id": "n4",
+       "glow": true,
+       "tone": "good",
+       "cue": "the new front"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "reverse in one pass",
+     "say": "In code, four lines in a loop. Save next. Flip the pointer to prev. Move prev to head. Move head to the saved next. At null, return prev. One pass, O of n time, no extra memory.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Node* reverse(Node* head) {\n    Node* prev = nullptr;\n    while (head) {\n        Node* nxt = head->next;\n        head->next = prev;\n        prev = head;\n        head = nxt;\n    }\n    return prev;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "In code"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Save next"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Flip the pointer"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Move prev"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Move head"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "return prev"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We forget to save next, and advance with head's next instead. What does print of prev show?",
+     "q": "Skip saving next: `head = head->next;` after the flip. Prints?",
+     "options": [
+      "4 3 2 1",
+      "1",
+      "1 2 3 4",
+      "loops forever"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "code",
+     "head": "The bug, run for real",
+     "say": "Just one. After the flip, head's next is prev, which is null. So head becomes null, the loop ends, and nodes two, three and four are lost. Always save next before re-pointing.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "Node* prev = nullptr;\nwhile (head) {\n    head->next = prev;\n    prev = head;\n    head = head->next;\n}\nprint(prev);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "After the flip"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "head becomes null"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "the loop ends"
+      },
+      {
+       "lines": [],
+       "cue": "Always save next"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "reads prev, not the list",
+       "tone": "bad",
+       "cue": "head becomes null"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "1",
+      "tone": "bad",
+      "cue": "Just one"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Two runners find the middle",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Middle of a list",
+     "statement": "Return the middle node of a singly linked list in a single pass.",
+     "example": {
+      "input": "1 → 2 → 3 → 4 → 5",
+      "output": "node 3"
+     },
+     "note": "no counting the length first",
+     "say": "Find the middle in one pass. Take one to five: the middle is three. No counting the length first.",
+     "cues": {
+      "example": "Take one to five",
+      "output": "the middle is three",
+      "note": "No counting"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two runners",
+     "say": "Two runners start together. Slow moves one step per tick. Fast moves two. When fast reaches the end, slow has covered half: the middle.",
+     "items": [
+      {
+       "label": "slow",
+       "text": "1 step",
+       "sub": "per tick",
+       "cue": "Slow moves"
+      },
+      {
+       "label": "fast",
+       "text": "2 steps",
+       "sub": "per tick",
+       "cue": "Fast moves two"
+      },
+      {
+       "label": "fast at the end",
+       "text": "slow at half",
+       "tone": "good",
+       "cue": "reaches the end"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Middle of 1, 2, 3, 4, 5",
+     "say": "Take one to five. Slow and fast both start at the first node. Slow moves one, fast moves two. Step one: slow goes to two, fast goes to three. Step two: slow goes to three, fast goes to five. Fast can't go further, so stop. Slow is at the middle: node three.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 300,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "1",
+       "tone": "blue",
+       "cue": "one to five"
+      },
+      {
+       "id": "n2",
+       "x": 540,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "2",
+       "tone": "blue",
+       "cue": "one to five"
+      },
+      {
+       "id": "n3",
+       "x": 780,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "3",
+       "tone": "blue",
+       "cue": "one to five"
+      },
+      {
+       "id": "n4",
+       "x": 1020,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "4",
+       "tone": "blue",
+       "cue": "one to five"
+      },
+      {
+       "id": "n5",
+       "x": 1260,
+       "y": 420,
+       "w": 160,
+       "h": 140,
+       "text": "5",
+       "tone": "blue",
+       "cue": "one to five"
+      },
+      {
+       "id": "slow",
+       "x": 320,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "slow",
+       "tone": "warn",
+       "cue": "both start"
+      },
+      {
+       "id": "fast",
+       "x": 320,
+       "y": 710,
+       "w": 120,
+       "h": 70,
+       "text": "fast",
+       "tone": "good",
+       "cue": "both start"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2",
+       "cue": "one to five"
+      },
+      {
+       "from": "n2",
+       "to": "n3",
+       "cue": "one to five"
+      },
+      {
+       "from": "n3",
+       "to": "n4",
+       "cue": "one to five"
+      },
+      {
+       "from": "n4",
+       "to": "n5",
+       "cue": "one to five"
+      }
+     ],
+     "changes": [
+      {
+       "id": "slow",
+       "move": [
+        560,
+        620
+       ],
+       "cue": "slow goes to two"
+      },
+      {
+       "id": "fast",
+       "move": [
+        800,
+        710
+       ],
+       "cue": "fast goes to three"
+      },
+      {
+       "id": "slow",
+       "move": [
+        800,
+        620
+       ],
+       "cue": "slow goes to three"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1280,
+        710
+       ],
+       "cue": "fast goes to five"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "good",
+       "cue": "node three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "middle",
+     "say": "Both start at head. While fast and its next exist, slow steps once and fast twice. Check fast first, or you read null. Then slow is the middle: it prints three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Node* middle(Node* head) {\n    Node *slow = head, *fast = head;\n    while (fast && fast->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    return slow;\n}\ncout << middle(head)->val;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "start at head"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "steps once"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Check fast first"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "the middle"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "cue": "it prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now six nodes, one to six. An even length has two middles. Which node does our loop return? Pause and predict.",
+     "q": "List 1 to 6. What value does `middle` return?",
+     "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "diagram",
+     "head": "Even length: the second middle",
+     "say": "Four, the second of the two middle nodes. Both start at one. Slow to two, fast to three. Slow to three, fast to five. Slow to four, and fast steps off the end, to null. Even lengths give the second middle.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 250,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "n2",
+       "x": 450,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 650,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "n4",
+       "x": 850,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "4",
+       "tone": "blue"
+      },
+      {
+       "id": "n5",
+       "x": 1050,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "5",
+       "tone": "blue"
+      },
+      {
+       "id": "n6",
+       "x": 1250,
+       "y": 420,
+       "w": 140,
+       "h": 140,
+       "text": "6",
+       "tone": "blue"
+      },
+      {
+       "id": "rn",
+       "x": 1450,
+       "y": 420,
+       "w": 130,
+       "h": 140,
+       "text": "null",
+       "tone": "dim"
+      },
+      {
+       "id": "slow",
+       "x": 260,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "slow",
+       "tone": "warn"
+      },
+      {
+       "id": "fast",
+       "x": 260,
+       "y": 710,
+       "w": 120,
+       "h": 70,
+       "text": "fast",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2"
+      },
+      {
+       "from": "n2",
+       "to": "n3"
+      },
+      {
+       "from": "n3",
+       "to": "n4"
+      },
+      {
+       "from": "n4",
+       "to": "n5"
+      },
+      {
+       "from": "n5",
+       "to": "n6"
+      },
+      {
+       "from": "n6",
+       "to": "rn"
+      }
+     ],
+     "changes": [
+      {
+       "id": "slow",
+       "move": [
+        460,
+        620
+       ],
+       "cue": "Slow to two"
+      },
+      {
+       "id": "fast",
+       "move": [
+        660,
+        710
+       ],
+       "cue": "fast to three"
+      },
+      {
+       "id": "slow",
+       "move": [
+        660,
+        620
+       ],
+       "cue": "Slow to three"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1060,
+        710
+       ],
+       "cue": "fast to five"
+      },
+      {
+       "id": "slow",
+       "move": [
+        860,
+        620
+       ],
+       "cue": "Slow to four"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1460,
+        710
+       ],
+       "cue": "fast steps off"
+      },
+      {
+       "id": "n4",
+       "glow": true,
+       "tone": "good",
+       "cue": "second middle"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Catch a cycle",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Does it loop?",
+     "statement": "Tell whether a linked list contains a cycle.",
+     "example": {
+      "input": "1 → 2 → 3 → 4 → 5, then 5 → 2",
+      "output": "true"
+     },
+     "note": "O(1) extra memory",
+     "say": "Does this list loop forever? Five points back to two, so the answer is true. And we get no visited set.",
+     "cues": {
+      "example": "Five points back",
+      "output": "answer is true",
+      "note": "no visited set"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Five points back to two",
+     "say": "A bug that never crashes: the program just hangs. In this list, five points back to two. A plain walk never ends. Slow and fast both start at one. Round one: slow to two, fast to three. Round two: slow to three, fast jumps to five. Round three: slow to four, fast wraps around to three. Round four: slow to five, fast catches up. They meet.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 300,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "1",
+       "tone": "blue",
+       "cue": "this list"
+      },
+      {
+       "id": "n2",
+       "x": 540,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "2",
+       "tone": "blue",
+       "cue": "this list"
+      },
+      {
+       "id": "n3",
+       "x": 780,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "3",
+       "tone": "blue",
+       "cue": "this list"
+      },
+      {
+       "id": "n4",
+       "x": 1020,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "4",
+       "tone": "blue",
+       "cue": "this list"
+      },
+      {
+       "id": "n5",
+       "x": 1260,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "5",
+       "tone": "blue",
+       "cue": "this list"
+      },
+      {
+       "id": "slow",
+       "x": 320,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "slow",
+       "tone": "warn",
+       "cue": "both start at one"
+      },
+      {
+       "id": "fast",
+       "x": 320,
+       "y": 750,
+       "w": 120,
+       "h": 70,
+       "text": "fast",
+       "tone": "good",
+       "cue": "both start at one"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2",
+       "cue": "this list"
+      },
+      {
+       "from": "n2",
+       "to": "n3",
+       "cue": "this list"
+      },
+      {
+       "from": "n3",
+       "to": "n4",
+       "cue": "this list"
+      },
+      {
+       "from": "n4",
+       "to": "n5",
+       "cue": "this list"
+      },
+      {
+       "from": "n5",
+       "to": "n2",
+       "tone": "bad",
+       "bend": 300,
+       "cue": "five points back to two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "slow",
+       "move": [
+        560,
+        660
+       ],
+       "cue": "slow to two"
+      },
+      {
+       "id": "fast",
+       "move": [
+        800,
+        750
+       ],
+       "cue": "fast to three"
+      },
+      {
+       "id": "slow",
+       "move": [
+        800,
+        660
+       ],
+       "cue": "slow to three"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1280,
+        750
+       ],
+       "cue": "jumps to five"
+      },
+      {
+       "id": "slow",
+       "move": [
+        1040,
+        660
+       ],
+       "cue": "slow to four"
+      },
+      {
+       "id": "fast",
+       "move": [
+        800,
+        750
+       ],
+       "cue": "wraps around"
+      },
+      {
+       "id": "slow",
+       "move": [
+        1280,
+        660
+       ],
+       "cue": "slow to five"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1280,
+        750
+       ],
+       "cue": "catches up"
+      },
+      {
+       "id": "n5",
+       "glow": true,
+       "tone": "good",
+       "cue": "They meet"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "hasCycle",
+     "say": "Same loop as the middle, with one check. Slow steps once, fast twice. After each move, compare them. A match means a loop. If fast falls off the end, return false. Checking fast first avoids reading null.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool hasCycle(Node* head) {\n    Node *slow = head, *fast = head;\n    while (fast && fast->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n        if (slow == fast) return true;\n    }\n    return false;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Slow steps once"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "compare them"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "return false"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Checking fast first"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Three nodes, and three points back to one. Where do slow and fast first meet?",
+     "q": "Nodes 1, 2, 3; node 3 points to 1. Where do slow and fast meet?",
+     "options": [
+      "node 1",
+      "node 2",
+      "node 3",
+      "never"
+     ],
+     "answer": "node 1"
+    },
+    {
+     "type": "diagram",
+     "head": "A loop of three",
+     "say": "Node one, after three rounds. Round one: slow to two, fast to three. Round two: slow to three, fast wraps around to two. Round three: slow wraps to one, and fast, taking two steps, lands on one too. They meet.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 520,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "n2",
+       "x": 800,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 1080,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "slow",
+       "x": 540,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "slow",
+       "tone": "warn"
+      },
+      {
+       "id": "fast",
+       "x": 540,
+       "y": 750,
+       "w": 120,
+       "h": 70,
+       "text": "fast",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2"
+      },
+      {
+       "from": "n2",
+       "to": "n3"
+      },
+      {
+       "from": "n3",
+       "to": "n1",
+       "tone": "bad",
+       "bend": 240
+      }
+     ],
+     "changes": [
+      {
+       "id": "slow",
+       "move": [
+        820,
+        660
+       ],
+       "cue": "slow to two"
+      },
+      {
+       "id": "fast",
+       "move": [
+        1100,
+        750
+       ],
+       "cue": "fast to three"
+      },
+      {
+       "id": "slow",
+       "move": [
+        1100,
+        660
+       ],
+       "cue": "slow to three"
+      },
+      {
+       "id": "fast",
+       "move": [
+        820,
+        750
+       ],
+       "cue": "wraps around to two"
+      },
+      {
+       "id": "slow",
+       "move": [
+        540,
+        660
+       ],
+       "cue": "slow wraps to one"
+      },
+      {
+       "id": "fast",
+       "move": [
+        540,
+        750
+       ],
+       "cue": "lands on one"
+      },
+      {
+       "id": "n1",
+       "glow": true,
+       "tone": "good",
+       "cue": "They meet"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Where does the loop start?",
+     "say": "Where does the loop start? Slow and fast both sit at five. Send fast home, to node one. Both step one at a time now. Slow goes round to two. Fast goes to two. They meet at two, and that is the start of the loop.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 300,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "n2",
+       "x": 540,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "2",
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 780,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "3",
+       "tone": "blue"
+      },
+      {
+       "id": "n4",
+       "x": 1020,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "4",
+       "tone": "blue"
+      },
+      {
+       "id": "n5",
+       "x": 1260,
+       "y": 450,
+       "w": 160,
+       "h": 140,
+       "text": "5",
+       "tone": "blue"
+      },
+      {
+       "id": "slow",
+       "x": 1280,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "slow",
+       "tone": "warn"
+      },
+      {
+       "id": "fast",
+       "x": 1280,
+       "y": 750,
+       "w": 120,
+       "h": 70,
+       "text": "fast",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n1",
+       "to": "n2"
+      },
+      {
+       "from": "n2",
+       "to": "n3"
+      },
+      {
+       "from": "n3",
+       "to": "n4"
+      },
+      {
+       "from": "n4",
+       "to": "n5"
+      },
+      {
+       "from": "n5",
+       "to": "n2",
+       "tone": "bad",
+       "bend": 300
+      }
+     ],
+     "changes": [
+      {
+       "id": "fast",
+       "move": [
+        320,
+        750
+       ],
+       "cue": "Send fast home"
+      },
+      {
+       "id": "slow",
+       "move": [
+        560,
+        660
+       ],
+       "cue": "Slow goes round to two"
+      },
+      {
+       "id": "fast",
+       "move": [
+        560,
+        750
+       ],
+       "cue": "Fast goes to two"
+      },
+      {
+       "id": "n2",
+       "glow": true,
+       "tone": "good",
+       "cue": "start of the loop"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Merge behind a dummy head",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Merge two sorted lists",
+     "statement": "Merge two sorted lists into one sorted list by relinking the nodes.",
+     "example": {
+      "input": "1 → 3 → 5  and  2 → 4",
+      "output": "1 → 2 → 3 → 4 → 5"
+     },
+     "say": "Last problem. Merge one, three, five with two, four. We want one through five, by relinking nodes.",
+     "cues": {
+      "example": "Merge one",
+      "output": "We want one"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A zipper with a fake first tooth",
+     "say": "Merging sorted lists works like a zipper: always take the smaller front. One problem: which node becomes the head? You can't know until you compare. The fix is a dummy head, a fake node placed first. Build behind it, return its next.",
+     "items": [
+      {
+       "label": "list a",
+       "text": "1 3 5",
+       "cue": "sorted lists"
+      },
+      {
+       "label": "list b",
+       "text": "2 4",
+       "cue": "sorted lists"
+      },
+      {
+       "label": "zip",
+       "text": "smaller",
+       "sub": "take it, repeat",
+       "cue": "take the smaller front"
+      },
+      {
+       "label": "problem",
+       "text": "who's head?",
+       "tone": "bad",
+       "cue": "which node becomes the head"
+      },
+      {
+       "label": "the fix",
+       "text": "fake node",
+       "tone": "good",
+       "sub": "dummy head",
+       "cue": "a dummy head"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Merge 1, 3, 5 and 2, 4",
+     "say": "Merge one, three, five with two, four. Start with a dummy head, a fake node that holds the place. Compare one and two. One wins, so it's linked after dummy. Compare three and two. Two wins. Compare three and four. Three wins. Compare five and four. Four wins. List b is empty, so link the rest, five, on the end.",
+     "items": [
+      {
+       "id": "la0",
+       "x": 500,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "label": "list a",
+       "text": "1",
+       "tone": "blue",
+       "cue": "one, three, five"
+      },
+      {
+       "id": "la1",
+       "x": 700,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "tone": "blue",
+       "cue": "one, three, five"
+      },
+      {
+       "id": "la2",
+       "x": 900,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "5",
+       "tone": "blue",
+       "cue": "one, three, five"
+      },
+      {
+       "id": "lb0",
+       "x": 500,
+       "y": 450,
+       "w": 130,
+       "h": 100,
+       "label": "list b",
+       "text": "2",
+       "tone": "blue",
+       "cue": "two, four"
+      },
+      {
+       "id": "lb1",
+       "x": 700,
+       "y": 450,
+       "w": 130,
+       "h": 100,
+       "text": "4",
+       "tone": "blue",
+       "cue": "two, four"
+      },
+      {
+       "id": "dm",
+       "x": 200,
+       "y": 720,
+       "w": 170,
+       "h": 100,
+       "label": "result",
+       "text": "dummy",
+       "tone": "warn",
+       "cue": "dummy head"
+      },
+      {
+       "id": "r0",
+       "x": 450,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "1",
+       "tone": "good",
+       "cue": "One wins"
+      },
+      {
+       "id": "r1",
+       "x": 650,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "2",
+       "tone": "good",
+       "cue": "Two wins"
+      },
+      {
+       "id": "r2",
+       "x": 850,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "tone": "good",
+       "cue": "Three wins"
+      },
+      {
+       "id": "r3",
+       "x": 1050,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "4",
+       "tone": "good",
+       "cue": "Four wins"
+      },
+      {
+       "id": "r4",
+       "x": 1250,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "5",
+       "tone": "good",
+       "cue": "link the rest"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "la0",
+       "to": "la1",
+       "cue": "one, three, five"
+      },
+      {
+       "from": "la1",
+       "to": "la2",
+       "cue": "one, three, five"
+      },
+      {
+       "from": "lb0",
+       "to": "lb1",
+       "cue": "two, four"
+      },
+      {
+       "from": "dm",
+       "to": "r0",
+       "cue": "One wins"
+      },
+      {
+       "from": "r0",
+       "to": "r1",
+       "cue": "Two wins"
+      },
+      {
+       "from": "r1",
+       "to": "r2",
+       "cue": "Three wins"
+      },
+      {
+       "from": "r2",
+       "to": "r3",
+       "cue": "Four wins"
+      },
+      {
+       "from": "r3",
+       "to": "r4",
+       "cue": "link the rest"
+      }
+     ],
+     "changes": [
+      {
+       "id": "la0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare one and two"
+      },
+      {
+       "id": "lb0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare one and two"
+      },
+      {
+       "id": "la1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare three and two"
+      },
+      {
+       "id": "lb0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare three and two"
+      },
+      {
+       "id": "la1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare three and four"
+      },
+      {
+       "id": "lb1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare three and four"
+      },
+      {
+       "id": "la2",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare five and four"
+      },
+      {
+       "id": "lb1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Compare five and four"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "mergeLists",
+     "say": "Make the dummy, and let tail point at it. While both lists have nodes, link the smaller front after tail and advance that list. Then move tail. When one runs out, link the rest of the other. Return dummy's next.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Node* merge(Node* a, Node* b) {\n    Node dummy{0, nullptr};\n    Node* tail = &dummy;\n    while (a && b) {\n        if (a->val <= b->val) { tail->next = a; a = a->next; }\n        else { tail->next = b; b = b->next; }\n        tail = tail->next;\n    }\n    tail->next = a ? a : b;\n    return dummy.next;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Make the dummy"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "While both lists"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "link the smaller front"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "move tail"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "runs out"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "Return dummy"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Merge one, two, three with seven, eight. When the loop ends, what is left to link on the end?",
+     "q": "Merge 1,2,3 with 7,8. After the loop, what's still unlinked?",
+     "options": [
+      "nothing",
+      "7, 8",
+      "3",
+      "1, 2, 3"
+     ],
+     "answer": "7, 8"
+    },
+    {
+     "type": "diagram",
+     "head": "The leftover tail",
+     "say": "Seven, eight. List a ran out after three, so list b is untouched. One link finishes the job: tail's next points at seven, and eight comes along. No copying, no second loop.",
+     "items": [
+      {
+       "id": "la0",
+       "x": 500,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "label": "list a",
+       "text": "1",
+       "tone": "dim"
+      },
+      {
+       "id": "la1",
+       "x": 700,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "2",
+       "tone": "dim"
+      },
+      {
+       "id": "la2",
+       "x": 900,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "tone": "dim"
+      },
+      {
+       "id": "lb0",
+       "x": 1150,
+       "y": 450,
+       "w": 130,
+       "h": 100,
+       "label": "list b",
+       "text": "7",
+       "tone": "blue"
+      },
+      {
+       "id": "lb1",
+       "x": 1350,
+       "y": 450,
+       "w": 130,
+       "h": 100,
+       "text": "8",
+       "tone": "blue"
+      },
+      {
+       "id": "dm",
+       "x": 200,
+       "y": 720,
+       "w": 170,
+       "h": 100,
+       "label": "result",
+       "text": "dummy",
+       "tone": "warn"
+      },
+      {
+       "id": "r0",
+       "x": 450,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "1",
+       "tone": "good"
+      },
+      {
+       "id": "r1",
+       "x": 650,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "r2",
+       "x": 850,
+       "y": 720,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "dm",
+       "to": "r0"
+      },
+      {
+       "from": "r0",
+       "to": "r1"
+      },
+      {
+       "from": "r1",
+       "to": "r2"
+      },
+      {
+       "from": "lb0",
+       "to": "lb1"
+      },
+      {
+       "from": "r2",
+       "to": "lb0",
+       "tone": "good",
+       "cue": "tail's next points at seven"
+      }
+     ],
+     "changes": [
+      {
+       "id": "lb0",
+       "glow": true,
+       "tone": "good",
+       "cue": "list b is untouched"
+      },
+      {
+       "id": "lb1",
+       "glow": true,
+       "tone": "good",
+       "cue": "eight comes along"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp23"
+     ],
+     "say": "How does a list work? Nodes with next pointers, head marks the first. Versus an array? Front insert O of one, reading item k O of n. Why not always a list? No index, poor cache, so vector wins. Common mistake? Moving head before saving the old first.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does a list work?",
+       "nodes: value + next pointer; head points at first"
+      ],
+      [
+       "Versus an array?",
+       "front insert O(1), read item k O(n)"
+      ],
+      [
+       "Why not always a list?",
+       "no index, poor cache: vector usually wins"
+      ],
+      [
+       "Common mistake?",
+       "moving head before saving the old first"
+      ]
+     ],
+     "cues": [
+      "How does a list",
+      "Versus an array",
+      "Why not always",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp24"
+     ],
+     "say": "How do you reverse? Three pointers, O of n time, O of one space. Find the middle? Slow takes one step, fast two. Slow ends at the middle. Why do they meet? Fast gains a step per round. Where does the cycle start? Reset one pointer to head, step both by one.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Reverse a list?",
+       "prev, current, next: O(n) time, O(1) space"
+      ],
+      [
+       "Find the middle?",
+       "slow 1 step, fast 2: slow ends at middle"
+      ],
+      [
+       "Why do they meet?",
+       "fast gains a step per round: gap closes"
+      ],
+      [
+       "Where does the cycle start?",
+       "reset one to head, step both by one"
+      ]
+     ],
+     "cues": [
+      "How do you reverse",
+      "Find the middle",
+      "Why do they meet",
+      "Where does the cycle start"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp24"
+     ],
+     "say": "Why a dummy head? No special case for the first node or an empty list. How do you merge? Link the smaller front behind tail, attach the rest. Common mistake? Not saving next before re-pointing, or reading fast next without checking fast.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why a dummy head?",
+       "no special case for first node or empty list"
+      ],
+      [
+       "How do you merge?",
+       "link smaller front behind tail, attach the rest"
+      ],
+      [
+       "Common mistake?",
+       "unsaved next; `fast->next` unchecked"
+      ]
+     ],
+     "cues": [
+      "Why a dummy",
+      "How do you merge",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode two oh six, reverse linked list, is today's reverse loop. LeetCode twenty one, merge two sorted lists, is the dummy head. LeetCode one forty two, linked list cycle two, finds where the loop starts.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 206 · Reverse Linked List",
+       "prev, current, next"
+      ],
+      [
+       "LeetCode 21 · Merge Two Sorted Lists",
+       "dummy head, smaller front"
+      ],
+      [
+       "LeetCode 142 · Linked List Cycle II",
+       "slow/fast, then reset to head"
+      ]
+     ],
+     "cues": [
+      "two oh six",
+      "twenty one",
+      "one forty two"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Re-point in the right order. Reverse by saving next, flipping, stepping. Slow and fast find middles and cycles. A dummy head cleans up merging.",
+     "lines": [
+      "Node = value + next. Re-point in the right order.",
+      "Reverse: save next, flip, step. O(1) memory.",
+      "Slow/fast: middle, cycles. Dummy head: merging."
+     ],
+     "cues": [
+      "Re-point in the right",
+      "Reverse by saving",
+      "Slow and fast"
+     ]
+    }
+   ]
+  }
+ ]
+}

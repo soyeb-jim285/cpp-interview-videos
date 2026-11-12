@@ -1,0 +1,2808 @@
+{
+ "id": "dsa-09",
+ "track": "DSA",
+ "num": 9,
+ "title": "Graphs: BFS, DFS & Topological Sort",
+ "covers": [
+  "cp09",
+  "cp16"
+ ],
+ "caps": [
+  [
+   "O of V plus E",
+   "O(V + E)"
+  ],
+  [
+   "O of rows times columns",
+   "O(rows × columns)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "Kahn's",
+   "Kahn's"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Ripples in a maze",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "How does a maze solver know the exit is exactly eight steps away, without trying every route? By the end, you'll do that, and order tasks with prerequisites, using the same two traversals.",
+     "lines": [
+      {
+       "text": "Exit: exactly 8 steps away.",
+       "cue": "exactly eight steps"
+      },
+      {
+       "text": "Without trying every route.",
+       "cue": "without trying every route"
+      },
+      {
+       "text": "Then order tasks by prerequisites.",
+       "cue": "order tasks",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today we'll do three things. Find the shortest way out of a maze. Count islands on a grid. Then order tasks that depend on each other.",
+     "lines": [
+      "Shortest way out of a maze: BFS.",
+      "Count islands on a grid: DFS.",
+      "Order tasks that depend on each other."
+     ],
+     "cues": [
+      "Find the shortest way",
+      "Count islands",
+      "order tasks"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Shortest way out",
+     "statement": "A 5×5 maze: a dot is floor, a hash is a wall. Moving up, down, left or right, what is the fewest steps from top left to bottom right?",
+     "example": {
+      "input": "..... / ##.#. / ..... / .###. / .....",
+      "output": "8 steps"
+     },
+     "note": "Moves: up, down, left, right. Never through a wall.",
+     "cues": {
+      "example": "five by five maze",
+      "output": "The answer is eight",
+      "note": "Moves: up"
+     },
+     "say": "Here's the problem. A five by five maze. Fewest steps from top left to exit? The answer is eight. Moves: up, down, left, right. Never through a wall."
+    },
+    {
+     "type": "flow",
+     "head": "Two ways to explore",
+     "say": "A graph is nodes joined by edges. A grid is one: each cell touches four neighbors. Two ways to explore. Breadth first search spreads like ripples in a pond, nearest first, using a queue. Depth first search follows one tunnel to its end, then backs up.",
+     "items": [
+      {
+       "label": "graph",
+       "text": "nodes + edges",
+       "cue": "A graph is nodes"
+      },
+      {
+       "label": "grid",
+       "text": "5×5 cells",
+       "sub": "4 neighbors each",
+       "cue": "A grid is one"
+      },
+      {
+       "label": "BFS",
+       "text": "ripples",
+       "sub": "queue · nearest first",
+       "tone": "good",
+       "cue": "Breadth first search"
+      },
+      {
+       "label": "DFS",
+       "text": "one tunnel",
+       "sub": "stack · deepest first",
+       "tone": "warn",
+       "cue": "Depth first search"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "BFS: ripples through a maze",
+     "say": "Here's a maze. Dots are floor, hash marks are walls. You start top left. The exit is bottom right. Breadth first search spreads like ripples. Layer zero is the start. Layer one. Layer two. Layer three has two cells, because the path forks. Layer four. Layer five has three. Layer six. Layer seven. Layer eight reaches the exit. Eight steps.",
+     "items": [
+      {
+       "id": "m00",
+       "x": 260,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "S",
+       "tone": "info",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m01",
+       "x": 385,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m02",
+       "x": 510,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m03",
+       "x": 635,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m04",
+       "x": 760,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m10",
+       "x": 260,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m11",
+       "x": 385,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m12",
+       "x": 510,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m13",
+       "x": 635,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m14",
+       "x": 760,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m20",
+       "x": 260,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m21",
+       "x": 385,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m22",
+       "x": 510,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m23",
+       "x": 635,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m24",
+       "x": 760,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m30",
+       "x": 260,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m31",
+       "x": 385,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m32",
+       "x": 510,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m33",
+       "x": 635,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m34",
+       "x": 760,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m40",
+       "x": 260,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m41",
+       "x": 385,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m42",
+       "x": 510,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m43",
+       "x": 635,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": ".",
+       "tone": "blue",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "m44",
+       "x": 760,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "E",
+       "tone": "info",
+       "cue": "Here's a maze"
+      },
+      {
+       "id": "lay",
+       "x": 1150,
+       "y": 330,
+       "w": 420,
+       "h": 120,
+       "label": "layer",
+       "text": "–",
+       "size": 56,
+       "tone": "warn",
+       "cue": "spreads like ripples"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m00",
+       "glow": true,
+       "tone": "good",
+       "cue": "You start top left"
+      },
+      {
+       "id": "m44",
+       "glow": true,
+       "tone": "good",
+       "cue": "The exit is"
+      },
+      {
+       "id": "m00",
+       "text": "0",
+       "tone": "warn",
+       "cue": "Layer zero"
+      },
+      {
+       "id": "lay",
+       "text": "0",
+       "cue": "Layer zero"
+      },
+      {
+       "id": "m01",
+       "text": "1",
+       "tone": "warn",
+       "cue": "Layer one"
+      },
+      {
+       "id": "lay",
+       "text": "1",
+       "cue": "Layer one"
+      },
+      {
+       "id": "m02",
+       "text": "2",
+       "tone": "warn",
+       "cue": "Layer two"
+      },
+      {
+       "id": "lay",
+       "text": "2",
+       "cue": "Layer two"
+      },
+      {
+       "id": "m03",
+       "text": "3",
+       "tone": "warn",
+       "cue": "Layer three"
+      },
+      {
+       "id": "m12",
+       "text": "3",
+       "tone": "warn",
+       "cue": "Layer three"
+      },
+      {
+       "id": "lay",
+       "text": "3",
+       "cue": "Layer three"
+      },
+      {
+       "id": "m04",
+       "text": "4",
+       "tone": "warn",
+       "cue": "Layer four"
+      },
+      {
+       "id": "m22",
+       "text": "4",
+       "tone": "warn",
+       "cue": "Layer four"
+      },
+      {
+       "id": "lay",
+       "text": "4",
+       "cue": "Layer four"
+      },
+      {
+       "id": "m14",
+       "text": "5",
+       "tone": "warn",
+       "cue": "Layer five"
+      },
+      {
+       "id": "m21",
+       "text": "5",
+       "tone": "warn",
+       "cue": "Layer five"
+      },
+      {
+       "id": "m23",
+       "text": "5",
+       "tone": "warn",
+       "cue": "Layer five"
+      },
+      {
+       "id": "lay",
+       "text": "5",
+       "cue": "Layer five"
+      },
+      {
+       "id": "m20",
+       "text": "6",
+       "tone": "warn",
+       "cue": "Layer six"
+      },
+      {
+       "id": "m24",
+       "text": "6",
+       "tone": "warn",
+       "cue": "Layer six"
+      },
+      {
+       "id": "lay",
+       "text": "6",
+       "cue": "Layer six"
+      },
+      {
+       "id": "m30",
+       "text": "7",
+       "tone": "warn",
+       "cue": "Layer seven"
+      },
+      {
+       "id": "m34",
+       "text": "7",
+       "tone": "warn",
+       "cue": "Layer seven"
+      },
+      {
+       "id": "lay",
+       "text": "7",
+       "cue": "Layer seven"
+      },
+      {
+       "id": "m40",
+       "text": "8",
+       "tone": "warn",
+       "cue": "Layer eight"
+      },
+      {
+       "id": "m44",
+       "text": "8",
+       "tone": "good",
+       "cue": "Layer eight"
+      },
+      {
+       "id": "lay",
+       "text": "8",
+       "cue": "Layer eight"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "BFS: set the stage",
+     "say": "Three things. The grid, with hash for a wall. A distance table, filled with minus one, which means not visited yet. And a queue, first in, first out. Start at the top left: distance zero, and into the queue. The four directions are down, up, right, left.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<string> g = {\".....\", \"##.#.\", \".....\", \".###.\", \".....\"};\nint d[5][5];  memset(d, -1, sizeof d);\nqueue<pair<int,int>> q;\nd[0][0] = 0;  q.push({0, 0});\nint dr[] = {1, -1, 0, 0}, dc[] = {0, 0, 1, -1};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "The grid"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A distance table"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "And a queue"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Start at the top left"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The four directions"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "-1 = not visited",
+       "tone": "info",
+       "cue": "minus one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "BFS: the loop",
+     "say": "Now the loop. While the queue has cells, pop the front one. Try its four neighbors. Skip any that fall off the grid. Skip walls, and skip cells already visited. Otherwise the neighbor is one step further: set its distance, and queue it. Every cell enters once, so the cost is O of rows times columns. The answer is d of four, four: eight.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "while (!q.empty()) {\n    auto [r, c] = q.front();  q.pop();\n    for (int k = 0; k < 4; k++) {\n        int y = r + dr[k], x = c + dc[k];\n        if (y < 0 || x < 0 || y > 4 || x > 4) continue;\n        if (g[y][x] == '#' || d[y][x] >= 0) continue;\n        d[y][x] = d[r][c] + 1;  q.push({y, x});\n    }\n}\ncout << d[4][4];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "While the queue"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "pop the front"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Try its four neighbors"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "fall off the grid"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Skip walls"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "already visited"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "set its distance"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Every cell enters once"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "The answer is"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "mark on push",
+       "tone": "good",
+       "cue": "and queue it"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We knock out the wall right below the start. Does the exit get closer? What's its distance now? Pause and predict.",
+     "q": "Wall under the start removed. Exit distance?",
+     "options": [
+      "6",
+      "7",
+      "8",
+      "9"
+     ],
+     "answer": "8"
+    },
+    {
+     "type": "diagram",
+     "head": "Still eight",
+     "say": "Eight. Knock out that wall and the left column gets closer: two, three, four. The bottom row gets closer too: five, six, seven. But the exit stays at eight. On a five by five grid you need four steps down and four across. Walls only add distance, never remove it.",
+     "items": [
+      {
+       "id": "m00",
+       "x": 260,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "0",
+       "tone": "warn"
+      },
+      {
+       "id": "m01",
+       "x": 385,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "1",
+       "tone": "warn"
+      },
+      {
+       "id": "m02",
+       "x": 510,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "2",
+       "tone": "warn"
+      },
+      {
+       "id": "m03",
+       "x": 635,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "3",
+       "tone": "warn"
+      },
+      {
+       "id": "m04",
+       "x": 760,
+       "y": 230,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "4",
+       "tone": "warn"
+      },
+      {
+       "id": "m10",
+       "x": 260,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m11",
+       "x": 385,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m12",
+       "x": 510,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "3",
+       "tone": "warn"
+      },
+      {
+       "id": "m13",
+       "x": 635,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m14",
+       "x": 760,
+       "y": 355,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "5",
+       "tone": "warn"
+      },
+      {
+       "id": "m20",
+       "x": 260,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "6",
+       "tone": "warn"
+      },
+      {
+       "id": "m21",
+       "x": 385,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "5",
+       "tone": "warn"
+      },
+      {
+       "id": "m22",
+       "x": 510,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "4",
+       "tone": "warn"
+      },
+      {
+       "id": "m23",
+       "x": 635,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "5",
+       "tone": "warn"
+      },
+      {
+       "id": "m24",
+       "x": 760,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "6",
+       "tone": "warn"
+      },
+      {
+       "id": "m30",
+       "x": 260,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "7",
+       "tone": "warn"
+      },
+      {
+       "id": "m31",
+       "x": 385,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m32",
+       "x": 510,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m33",
+       "x": 635,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "#",
+       "tone": "dim"
+      },
+      {
+       "id": "m34",
+       "x": 760,
+       "y": 605,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "7",
+       "tone": "warn"
+      },
+      {
+       "id": "m40",
+       "x": 260,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "8",
+       "tone": "warn"
+      },
+      {
+       "id": "m41",
+       "x": 385,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "9",
+       "tone": "warn"
+      },
+      {
+       "id": "m42",
+       "x": 510,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "10",
+       "tone": "warn"
+      },
+      {
+       "id": "m43",
+       "x": 635,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "9",
+       "tone": "warn"
+      },
+      {
+       "id": "m44",
+       "x": 760,
+       "y": 730,
+       "w": 110,
+       "h": 110,
+       "size": 44,
+       "text": "8",
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m10",
+       "text": "1",
+       "tone": "good",
+       "cue": "Knock out that wall"
+      },
+      {
+       "id": "m20",
+       "text": "2",
+       "tone": "good",
+       "cue": "two, three, four"
+      },
+      {
+       "id": "m30",
+       "text": "3",
+       "tone": "good",
+       "cue": "two, three, four"
+      },
+      {
+       "id": "m40",
+       "text": "4",
+       "tone": "good",
+       "cue": "two, three, four"
+      },
+      {
+       "id": "m41",
+       "text": "5",
+       "tone": "good",
+       "cue": "five, six, seven"
+      },
+      {
+       "id": "m42",
+       "text": "6",
+       "tone": "good",
+       "cue": "five, six, seven"
+      },
+      {
+       "id": "m43",
+       "text": "7",
+       "tone": "good",
+       "cue": "five, six, seven"
+      },
+      {
+       "id": "m00",
+       "glow": true,
+       "tone": "good",
+       "cue": "four steps down"
+      },
+      {
+       "id": "m44",
+       "glow": true,
+       "tone": "good",
+       "cue": "stays at eight"
+      },
+      {
+       "id": "m11",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Walls only add"
+      },
+      {
+       "id": "m44",
+       "text": "8",
+       "cue": "four across"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three BFS mistakes",
+     "say": "Three mistakes. Marking visited on pop, not push: cells enter the queue many times. Checking the wall before the bounds: you read outside the grid. Using depth first search for fewest steps: you get a path, not the shortest.",
+     "heads": [
+      "Mistake",
+      "What goes wrong",
+      "Fix"
+     ],
+     "rows": [
+      [
+       "mark visited on pop",
+       "cell queued many times",
+       "mark on push"
+      ],
+      [
+       "check wall, then bounds",
+       "reads off the grid",
+       "bounds first"
+      ],
+      [
+       "DFS for fewest steps",
+       "a path, not the shortest",
+       "use BFS, a queue"
+      ]
+     ],
+     "cues": [
+      "Marking visited",
+      "Checking the wall",
+      "Using depth first"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Dive deep: islands",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Count the islands",
+     "statement": "A grid of 1s (land) and 0s (water). Land touching up, down, left or right forms one island. How many islands?",
+     "example": {
+      "input": "11000 / 10010 / 00110 / 00001",
+      "output": "3"
+     },
+     "note": "Diagonal neighbors do not touch.",
+     "cues": {
+      "example": "grid of ones",
+      "output": "the answer is three",
+      "note": "Touching means"
+     },
+     "say": "Next problem. A grid of ones and zeros. Touching ones form an island. How many islands? Here, the answer is three. Touching means up, down, left, or right."
+    },
+    {
+     "type": "flow",
+     "head": "One tunnel at a time",
+     "say": "Picture a maze and a ball of string. Follow one tunnel to the very end. Dead end? Back up to the last fork, and try the other way. That's depth first search. The backing up is recursion, or a stack.",
+     "items": [
+      {
+       "label": "go deep",
+       "text": "one tunnel",
+       "cue": "Follow one tunnel"
+      },
+      {
+       "label": "dead end",
+       "text": "back up",
+       "tone": "bad",
+       "cue": "Dead end"
+      },
+      {
+       "label": "last fork",
+       "text": "try another",
+       "tone": "good",
+       "cue": "the other way"
+      },
+      {
+       "label": "backing up =",
+       "text": "recursion",
+       "sub": "or an explicit stack",
+       "tone": "warn",
+       "cue": "recursion, or a stack"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Counting islands",
+     "say": "A grid of ones and zeros. Touching ones, up, down, left, or right, form an island. Scan in order. The first one, top left, starts island one. Sink it: depth first search turns it and every touching one to zero. Keep scanning. The next one starts island two. Sink those three. The lone corner one is island three. Sink it too. Answer: three.",
+     "items": [
+      {
+       "id": "i00",
+       "x": 380,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i01",
+       "x": 505,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i02",
+       "x": 630,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i03",
+       "x": 755,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i04",
+       "x": 880,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i10",
+       "x": 380,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i11",
+       "x": 505,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i12",
+       "x": 630,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i13",
+       "x": 755,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i14",
+       "x": 880,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i20",
+       "x": 380,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i21",
+       "x": 505,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i22",
+       "x": 630,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i23",
+       "x": 755,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i24",
+       "x": 880,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i30",
+       "x": 380,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i31",
+       "x": 505,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i32",
+       "x": 630,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i33",
+       "x": 755,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "i34",
+       "x": 880,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue",
+       "cue": "A grid of ones"
+      },
+      {
+       "id": "cnt",
+       "x": 1180,
+       "y": 340,
+       "w": 360,
+       "h": 120,
+       "label": "islands",
+       "text": "0",
+       "size": 60,
+       "tone": "good",
+       "cue": "Scan in order"
+      }
+     ],
+     "changes": [
+      {
+       "id": "i00",
+       "glow": true,
+       "tone": "good",
+       "cue": "form an island"
+      },
+      {
+       "id": "i00",
+       "tone": "warn",
+       "cue": "starts island one"
+      },
+      {
+       "id": "i01",
+       "tone": "warn",
+       "cue": "starts island one"
+      },
+      {
+       "id": "i10",
+       "tone": "warn",
+       "cue": "starts island one"
+      },
+      {
+       "id": "cnt",
+       "text": "1",
+       "cue": "starts island one"
+      },
+      {
+       "id": "i00",
+       "text": "0",
+       "tone": "dim",
+       "cue": "Sink it:"
+      },
+      {
+       "id": "i01",
+       "text": "0",
+       "tone": "dim",
+       "cue": "every touching one"
+      },
+      {
+       "id": "i10",
+       "text": "0",
+       "tone": "dim",
+       "cue": "every touching one"
+      },
+      {
+       "id": "i13",
+       "tone": "warn",
+       "cue": "starts island two"
+      },
+      {
+       "id": "i23",
+       "tone": "warn",
+       "cue": "starts island two"
+      },
+      {
+       "id": "i22",
+       "tone": "warn",
+       "cue": "starts island two"
+      },
+      {
+       "id": "cnt",
+       "text": "2",
+       "cue": "starts island two"
+      },
+      {
+       "id": "i13",
+       "text": "0",
+       "tone": "dim",
+       "cue": "Sink those three"
+      },
+      {
+       "id": "i23",
+       "text": "0",
+       "tone": "dim",
+       "cue": "Sink those three"
+      },
+      {
+       "id": "i22",
+       "text": "0",
+       "tone": "dim",
+       "cue": "Sink those three"
+      },
+      {
+       "id": "i34",
+       "tone": "warn",
+       "cue": "is island three"
+      },
+      {
+       "id": "cnt",
+       "text": "3",
+       "cue": "is island three"
+      },
+      {
+       "id": "i34",
+       "text": "0",
+       "tone": "dim",
+       "cue": "Sink it too"
+      },
+      {
+       "id": "cnt",
+       "glow": true,
+       "tone": "good",
+       "cue": "Answer: three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "DFS: sink an island",
+     "say": "Here's the depth first search. If the cell is off the grid, or not a one, stop. Otherwise sink it: set it to zero. Then visit the four neighbors, down, up, right, left. Each call goes one cell deeper before the others get a turn. The recursion is the backing up.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int R, C;\nvoid dfs(vector<string>& g, int r, int c) {\n    if (r < 0 || c < 0 || r >= R || c >= C || g[r][c] != '1') return;\n    g[r][c] = '0';\n    dfs(g, r + 1, c);  dfs(g, r - 1, c);\n    dfs(g, r, c + 1);  dfs(g, r, c - 1);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "off the grid"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "sink it"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "visit the four neighbors"
+      },
+      {
+       "lines": [
+        2,
+        5
+       ],
+       "cue": "Each call goes"
+      },
+      {
+       "lines": [],
+       "cue": "The recursion is"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "also marks visited",
+       "tone": "good",
+       "cue": "set it to zero"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Scan the grid",
+     "say": "Now the scan. For every cell, if it's a one, we found a new island. Count it, then sink the whole island with the search. Every cell is visited at most once, so the cost is O of rows times columns. On our grid it prints three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int islands(vector<string> g) {\n    int n = 0;\n    R = g.size();  C = g[0].size();\n    for (int r = 0; r < R; r++)\n        for (int c = 0; c < C; c++)\n            if (g[r][c] == '1') { n++; dfs(g, r, c); }\n    return n;\n}\ncout << islands(grid);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "For every cell"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "found a new island"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "sink the whole island"
+      },
+      {
+       "lines": [],
+       "cue": "Every cell is visited"
+      },
+      {
+       "lines": [],
+       "cue": "Every cell is visited"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "so the cost"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "cue": "it prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same grid, but now diagonal neighbors count as touching. How many islands? Pause and predict.",
+     "q": "Same grid, diagonals now count as touching. Islands?",
+     "options": [
+      "3",
+      "2",
+      "1",
+      "4"
+     ],
+     "answer": "2"
+    },
+    {
+     "type": "diagram",
+     "head": "Diagonals merge islands",
+     "say": "Two. The corner one touches the middle island at a corner, so with diagonals they become one. Up, down, left, right keeps them apart. To allow diagonals, loop over eight directions instead of four.",
+     "items": [
+      {
+       "id": "i00",
+       "x": 380,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "i01",
+       "x": 505,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "i02",
+       "x": 630,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i03",
+       "x": 755,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i04",
+       "x": 880,
+       "y": 250,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i10",
+       "x": 380,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "blue"
+      },
+      {
+       "id": "i11",
+       "x": 505,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i12",
+       "x": 630,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i13",
+       "x": 755,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "warn"
+      },
+      {
+       "id": "i14",
+       "x": 880,
+       "y": 375,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i20",
+       "x": 380,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i21",
+       "x": 505,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i22",
+       "x": 630,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "warn"
+      },
+      {
+       "id": "i23",
+       "x": 755,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "warn"
+      },
+      {
+       "id": "i24",
+       "x": 880,
+       "y": 500,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i30",
+       "x": 380,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i31",
+       "x": 505,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i32",
+       "x": 630,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i33",
+       "x": 755,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "0",
+       "tone": "dim"
+      },
+      {
+       "id": "i34",
+       "x": 880,
+       "y": 625,
+       "w": 110,
+       "h": 110,
+       "size": 48,
+       "text": "1",
+       "tone": "bad"
+      },
+      {
+       "id": "cnt",
+       "x": 1180,
+       "y": 340,
+       "w": 360,
+       "h": 120,
+       "label": "islands",
+       "text": "3",
+       "size": 60,
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "i34",
+       "to": "i23",
+       "tone": "good",
+       "bend": -40,
+       "cue": "at a corner"
+      }
+     ],
+     "changes": [
+      {
+       "id": "i34",
+       "tone": "warn",
+       "cue": "become one"
+      },
+      {
+       "id": "cnt",
+       "text": "2",
+       "glow": true,
+       "cue": "become one"
+      },
+      {
+       "id": "a0",
+       "tone": "dim",
+       "cue": "keeps them apart"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1180,
+       "y": 520,
+       "text": "8 directions: 4 more calls",
+       "tone": "info",
+       "cue": "eight directions"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "BFS or DFS?",
+     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges.",
+     "heads": [
+      "Question",
+      "Use"
+     ],
+     "rows": [
+      [
+       "fewest steps?",
+       "BFS: queue, layer by layer"
+      ],
+      [
+       "how many areas? reachable?",
+       "DFS: recursion or a stack"
+      ],
+      [
+       "very deep grid?",
+       "explicit stack: recursion can overflow"
+      ],
+      [
+       "cost of either?",
+       "O(V + E); grid: O(rows × columns)"
+      ]
+     ],
+     "cues": [
+      "Fewest steps",
+      "How many areas",
+      "Very deep grid",
+      "Cost for both"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Order with dependencies",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Order the courses",
+     "statement": "Some courses need others first. Give an order where every prerequisite comes before the course that needs it, or say it is impossible.",
+     "example": {
+      "input": "0 before 1, 0 before 2, 1 before 3, 2 before 3",
+      "output": "0 1 2 3 (one valid order)"
+     },
+     "note": "A loop of prerequisites makes it impossible.",
+     "cues": {
+      "example": "Four courses",
+      "output": "One valid order is",
+      "note": "A loop"
+     },
+     "say": "Last problem. Four courses. Zero before one and two, both before three. One valid order is zero, one, two, three. A loop makes it impossible."
+    },
+    {
+     "type": "flow",
+     "head": "Getting dressed",
+     "say": "Think about getting dressed. Socks must come before shoes. Pants must come before shoes, too. Many orders work, but shoes never come first. Finding any such order is a topological sort.",
+     "items": [
+      {
+       "label": "first",
+       "text": "socks",
+       "cue": "Socks must come"
+      },
+      {
+       "label": "or first",
+       "text": "pants",
+       "cue": "Pants must come"
+      },
+      {
+       "label": "after both",
+       "text": "shoes",
+       "tone": "good",
+       "cue": "shoes never come first"
+      },
+      {
+       "label": "valid order =",
+       "text": "topo sort",
+       "sub": "prerequisites first",
+       "tone": "warn",
+       "cue": "topological sort"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Kahn's algorithm: peel what's ready",
+     "say": "Courses zero to three. An arrow means take this first. The box beside each course counts its unfinished prerequisites. Only a course with zero is ready. Zero is ready. Take it. Its two arrows vanish, so one and two drop to zero. Take one. Course three drops to one. Take two. Now three drops to zero. Take three.",
+     "items": [
+      {
+       "id": "n0",
+       "x": 895,
+       "y": 220,
+       "w": 130,
+       "h": 130,
+       "text": "0",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Courses zero to three"
+      },
+      {
+       "id": "n1",
+       "x": 635,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Courses zero to three"
+      },
+      {
+       "id": "n2",
+       "x": 1155,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "2",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Courses zero to three"
+      },
+      {
+       "id": "n3",
+       "x": 895,
+       "y": 660,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Courses zero to three"
+      },
+      {
+       "id": "i0",
+       "x": 1060,
+       "y": 245,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "warn",
+       "cue": "The box beside each course"
+      },
+      {
+       "id": "i1",
+       "x": 470,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 1",
+       "size": 36,
+       "tone": "warn",
+       "cue": "The box beside each course"
+      },
+      {
+       "id": "i2",
+       "x": 1320,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 1",
+       "size": 36,
+       "tone": "warn",
+       "cue": "The box beside each course"
+      },
+      {
+       "id": "i3",
+       "x": 1060,
+       "y": 685,
+       "w": 140,
+       "h": 80,
+       "text": "in 2",
+       "size": 36,
+       "tone": "warn",
+       "cue": "The box beside each course"
+      },
+      {
+       "id": "out",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "order",
+       "text": "–",
+       "size": 44,
+       "tone": "info",
+       "cue": "Zero is ready"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n0",
+       "to": "n1",
+       "cue": "An arrow means"
+      },
+      {
+       "from": "n0",
+       "to": "n2",
+       "cue": "An arrow means"
+      },
+      {
+       "from": "n1",
+       "to": "n3",
+       "cue": "An arrow means"
+      },
+      {
+       "from": "n2",
+       "to": "n3",
+       "cue": "An arrow means"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Zero is ready"
+      },
+      {
+       "id": "out",
+       "text": "0",
+       "cue": "Take it"
+      },
+      {
+       "id": "a0",
+       "tone": "dim",
+       "cue": "arrows vanish"
+      },
+      {
+       "id": "a1",
+       "tone": "dim",
+       "cue": "arrows vanish"
+      },
+      {
+       "id": "i1",
+       "text": "in 0",
+       "tone": "good",
+       "cue": "drop to zero"
+      },
+      {
+       "id": "i2",
+       "text": "in 0",
+       "tone": "good",
+       "cue": "drop to zero"
+      },
+      {
+       "id": "out",
+       "text": "0 1",
+       "cue": "Take one"
+      },
+      {
+       "id": "a2",
+       "tone": "dim",
+       "cue": "Take one"
+      },
+      {
+       "id": "i3",
+       "text": "in 1",
+       "cue": "drops to one"
+      },
+      {
+       "id": "out",
+       "text": "0 1 2",
+       "cue": "Take two"
+      },
+      {
+       "id": "a3",
+       "tone": "dim",
+       "cue": "Take two"
+      },
+      {
+       "id": "i3",
+       "text": "in 0",
+       "tone": "good",
+       "cue": "three drops to zero"
+      },
+      {
+       "id": "out",
+       "text": "0 1 2 3",
+       "cue": "Take three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Kahn: count and seed",
+     "say": "First, count the arrows pointing into each course: its indegree. Here g of u lists the courses that need u. Then queue every course with indegree zero. Those are the ones ready to take.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n), order;\n    for (int u = 0; u < n; u++)\n        for (int v : g[u]) indeg[v]++;\n    queue<int> q;\n    for (int u = 0; u < n; u++)\n        if (indeg[u] == 0) q.push(u);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "count the arrows"
+      },
+      {
+       "lines": [],
+       "cue": "g of u lists"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "queue every course"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Kahn: peel and repeat",
+     "say": "Then loop. Pop a course and add it to the order. For each course that needs it, remove one prerequisite. If that reaches zero, it's ready, so queue it. At the end, fewer than n courses in the order means some never became ready. That's a cycle. Time is O of V plus E: each course and arrow is touched once.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "    while (!q.empty()) {\n        int u = q.front();  q.pop();\n        order.push_back(u);\n        for (int v : g[u]) {\n            indeg[v]--;\n            if (indeg[v] == 0) q.push(v);\n        }\n    }\n    return order;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Then loop"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Pop a course"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "For each course"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "remove one prerequisite"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "queue it"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "fewer than n"
+      },
+      {
+       "lines": [],
+       "cue": "each course and arrow"
+      }
+     ],
+     "notes": [
+      {
+       "line": 9,
+       "inside": true,
+       "text": "size < n: cycle",
+       "tone": "warn",
+       "cue": "That's a cycle"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Four courses. Zero before one, zero before two, one before three, two before three. Which order is valid? Pause and predict.",
+     "q": "Arrows 0→1, 0→2, 1→3, 2→3. A valid order?",
+     "options": [
+      "0 2 1 3",
+      "1 0 2 3",
+      "0 3 1 2",
+      "3 0 1 2"
+     ],
+     "answer": "0 2 1 3"
+    },
+    {
+     "type": "diagram",
+     "head": "Many valid orders",
+     "say": "Zero, two, one, three is valid. Zero goes first, because nothing precedes it. Two goes next: its only prerequisite, zero, is done. Then one, for the same reason. Three comes last, after both. One and two can swap, since neither needs the other. So several orders are valid, and Kahn's queue picks one.",
+     "items": [
+      {
+       "id": "n0",
+       "x": 895,
+       "y": 220,
+       "w": 130,
+       "h": 130,
+       "text": "0",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n1",
+       "x": 635,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n2",
+       "x": 1155,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "2",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 895,
+       "y": 660,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "i0",
+       "x": 1060,
+       "y": 245,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "i1",
+       "x": 470,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "i2",
+       "x": 1320,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "i3",
+       "x": 1060,
+       "y": 685,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "good"
+      },
+      {
+       "id": "out",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "order",
+       "text": "–",
+       "size": 44,
+       "tone": "info"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n0",
+       "to": "n1"
+      },
+      {
+       "from": "n0",
+       "to": "n2"
+      },
+      {
+       "from": "n1",
+       "to": "n3"
+      },
+      {
+       "from": "n2",
+       "to": "n3"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "tone": "good",
+       "cue": "Zero goes first"
+      },
+      {
+       "id": "out",
+       "text": "0",
+       "cue": "Zero goes first"
+      },
+      {
+       "id": "n2",
+       "tone": "good",
+       "cue": "Two goes next"
+      },
+      {
+       "id": "out",
+       "text": "0 2",
+       "cue": "Two goes next"
+      },
+      {
+       "id": "n1",
+       "tone": "good",
+       "cue": "Then one"
+      },
+      {
+       "id": "out",
+       "text": "0 2 1",
+       "cue": "Then one"
+      },
+      {
+       "id": "n3",
+       "tone": "good",
+       "cue": "Three comes last"
+      },
+      {
+       "id": "out",
+       "text": "0 2 1 3",
+       "cue": "Three comes last"
+      },
+      {
+       "id": "n1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "can swap"
+      },
+      {
+       "id": "n2",
+       "glow": true,
+       "tone": "warn",
+       "cue": "can swap"
+      },
+      {
+       "id": "out",
+       "glow": true,
+       "tone": "good",
+       "cue": "picks one"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A cycle has no valid order",
+     "say": "Now add one more arrow: three to zero. Course zero waits on three. Look at the boxes. Every course has an unfinished prerequisite. No box says zero, so the queue starts empty. Nothing can start. The order stays empty, shorter than four. That's a cycle: they all wait on each other.",
+     "items": [
+      {
+       "id": "n0",
+       "x": 895,
+       "y": 220,
+       "w": 130,
+       "h": 130,
+       "text": "0",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n1",
+       "x": 635,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n2",
+       "x": 1155,
+       "y": 440,
+       "w": 130,
+       "h": 130,
+       "text": "2",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 895,
+       "y": 660,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "i0",
+       "x": 1060,
+       "y": 245,
+       "w": 140,
+       "h": 80,
+       "text": "in 0",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "i1",
+       "x": 470,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 1",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "i2",
+       "x": 1320,
+       "y": 465,
+       "w": 140,
+       "h": 80,
+       "text": "in 1",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "i3",
+       "x": 1060,
+       "y": 685,
+       "w": 140,
+       "h": 80,
+       "text": "in 2",
+       "size": 36,
+       "tone": "warn"
+      },
+      {
+       "id": "out",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "order",
+       "text": "–",
+       "size": 44,
+       "tone": "info"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n0",
+       "to": "n1"
+      },
+      {
+       "from": "n0",
+       "to": "n2"
+      },
+      {
+       "from": "n1",
+       "to": "n3"
+      },
+      {
+       "from": "n2",
+       "to": "n3"
+      },
+      {
+       "from": "n3",
+       "to": "n0",
+       "tone": "bad",
+       "bend": -420,
+       "cue": "three to zero"
+      }
+     ],
+     "changes": [
+      {
+       "id": "i0",
+       "text": "in 1",
+       "tone": "bad",
+       "cue": "waits on three"
+      },
+      {
+       "id": "i1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Look at the boxes"
+      },
+      {
+       "id": "i2",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Look at the boxes"
+      },
+      {
+       "id": "i3",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Look at the boxes"
+      },
+      {
+       "id": "i0",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Look at the boxes"
+      },
+      {
+       "id": "i0",
+       "tone": "bad",
+       "cue": "No box says zero"
+      },
+      {
+       "id": "i1",
+       "tone": "bad",
+       "cue": "No box says zero"
+      },
+      {
+       "id": "i2",
+       "tone": "bad",
+       "cue": "No box says zero"
+      },
+      {
+       "id": "i3",
+       "tone": "bad",
+       "cue": "No box says zero"
+      },
+      {
+       "id": "out",
+       "glow": true,
+       "tone": "bad",
+       "cue": "queue starts empty"
+      },
+      {
+       "id": "out",
+       "text": "empty",
+       "tone": "bad",
+       "cue": "Nothing can start"
+      },
+      {
+       "id": "n0",
+       "tone": "bad",
+       "cue": "That's a cycle"
+      },
+      {
+       "id": "n1",
+       "tone": "bad",
+       "cue": "That's a cycle"
+      },
+      {
+       "id": "n2",
+       "tone": "bad",
+       "cue": "That's a cycle"
+      },
+      {
+       "id": "n3",
+       "tone": "bad",
+       "cue": "That's a cycle"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Both cases, end to end",
+     "say": "Here it is end to end. With our four arrows, the order is zero, one, two, three. Then we add the arrow from three to zero, and call again. Zero of four courses finish. Fewer than n means a cycle.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "// g: 0->1, 0->2, 1->3, 2->3\nfor (int x : topo(4, g)) cout << x << ' ';\ncout << '\\n';\ng[3].push_back(0);   // new arrow 3 -> 0\ncout << topo(4, g).size() << \" of 4 done\";"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "the order is zero"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "add the arrow"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "call again"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "size < n: cycle",
+       "tone": "warn",
+       "cue": "Fewer than n"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 1 2 3\n0 of 4 done",
+      "cue": "Zero of four"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "When they push further",
+     "say": "Follow ups. Alphabetically smallest order? Use a min heap instead of the queue. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Smallest order alphabetically?",
+       "min-heap instead of the queue"
+      ],
+      [
+       "Another way?",
+       "DFS: add after children, reverse"
+      ],
+      [
+       "Classic problems?",
+       "LeetCode 207, 210, 269"
+      ],
+      [
+       "Common mistake",
+       "never comparing order size to n"
+      ]
+     ],
+     "cues": [
+      "Alphabetically smallest",
+      "Another way",
+      "Classic problems",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp09"
+     ],
+     "say": "How do they work? B F S: queue, layers. D F S: stack, depth. Shortest path? B F S, if unweighted. Cost? O of V plus E. Deep recursion crashes? Use an explicit stack.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How do BFS and DFS work?",
+       "BFS: queue, layers · DFS: stack, deep"
+      ],
+      [
+       "Shortest path?",
+       "BFS, if unweighted"
+      ],
+      [
+       "Cost?",
+       "O(V + E)"
+      ],
+      [
+       "Recursion too deep?",
+       "explicit stack, or BFS"
+      ]
+     ],
+     "cues": [
+      "How do they",
+      "Shortest path",
+      "Cost",
+      "Deep recursion"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp16"
+     ],
+     "say": "What is a topological sort? An order where every prerequisite comes first. How do you compute it? Kahn: queue indegree zero, pop, decrement. Detect a cycle? The order is shorter than n. Cost? O of V plus E.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Topological sort?",
+       "prerequisites always come first"
+      ],
+      [
+       "How to compute it?",
+       "Kahn: queue indegree 0, pop, decrement"
+      ],
+      [
+       "Detect a cycle?",
+       "order shorter than n"
+      ],
+      [
+       "Cost?",
+       "O(V + E)"
+      ]
+     ],
+     "cues": [
+      "What is a topological",
+      "How do you compute",
+      "Detect a cycle",
+      "Cost"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode two hundred, number of islands: depth first search. LeetCode ten ninety one, shortest path in binary matrix: breadth first search. LeetCode two oh seven, course schedule: Kahn's cycle check.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 200 · Number of Islands",
+       "today's DFS, sink and count"
+      ],
+      [
+       "LeetCode 1091 · Shortest Path in Binary Matrix",
+       "BFS layers, eight directions"
+      ],
+      [
+       "LeetCode 207 · Course Schedule",
+       "Kahn: order shorter than n"
+      ]
+     ],
+     "cues": [
+      "two hundred",
+      "ten ninety one",
+      "two oh seven"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Breadth first search: a queue, fewest steps. Depth first: areas. Mark cells when you push. Both cost O of V plus E. Kahn's queue peels indegree zero. A short order means a cycle.",
+     "lines": [
+      "BFS: queue, fewest steps. Both cost O(V + E).",
+      "DFS: areas. Mark cells when you push.",
+      "Kahn: indegree zero first. Short order = cycle."
+     ],
+     "cues": [
+      "Breadth first search",
+      "Depth first",
+      "Kahn's queue"
+     ]
+    }
+   ]
+  }
+ ]
+}

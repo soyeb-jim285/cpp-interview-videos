@@ -1,0 +1,1890 @@
+{
+ "id": "dsa-08",
+ "track": "DSA",
+ "num": 8,
+ "title": "Trees, BSTs & Tries",
+ "covers": [
+  "cp20"
+ ],
+ "caps": [
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of height",
+   "O(height)"
+  ],
+  [
+   "O of L",
+   "O(L)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "starts with",
+   "startsWith"
+  ],
+  [
+   "Starts with",
+   "startsWith"
+  ],
+  [
+   "Red black",
+   "red-black"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Folders in folders",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Your interviewer draws six circles joined by lines and says, walk this tree. By the end, you'll walk any tree three ways, search one in log n steps, and build autocomplete.",
+     "lines": [
+      {
+       "text": "Six circles.",
+       "cue": "six circles"
+      },
+      {
+       "text": "\"Walk this tree.\"",
+       "cue": "walk this tree"
+      },
+      {
+       "text": "Walk it 3 ways. Search in log n.",
+       "cue": "three ways"
+      },
+      {
+       "text": "Then build autocomplete.",
+       "cue": "build autocomplete",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today we'll do three things. Walk a tree in three orders. Search a search tree one side at a time. Then build autocomplete with a trie.",
+     "lines": [
+      "Walk a tree in 3 orders.",
+      "Search a BST, one side per step.",
+      "Build autocomplete with a trie."
+     ],
+     "cues": [
+      "Walk a tree",
+      "Search a search tree",
+      "build autocomplete"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Walk every node",
+     "statement": "A tree is nodes with links down, like folders in folders. Visit every node once: left subtree, then the node, then the right subtree.",
+     "example": {
+      "input": "8 on top; 3, 10 below; 1, 6 under 3; 14 under 10",
+      "output": "1 3 6 8 10 14"
+     },
+     "cues": {
+      "example": "Visit every node",
+      "output": "The answer is"
+     },
+     "say": "Here's the problem. Visit every node of a tree: left, node, right. Our tree has eight on top. The answer is one, three, six, eight, ten, fourteen."
+    },
+    {
+     "type": "flow",
+     "head": "Folders in folders",
+     "say": "You already use a tree: your folders. The top folder is the root. A folder inside another is its child. A file with nothing below it is a leaf. A binary tree node is the same, but holds at most two children, left and right.",
+     "items": [
+      {
+       "label": "root",
+       "text": "Documents",
+       "cue": "The top folder"
+      },
+      {
+       "label": "child",
+       "text": "School",
+       "cue": "its child"
+      },
+      {
+       "label": "leaf",
+       "text": "notes.txt",
+       "cue": "nothing below"
+      },
+      {
+       "label": "binary node",
+       "text": "left + right",
+       "sub": "at most 2 children",
+       "tone": "warn",
+       "cue": "at most two children"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A tree of smaller trees",
+     "say": "Here's our tree, six nodes. Eight is the root. Three and ten are its children. One and six hang below three. Fourteen hangs below ten. Now cut the line above three. What hangs below is a whole smaller tree, with three as its root. Every node is the root of its own subtree. That's why recursion fits trees.",
+     "items": [
+      {
+       "id": "n8",
+       "x": 895,
+       "y": 200,
+       "w": 130,
+       "h": 130,
+       "text": "8",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Eight is the root"
+      },
+      {
+       "id": "n3",
+       "x": 635,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Three and ten"
+      },
+      {
+       "id": "n10",
+       "x": 1155,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "10",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Three and ten"
+      },
+      {
+       "id": "n1",
+       "x": 505,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "One and six"
+      },
+      {
+       "id": "n6",
+       "x": 765,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "6",
+       "size": 52,
+       "tone": "blue",
+       "cue": "One and six"
+      },
+      {
+       "id": "n14",
+       "x": 1285,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "14",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Fourteen hangs"
+      },
+      {
+       "id": "reg",
+       "region": true,
+       "x": 480,
+       "y": 345,
+       "w": 520,
+       "h": 420,
+       "label": "subtree of 3",
+       "tone": "warn",
+       "cue": "smaller tree"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n8",
+       "to": "n3",
+       "cue": "Three and ten"
+      },
+      {
+       "from": "n8",
+       "to": "n10",
+       "cue": "Three and ten"
+      },
+      {
+       "from": "n3",
+       "to": "n1",
+       "cue": "One and six"
+      },
+      {
+       "from": "n3",
+       "to": "n6",
+       "cue": "One and six"
+      },
+      {
+       "from": "n10",
+       "to": "n14",
+       "cue": "Fourteen hangs"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a0",
+       "tone": "bad",
+       "cue": "cut the line"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "warn",
+       "cue": "own subtree"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Inorder: left, node, right",
+     "say": "Walk it in order: left, node, right. Start at eight. Left of eight is three. Left of three is one, and one has nothing to its left. Visit one. Back up to three. Visit three. Go right to six. Visit six. Back at eight, visit eight. Then the right side: visit ten, then fourteen. Read the list. Sorted.",
+     "items": [
+      {
+       "id": "n8",
+       "x": 895,
+       "y": 200,
+       "w": 130,
+       "h": 130,
+       "text": "8",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 635,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n10",
+       "x": 1155,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "10",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n1",
+       "x": 505,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n6",
+       "x": 765,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "6",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n14",
+       "x": 1285,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "14",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "out",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "visited",
+       "text": "left, node, right",
+       "size": 44,
+       "tone": "info",
+       "cue": "Walk it in order"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n8",
+       "to": "n3"
+      },
+      {
+       "from": "n8",
+       "to": "n10"
+      },
+      {
+       "from": "n3",
+       "to": "n1"
+      },
+      {
+       "from": "n3",
+       "to": "n6"
+      },
+      {
+       "from": "n10",
+       "to": "n14"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n8",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Start at eight"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "warn",
+       "cue": "is three"
+      },
+      {
+       "id": "n1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "is one"
+      },
+      {
+       "id": "n1",
+       "tone": "good",
+       "cue": "Visit one"
+      },
+      {
+       "id": "out",
+       "text": "1",
+       "cue": "Visit one"
+      },
+      {
+       "id": "n3",
+       "tone": "good",
+       "cue": "Visit three"
+      },
+      {
+       "id": "out",
+       "text": "1 3",
+       "cue": "Visit three"
+      },
+      {
+       "id": "n6",
+       "tone": "good",
+       "cue": "Visit six"
+      },
+      {
+       "id": "out",
+       "text": "1 3 6",
+       "cue": "Visit six"
+      },
+      {
+       "id": "n8",
+       "tone": "good",
+       "cue": "visit eight"
+      },
+      {
+       "id": "out",
+       "text": "1 3 6 8",
+       "cue": "visit eight"
+      },
+      {
+       "id": "n10",
+       "tone": "good",
+       "cue": "visit ten"
+      },
+      {
+       "id": "out",
+       "text": "1 3 6 8 10",
+       "cue": "visit ten"
+      },
+      {
+       "id": "n14",
+       "tone": "good",
+       "cue": "then fourteen"
+      },
+      {
+       "id": "out",
+       "text": "1 3 6 8 10 14",
+       "cue": "then fourteen"
+      },
+      {
+       "id": "out",
+       "glow": true,
+       "tone": "good",
+       "cue": "Sorted"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "One function, three orders",
+     "say": "Here's the whole algorithm. A node holds a value, a left child, and a right child. If the node is empty, stop: that's the base case. Walk the left subtree. Print the node. Walk the right subtree. On our tree it prints one, three, six, eight, ten, fourteen. Move the print above both calls and you get preorder. Move it below both and you get postorder.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A node holds"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "If the node is empty"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Walk the left subtree"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Print the node"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Walk the right subtree"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Move it below both"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "up: pre · down: post",
+       "tone": "warn",
+       "cue": "Move the print above"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "1 3 6 8 10 14",
+      "cue": "On our tree"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Postorder visits a node after both its children. Same tree. What prints? Pause and predict.",
+     "q": "Postorder of 8 (left 3: 1, 6; right 10: 14)?",
+     "options": [
+      "1 6 3 14 10 8",
+      "8 3 1 6 10 14",
+      "1 3 6 8 10 14",
+      "8 10 14 3 6 1"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "diagram",
+     "head": "Postorder: children first",
+     "say": "Postorder visits a node after both its children. So one, then six, then their parent three. Fourteen, then its parent ten. Eight comes last. Delete a tree this way: free the children before the parent. Preorder visits the root first, which is how you copy a tree.",
+     "items": [
+      {
+       "id": "n8",
+       "x": 895,
+       "y": 200,
+       "w": 130,
+       "h": 130,
+       "text": "8",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 635,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n10",
+       "x": 1155,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "10",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n1",
+       "x": 505,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n6",
+       "x": 765,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "6",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n14",
+       "x": 1285,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "14",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "out",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "visited",
+       "text": "left, right, node",
+       "size": 44,
+       "tone": "info"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n8",
+       "to": "n3"
+      },
+      {
+       "from": "n8",
+       "to": "n10"
+      },
+      {
+       "from": "n3",
+       "to": "n1"
+      },
+      {
+       "from": "n3",
+       "to": "n6"
+      },
+      {
+       "from": "n10",
+       "to": "n14"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1250,
+       "y": 250,
+       "text": "delete: postorder",
+       "tone": "bad",
+       "cue": "Delete a tree"
+      },
+      {
+       "x": 1250,
+       "y": 330,
+       "text": "copy: preorder",
+       "tone": "good",
+       "cue": "Preorder visits"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n1",
+       "tone": "good",
+       "cue": "So one"
+      },
+      {
+       "id": "out",
+       "text": "1",
+       "cue": "So one"
+      },
+      {
+       "id": "n6",
+       "tone": "good",
+       "cue": "then six"
+      },
+      {
+       "id": "out",
+       "text": "1 6",
+       "cue": "then six"
+      },
+      {
+       "id": "n3",
+       "tone": "good",
+       "cue": "parent three"
+      },
+      {
+       "id": "out",
+       "text": "1 6 3",
+       "cue": "parent three"
+      },
+      {
+       "id": "n14",
+       "tone": "good",
+       "cue": "Fourteen"
+      },
+      {
+       "id": "out",
+       "text": "1 6 3 14",
+       "cue": "Fourteen"
+      },
+      {
+       "id": "n10",
+       "tone": "good",
+       "cue": "parent ten"
+      },
+      {
+       "id": "out",
+       "text": "1 6 3 14 10",
+       "cue": "parent ten"
+      },
+      {
+       "id": "n8",
+       "tone": "good",
+       "cue": "Eight comes last"
+      },
+      {
+       "id": "out",
+       "text": "1 6 3 14 10 8",
+       "cue": "Eight comes last"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The trap: no base case",
+     "say": "Here's the classic trap. Forget the base case, and every leaf calls walk on an empty child. That dereferences a null pointer. It's undefined behavior, and in practice a crash. So the first line of any tree function asks: is this node empty?",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "void walk(Node* n) {\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        4
+       ],
+       "cue": "calls walk on an empty child"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "undefined behavior"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "in practice a crash"
+      },
+      {
+       "lines": [],
+       "cue": "first line of any"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "no base case: crash",
+       "tone": "bad",
+       "cue": "Forget the base case"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A tree that plays higher-lower",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Find a value fast",
+     "statement": "Is 6 in this tree of numbers? Answer without checking every node, using the rule: smaller values sit left, bigger values sit right.",
+     "example": {
+      "input": "the same tree; find 6",
+      "output": "found in 3 steps: 8, 3, 6"
+     },
+     "cues": {
+      "example": "same tree",
+      "output": "The answer"
+     },
+     "say": "Next problem. Find a value in a tree without checking every node. Take the same tree, and look for six. The answer: found in three steps, eight, three, six."
+    },
+    {
+     "type": "flow",
+     "head": "Higher or lower",
+     "say": "Remember guessing a number? Higher or lower, and half the numbers vanish. A search tree builds that game into its shape. Take any node, say eight. Smaller values go left. Bigger go right. One comparison drops a side.",
+     "items": [
+      {
+       "label": "the game",
+       "text": "guess",
+       "sub": "higher or lower",
+       "cue": "guessing a number"
+      },
+      {
+       "label": "search tree",
+       "text": "node 8",
+       "sub": "the same game",
+       "cue": "A search tree"
+      },
+      {
+       "label": "the rule",
+       "text": "L < 8 < R",
+       "sub": "smaller left, bigger right",
+       "tone": "good",
+       "cue": "Smaller values go left"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Insert 8, 3, 10, 1, 6, 14",
+     "say": "Insert eight, three, ten, one, six, fourteen, in that order. Eight comes first, so it's the root. Three is smaller than eight, so it goes left. Ten is bigger, so it goes right. One: smaller than eight, smaller than three, so left of three. Six: left of eight, right of three. Fourteen: right of eight, right of ten. Read it in order: sorted, because left is smaller and right is bigger.",
+     "items": [
+      {
+       "id": "n8",
+       "x": 895,
+       "y": 200,
+       "w": 130,
+       "h": 130,
+       "text": "8",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Eight comes first"
+      },
+      {
+       "id": "n3",
+       "x": 635,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue",
+       "cue": "goes left"
+      },
+      {
+       "id": "n10",
+       "x": 1155,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "10",
+       "size": 52,
+       "tone": "blue",
+       "cue": "goes right"
+      },
+      {
+       "id": "n1",
+       "x": 505,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "left of three"
+      },
+      {
+       "id": "n6",
+       "x": 765,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "6",
+       "size": 52,
+       "tone": "blue",
+       "cue": "right of three"
+      },
+      {
+       "id": "n14",
+       "x": 1285,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "14",
+       "size": 52,
+       "tone": "blue",
+       "cue": "right of ten"
+      },
+      {
+       "id": "ord",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "insert order",
+       "text": "8, 3, 10, 1, 6, 14",
+       "size": 44,
+       "tone": "info",
+       "cue": "Insert eight"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n8",
+       "to": "n3",
+       "cue": "goes left"
+      },
+      {
+       "from": "n8",
+       "to": "n10",
+       "cue": "goes right"
+      },
+      {
+       "from": "n3",
+       "to": "n1",
+       "cue": "left of three"
+      },
+      {
+       "from": "n3",
+       "to": "n6",
+       "cue": "right of three"
+      },
+      {
+       "from": "n10",
+       "to": "n14",
+       "cue": "right of ten"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1250,
+       "y": 250,
+       "text": "inorder = 1 3 6 8 10 14",
+       "tone": "good",
+       "cue": "Read it in order"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n1",
+       "glow": true,
+       "tone": "good",
+       "cue": "left is smaller"
+      },
+      {
+       "id": "n6",
+       "glow": true,
+       "tone": "warn",
+       "cue": "right is bigger"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Search for 6: three steps",
+     "say": "Now search for six. Start at the root. Six is less than eight, so go left. Six is more than three, so go right. Found, in three steps. One, ten, and fourteen were never touched. Every step discards a whole side.",
+     "items": [
+      {
+       "id": "n8",
+       "x": 895,
+       "y": 200,
+       "w": 130,
+       "h": 130,
+       "text": "8",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n3",
+       "x": 635,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n10",
+       "x": 1155,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "10",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n1",
+       "x": 505,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n6",
+       "x": 765,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "6",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "n14",
+       "x": 1285,
+       "y": 620,
+       "w": 130,
+       "h": 130,
+       "text": "14",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "st",
+       "x": 560,
+       "y": 830,
+       "w": 800,
+       "h": 90,
+       "label": "search 6",
+       "text": "compare, then go one side",
+       "size": 44,
+       "tone": "info",
+       "cue": "Now search for six"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n8",
+       "to": "n3"
+      },
+      {
+       "from": "n8",
+       "to": "n10"
+      },
+      {
+       "from": "n3",
+       "to": "n1"
+      },
+      {
+       "from": "n3",
+       "to": "n6"
+      },
+      {
+       "from": "n10",
+       "to": "n14"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n8",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Start at the root"
+      },
+      {
+       "id": "st",
+       "text": "6 < 8: go left",
+       "cue": "go left"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "warn",
+       "cue": "more than three"
+      },
+      {
+       "id": "st",
+       "text": "6 > 3: go right",
+       "cue": "go right"
+      },
+      {
+       "id": "n6",
+       "glow": true,
+       "tone": "good",
+       "cue": "Found"
+      },
+      {
+       "id": "st",
+       "text": "found in 3 steps",
+       "tone": "good",
+       "cue": "in three steps"
+      },
+      {
+       "id": "n1",
+       "tone": "dim",
+       "cue": "never touched"
+      },
+      {
+       "id": "n10",
+       "tone": "dim",
+       "cue": "never touched"
+      },
+      {
+       "id": "n14",
+       "tone": "dim",
+       "cue": "never touched"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Search and insert",
+     "say": "Here are search and insert. Search: if the node is empty, the key isn't there. If it matches, found. Otherwise follow one side only: smaller goes left, bigger goes right. Insert is the same walk. When it falls off the tree at an empty spot, it hangs a new node right there. Each call goes down one level, so the cost is the height of the tree.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool has(Node* n, int x) {\n    if (!n) return false;\n    if (x == n->val) return true;\n    return has(x < n->val ? n->left : n->right, x);\n}\nNode* insert(Node* n, int x) {\n    if (!n) return new Node{x};\n    if (x < n->val) n->left = insert(n->left, x);\n    else n->right = insert(n->right, x);\n    return n;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "the key isn't there"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "If it matches"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "follow one side only"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Insert is the same walk"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "falls off the tree"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "hangs a new node"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "right there"
+      },
+      {
+       "lines": [],
+       "cue": "height of the tree"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "O(height)",
+       "tone": "good",
+       "cue": "height of the tree"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Insert one, two, three, four, five, in that order, into an empty tree. How many levels tall does it get? Pause and predict.",
+     "q": "Insert 1, 2, 3, 4, 5 in order. How many levels?",
+     "options": [
+      "3",
+      "5",
+      "2",
+      "4"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "diagram",
+     "head": "Sorted input builds a chain",
+     "say": "Five levels. One goes first. Two goes right of one. Three goes right of two. Four, then five, each go right again. A chain. Searching for five takes five steps, no better than scanning a list. Sorted input is the worst case.",
+     "items": [
+      {
+       "id": "c1",
+       "x": 300,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "One goes first"
+      },
+      {
+       "id": "c2",
+       "x": 590,
+       "y": 360,
+       "w": 130,
+       "h": 130,
+       "text": "2",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Two goes right"
+      },
+      {
+       "id": "c3",
+       "x": 880,
+       "y": 470,
+       "w": 130,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Three goes right"
+      },
+      {
+       "id": "c4",
+       "x": 1170,
+       "y": 580,
+       "w": 130,
+       "h": 130,
+       "text": "4",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Four, then"
+      },
+      {
+       "id": "c5",
+       "x": 1460,
+       "y": 690,
+       "w": 130,
+       "h": 130,
+       "text": "5",
+       "size": 52,
+       "tone": "blue",
+       "cue": "five, each"
+      },
+      {
+       "id": "cnt",
+       "x": 300,
+       "y": 700,
+       "w": 420,
+       "h": 100,
+       "label": "steps to find 5",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Searching for five"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "c1",
+       "to": "c2",
+       "cue": "Two goes right"
+      },
+      {
+       "from": "c2",
+       "to": "c3",
+       "cue": "Three goes right"
+      },
+      {
+       "from": "c3",
+       "to": "c4",
+       "cue": "Four, then"
+      },
+      {
+       "from": "c4",
+       "to": "c5",
+       "cue": "five, each"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cnt",
+       "count": [
+        0,
+        5
+       ],
+       "dur": 1,
+       "cue": "takes five steps"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "tone": "bad",
+       "cue": "no better than"
+      },
+      {
+       "id": "cnt",
+       "glow": true,
+       "tone": "bad",
+       "cue": "worst case"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Height by recursion",
+     "say": "Height is a recursion too. An empty tree has depth zero. Otherwise it's one, plus the deeper of the two sides. On our six node tree that's three. On the chain, five. A million sorted inserts make a million levels: slow searches, and recursion deep enough to overflow the stack.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int depth(Node* n) {\n    if (!n) return 0;\n    return 1 + max(depth(n->left), depth(n->right));\n}\ncout << depth(bst) << ' ' << depth(chain);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "depth zero"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "one, plus the deeper"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "On our six node"
+      },
+      {
+       "lines": [],
+       "cue": "A million sorted"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "slow searches"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "deep chain: stack overflow",
+       "tone": "warn",
+       "cue": "overflow the stack"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3 5",
+      "cue": "that's three"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "Search steps among 1,000,000 keys",
+     "unit": "steps",
+     "say": "One million keys. In a balanced tree, a search takes about twenty steps. In a chain, a million steps. Self balancing trees, like a red black tree, stop that.",
+     "bars": [
+      {
+       "label": "Balanced",
+       "value": 20,
+       "tone": "good",
+       "cue": "a balanced tree"
+      },
+      {
+       "label": "Chain",
+       "value": 1000000,
+       "tone": "bad",
+       "cue": "a million steps"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A tree made of letters",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Autocomplete",
+     "statement": "Store words, then answer instantly: does any stored word start with this prefix?",
+     "example": {
+      "input": "store car, cat, care. Ask: \"ca\"?",
+      "output": "yes: car, cat, care"
+     },
+     "cues": {
+      "example": "Store words",
+      "output": "Yes, all three"
+     },
+     "say": "Last problem. Store words, then ask for a prefix. Store car, cat, care. Ask c a. Yes, all three match."
+    },
+    {
+     "type": "flow",
+     "head": "A dictionary, letter by letter",
+     "say": "Think of a paper dictionary. You flip to the letter c. Then c a. Then c a r. Each step narrows the words by one letter. A trie is that, as a tree.",
+     "items": [
+      {
+       "label": "flip to",
+       "text": "c",
+       "cue": "the letter c"
+      },
+      {
+       "label": "then",
+       "text": "ca",
+       "cue": "Then c a."
+      },
+      {
+       "label": "then",
+       "text": "car",
+       "cue": "Then c a r"
+      },
+      {
+       "label": "trie",
+       "text": "letter tree",
+       "sub": "one letter per step",
+       "tone": "good",
+       "cue": "A trie is that"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Hash set or trie?",
+     "say": "Store car, cat, and care. Is cat in there? Both answer fast. Words starting with c a? A hash set scans everything. A trie walks two letters. Shared start? A trie stores it once.",
+     "heads": [
+      "Question",
+      "Hash set",
+      "Trie"
+     ],
+     "rows": [
+      [
+       "is `cat` stored?",
+       "hash it, one lookup",
+       "walk 3 letters"
+      ],
+      [
+       "words starting `ca`?",
+       "scan every word",
+       "walk c, a; look below"
+      ],
+      [
+       "shared start `ca`",
+       "stored in each word",
+       "stored once"
+      ]
+     ],
+     "cues": [
+      "Is cat in there",
+      "Words starting",
+      "Shared start"
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Insert car, cat, care",
+     "say": "Start with an empty root. Insert car. Walk down: c, then a, then r, creating each node. Mark r green: a word ends here. Insert cat. C and a exist, so only t is new, and green. Insert care. Walk c, a, r, then add e. Look at r. It's green and has a child, because car is a word and also the start of care. Ten letters, five nodes.",
+     "items": [
+      {
+       "id": "xroot",
+       "x": 905,
+       "y": 200,
+       "w": 110,
+       "h": 110,
+       "text": "·",
+       "size": 48,
+       "tone": "blue",
+       "cue": "empty root"
+      },
+      {
+       "id": "xc",
+       "x": 905,
+       "y": 340,
+       "w": 110,
+       "h": 110,
+       "text": "c",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Walk down: c"
+      },
+      {
+       "id": "xa",
+       "x": 905,
+       "y": 480,
+       "w": 110,
+       "h": 110,
+       "text": "a",
+       "size": 48,
+       "tone": "blue",
+       "cue": "then a,"
+      },
+      {
+       "id": "xr",
+       "x": 785,
+       "y": 620,
+       "w": 110,
+       "h": 110,
+       "text": "r",
+       "size": 48,
+       "tone": "blue",
+       "cue": "then r,"
+      },
+      {
+       "id": "xt",
+       "x": 1025,
+       "y": 620,
+       "w": 110,
+       "h": 110,
+       "text": "t",
+       "size": 48,
+       "tone": "blue",
+       "cue": "only t is new"
+      },
+      {
+       "id": "xe",
+       "x": 785,
+       "y": 760,
+       "w": 110,
+       "h": 110,
+       "text": "e",
+       "size": 48,
+       "tone": "blue",
+       "cue": "add e"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "xroot",
+       "to": "xc",
+       "cue": "Walk down: c"
+      },
+      {
+       "from": "xc",
+       "to": "xa",
+       "cue": "then a,"
+      },
+      {
+       "from": "xa",
+       "to": "xr",
+       "cue": "then r,"
+      },
+      {
+       "from": "xa",
+       "to": "xt",
+       "cue": "only t is new"
+      },
+      {
+       "from": "xr",
+       "to": "xe",
+       "cue": "add e"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1260,
+       "y": 480,
+       "text": "green = a word ends here",
+       "tone": "good",
+       "cue": "a word ends here"
+      },
+      {
+       "x": 1260,
+       "y": 760,
+       "text": "10 letters, 5 nodes",
+       "tone": "info",
+       "cue": "Ten letters"
+      }
+     ],
+     "changes": [
+      {
+       "id": "xr",
+       "tone": "good",
+       "cue": "Mark r green"
+      },
+      {
+       "id": "xt",
+       "tone": "good",
+       "cue": "and green"
+      },
+      {
+       "id": "xe",
+       "tone": "good",
+       "cue": "then add e"
+      },
+      {
+       "id": "xr",
+       "glow": true,
+       "tone": "good",
+       "cue": "Look at r"
+      },
+      {
+       "id": "xe",
+       "glow": true,
+       "tone": "good",
+       "cue": "has a child"
+      },
+      {
+       "id": "xr",
+       "glow": true,
+       "tone": "good",
+       "cue": "car is a word"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Trie: insert",
+     "say": "Here's insert. Each node has twenty six child slots, one per letter, and an end flag. Start at the root. For each letter, if the child slot is empty, create the node. Step into it. After the last letter, set the end flag. That's the green mark.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "struct Trie {\n    Trie* kid[26] = {};\n    bool end = false;\n    void insert(const string& w) {\n        Trie* u = this;\n        for (char ch : w) {\n            int c = ch - 'a';\n            if (!u->kid[c]) u->kid[c] = new Trie();\n            u = u->kid[c];\n        }\n        u->end = true;\n    }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "twenty six child slots"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Start at the root"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "if the child slot is empty"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Step into it"
+      },
+      {
+       "lines": [
+        11
+       ],
+       "cue": "set the end flag"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Trie: search and startsWith",
+     "say": "Search and prefix check share one helper. Walk follows the letters and returns the node where it lands, or null if a letter is missing. Search needs that node to exist and carry the end flag. Starts with only needs the node to exist. Each costs O of L, the length of the word, however many words are stored.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Trie* walk(const string& s) {\n    Trie* u = this;\n    for (char ch : s) {\n        u = u->kid[ch - 'a'];\n        if (!u) return nullptr;\n    }\n    return u;\n}\nbool search(const string& w) { Trie* u = walk(w); return u && u->end; }\nbool startsWith(const string& p) { return walk(p) != nullptr; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "follows the letters"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "null if a letter is missing"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "carry the end flag"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "only needs the node"
+      },
+      {
+       "lines": [],
+       "cue": "Each costs"
+      },
+      {
+       "lines": [
+        9,
+        10
+       ],
+       "cue": "however many words"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "O(L) per call",
+       "tone": "good",
+       "cue": "the length of the word"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We stored car, cat, and care. What do search of c a, and starts with of c a, return? Pause and predict.",
+     "q": "Stored car, cat, care. search(\"ca\"), startsWith(\"ca\")?",
+     "options": [
+      "true, true",
+      "true, false",
+      "false, true",
+      "false, false"
+     ],
+     "answer": "false, true"
+    },
+    {
+     "type": "code",
+     "head": "The end flag matters",
+     "say": "False, then true. C a begins three words, but no word ends there, so no end flag. That's the classic trap: forget the flag, and every prefix looks like a word. Here it runs. Search c a, false. Starts with c a, true. Search car, true.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "Trie t;\nt.insert(\"car\"); t.insert(\"cat\"); t.insert(\"care\");\ncout << boolalpha << t.search(\"ca\") << ' '\n     << t.startsWith(\"ca\") << ' ' << t.search(\"car\");"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "every prefix looks"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Search c a, false"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Starts with c a, true"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "no end flag at ca",
+       "tone": "warn",
+       "cue": "no end flag"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "false true true",
+      "cue": "Here it runs"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "When they push further",
+     "say": "Four follow ups. Memory too big? Use map children or a radix tree. Top three suggestions? Best words kept at each node. Word Search Two? A trie prunes dead prefixes. Maximum X O R? A trie of bits.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Memory too big?",
+       "map children, or a radix tree"
+      ],
+      [
+       "Top 3 suggestions?",
+       "store best words at each node"
+      ],
+      [
+       "LeetCode 212, Word Search II?",
+       "trie prunes dead prefixes"
+      ],
+      [
+       "LeetCode 421, Max XOR?",
+       "a trie of bits, one per level"
+      ]
+     ],
+     "cues": [
+      "Memory too big",
+      "Top three",
+      "Word Search Two",
+      "Maximum X O R"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp20"
+     ],
+     "say": "What is a trie? A tree, one letter per step. Versus a hash set? Prefix questions, like autocomplete. Implement it? Insert marks the end. Search needs the mark. Each is O of L. Classic bug? Forgetting the mark.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is a trie?",
+       "a letter tree; shared starts stored once"
+      ],
+      [
+       "Trie vs hash set?",
+       "trie for prefixes and autocomplete"
+      ],
+      [
+       "Implement it?",
+       "insert marks end · search needs it · O(L)"
+      ],
+      [
+       "Classic bug?",
+       "forgetting the end flag"
+      ]
+     ],
+     "cues": [
+      "What is a trie",
+      "Versus a hash set",
+      "Implement it",
+      "Classic bug"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Trees and BSTs, quickly",
+     "covers": [
+      "cp20"
+     ],
+     "say": "BST search is O of height. Balanced, log n. A chain, O of n. Inorder walk? Sorted values. Pre, in, post? Same recursion, the visit line moves.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "BST search cost?",
+       "O(height): log n balanced, n for a chain"
+      ],
+      [
+       "Inorder of a BST?",
+       "sorted order"
+      ],
+      [
+       "Pre, in, post?",
+       "visit before, between, after the children"
+      ]
+     ],
+     "cues": [
+      "BST search",
+      "Inorder walk",
+      "Pre, in, post"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode one oh four, maximum depth, is today's depth function. LeetCode ninety eight, validate binary search tree, is the inorder idea. LeetCode two oh eight, implement trie, is today's trie.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 104 · Maximum Depth of Binary Tree",
+       "today's depth function"
+      ],
+      [
+       "LeetCode 98 · Validate Binary Search Tree",
+       "inorder must be sorted"
+      ],
+      [
+       "LeetCode 208 · Implement Trie (Prefix Tree)",
+       "today's trie, as asked"
+      ]
+     ],
+     "cues": [
+      "one oh four",
+      "ninety eight",
+      "two oh eight"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A tree walk is one recursion. Where you visit sets the order. A search tree goes one side per step. A trie takes one step per letter, and marks word ends.",
+     "lines": [
+      "One recursion, three orders: move the visit line.",
+      "BST search: one side per step, O(height).",
+      "Trie: one letter per step. Mark where words end."
+     ],
+     "cues": [
+      "one recursion",
+      "one side per step",
+      "one step per letter"
+     ]
+    }
+   ]
+  }
+ ]
+}

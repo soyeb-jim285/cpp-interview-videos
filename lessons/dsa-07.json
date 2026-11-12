@@ -1,0 +1,1908 @@
+{
+ "id": "dsa-07",
+ "track": "DSA",
+ "num": 7,
+ "title": "Stacks, Monotonic Stacks & Heaps",
+ "covers": [
+  "cp07",
+  "cp08"
+ ],
+ "caps": [
+  [
+   "O of N log k",
+   "O(N log k)"
+  ],
+  [
+   "O of n log k",
+   "O(n log k)"
+  ],
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "priority queue",
+   "priority_queue"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Plates and brackets",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Find the next bigger number for every item, in one pass. Then find the top k of a billion numbers, with memory for only k. By the end, you'll do both.",
+     "lines": [
+      {
+       "text": "Next bigger item, one pass",
+       "cue": "next bigger number"
+      },
+      {
+       "text": "Top k of a billion numbers",
+       "cue": "top k of a billion"
+      },
+      {
+       "text": "Memory for just k.",
+       "cue": "memory for only k",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Check brackets and find next greater items with a stack. Learn how a heap keeps the smallest on top. And take the top k and merge k lists.",
+     "lines": [
+      "Stacks: brackets, next greater",
+      "Heaps: smallest on top, fast",
+      "Top k, and merge k lists"
+     ],
+     "cues": [
+      "Check brackets",
+      "Learn how a heap",
+      "take the top k"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Balanced brackets",
+     "statement": "Given a string of ( ) [ ] { }, decide whether every bracket closes in the right order.",
+     "example": {
+      "input": "{[()]}  and  ([)]",
+      "output": "true, then false"
+     },
+     "say": "Here is the problem. Brackets must close in the reverse order they opened. The first string is balanced. The second crosses, so false.",
+     "cues": {
+      "example": "The first string",
+      "output": "so false"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "Next bigger, n = 1,000",
+     "unit": "steps",
+     "say": "Obvious way: scan right from every item. For a thousand items, that's almost five hundred thousand comparisons. A stack: two thousand steps, tops.",
+     "bars": [
+      {
+       "label": "Scan",
+       "value": 499500,
+       "tone": "bad",
+       "cue": "five hundred thousand"
+      },
+      {
+       "label": "Stack",
+       "value": 2000,
+       "tone": "good",
+       "cue": "two thousand steps"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A pile of plates",
+     "say": "A stack is a pile of plates. Push puts a plate on top. Pop takes the top plate off. Top just looks at it. Last in, first out is the rule. All moves cost O of one.",
+     "items": [
+      {
+       "label": "push",
+       "text": "add on top",
+       "cue": "Push puts"
+      },
+      {
+       "label": "pop",
+       "text": "remove top",
+       "cue": "Pop takes"
+      },
+      {
+       "label": "top",
+       "text": "peek only",
+       "cue": "Top just looks"
+      },
+      {
+       "label": "the rule",
+       "text": "LIFO",
+       "sub": "last in, first out",
+       "tone": "good",
+       "cue": "Last in, first out"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Are the brackets balanced?",
+     "say": "Check these brackets. Openers go on the stack: push curly, push square, push round. Now a closing round bracket. The top is round: a match, so pop. Closing square: top is square, pop. Closing curly: pop. Empty stack at the end: valid.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "{",
+         "[",
+         "(",
+         ")",
+         "]",
+         "}"
+        ],
+        "y": 230,
+        "cue": "Check these brackets"
+       }
+      },
+      {
+       "stack": {
+        "id": "s",
+        "values": [
+         "{",
+         "[",
+         "("
+        ],
+        "x": 810,
+        "y": 800,
+        "cues": [
+         "push curly",
+         "push square",
+         "push round"
+        ]
+       }
+      },
+      {
+       "id": "ans",
+       "x": 1300,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "result",
+       "text": "valid",
+       "size": 56,
+       "tone": "good",
+       "cue": "Empty stack"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c3",
+       "glow": true,
+       "cue": "closing round bracket"
+      },
+      {
+       "id": "s2",
+       "fade": true,
+       "cue": "so pop"
+      },
+      {
+       "id": "c4",
+       "glow": true,
+       "cue": "Closing square"
+      },
+      {
+       "id": "s1",
+       "fade": true,
+       "cue": "is square, pop"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "cue": "Closing curly"
+      },
+      {
+       "id": "s0",
+       "fade": true,
+       "cue": "curly: pop"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Valid brackets",
+     "say": "In code, push every opener. On a closer, the stack must not be empty, and its top must be the partner. Then pop. If the loop ends with an empty stack, it's valid.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool valid(const string& s) {\n    string open = \"([{\", close = \")]}\";\n    stack<char> st;\n    for (char c : s) {\n        if (open.find(c) != string::npos) { st.push(c); continue; }\n        if (st.empty()) return false;\n        if (open.find(st.top()) != close.find(c)) return false;\n        st.pop();\n    }\n    return st.empty();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "push every opener"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "must not be empty"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "partner"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Then pop"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "empty stack"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Round, square, closing round, closing square. Valid or not? Pause and predict.",
+     "q": "Is `([)]` balanced?",
+     "options": [
+      "valid",
+      "invalid, wrong top",
+      "invalid, leftovers",
+      "crash"
+     ],
+     "answer": "invalid, wrong top"
+    },
+    {
+     "type": "diagram",
+     "head": "Crossed brackets",
+     "say": "Invalid. Round, square, then a closing round bracket arrives. The top of the stack is square, not round. Mismatch, so return false.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "(",
+         "[",
+         ")",
+         "]"
+        ],
+        "y": 230,
+        "cue": "Invalid"
+       }
+      },
+      {
+       "stack": {
+        "id": "s",
+        "values": [
+         "(",
+         "["
+        ],
+        "x": 810,
+        "y": 800,
+        "cues": [
+         "Round",
+         "square, then"
+        ]
+       }
+      },
+      {
+       "id": "ans",
+       "x": 1300,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "result",
+       "text": "false",
+       "size": 56,
+       "tone": "bad",
+       "cue": "return false"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1230,
+       "y": 560,
+       "text": "top is [, expected (",
+       "tone": "bad",
+       "cue": "not round"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c2",
+       "glow": true,
+       "tone": "bad",
+       "cue": "closing round bracket"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Next greater, in one pass",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Next greater element",
+     "statement": "For each item, find the first larger value to its right, or -1 if none.",
+     "example": {
+      "input": "[2, 1, 2, 4, 3]",
+      "output": "[4, 2, 4, -1, -1]"
+     },
+     "say": "Now the star problem. For every item, the next bigger value to its right. Two, one, two, four, three gives four, two, four, minus one, minus one.",
+     "cues": {
+      "example": "Two, one, two",
+      "output": "gives four"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "People waiting for someone taller",
+     "say": "Picture people in a line, each waiting for someone taller. Waiting people pile up on a stack. A taller newcomer answers every shorter person on top.",
+     "items": [
+      {
+       "label": "person",
+       "text": "array item",
+       "cue": "people in a line"
+      },
+      {
+       "label": "waiting",
+       "text": "on the stack",
+       "cue": "pile up on a stack"
+      },
+      {
+       "label": "taller",
+       "text": "bigger number",
+       "cue": "taller newcomer"
+      },
+      {
+       "label": "answer",
+       "text": "pop + record",
+       "tone": "good",
+       "cue": "answers every shorter"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Next greater of 2, 1, 2, 4, 3",
+     "say": "Same array. Keep a stack of items still waiting. Two arrives. Push it. One arrives. Smaller, so it waits too. Another two arrives. It beats one, so pop one: its answer is two. It doesn't beat the first two, so push.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         2,
+         1,
+         2,
+         4,
+         3
+        ],
+        "y": 230,
+        "cue": "Same array"
+       }
+      },
+      {
+       "id": "i",
+       "x": 550,
+       "y": 410,
+       "w": 100,
+       "h": 60,
+       "text": "i",
+       "tone": "warn",
+       "cue": "Two arrives"
+      },
+      {
+       "id": "s0",
+       "x": 520,
+       "y": 560,
+       "w": 160,
+       "h": 90,
+       "label": "stack",
+       "text": "–",
+       "tone": "dim",
+       "cue": "stack of items"
+      },
+      {
+       "id": "s1",
+       "x": 700,
+       "y": 560,
+       "w": 160,
+       "h": 90,
+       "text": "–",
+       "tone": "dim",
+       "cue": "stack of items"
+      },
+      {
+       "id": "r0",
+       "x": 520,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "label": "answer",
+       "text": "?",
+       "tone": "blue",
+       "cue": "still waiting"
+      },
+      {
+       "id": "r1",
+       "x": 700,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue",
+       "cue": "still waiting"
+      },
+      {
+       "id": "r2",
+       "x": 880,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue",
+       "cue": "still waiting"
+      },
+      {
+       "id": "r3",
+       "x": 1060,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue",
+       "cue": "still waiting"
+      },
+      {
+       "id": "r4",
+       "x": 1240,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue",
+       "cue": "still waiting"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s0",
+       "text": "2",
+       "tone": "info",
+       "cue": "Push it"
+      },
+      {
+       "id": "i",
+       "move": [
+        730,
+        410
+       ],
+       "cue": "One arrives"
+      },
+      {
+       "id": "s1",
+       "text": "1",
+       "tone": "info",
+       "cue": "waits too"
+      },
+      {
+       "id": "i",
+       "move": [
+        910,
+        410
+       ],
+       "cue": "Another two arrives"
+      },
+      {
+       "id": "s1",
+       "text": "–",
+       "tone": "dim",
+       "cue": "pop one"
+      },
+      {
+       "id": "r1",
+       "text": "2",
+       "tone": "good",
+       "cue": "answer is two"
+      },
+      {
+       "id": "s1",
+       "text": "2",
+       "tone": "info",
+       "cue": "so push"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Next greater of 2, 1, 2, 4, 3",
+     "say": "Four arrives. It beats the two on top: answer four, pop. It beats the other two as well: answer four, pop. Push four. Three arrives. Smaller, so it waits. Whoever is left was never beaten: minus one.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         2,
+         1,
+         2,
+         4,
+         3
+        ],
+        "y": 230
+       }
+      },
+      {
+       "id": "i",
+       "x": 910,
+       "y": 410,
+       "w": 100,
+       "h": 60,
+       "text": "i",
+       "tone": "warn"
+      },
+      {
+       "id": "s0",
+       "x": 520,
+       "y": 560,
+       "w": 160,
+       "h": 90,
+       "label": "stack",
+       "text": "2",
+       "tone": "info"
+      },
+      {
+       "id": "s1",
+       "x": 700,
+       "y": 560,
+       "w": 160,
+       "h": 90,
+       "text": "2",
+       "tone": "info"
+      },
+      {
+       "id": "r0",
+       "x": 520,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "label": "answer",
+       "text": "?",
+       "tone": "blue"
+      },
+      {
+       "id": "r1",
+       "x": 700,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "2",
+       "tone": "good"
+      },
+      {
+       "id": "r2",
+       "x": 880,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue"
+      },
+      {
+       "id": "r3",
+       "x": 1060,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue"
+      },
+      {
+       "id": "r4",
+       "x": 1240,
+       "y": 740,
+       "w": 160,
+       "h": 100,
+       "text": "?",
+       "tone": "blue"
+      }
+     ],
+     "changes": [
+      {
+       "id": "i",
+       "move": [
+        1090,
+        410
+       ],
+       "cue": "Four arrives"
+      },
+      {
+       "id": "s1",
+       "text": "–",
+       "tone": "dim",
+       "cue": "two on top"
+      },
+      {
+       "id": "r2",
+       "text": "4",
+       "tone": "good",
+       "cue": "answer four"
+      },
+      {
+       "id": "s0",
+       "text": "–",
+       "tone": "dim",
+       "cue": "the other two"
+      },
+      {
+       "id": "r0",
+       "text": "4",
+       "tone": "good",
+       "cue": "as well"
+      },
+      {
+       "id": "s0",
+       "text": "4",
+       "tone": "info",
+       "cue": "Push four"
+      },
+      {
+       "id": "i",
+       "move": [
+        1270,
+        410
+       ],
+       "cue": "Three arrives"
+      },
+      {
+       "id": "s1",
+       "text": "3",
+       "tone": "info",
+       "cue": "so it waits"
+      },
+      {
+       "id": "r3",
+       "text": "-1",
+       "tone": "warn",
+       "cue": "minus one"
+      },
+      {
+       "id": "r4",
+       "text": "-1",
+       "tone": "warn",
+       "cue": "minus one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "nextGreater",
+     "say": "Here's the code. The result starts at minus one, for items never beaten. The stack holds indices. While the top item is smaller than the newcomer, pop it and record the newcomer as its answer. Then push the newcomer.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> nextGreater(vector<int>& a) {\n    vector<int> res(a.size(), -1);\n    stack<int> st;\n    for (int i = 0; i < (int)a.size(); i++) {\n        while (!st.empty() && a[st.top()] < a[i]) {\n            res[st.top()] = a[i];\n            st.pop();\n        }\n        st.push(i);\n    }\n    return res;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "starts at minus one"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "holds indices"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "While the top item"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "pop it and record"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Then push"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same code, new array: five, three, four, eight. What is the result array? Pause and predict.",
+     "q": "`nextGreater` of [5, 3, 4, 8]?",
+     "options": [
+      "8 4 8 -1",
+      "3 4 8 -1",
+      "8 4 4 -1",
+      "8 8 8 -1"
+     ],
+     "answer": "8 4 8 -1"
+    },
+    {
+     "type": "code",
+     "head": "Run it",
+     "say": "Eight, four, eight, minus one. Run it. Five waits for eight. Three is beaten by four. Four waits for eight. Eight is never beaten, so it keeps minus one.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> b = {5, 3, 4, 8};\nvector<int> r = nextGreater(b);\nfor (int x : r) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Run it"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Five waits"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "3 is beaten by 4",
+       "tone": "good",
+       "cue": "Three is beaten"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "8: never beaten",
+       "tone": "warn",
+       "cue": "never beaten"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "8 4 8 -1",
+      "cue": "Eight, four"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups to expect",
+     "say": "Four follow-ups. Why O of n? Each index is pushed once and popped once. Next smaller, or previous greater? Flip the comparison, or scan from the right. Values or indices? Indices: read the value, subtract positions for distances. Leftovers? Never beaten, so they keep minus one.",
+     "heads": [
+      "They ask",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Why `O(n)` with a `while` in a `for`?",
+       "each index pushed once, popped once"
+      ],
+      [
+       "Next smaller? Previous greater?",
+       "flip `<`, or scan from the right"
+      ],
+      [
+       "Values or indices?",
+       "indices: read value, subtract positions"
+      ],
+      [
+       "Leftovers?",
+       "never beaten: they keep -1"
+      ]
+     ],
+     "cues": [
+      "Why O of n",
+      "Next smaller",
+      "Values or indices",
+      "Leftovers"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A tree stored in an array",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Smallest item, instantly",
+     "statement": "Items keep arriving and leaving. Always be able to read the smallest one at once.",
+     "example": {
+      "input": "push 5, 12, 2, then pop",
+      "output": "2 comes out first"
+     },
+     "note": "peek O(1), push/pop O(log n)",
+     "say": "New problem. Items keep arriving, and we always need the smallest now. Push five, twelve, two, then pop: two comes out. Peek must be instant.",
+     "cues": {
+      "example": "Push five",
+      "output": "two comes out",
+      "note": "Peek"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The podium",
+     "say": "Picture a podium with three spots. A newcomer only has to beat whoever is last on it. A heap always shows you that person instantly. Looking costs O of one. Adding or removing costs O of log n.",
+     "items": [
+      {
+       "label": "podium",
+       "text": "3 spots",
+       "cue": "podium"
+      },
+      {
+       "label": "newcomer",
+       "text": "beats last?",
+       "cue": "newcomer"
+      },
+      {
+       "label": "heap shows",
+       "text": "the last",
+       "sub": "min on top",
+       "cue": "always shows you"
+      },
+      {
+       "label": "peek",
+       "text": "O(1)",
+       "tone": "good",
+       "cue": "Looking"
+      },
+      {
+       "label": "push, pop",
+       "text": "O(log n)",
+       "cue": "Adding or removing"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Push 2: sift up",
+     "say": "A heap is a tree stored in an array. Five on top, twelve below it: a min-heap, smallest on top. Insert two. It lands in the next free slot. Its parent is five. Smaller than its parent, so they swap. The array swaps too. Two is on top. Sift up: O of log n.",
+     "items": [
+      {
+       "id": "r",
+       "x": 860,
+       "y": 230,
+       "w": 130,
+       "h": 110,
+       "text": "5",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Five on top"
+      },
+      {
+       "id": "l",
+       "x": 680,
+       "y": 420,
+       "w": 130,
+       "h": 110,
+       "text": "12",
+       "size": 48,
+       "tone": "blue",
+       "cue": "twelve below it"
+      },
+      {
+       "id": "rt",
+       "x": 1040,
+       "y": 420,
+       "w": 130,
+       "h": 110,
+       "label": "new",
+       "text": "2",
+       "size": 48,
+       "tone": "good",
+       "cue": "next free slot"
+      },
+      {
+       "array": {
+        "id": "h",
+        "values": [
+         5,
+         12,
+         2
+        ],
+        "y": 620,
+        "cues": [
+         "stored in an array",
+         "stored in an array",
+         "next free slot"
+        ]
+       }
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r",
+       "to": "l",
+       "cue": "twelve below it"
+      },
+      {
+       "from": "r",
+       "to": "rt",
+       "cue": "next free slot"
+      }
+     ],
+     "notes": [
+      {
+       "x": 120,
+       "y": 270,
+       "text": "children of i: 2i+1, 2i+2",
+       "cue": "twelve below it"
+      },
+      {
+       "x": 1230,
+       "y": 270,
+       "text": "parent of i: (i-1)/2",
+       "cue": "Its parent is five"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r",
+       "text": "2",
+       "tone": "good",
+       "cue": "they swap"
+      },
+      {
+       "id": "rt",
+       "text": "5",
+       "tone": "info",
+       "cue": "they swap"
+      },
+      {
+       "id": "h0",
+       "text": "2",
+       "cue": "array swaps too"
+      },
+      {
+       "id": "h2",
+       "text": "5",
+       "cue": "array swaps too"
+      },
+      {
+       "id": "r",
+       "glow": true,
+       "tone": "good",
+       "cue": "Two is on top"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Pop the min: sift down",
+     "say": "Pop the smallest. It's the root: one. Remove it. Move the last item, five, up to the root. Now five sits above three, and the rule breaks. Swap with the smaller child, three. The rule holds again. That's sift down: also O of log n.",
+     "items": [
+      {
+       "id": "r",
+       "x": 860,
+       "y": 230,
+       "w": 130,
+       "h": 110,
+       "text": "1",
+       "size": 48,
+       "tone": "good"
+      },
+      {
+       "id": "l",
+       "x": 680,
+       "y": 420,
+       "w": 130,
+       "h": 110,
+       "text": "3",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "rt",
+       "x": 1040,
+       "y": 420,
+       "w": 130,
+       "h": 110,
+       "text": "5",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "array": {
+        "id": "h",
+        "values": [
+         1,
+         3,
+         5
+        ],
+        "y": 620
+       }
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r",
+       "to": "l"
+      },
+      {
+       "from": "r",
+       "to": "rt"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1230,
+       "y": 270,
+       "text": "5 above 3: rule broken",
+       "tone": "bad",
+       "cue": "the rule breaks"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r",
+       "glow": true,
+       "tone": "good",
+       "cue": "the root"
+      },
+      {
+       "id": "r",
+       "text": "–",
+       "tone": "dim",
+       "cue": "Remove it"
+      },
+      {
+       "id": "r",
+       "text": "5",
+       "tone": "warn",
+       "cue": "up to the root"
+      },
+      {
+       "id": "rt",
+       "text": "–",
+       "tone": "dim",
+       "cue": "up to the root"
+      },
+      {
+       "id": "h0",
+       "text": "5",
+       "cue": "up to the root"
+      },
+      {
+       "id": "h2",
+       "text": "–",
+       "cue": "up to the root"
+      },
+      {
+       "id": "r",
+       "text": "3",
+       "tone": "good",
+       "cue": "Swap with the smaller child"
+      },
+      {
+       "id": "l",
+       "text": "5",
+       "tone": "info",
+       "cue": "Swap with the smaller child"
+      },
+      {
+       "id": "h0",
+       "text": "3",
+       "cue": "holds again"
+      },
+      {
+       "id": "h1",
+       "text": "5",
+       "cue": "holds again"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. In C plus plus, push three, one, five into a plain priority queue. What does top return? Pause and predict.",
+     "q": "`priority_queue<int>`: push 3, 1, 5. What is `top()`?",
+     "options": [
+      "1",
+      "3",
+      "5",
+      "unspecified"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "code",
+     "head": "Max-heap by default",
+     "say": "Five. The default priority queue is a max heap. Biggest on top. For smallest on top, add greater. The second queue then gives one. That default is the classic slip.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "priority_queue<int> a;\npriority_queue<int, vector<int>, greater<int>> b;\nfor (int x : {3, 1, 5}) {\n    a.push(x);\n    b.push(x);\n}\ncout << a.top() << ' ' << b.top();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "default priority queue"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "add greater"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "second queue"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "classic slip"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 1",
+      "cue": "Five. The default"
+     },
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "biggest on top",
+       "tone": "warn",
+       "cue": "Biggest on top"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Top k with a tiny heap",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Top k largest",
+     "statement": "Find the k largest numbers in a stream, keeping only k numbers in memory.",
+     "example": {
+      "input": "[3, 1, 5, 12, 2, 11], k = 2",
+      "output": "{11, 12}"
+     },
+     "note": "the stream could hold a billion",
+     "say": "Here is the problem. Top two of three, one, five, twelve, two, eleven. The answer is eleven and twelve. The stream could hold a billion numbers.",
+     "cues": {
+      "example": "Top two of three",
+      "output": "eleven and twelve",
+      "note": "a billion"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Top 2 of 3, 1, 5, 12, 2, 11",
+     "say": "Keep a min-heap of size two. Three comes in. It joins the heap. One comes in, and sits on top, as the smallest. Five comes in. Push it, then pop the smallest, one. Twelve comes in. Three pops. Two comes in, and pops straight back out. Eleven comes in. Five pops. Eleven and twelve are left. The top, eleven, is the second largest.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         3,
+         1,
+         5,
+         12,
+         2,
+         11
+        ],
+        "y": 230,
+        "cue": "min-heap of size two"
+       }
+      },
+      {
+       "id": "h0",
+       "x": 800,
+       "y": 580,
+       "w": 160,
+       "h": 140,
+       "label": "min-heap, size 2",
+       "text": "–",
+       "tone": "dim",
+       "cue": "min-heap of size two"
+      },
+      {
+       "id": "h1",
+       "x": 980,
+       "y": 580,
+       "w": 160,
+       "h": 140,
+       "text": "–",
+       "tone": "dim",
+       "cue": "min-heap of size two"
+      },
+      {
+       "id": "i",
+       "x": 460,
+       "y": 410,
+       "w": 100,
+       "h": 60,
+       "text": "i",
+       "tone": "warn",
+       "cue": "Three comes in"
+      }
+     ],
+     "changes": [
+      {
+       "id": "h0",
+       "text": "3",
+       "tone": "info",
+       "cue": "joins the heap"
+      },
+      {
+       "id": "i",
+       "move": [
+        640,
+        410
+       ],
+       "cue": "One comes in"
+      },
+      {
+       "id": "h0",
+       "text": "1",
+       "tone": "good",
+       "cue": "sits on top"
+      },
+      {
+       "id": "h1",
+       "text": "3",
+       "tone": "info",
+       "cue": "sits on top"
+      },
+      {
+       "id": "i",
+       "move": [
+        820,
+        410
+       ],
+       "cue": "Five comes in"
+      },
+      {
+       "id": "h0",
+       "text": "3",
+       "tone": "good",
+       "cue": "pop the smallest, one"
+      },
+      {
+       "id": "h1",
+       "text": "5",
+       "tone": "info",
+       "cue": "pop the smallest, one"
+      },
+      {
+       "id": "i",
+       "move": [
+        1000,
+        410
+       ],
+       "cue": "Twelve comes in"
+      },
+      {
+       "id": "h0",
+       "text": "5",
+       "tone": "good",
+       "cue": "Three pops"
+      },
+      {
+       "id": "h1",
+       "text": "12",
+       "tone": "info",
+       "cue": "Three pops"
+      },
+      {
+       "id": "i",
+       "move": [
+        1180,
+        410
+       ],
+       "cue": "Two comes in"
+      },
+      {
+       "id": "h0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "straight back out"
+      },
+      {
+       "id": "i",
+       "move": [
+        1360,
+        410
+       ],
+       "cue": "Eleven comes in"
+      },
+      {
+       "id": "h0",
+       "text": "11",
+       "tone": "good",
+       "cue": "Five pops"
+      },
+      {
+       "id": "h1",
+       "text": "12",
+       "tone": "info",
+       "cue": "Five pops"
+      },
+      {
+       "id": "h0",
+       "glow": true,
+       "tone": "good",
+       "cue": "second largest"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Top k with a min-heap",
+     "say": "In code, a min heap, so greater. Push every number. If the heap grows past k, pop the smallest. Memory never passes k plus one. At the end, the top is the k-th largest. Here it prints eleven.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> a = {3, 1, 5, 12, 2, 11};\nint k = 2;\npriority_queue<int, vector<int>, greater<int>> h;\nfor (int x : a) {\n    h.push(x);\n    if ((int)h.size() > k) h.pop();\n}\ncout << h.top();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "a min heap"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Push every number"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "pop the smallest"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "At the end"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "11",
+      "cue": "prints eleven"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same code, but k is three, and the numbers are five, two, eight, one, nine, three. What does top print? Pause and predict.",
+     "q": "k = 3, numbers 5, 2, 8, 1, 9, 3. What does `h.top()` print?",
+     "options": [
+      "2",
+      "3",
+      "5",
+      "8"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "code",
+     "head": "Third largest of 5, 2, 8, 1, 9, 3",
+     "say": "Five. The heap ends holding five, eight and nine, and the smallest of those is the third largest. Two, one and three each lost to bigger numbers already there.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> a = {5, 2, 8, 1, 9, 3};\nint k = 3;\npriority_queue<int, vector<int>, greater<int>> h;\nfor (int x : a) {\n    h.push(x);\n    if ((int)h.size() > k) h.pop();\n}\ncout << h.top();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "ends holding"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "each lost"
+      }
+     ],
+     "notes": [
+      {
+       "line": 8,
+       "inside": true,
+       "text": "heap = {5, 8, 9}",
+       "tone": "good",
+       "cue": "smallest of those"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5",
+      "cue": "Five. The heap"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Why a min-heap for the largest",
+     "say": "Why a min heap? Its top is the weakest keeper: one compare. Why not sort? O of n log n, versus O of n log k. Memory? Only k items, even on a stream.",
+     "heads": [
+      "They ask",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Why a min-heap for the largest?",
+       "top = weakest keeper: one compare"
+      ],
+      [
+       "Why not just sort?",
+       "sort `O(n log n)`; heap `O(n log k)`"
+      ],
+      [
+       "Memory?",
+       "only k items, even on a stream"
+      ]
+     ],
+     "cues": [
+      "Why a min heap",
+      "Why not sort",
+      "Memory"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Merge k sorted lists",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Merge k sorted lists",
+     "statement": "Merge k sorted lists into one sorted list.",
+     "example": {
+      "input": "1,4 · 1,3 · 2,6",
+      "output": "1, 1, 2, 3, 4, 6"
+     },
+     "note": "k lists, N nodes in total",
+     "say": "Last problem. Three sorted lists: one, four. One, three. Two, six. Merge them: one, one, two, three, four, six. In general, k lists and N nodes.",
+     "cues": {
+      "example": "Three sorted lists",
+      "output": "one, one, two",
+      "note": "k lists"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Merge three sorted lists",
+     "say": "Three sorted lists. Only the front of each matters, so keep the three fronts in a min-heap. Pop the smallest, one, and append it to the answer. Replace it with its list's next node, four. Pop the other one. Replace it with three. Pop two. Replace it with six. Keep going until the heap is empty.",
+     "items": [
+      {
+       "id": "la",
+       "x": 150,
+       "y": 330,
+       "w": 380,
+       "h": 110,
+       "text": "A: 1, 4",
+       "tone": "blue",
+       "cue": "Three sorted lists"
+      },
+      {
+       "id": "lb",
+       "x": 150,
+       "y": 480,
+       "w": 380,
+       "h": 110,
+       "text": "B: 1, 3",
+       "tone": "blue",
+       "cue": "Three sorted lists"
+      },
+      {
+       "id": "lc",
+       "x": 150,
+       "y": 630,
+       "w": 380,
+       "h": 110,
+       "text": "C: 2, 6",
+       "tone": "blue",
+       "cue": "Three sorted lists"
+      },
+      {
+       "id": "ha",
+       "x": 760,
+       "y": 330,
+       "w": 200,
+       "h": 110,
+       "label": "min-heap of fronts",
+       "text": "1",
+       "sub": "from A",
+       "tone": "info",
+       "cue": "three fronts"
+      },
+      {
+       "id": "hb",
+       "x": 760,
+       "y": 480,
+       "w": 200,
+       "h": 110,
+       "text": "1",
+       "sub": "from B",
+       "tone": "info",
+       "cue": "three fronts"
+      },
+      {
+       "id": "hc",
+       "x": 760,
+       "y": 630,
+       "w": 200,
+       "h": 110,
+       "text": "2",
+       "sub": "from C",
+       "tone": "info",
+       "cue": "three fronts"
+      },
+      {
+       "id": "o0",
+       "x": 1140,
+       "y": 330,
+       "w": 130,
+       "h": 100,
+       "label": "answer",
+       "text": "1",
+       "tone": "good",
+       "cue": "append it"
+      },
+      {
+       "id": "o1",
+       "x": 1290,
+       "y": 330,
+       "w": 130,
+       "h": 100,
+       "text": "1",
+       "tone": "good",
+       "cue": "Pop the other one"
+      },
+      {
+       "id": "o2",
+       "x": 1440,
+       "y": 330,
+       "w": 130,
+       "h": 100,
+       "text": "2",
+       "tone": "good",
+       "cue": "Pop two"
+      },
+      {
+       "id": "o3",
+       "x": 1140,
+       "y": 480,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "tone": "good",
+       "cue": "Keep going"
+      },
+      {
+       "id": "o4",
+       "x": 1290,
+       "y": 480,
+       "w": 130,
+       "h": 100,
+       "text": "4",
+       "tone": "good",
+       "cue": "Keep going"
+      },
+      {
+       "id": "o5",
+       "x": 1440,
+       "y": 480,
+       "w": 130,
+       "h": 100,
+       "text": "6",
+       "tone": "good",
+       "cue": "Keep going"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ha",
+       "text": "4",
+       "cue": "next node, four"
+      },
+      {
+       "id": "hb",
+       "text": "3",
+       "cue": "with three"
+      },
+      {
+       "id": "hc",
+       "text": "6",
+       "cue": "with six"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "mergeK",
+     "say": "In code, a heap of node pointers. Greater than in the comparator makes a min heap. Push each list's head, skipping empty lists. Pop the smallest, record it, push its next. O of N log k in total.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> mergeK(vector<Node*>& lists) {\n    auto cmp = [](Node* a, Node* b) { return a->val > b->val; };\n    priority_queue<Node*, vector<Node*>, decltype(cmp)> h(cmp);\n    for (Node* l : lists) if (l) h.push(l);\n    vector<int> out;\n    while (!h.empty()) {\n        Node* n = h.top(); h.pop();\n        out.push_back(n->val);\n        if (n->next) h.push(n->next);\n    }\n    return out;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Greater than"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Push each list's head"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Pop the smallest"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "push its next"
+      },
+      {
+       "lines": [],
+       "cue": "in total"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A thousand sorted lists, a million nodes in total. About how many steps is O of N log k? Pause and predict.",
+     "q": "k = 1,000 lists, N = 1,000,000 nodes. About `N log k` steps?",
+     "options": [
+      "10 thousand",
+      "1 million",
+      "10 million",
+      "1 billion"
+     ],
+     "answer": "10 million"
+    },
+    {
+     "type": "chart",
+     "head": "Merge cost in millions",
+     "unit": "M steps",
+     "say": "Ten million. A million nodes, about ten heap steps each, since log of a thousand is ten. Sorting everything costs about twenty steps each. And the heap never holds more than a thousand nodes.",
+     "bars": [
+      {
+       "label": "Heap of k",
+       "value": 10,
+       "tone": "good",
+       "cue": "about ten heap steps"
+      },
+      {
+       "label": "Sort all",
+       "value": 20,
+       "tone": "warn",
+       "cue": "about twenty steps"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp07"
+     ],
+     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? Pop everything the new item beats, and answer them. Why O of n? Each index is pushed once, popped once. Previous greater? Flip the comparison. Values or indices? Indices.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is a stack?",
+       "last in, first out; push, pop, top: O(1)"
+      ],
+      [
+       "Next greater element?",
+       "pop everything the new item beats, answer them"
+      ],
+      [
+       "Why `O(n)`?",
+       "each index pushed once, popped once"
+      ],
+      [
+       "Previous greater? Values or indices?",
+       "flip the comparison; indices"
+      ]
+     ],
+     "cues": [
+      "What is a stack",
+      "Next greater element",
+      "Why O of n",
+      "Previous greater"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp08"
+     ],
+     "say": "What is a heap? A tree stored in an array, smallest on top. Costs? Top O of one, push and pop O of log n, build linear. Top k largest? A min heap of size k: its top is the weakest keeper. Why not sort? A heap is O of n log k and handles streams.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is a heap?",
+       "tree in an array, min on top"
+      ],
+      [
+       "Costs?",
+       "top O(1), push/pop O(log n), build O(n)"
+      ],
+      [
+       "Top k largest?",
+       "min-heap of size k: top = weakest keeper"
+      ],
+      [
+       "Why not sort?",
+       "heap: O(n log k), works on streams"
+      ]
+     ],
+     "cues": [
+      "What is a heap",
+      "Costs",
+      "Top k largest",
+      "Why not sort"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp08"
+     ],
+     "say": "Merge k sorted lists? Heap of the k fronts: pop the smallest, push its next. Cost? O of N log k. A billion numbers, tiny memory? Min heap of size k. Common mistake? Priority queue is a max heap.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Merge k sorted lists?",
+       "heap of fronts: pop smallest, push next"
+      ],
+      [
+       "Cost?",
+       "`O(N log k)`"
+      ],
+      [
+       "A billion numbers, tiny memory?",
+       "min-heap of size k"
+      ],
+      [
+       "Common mistake?",
+       "`priority_queue` is a max-heap by default"
+      ]
+     ],
+     "cues": [
+      "Merge k sorted",
+      "Cost",
+      "A billion numbers",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode twenty, valid parentheses, is today's bracket stack. LeetCode seven thirty nine, daily temperatures, is next greater with distances. LeetCode two fifteen, kth largest element in an array, is the min heap of size k.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 20 · Valid Parentheses",
+       "the bracket stack"
+      ],
+      [
+       "LeetCode 739 · Daily Temperatures",
+       "next greater, with distances"
+      ],
+      [
+       "LeetCode 215 · Kth Largest Element in an Array",
+       "min-heap of size k"
+      ]
+     ],
+     "cues": [
+      "twenty, valid",
+      "seven thirty nine",
+      "two fifteen"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A monotonic stack pops what the newcomer beats. Each index goes in once, out once: O of n. Top k? Min heap of size k.",
+     "lines": [
+      "Monotonic stack: pop what the newcomer beats.",
+      "Each index in once, out once: O(n).",
+      "Top k: min-heap of size k, O(n log k)."
+     ],
+     "cues": [
+      "A monotonic stack",
+      "Each index",
+      "Top k"
+     ]
+    }
+   ]
+  }
+ ]
+}

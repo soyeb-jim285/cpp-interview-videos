@@ -1,0 +1,1533 @@
+{
+ "id": "dsa-10",
+ "track": "DSA",
+ "num": 10,
+ "title": "Weighted Graphs: Dijkstra & Union-Find",
+ "covers": [
+  "cp10",
+  "cp11"
+ ],
+ "caps": [
+  [
+   "O of E log V",
+   "O(E log V)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "Bellman Ford",
+   "Bellman-Ford"
+  ],
+  [
+   "Union Find",
+   "Union-Find"
+  ],
+  [
+   "s z",
+   "sz"
+  ],
+  [
+   "p of x",
+   "p[x]"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Cheapest, not fewest",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Fewest roads isn't the cheapest route. By the end, you'll compute the cheapest route on a map, and answer, are these two people connected, in nearly constant time.",
+     "lines": [
+      {
+       "text": "Fewest roads is not cheapest.",
+       "cue": "Fewest roads"
+      },
+      {
+       "text": "Cheapest route on any map.",
+       "cue": "cheapest route on a map"
+      },
+      {
+       "text": "Connected? Nearly O(1).",
+       "cue": "nearly constant time",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today we'll do two things. Find the cheapest route on a map with travel times. Then answer, are these two people connected, almost instantly.",
+     "lines": [
+      "Cheapest route on a map: Dijkstra.",
+      "Who is connected? Union-Find."
+     ],
+     "cues": [
+      "Find the cheapest route",
+      "are these two people connected"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Cheapest route",
+     "statement": "Towns joined by roads, each with a travel time. Find the least total time from A to every other town.",
+     "example": {
+      "input": "A-B 4, A-C 1, C-B 2, B-D 1 (minutes)",
+      "output": "A 0, C 1, B 3, D 4"
+     },
+     "note": "Roads go both ways; arrows show the way we travel them.",
+     "cues": {
+      "example": "travel times",
+      "output": "the answer is",
+      "note": "Roads go both"
+     },
+     "say": "Here's the problem. Four towns, roads with travel times. Least time from A to every town? On this map, the answer is A zero, C one, B three, D four. Roads go both ways."
+    },
+    {
+     "type": "diagram",
+     "head": "Fewest roads is not cheapest",
+     "say": "Here's a map: four towns, and a travel time on each road. A to B directly takes four minutes. That's one road, so breadth first search would pick it. But A to C to B is one plus two, three minutes. Two roads, and cheaper. So counting roads is the wrong question. We count minutes.",
+     "items": [
+      {
+       "id": "nA",
+       "x": 230,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "A",
+       "size": 52,
+       "tone": "blue",
+       "cue": "four towns"
+      },
+      {
+       "id": "nB",
+       "x": 830,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "B",
+       "size": 52,
+       "tone": "blue",
+       "cue": "four towns"
+      },
+      {
+       "id": "nC",
+       "x": 830,
+       "y": 610,
+       "w": 130,
+       "h": 130,
+       "text": "C",
+       "size": 52,
+       "tone": "blue",
+       "cue": "four towns"
+      },
+      {
+       "id": "nD",
+       "x": 1430,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "D",
+       "size": 52,
+       "tone": "blue",
+       "cue": "four towns"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "nA",
+       "to": "nB",
+       "label": "4",
+       "cue": "a travel time"
+      },
+      {
+       "from": "nA",
+       "to": "nC",
+       "label": "1",
+       "cue": "a travel time"
+      },
+      {
+       "from": "nC",
+       "to": "nB",
+       "label": "2",
+       "cue": "a travel time"
+      },
+      {
+       "from": "nB",
+       "to": "nD",
+       "label": "1",
+       "cue": "a travel time"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1150,
+       "y": 720,
+       "text": "count minutes, not roads",
+       "tone": "warn",
+       "cue": "We count minutes"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a0",
+       "tone": "bad",
+       "cue": "directly takes four minutes"
+      },
+      {
+       "id": "a1",
+       "tone": "good",
+       "cue": "A to C to B"
+      },
+      {
+       "id": "a2",
+       "tone": "good",
+       "cue": "A to C to B"
+      },
+      {
+       "id": "nB",
+       "glow": true,
+       "tone": "bad",
+       "cue": "That's one road"
+      },
+      {
+       "id": "nB",
+       "glow": true,
+       "tone": "good",
+       "cue": "three minutes"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Settle, then relax",
+     "say": "Dijkstra works like a GPS. Keep the best known time to every town. Pick the unsettled town with the smallest time. A priority queue hands it over. Settle it: that time is final. Then relax its roads: cheaper through this town? Update it.",
+     "items": [
+      {
+       "label": "keep",
+       "text": "best time",
+       "sub": "to every town",
+       "cue": "Keep the best known time"
+      },
+      {
+       "label": "pick",
+       "text": "smallest",
+       "sub": "unsettled town",
+       "cue": "Pick the unsettled town"
+      },
+      {
+       "label": "settle",
+       "text": "final",
+       "tone": "good",
+       "sub": "its time can't improve",
+       "cue": "Settle it"
+      },
+      {
+       "label": "relax",
+       "text": "update?",
+       "tone": "warn",
+       "sub": "cheaper through here?",
+       "cue": "relax its roads"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Dijkstra on the map",
+     "say": "Start at A. Its time is zero, everything else infinity. The queue holds A. Settle A, and relax its roads. B becomes four. C becomes one. The queue now holds C at one, B at four. Pop C, the closest. Through C, B costs three. Better than four, so update it. Pop B at three. D becomes four. Now B's old entry, four, pops. Stale: skip it. Last, D at four. All settled.",
+     "items": [
+      {
+       "id": "nA",
+       "x": 230,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "A",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "nB",
+       "x": 830,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "B",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "nC",
+       "x": 830,
+       "y": 610,
+       "w": 130,
+       "h": 130,
+       "text": "C",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "nD",
+       "x": 1430,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "D",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "dA",
+       "x": 230,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "0",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Its time is zero"
+      },
+      {
+       "id": "dB",
+       "x": 985,
+       "y": 400,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Its time is zero"
+      },
+      {
+       "id": "dC",
+       "x": 830,
+       "y": 760,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Its time is zero"
+      },
+      {
+       "id": "dD",
+       "x": 1430,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Its time is zero"
+      },
+      {
+       "id": "pq",
+       "x": 150,
+       "y": 790,
+       "w": 560,
+       "h": 90,
+       "label": "priority queue",
+       "text": "(0,A)",
+       "size": 40,
+       "tone": "info",
+       "cue": "The queue holds A"
+      },
+      {
+       "id": "pop",
+       "x": 1050,
+       "y": 790,
+       "w": 700,
+       "h": 90,
+       "label": "settled, in order",
+       "text": "–",
+       "size": 40,
+       "tone": "good",
+       "cue": "Settle A"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "nA",
+       "to": "nB",
+       "label": "4"
+      },
+      {
+       "from": "nA",
+       "to": "nC",
+       "label": "1"
+      },
+      {
+       "from": "nC",
+       "to": "nB",
+       "label": "2"
+      },
+      {
+       "from": "nB",
+       "to": "nD",
+       "label": "1"
+      }
+     ],
+     "changes": [
+      {
+       "id": "nA",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Start at A"
+      },
+      {
+       "id": "nA",
+       "tone": "good",
+       "cue": "Settle A"
+      },
+      {
+       "id": "pop",
+       "text": "A 0",
+       "cue": "Settle A"
+      },
+      {
+       "id": "pq",
+       "text": "–",
+       "cue": "Settle A"
+      },
+      {
+       "id": "dB",
+       "text": "4",
+       "cue": "B becomes four"
+      },
+      {
+       "id": "dC",
+       "text": "1",
+       "cue": "C becomes one"
+      },
+      {
+       "id": "pq",
+       "text": "(1,C) (4,B)",
+       "cue": "The queue now holds"
+      },
+      {
+       "id": "nC",
+       "tone": "good",
+       "cue": "Pop C"
+      },
+      {
+       "id": "pop",
+       "text": "A 0, C 1",
+       "cue": "Pop C"
+      },
+      {
+       "id": "pq",
+       "text": "(4,B)",
+       "cue": "Pop C"
+      },
+      {
+       "id": "dB",
+       "text": "3",
+       "tone": "good",
+       "cue": "B costs three"
+      },
+      {
+       "id": "pq",
+       "text": "(3,B) (4,B)",
+       "cue": "update it"
+      },
+      {
+       "id": "nB",
+       "tone": "good",
+       "cue": "Pop B at three"
+      },
+      {
+       "id": "pop",
+       "text": "A 0, C 1, B 3",
+       "cue": "Pop B at three"
+      },
+      {
+       "id": "pq",
+       "text": "(4,B)",
+       "cue": "Pop B at three"
+      },
+      {
+       "id": "dD",
+       "text": "4",
+       "cue": "D becomes four"
+      },
+      {
+       "id": "pq",
+       "text": "(4,B) (4,D)",
+       "cue": "D becomes four"
+      },
+      {
+       "id": "pq",
+       "text": "(4,D)",
+       "tone": "bad",
+       "cue": "Stale: skip it"
+      },
+      {
+       "id": "nD",
+       "tone": "good",
+       "cue": "Last, D at four"
+      },
+      {
+       "id": "pop",
+       "text": "A 0, C 1, B 3, D 4",
+       "cue": "Last, D at four"
+      },
+      {
+       "id": "pq",
+       "text": "–",
+       "tone": "info",
+       "cue": "Last, D at four"
+      },
+      {
+       "id": "pop",
+       "glow": true,
+       "tone": "good",
+       "cue": "All settled"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Change the road from C to B to cost five, not two. What's the cheapest time from A to B now? Pause and predict.",
+     "q": "C to B now costs 5. Cheapest A to B?",
+     "options": [
+      "3",
+      "4",
+      "6",
+      "5"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "diagram",
+     "head": "Relax, but no improvement",
+     "say": "Four. Through C, B would cost one plus five, six. That's not less than four, so there's no update, and nothing new joins the queue. B stays four, and D becomes five.",
+     "items": [
+      {
+       "id": "nA",
+       "x": 230,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "A",
+       "size": 52,
+       "tone": "good"
+      },
+      {
+       "id": "nB",
+       "x": 830,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "B",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "nC",
+       "x": 830,
+       "y": 610,
+       "w": 130,
+       "h": 130,
+       "text": "C",
+       "size": 52,
+       "tone": "good"
+      },
+      {
+       "id": "nD",
+       "x": 1430,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "D",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "dA",
+       "x": 230,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "0",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dB",
+       "x": 985,
+       "y": 400,
+       "w": 130,
+       "h": 80,
+       "text": "4",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dC",
+       "x": 830,
+       "y": 760,
+       "w": 130,
+       "h": 80,
+       "text": "1",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dD",
+       "x": 1430,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "calc",
+       "x": 1050,
+       "y": 790,
+       "w": 560,
+       "h": 90,
+       "label": "relax C to B",
+       "text": "?",
+       "size": 44,
+       "tone": "info",
+       "cue": "one plus five"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "nA",
+       "to": "nB",
+       "label": "4"
+      },
+      {
+       "from": "nA",
+       "to": "nC",
+       "label": "1"
+      },
+      {
+       "from": "nC",
+       "to": "nB",
+       "label": "5"
+      },
+      {
+       "from": "nB",
+       "to": "nD",
+       "label": "1"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a2",
+       "tone": "warn",
+       "cue": "Through C"
+      },
+      {
+       "id": "calc",
+       "text": "1 + 5 = 6",
+       "tone": "bad",
+       "cue": "six"
+      },
+      {
+       "id": "dB",
+       "glow": true,
+       "tone": "warn",
+       "cue": "not less than four"
+      },
+      {
+       "id": "dB",
+       "glow": true,
+       "tone": "good",
+       "cue": "B stays four"
+      },
+      {
+       "id": "dD",
+       "text": "5",
+       "tone": "good",
+       "cue": "D becomes five"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Dijkstra in code",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Code it",
+     "statement": "Write dijkstra(start, roads): return the least time from start to every town. Weights are never negative.",
+     "example": {
+      "input": "A-B 4, A-C 1, C-B 2, B-D 1; start A",
+      "output": "dist: A 0, B 3, C 1, D 4"
+     },
+     "note": "Needs non-negative weights.",
+     "cues": {
+      "example": "Same map",
+      "output": "returns the least",
+      "note": "No negative weights"
+     },
+     "say": "Now code it. A function takes a start town and the roads. Same map, start at A. It returns the least time to every town: zero, three, one, four. No negative weights."
+    },
+    {
+     "type": "code",
+     "head": "Dijkstra: set the stage",
+     "say": "A road is a pair: weight, then destination. Distances start at infinity, the biggest long long. The heap holds pairs too, with greater, so the smallest distance pops first. Then set the start to zero, and push it.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "using P = pair<long long, int>;\nvector<long long> dijkstra(int s, vector<vector<P>>& g) {\n    vector<long long> d(g.size(), LLONG_MAX);\n    priority_queue<P, vector<P>, greater<P>> pq;\n    d[s] = 0;  pq.push({0, s});"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A road is a pair"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "start at infinity"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "The heap holds"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "set the start"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "min-heap",
+       "tone": "good",
+       "cue": "smallest distance pops"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Dijkstra: pop and relax",
+     "say": "Pop the smallest pair. If its distance is bigger than what we know, it's stale: skip it. Otherwise relax every road. If going through here is cheaper, record it and push the new pair. A town can sit in the heap twice, and the stale check handles that. Each edge pushes at most once, and a push costs log V, so the total is O of E log V.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "    while (!pq.empty()) {\n        auto [du, u] = pq.top();  pq.pop();\n        if (du > d[u]) continue;\n        for (auto [w, v] : g[u]) {\n            if (du + w >= d[v]) continue;\n            d[v] = du + w;  pq.push({d[v], v});\n        }\n    }\n    return d;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Pop the smallest"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "it's stale"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "relax every road"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "record it"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "push the new pair"
+      },
+      {
+       "lines": [],
+       "cue": "A town can sit"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "stale check handles"
+      },
+      {
+       "lines": [],
+       "cue": "Each edge pushes"
+      },
+      {
+       "lines": [
+        4,
+        6
+       ],
+       "cue": "a push costs log V"
+      },
+      {
+       "lines": [],
+       "cue": "the total is"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "old entry: skip",
+       "tone": "warn",
+       "cue": "skip it"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. On our map, the heap keeps popping until it's empty. How many pops happen in total? Pause and predict.",
+     "q": "Heap pops on our map, from A?",
+     "options": [
+      "4",
+      "5",
+      "6",
+      "3"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "flow",
+     "head": "Five pops, one stale",
+     "say": "Five. Four towns, but B went into the heap twice: once at four, then again at three. The three pops first. The old four pops later, and gets skipped. Skip the check and the answers stay right, only slower.",
+     "items": [
+      {
+       "label": "pop 1",
+       "text": "A 0",
+       "tone": "good",
+       "cue": "Four towns"
+      },
+      {
+       "label": "pop 2",
+       "text": "C 1",
+       "tone": "good",
+       "cue": "B went into the heap"
+      },
+      {
+       "label": "pop 3",
+       "text": "B 3",
+       "tone": "good",
+       "cue": "The three pops first"
+      },
+      {
+       "label": "pop 4",
+       "text": "B 4",
+       "sub": "stale: skip",
+       "tone": "bad",
+       "cue": "The old four"
+      },
+      {
+       "label": "pop 5",
+       "text": "D 4",
+       "tone": "good",
+       "cue": "answers stay right"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "What they ask next",
+     "say": "Four follow ups. Negative weights? A settled time could still improve, so Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Negative edge weights?",
+       "Dijkstra fails. Bellman-Ford instead."
+      ],
+      [
+       "Unweighted graph?",
+       "Plain BFS. Weights 0 or 1: a deque."
+      ],
+      [
+       "Complexity?",
+       "O(E log V) with a binary heap"
+      ],
+      [
+       "Common mistakes?",
+       "no stale check · int overflow on sums"
+      ]
+     ],
+     "cues": [
+      "Negative weights",
+      "Unweighted graph",
+      "Complexity",
+      "Common mistakes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Who is connected?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Who is connected?",
+     "statement": "Friendships arrive one at a time. After each, answer fast: are two people in the same group, and how many groups are there?",
+     "example": {
+      "input": "8 people; friends (0,1), (2,3), (1,2), (5,6)",
+      "output": "4 groups: 0-1-2-3, 4, 5-6, 7"
+     },
+     "note": "A friendship between people already connected changes nothing.",
+     "cues": {
+      "example": "Eight people",
+      "output": "Here, four",
+      "note": "already connected"
+     },
+     "say": "Last problem. Eight people, four friendships arriving one at a time. After each, how many groups remain? Here, four. A friendship inside a group changes nothing, because they're already connected."
+    },
+    {
+     "type": "flow",
+     "head": "A club fair",
+     "say": "Picture a club fair. Everyone wears a badge naming who they follow. Cy follows Ben. Ben follows Ana. Ana follows nobody, so she's the president. Follow the badges up from Cy: same president, same club. To merge clubs, one president follows the other.",
+     "items": [
+      {
+       "label": "Cy",
+       "text": "follows Ben",
+       "cue": "Cy follows Ben"
+      },
+      {
+       "label": "Ben",
+       "text": "follows Ana",
+       "cue": "Ben follows Ana"
+      },
+      {
+       "label": "Ana",
+       "text": "president",
+       "sub": "follows nobody",
+       "tone": "good",
+       "cue": "Ana follows nobody"
+      },
+      {
+       "label": "same root?",
+       "text": "same club",
+       "tone": "warn",
+       "cue": "same president"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Eight people, four friendships",
+     "say": "Eight people, numbered zero to seven. The array holds each badge: who they follow. At the start everyone follows themselves: eight clubs. Friendship zero and one: one follows zero. Seven clubs. Friendship two and three: three follows two. Six. Friendship one and two: find the presidents, zero and two, and two follows zero. Five. Friendship five and six: six follows five. Four clubs.",
+     "items": [
+      {
+       "array": {
+        "id": "p",
+        "values": [
+         0,
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7
+        ],
+        "y": 380,
+        "cue": "Eight people"
+       }
+      },
+      {
+       "id": "call",
+       "x": 250,
+       "y": 720,
+       "w": 520,
+       "h": 110,
+       "label": "friendship",
+       "text": "–",
+       "size": 44,
+       "tone": "info",
+       "cue": "Friendship zero and one"
+      },
+      {
+       "id": "grp",
+       "x": 950,
+       "y": 720,
+       "w": 360,
+       "h": 110,
+       "label": "clubs",
+       "text": "8",
+       "size": 56,
+       "tone": "good",
+       "cue": "eight clubs"
+      }
+     ],
+     "notes": [
+      {
+       "x": 250,
+       "y": 575,
+       "text": "p[i] = who person i follows",
+       "tone": "info",
+       "cue": "holds each badge"
+      }
+     ],
+     "changes": [
+      {
+       "id": "call",
+       "text": "union(0, 1)",
+       "cue": "Friendship zero and one"
+      },
+      {
+       "id": "p1",
+       "text": "0",
+       "tone": "good",
+       "cue": "one follows zero"
+      },
+      {
+       "id": "grp",
+       "text": "7",
+       "cue": "Seven clubs"
+      },
+      {
+       "id": "call",
+       "text": "union(2, 3)",
+       "cue": "Friendship two and three"
+      },
+      {
+       "id": "p3",
+       "text": "2",
+       "tone": "good",
+       "cue": "three follows two"
+      },
+      {
+       "id": "grp",
+       "text": "6",
+       "cue": "Six."
+      },
+      {
+       "id": "call",
+       "text": "union(1, 2)",
+       "cue": "Friendship one and two"
+      },
+      {
+       "id": "p2",
+       "text": "0",
+       "tone": "good",
+       "cue": "two follows zero"
+      },
+      {
+       "id": "grp",
+       "text": "5",
+       "cue": "Five."
+      },
+      {
+       "id": "call",
+       "text": "union(5, 6)",
+       "cue": "Friendship five and six"
+      },
+      {
+       "id": "p6",
+       "text": "5",
+       "tone": "good",
+       "cue": "six follows five"
+      },
+      {
+       "id": "grp",
+       "text": "4",
+       "glow": true,
+       "cue": "Four clubs."
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Path compression",
+     "say": "Without care, a chain forms. One follows zero. Two follows one. Three follows two. To find three's president, you hop three times. That's the slow case. Path compression fixes it. While walking up, repoint every node straight at the president. Now three and two both follow zero. Find three again: one hop.",
+     "items": [
+      {
+       "id": "c0",
+       "x": 300,
+       "y": 450,
+       "w": 220,
+       "h": 130,
+       "label": "president",
+       "text": "0",
+       "size": 52,
+       "tone": "good",
+       "cue": "a chain forms"
+      },
+      {
+       "id": "c1",
+       "x": 700,
+       "y": 450,
+       "w": 220,
+       "h": 130,
+       "text": "1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "One follows zero"
+      },
+      {
+       "id": "c2",
+       "x": 1100,
+       "y": 450,
+       "w": 220,
+       "h": 130,
+       "text": "2",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Two follows one"
+      },
+      {
+       "id": "c3",
+       "x": 1500,
+       "y": 450,
+       "w": 220,
+       "h": 130,
+       "text": "3",
+       "size": 52,
+       "tone": "blue",
+       "cue": "Three follows two"
+      },
+      {
+       "id": "hops",
+       "x": 700,
+       "y": 760,
+       "w": 520,
+       "h": 110,
+       "label": "hops to find 3's president",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "hop three times"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "c1",
+       "to": "c0",
+       "cue": "One follows zero"
+      },
+      {
+       "from": "c2",
+       "to": "c1",
+       "cue": "Two follows one"
+      },
+      {
+       "from": "c3",
+       "to": "c2",
+       "cue": "Three follows two"
+      },
+      {
+       "from": "c3",
+       "to": "c0",
+       "tone": "good",
+       "bend": -300,
+       "dy": -40,
+       "cue": "straight at the president"
+      },
+      {
+       "from": "c2",
+       "to": "c0",
+       "tone": "good",
+       "bend": -200,
+       "dy": 40,
+       "cue": "straight at the president"
+      }
+     ],
+     "changes": [
+      {
+       "id": "hops",
+       "count": [
+        0,
+        3
+       ],
+       "dur": 1.2,
+       "cue": "hop three times"
+      },
+      {
+       "id": "c0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Path compression fixes"
+      },
+      {
+       "id": "a2",
+       "fade": true,
+       "cue": "both follow zero"
+      },
+      {
+       "id": "a1",
+       "fade": true,
+       "cue": "both follow zero"
+      },
+      {
+       "id": "hops",
+       "text": "1",
+       "tone": "good",
+       "cue": "one hop"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Union-Find: find",
+     "say": "Here's the structure. Parents live in p, sizes in s z. The constructor makes everyone their own parent, and every size one. Find: if x isn't its own parent, ask its parent for the president, and store the answer back in p of x. That one assignment is path compression.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "struct DSU {\n    vector<int> p, sz;\n    DSU(int n) : p(n), sz(n, 1) { iota(p.begin(), p.end(), 0); }\n    int find(int x) {\n        if (p[x] != x) p[x] = find(p[x]);\n        return p[x];\n    }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Parents live in p"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "The constructor"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "Find: if x"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "store the answer back"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "path compression",
+       "tone": "good",
+       "cue": "That one assignment"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Union-Find: unite by size",
+     "say": "Unite finds both presidents. The same president means they're already together: return false. Otherwise hang the smaller club under the bigger one. That's union by size: it keeps every tree at most log n tall. Add the sizes, and return true.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool unite(int a, int b) {\n    a = find(a);  b = find(b);\n    if (a == b) return false;\n    if (sz[a] < sz[b]) swap(a, b);\n    p[b] = a;  sz[a] += sz[b];\n    return true;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "finds both presidents"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "return false"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "hang the smaller club"
+      },
+      {
+       "lines": [],
+       "cue": "keeps every tree"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Add the sizes"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "already connected",
+       "tone": "warn",
+       "cue": "already together"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. After those four friendships, a fifth arrives: zero and three. How many clubs now? Pause and predict.",
+     "q": "Friendship (0, 3) arrives. How many clubs?",
+     "options": [
+      "3",
+      "4",
+      "5",
+      "2"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "code",
+     "head": "Same friendships, in code",
+     "say": "Four. Zero and three are already one club, through one and two. So unite returns false, and nothing merges. Here it runs: four clubs, then unite zero three says false, and still four. A false from unite means that pair closes a cycle.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "DSU d(8);  int groups = 8;\nfor (auto [a, b] : vector<pair<int,int>>{{0,1},{2,3},{1,2},{5,6}})\n    if (d.unite(a, b)) groups--;\ncout << groups << '\\n';\ncout << boolalpha << d.unite(0, 3) << '\\n';\ncout << groups;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "already one club"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "nothing merges"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Here it runs"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "four clubs, then"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "unite zero three"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "still four"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "false = already joined",
+       "tone": "warn",
+       "cue": "closes a cycle"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4\nfalse\n4",
+      "cue": "still four"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "When they push further",
+     "say": "Follow ups. How fast? Inverse Ackermann of n, under five: nearly constant. Can you split a group? No. Go offline, or use rollback. Why not B F S each time? Edges arrive online, and this answers instantly. Classic problems? Provinces, redundant connection, Kruskal's. Common mistake? Comparing parents, not roots.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How fast?",
+       "inverse Ackermann: nearly O(1)"
+      ],
+      [
+       "Split a group?",
+       "no: go offline, or use rollback"
+      ],
+      [
+       "Why not BFS each time?",
+       "edges arrive online; this is instant"
+      ],
+      [
+       "Classic problems?",
+       "Provinces, Redundant Connection, Kruskal"
+      ],
+      [
+       "Common mistake",
+       "compare roots, not parents"
+      ]
+     ],
+     "cues": [
+      "How fast",
+      "Can you split",
+      "Why not B F S",
+      "Classic problems",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp10"
+     ],
+     "say": "How does Dijkstra work? Settle closest, relax roads, min heap. Cost? O of E log V. Negative weights? It fails: use Bellman Ford. Unweighted? Plain breadth first search.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does Dijkstra work?",
+       "settle closest, relax its roads, min-heap"
+      ],
+      [
+       "Cost?",
+       "O(E log V)"
+      ],
+      [
+       "Negative weights?",
+       "it fails: use Bellman-Ford"
+      ],
+      [
+       "Unweighted graph?",
+       "plain BFS"
+      ]
+     ],
+     "cues": [
+      "How does Dijkstra",
+      "Cost",
+      "Negative weights",
+      "Unweighted"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp11"
+     ],
+     "say": "What is Union Find? Parent pointers, and the root names the group. Path compression? Find repoints nodes at the root. Union by size? Smaller tree under bigger. Cost? Inverse Ackermann: nearly constant. Cycle? Unite returns false.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is Union-Find?",
+       "parents; the root names the group"
+      ],
+      [
+       "Path compression?",
+       "find repoints nodes at the root"
+      ],
+      [
+       "Union by size?",
+       "smaller tree hangs under bigger"
+      ],
+      [
+       "Cost? Cycle?",
+       "nearly O(1); unite false = cycle"
+      ]
+     ],
+     "cues": [
+      "What is Union Find",
+      "Path compression",
+      "Union by size",
+      "Cost"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode five forty seven, number of provinces: union find. LeetCode six eighty four, redundant connection: the false from unite. LeetCode seven forty three, network delay time: Dijkstra.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 547 · Number of Provinces",
+       "count groups with Union-Find"
+      ],
+      [
+       "LeetCode 684 · Redundant Connection",
+       "the edge where unite is false"
+      ],
+      [
+       "LeetCode 743 · Network Delay Time",
+       "Dijkstra from the source"
+      ]
+     ],
+     "cues": [
+      "five forty seven",
+      "six eighty four",
+      "seven forty three"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Dijkstra settles the closest town, then relaxes its roads. A min heap makes it O of E log V, for non negative weights. Union Find: follow parents to a root. Both tricks make it nearly constant.",
+     "lines": [
+      "Dijkstra: settle the closest, relax its roads.",
+      "Min-heap, O(E log V), no negative weights.",
+      "Union-Find: find roots; compress and size."
+     ],
+     "cues": [
+      "Dijkstra settles",
+      "A min heap",
+      "Union Find"
+     ]
+    }
+   ]
+  }
+ ]
+}

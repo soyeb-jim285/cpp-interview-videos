@@ -1,0 +1,1657 @@
+{
+ "id": "dsa-12",
+ "track": "DSA",
+ "num": 12,
+ "title": "Greedy vs Dynamic Programming",
+ "covers": [
+  "cp14",
+  "cp12"
+ ],
+ "caps": [
+  [
+   "O of amount times coins",
+   "O(amount × coins)"
+  ],
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Pick the meeting that ends first",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "One meeting room, five requests. Pick the obvious rule and you lose a meeting. By the end you'll know when the obvious choice is provably right, and build a DP when it isn't.",
+     "lines": [
+      {
+       "text": "1 room, 5 requests",
+       "cue": "One meeting room"
+      },
+      {
+       "text": "The obvious rule loses one",
+       "cue": "lose a meeting"
+      },
+      {
+       "text": "Provably right?",
+       "cue": "provably right"
+      },
+      {
+       "text": "Or build a DP",
+       "cue": "build a DP",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Pick the right greedy rule for scheduling. Spot when a greedy rule fails. And build a D P from recursion, to memo, to table.",
+     "lines": [
+      "Pick the right greedy rule",
+      "Spot when greedy fails",
+      "Build a DP: recursion, memo, table"
+     ],
+     "cues": [
+      "Pick the right",
+      "Spot when",
+      "build a D P"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Most meetings in one room",
+     "statement": "Given meeting start and end times, book the most meetings that do not overlap.",
+     "example": {
+      "input": "[1,4] [3,5] [0,6] [5,7] [8,9]",
+      "output": "3 meetings"
+     },
+     "say": "Here is the problem. Five requests, one room. For example, one to four, three to five, and so on. The most you can book: three.",
+     "cues": {
+      "example": "For example",
+      "output": "three"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two tools for best, most, fewest",
+     "say": "Questions asking for the most, the fewest or the best come down to two tools. Greedy is short and fast, but needs a proof. D P is more work, but always safe. Choosing is half the interview.",
+     "items": [
+      {
+       "label": "the question",
+       "text": "most / fewest",
+       "sub": "or best",
+       "cue": "most, the fewest"
+      },
+      {
+       "label": "greedy",
+       "text": "fast, short",
+       "sub": "needs a proof",
+       "cue": "Greedy is short"
+      },
+      {
+       "label": "DP",
+       "text": "more work",
+       "sub": "always safe",
+       "tone": "good",
+       "cue": "D P is more"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Rule one: earliest start",
+     "say": "Five requests, one room. Rule one: take whichever starts first. That's zero to six. It blocks one to four, three to five, and five to seven. Only eight to nine fits after it. Two meetings.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 360,
+       "y": 250,
+       "w": 480,
+       "h": 80,
+       "text": "1–4",
+       "tone": "blue",
+       "cue": "Five requests"
+      },
+      {
+       "id": "m2",
+       "x": 680,
+       "y": 350,
+       "w": 320,
+       "h": 80,
+       "text": "3–5",
+       "tone": "blue",
+       "cue": "Five requests"
+      },
+      {
+       "id": "m3",
+       "x": 200,
+       "y": 450,
+       "w": 960,
+       "h": 80,
+       "text": "0–6",
+       "tone": "blue",
+       "cue": "Five requests"
+      },
+      {
+       "id": "m4",
+       "x": 1000,
+       "y": 550,
+       "w": 320,
+       "h": 80,
+       "text": "5–7",
+       "tone": "blue",
+       "cue": "Five requests"
+      },
+      {
+       "id": "m5",
+       "x": 1480,
+       "y": 650,
+       "w": 160,
+       "h": 80,
+       "text": "8–9",
+       "tone": "blue",
+       "cue": "Five requests"
+      },
+      {
+       "id": "cnt",
+       "x": 200,
+       "y": 790,
+       "w": 360,
+       "h": 110,
+       "label": "meetings booked",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Five requests"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m3",
+       "tone": "good",
+       "glow": true,
+       "cue": "zero to six"
+      },
+      {
+       "id": "m1",
+       "kill": true,
+       "cue": "It blocks"
+      },
+      {
+       "id": "m2",
+       "kill": true,
+       "cue": "It blocks"
+      },
+      {
+       "id": "m4",
+       "kill": true,
+       "cue": "It blocks"
+      },
+      {
+       "id": "m5",
+       "tone": "good",
+       "cue": "Only eight to nine"
+      },
+      {
+       "id": "cnt",
+       "count": [
+        0,
+        2
+       ],
+       "dur": 1,
+       "tone": "bad",
+       "cue": "Two meetings"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Rule two: earliest end",
+     "say": "Rule two: sort by end time, and keep one number, when the last chosen meeting ends. One to four ends first, so take it. Last end is four. Three to five starts before four, so skip. Zero to six, skip. Five to seven starts after four, so take it. Last end is seven. Eight to nine fits. Three meetings.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 360,
+       "y": 250,
+       "w": 480,
+       "h": 80,
+       "text": "1–4",
+       "tone": "blue",
+       "cue": "Rule two"
+      },
+      {
+       "id": "m2",
+       "x": 680,
+       "y": 350,
+       "w": 320,
+       "h": 80,
+       "text": "3–5",
+       "tone": "blue",
+       "cue": "Rule two"
+      },
+      {
+       "id": "m3",
+       "x": 200,
+       "y": 450,
+       "w": 960,
+       "h": 80,
+       "text": "0–6",
+       "tone": "blue",
+       "cue": "Rule two"
+      },
+      {
+       "id": "m4",
+       "x": 1000,
+       "y": 550,
+       "w": 320,
+       "h": 80,
+       "text": "5–7",
+       "tone": "blue",
+       "cue": "Rule two"
+      },
+      {
+       "id": "m5",
+       "x": 1480,
+       "y": 650,
+       "w": 160,
+       "h": 80,
+       "text": "8–9",
+       "tone": "blue",
+       "cue": "Rule two"
+      },
+      {
+       "id": "cnt",
+       "x": 200,
+       "y": 790,
+       "w": 360,
+       "h": 110,
+       "label": "meetings booked",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Rule two"
+      },
+      {
+       "id": "last",
+       "x": 700,
+       "y": 790,
+       "w": 360,
+       "h": 110,
+       "label": "last end",
+       "text": "none",
+       "size": 56,
+       "tone": "info",
+       "cue": "keep one number"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m1",
+       "tone": "good",
+       "glow": true,
+       "cue": "ends first"
+      },
+      {
+       "id": "last",
+       "text": "4",
+       "cue": "Last end is four"
+      },
+      {
+       "id": "m2",
+       "tone": "dim",
+       "cue": "starts before four"
+      },
+      {
+       "id": "m3",
+       "tone": "dim",
+       "cue": "Zero to six"
+      },
+      {
+       "id": "m4",
+       "tone": "good",
+       "glow": true,
+       "cue": "starts after four"
+      },
+      {
+       "id": "last",
+       "text": "7",
+       "cue": "Last end is seven"
+      },
+      {
+       "id": "m5",
+       "tone": "good",
+       "glow": true,
+       "cue": "Eight to nine fits"
+      },
+      {
+       "id": "cnt",
+       "count": [
+        0,
+        3
+       ],
+       "dur": 1,
+       "tone": "good",
+       "cue": "Three meetings"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Earliest end in code",
+     "say": "Here it is. Each meeting is stored as end, then start, so sort puts the earliest end first. Count and last start empty. If a meeting starts at or after last, take it and move last to its end. Sorting costs O of n log n, the loop is linear. Our five meetings print three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int maxMeetings(vector<pair<int, int>> a) {\n    sort(a.begin(), a.end());\n    int cnt = 0, last = INT_MIN;\n    for (auto& [e, s] : a)\n        if (s >= last) { cnt++; last = e; }\n    return cnt;\n}\nint main() { cout << maxMeetings({{4,1},{5,3},{6,0},{7,5},{9,8}}); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "so sort puts"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Count and last"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "If a meeting starts"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "take it, move last",
+       "tone": "good",
+       "cue": "take it and"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "O(n log n)",
+       "tone": "warn",
+       "cue": "Sorting costs"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "cue": "print three"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Why it is safe: swap it in",
+     "say": "Why is this safe? Say a best plan is three to five, five to seven, eight to nine. The greedy pick, one to four, ends earlier than three to five. So swap it in. One to four still ends before five to seven starts. Same three meetings. Swapping the greedy pick into any best plan never hurts: the exchange argument.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 360,
+       "y": 250,
+       "w": 480,
+       "h": 80,
+       "text": "1–4",
+       "tone": "blue",
+       "cue": "best plan"
+      },
+      {
+       "id": "m2",
+       "x": 680,
+       "y": 350,
+       "w": 320,
+       "h": 80,
+       "text": "3–5",
+       "tone": "blue",
+       "cue": "best plan"
+      },
+      {
+       "id": "m3",
+       "x": 200,
+       "y": 450,
+       "w": 960,
+       "h": 80,
+       "text": "0–6",
+       "tone": "blue",
+       "cue": "best plan"
+      },
+      {
+       "id": "m4",
+       "x": 1000,
+       "y": 550,
+       "w": 320,
+       "h": 80,
+       "text": "5–7",
+       "tone": "blue",
+       "cue": "best plan"
+      },
+      {
+       "id": "m5",
+       "x": 1480,
+       "y": 650,
+       "w": 160,
+       "h": 80,
+       "text": "8–9",
+       "tone": "blue",
+       "cue": "best plan"
+      },
+      {
+       "id": "ex",
+       "x": 200,
+       "y": 790,
+       "w": 760,
+       "h": 110,
+       "text": "exchange argument",
+       "size": 48,
+       "tone": "good",
+       "cue": "the exchange argument"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m2",
+       "tone": "good",
+       "cue": "three to five, five"
+      },
+      {
+       "id": "m4",
+       "tone": "good",
+       "cue": "five to seven, eight"
+      },
+      {
+       "id": "m5",
+       "tone": "good",
+       "cue": "eight to nine. The"
+      },
+      {
+       "id": "m1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "The greedy pick"
+      },
+      {
+       "id": "m2",
+       "kill": true,
+       "cue": "So swap it in"
+      },
+      {
+       "id": "m1",
+       "tone": "good",
+       "cue": "still ends before"
+      },
+      {
+       "id": "m3",
+       "tone": "dim",
+       "cue": "Same three"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A third rule: take the shortest meeting first. The requests are one to five, four to seven, and six to ten. How many meetings does that rule book? Pause and predict.",
+     "q": "Shortest first on [1,5], [4,7], [6,10]: meetings booked?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+     ],
+     "answer": 0,
+     "pause": 6
+    },
+    {
+     "type": "diagram",
+     "head": "Shortest first: a counterexample",
+     "say": "One. The shortest is four to seven, three hours. It overlaps both others, so nothing else fits. Yet one to five and six to ten fit together: two meetings. So hunt for a counterexample on small inputs. Earliest end survives.",
+     "items": [
+      {
+       "id": "s1",
+       "x": 360,
+       "y": 300,
+       "w": 640,
+       "h": 80,
+       "text": "1–5",
+       "tone": "blue"
+      },
+      {
+       "id": "s2",
+       "x": 840,
+       "y": 420,
+       "w": 480,
+       "h": 80,
+       "text": "4–7",
+       "tone": "blue"
+      },
+      {
+       "id": "s3",
+       "x": 1160,
+       "y": 540,
+       "w": 640,
+       "h": 80,
+       "text": "6–10",
+       "tone": "blue"
+      },
+      {
+       "id": "surv",
+       "x": 1100,
+       "y": 790,
+       "w": 600,
+       "h": 100,
+       "text": "earliest end survives",
+       "size": 44,
+       "tone": "info",
+       "cue": "Earliest end survives"
+      },
+      {
+       "id": "best",
+       "x": 360,
+       "y": 740,
+       "w": 1000,
+       "h": 110,
+       "label": "better plan",
+       "text": "1–5 and 6–10 = 2",
+       "size": 48,
+       "tone": "good",
+       "cue": "fit together"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s2",
+       "tone": "warn",
+       "glow": true,
+       "cue": "four to seven"
+      },
+      {
+       "id": "s1",
+       "kill": true,
+       "cue": "overlaps both"
+      },
+      {
+       "id": "s3",
+       "kill": true,
+       "cue": "overlaps both"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When the obvious choice lies",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Fewest coins",
+     "statement": "Coins of 1, 3 and 4. Make the amount with the fewest coins.",
+     "example": {
+      "input": "coins 1, 3, 4 · amount 6",
+      "output": "2 coins (3 + 3)"
+     },
+     "say": "New problem. Coins one, three, four. Make six with the fewest coins. The answer is two: three plus three.",
+     "cues": {
+      "example": "Coins one",
+      "output": "two"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A cashier who always grabs big",
+     "say": "Picture a country whose mint only makes coins worth one, three and four. You're owed six. The greedy cashier grabs the biggest coin that fits. Four. Two left, so a one. Another one. Three coins.",
+     "items": [
+      {
+       "label": "owed",
+       "text": "6",
+       "cue": "owed six"
+      },
+      {
+       "label": "biggest fits",
+       "text": "take 4",
+       "sub": "2 left",
+       "cue": "biggest coin"
+      },
+      {
+       "label": "then",
+       "text": "take 1",
+       "sub": "1 left",
+       "cue": "so a one"
+      },
+      {
+       "label": "then",
+       "text": "take 1",
+       "sub": "3 coins",
+       "tone": "bad",
+       "cue": "Another one"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Greedy 3 coins, best 2 coins",
+     "say": "But three plus three is also six. Two coins. The greedy cashier took the four, and that choice could never be undone. It left two cents, and two cents needs two more coins.",
+     "items": [
+      {
+       "id": "g1",
+       "x": 300,
+       "y": 300,
+       "w": 200,
+       "h": 130,
+       "label": "greedy",
+       "text": "4",
+       "size": 56,
+       "tone": "bad",
+       "cue": "took the four"
+      },
+      {
+       "id": "g2",
+       "x": 560,
+       "y": 300,
+       "w": 200,
+       "h": 130,
+       "text": "1",
+       "size": 56,
+       "tone": "bad",
+       "cue": "two more coins"
+      },
+      {
+       "id": "g3",
+       "x": 820,
+       "y": 300,
+       "w": 200,
+       "h": 130,
+       "text": "1",
+       "size": 56,
+       "tone": "bad",
+       "cue": "two more coins"
+      },
+      {
+       "id": "gt",
+       "x": 1180,
+       "y": 300,
+       "w": 360,
+       "h": 130,
+       "text": "3 coins",
+       "size": 48,
+       "tone": "bad",
+       "cue": "took the four"
+      },
+      {
+       "id": "b1",
+       "x": 300,
+       "y": 620,
+       "w": 200,
+       "h": 130,
+       "label": "best",
+       "text": "3",
+       "size": 56,
+       "tone": "good",
+       "cue": "three plus three"
+      },
+      {
+       "id": "b2",
+       "x": 560,
+       "y": 620,
+       "w": 200,
+       "h": 130,
+       "text": "3",
+       "size": 56,
+       "tone": "good",
+       "cue": "three plus three"
+      },
+      {
+       "id": "bt",
+       "x": 1180,
+       "y": 620,
+       "w": 360,
+       "h": 130,
+       "text": "2 coins",
+       "size": 48,
+       "tone": "good",
+       "cue": "Two coins"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "never be undone"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The cashier in code",
+     "say": "Here's the cashier. Coins go biggest first. For each coin, take as many as fit using division, and keep the remainder. Six: one four, remainder two, no threes, then two ones. It prints three, but the best is two.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int greedyCoins(vector<int> c, int amt) {\n    int n = 0;\n    for (int x : c) { n += amt / x; amt %= x; }\n    return n;\n}\nint main() { cout << greedyCoins({4, 3, 1}, 6); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "For each coin"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Six: one four"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "never revisits a choice",
+       "tone": "warn",
+       "cue": "keep the remainder"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "tone": "bad",
+      "cue": "It prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A new mint: coins of one, five and twelve. You're owed fifteen. What is the fewest coins that make fifteen? Pause and predict.",
+     "q": "Coins 1, 5, 12. Fewest coins for 15?",
+     "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": 1,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "Greedy 4 coins, best 3",
+     "say": "Three: five, five, five. Greedy would grab the twelve, then three ones: four coins. Greedy fails when the biggest piece blocks a better mix. US coins happen to be safe, but never assume it.",
+     "items": [
+      {
+       "label": "best",
+       "text": "5+5+5",
+       "sub": "3 coins",
+       "tone": "good",
+       "cue": "five, five, five"
+      },
+      {
+       "label": "greedy",
+       "text": "12+1+1+1",
+       "sub": "4 coins",
+       "tone": "bad",
+       "cue": "grab the twelve"
+      },
+      {
+       "label": "why it fails",
+       "text": "12 blocks 5s",
+       "tone": "warn",
+       "cue": "Greedy fails"
+      },
+      {
+       "label": "US coins",
+       "text": "safe",
+       "sub": "don't assume",
+       "tone": "dim",
+       "cue": "US coins"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Greedy or DP?",
+     "say": "How do you choose? If you can swap the greedy pick into any best answer, go greedy. If a small case breaks it, like coins one, three, four, use D P. Same for knapsack by value ratio. And if subproblems overlap, D P.",
+     "heads": [
+      "Ask yourself",
+      "Then use"
+     ],
+     "rows": [
+      [
+       "Exchange argument works?",
+       "greedy: sort and sweep"
+      ],
+      [
+       "Counterexample on a small input?",
+       "DP"
+      ],
+      [
+       "0/1 knapsack by value ratio?",
+       "fails: DP"
+      ],
+      [
+       "Subproblems repeat?",
+       "DP"
+      ]
+     ],
+     "cues": [
+      "swap the greedy pick",
+      "small case breaks",
+      "knapsack by value",
+      "subproblems overlap"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recursion that remembers",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Fewest coins, bigger",
+     "statement": "Same coins, a much bigger amount.",
+     "example": {
+      "input": "coins 1, 3, 4 · amount 30",
+      "output": "8 coins"
+     },
+     "say": "Same coins, bigger amount. Thirty. The answer is eight coins. Can we get there without trying every combination?",
+     "cues": {
+      "example": "Same coins",
+      "output": "eight coins"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Say the sentence before the code",
+     "say": "Most candidates start typing. Say the sentence first. F of a is the fewest coins that make amount a. The last coin was one, three or four. So f of six is one plus the best of f five, f three, f two. And f of zero is zero.",
+     "items": [
+      {
+       "label": "state",
+       "text": "f(a)",
+       "sub": "fewest coins for a",
+       "cue": "F of a"
+      },
+      {
+       "label": "last coin",
+       "text": "1, 3 or 4",
+       "cue": "last coin"
+      },
+      {
+       "label": "transition",
+       "text": "1 + best of f",
+       "sub": "f(a − coin)",
+       "cue": "one plus the best"
+      },
+      {
+       "label": "base",
+       "text": "f(0) = 0",
+       "tone": "good",
+       "cue": "f of zero is zero"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Plain recursion on 6",
+     "say": "Plain recursion on six. Six asks f of five. Five asks f of four. And f of two. And f of one. Then six asks f of three. Three asks f of two again. And f of zero. Last, six asks f of two, which asks f of one. Count the twos: three times. Same question, same answer.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "nodes": [
+         [
+          "f(6)",
+          -1
+         ],
+         [
+          "f(5)",
+          0
+         ],
+         [
+          "f(4)",
+          1
+         ],
+         [
+          "f(2)",
+          1
+         ],
+         [
+          "f(1)",
+          1
+         ],
+         [
+          "f(3)",
+          0
+         ],
+         [
+          "f(2)",
+          5
+         ],
+         [
+          "f(0)",
+          5
+         ],
+         [
+          "f(2)",
+          0
+         ],
+         [
+          "f(1)",
+          8
+         ]
+        ],
+        "cues": [
+         "Plain recursion",
+         "asks f of five",
+         "asks f of four",
+         "And f of two",
+         "And f of one",
+         "asks f of three",
+         "f of two again",
+         "And f of zero",
+         "six asks f of two",
+         "which asks f of one"
+        ]
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "t3",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Count the twos"
+      },
+      {
+       "id": "t6",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Count the twos"
+      },
+      {
+       "id": "t8",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Count the twos"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Amount 30: how much work",
+     "unit": "solves",
+     "say": "Now scale up. For amount thirty, plain recursion solves two million five hundred fifty thousand subproblems. But there are only thirty one different amounts. Solve each once.",
+     "bars": [
+      {
+       "label": "Plain",
+       "value": 2550408,
+       "tone": "bad",
+       "cue": "plain recursion"
+      },
+      {
+       "label": "Each once",
+       "value": 31,
+       "tone": "good",
+       "cue": "thirty one different"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Back to amount six. Ignore the repeats. How many different subproblems does it really have? Pause and predict.",
+     "q": "Distinct subproblems f(a) for amount 6?",
+     "options": [
+      "3",
+      "6",
+      "7",
+      "10"
+     ],
+     "answer": 2,
+     "pause": 5
+    },
+    {
+     "type": "diagram",
+     "head": "Seven questions, one table",
+     "say": "Seven, one per amount from zero to six. The picture had ten boxes, but only seven different questions. Seven answers is the whole notebook: one line per amount.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "?",
+         "?",
+         "?",
+         "?",
+         "?",
+         "?",
+         "?"
+        ],
+        "y": 380,
+        "cue": "Seven, one per"
+       }
+      },
+      {
+       "id": "b10",
+       "x": 400,
+       "y": 700,
+       "w": 420,
+       "h": 130,
+       "label": "boxes in the tree",
+       "text": "10",
+       "size": 56,
+       "tone": "dim",
+       "cue": "ten boxes"
+      },
+      {
+       "id": "b7",
+       "x": 1100,
+       "y": 700,
+       "w": 420,
+       "h": 130,
+       "label": "different questions",
+       "text": "7",
+       "size": 56,
+       "tone": "good",
+       "cue": "only seven"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "How do you know it is DP?",
+     "say": "How do you spot D P? The same question gets asked again. The problem wants a fewest, most, count or yes or no. And greedy has a counterexample. Then say what dp of i means, out loud, before any code.",
+     "heads": [
+      "Sign",
+      "What it means"
+     ],
+     "rows": [
+      [
+       "Same question asked again",
+       "overlapping subproblems"
+      ],
+      [
+       "Fewest, most, count, yes/no",
+       "optimize or count"
+      ],
+      [
+       "Greedy has a counterexample",
+       "no safe local choice"
+      ],
+      [
+       "First sentence you say",
+       "what dp[i] means"
+      ]
+     ],
+     "cues": [
+      "same question",
+      "fewest, most",
+      "greedy has",
+      "say what dp"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Memo, then a table",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Every amount, 0 to 7",
+     "statement": "Fewest coins for every amount up to the target.",
+     "example": {
+      "input": "coins 1, 3, 4 · up to 7",
+      "output": "0 1 2 1 1 2 2 2"
+     },
+     "say": "One more version. Fewest coins for every amount, zero up to seven. We want this row: zero, one, two, one, one, two, two, two.",
+     "cues": {
+      "example": "every amount",
+      "output": "this row"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Two ways to keep a notebook",
+     "say": "Two ways to keep notes. Top down: start at six, write each answer once. That's memoization. Bottom up: fill the notebook from the smallest amount, no recursion. That's a table.",
+     "items": [
+      {
+       "label": "top down",
+       "text": "memo",
+       "sub": "recursion + notebook",
+       "cue": "Top down"
+      },
+      {
+       "label": "bottom up",
+       "text": "table",
+       "sub": "fill 0, 1, 2, ...",
+       "cue": "Bottom up"
+      },
+      {
+       "label": "same answer",
+       "text": "f(6) = 2",
+       "tone": "good",
+       "cue": "That's a table"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Memo: check the notebook first",
+     "say": "Memo version. Zero coins make zero. If the notebook has the amount, return it. Otherwise try each coin, keep the best, and store it before returning. Each amount is solved once, so the cost is O of amount times coins.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int memo[100];\nint f(int a) {\n    if (a == 0) return 0;\n    if (memo[a]) return memo[a];\n    int best = 1e9;\n    for (int c : {1, 3, 4})\n        if (a >= c) best = min(best, 1 + f(a - c));\n    return memo[a] = best;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Zero coins"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "If the notebook"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "try each coin"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "store it"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "notebook hit: reuse",
+       "tone": "good",
+       "cue": "return it"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "O(amount × coins)",
+       "tone": "warn",
+       "cue": "so the cost"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Table: fill 0 to 5",
+     "say": "Table time. Dp of zero is zero. Dp of one: one coin. Dp of two: two coins. Dp of three: the three coin plus dp of zero, so one. Dp of four: one coin. Dp of five: a one coin on top of dp of four, so two.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "?",
+         "?",
+         "?",
+         "?",
+         "?",
+         "?",
+         "?"
+        ],
+        "y": 380,
+        "cue": "Table time"
+       }
+      },
+      {
+       "id": "calc",
+       "x": 500,
+       "y": 700,
+       "w": 760,
+       "h": 120,
+       "label": "how it was built",
+       "text": "base case",
+       "size": 44,
+       "tone": "info",
+       "cue": "Dp of zero"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": "0",
+       "tone": "good",
+       "cue": "Dp of zero is"
+      },
+      {
+       "id": "c1",
+       "text": "1",
+       "tone": "good",
+       "cue": "Dp of one"
+      },
+      {
+       "id": "c2",
+       "text": "2",
+       "tone": "good",
+       "cue": "Dp of two"
+      },
+      {
+       "id": "c3",
+       "text": "1",
+       "tone": "good",
+       "cue": "Dp of three"
+      },
+      {
+       "id": "calc",
+       "text": "dp[3] = 1 + dp[0]",
+       "cue": "coin plus dp of zero"
+      },
+      {
+       "id": "c4",
+       "text": "1",
+       "tone": "good",
+       "cue": "Dp of four"
+      },
+      {
+       "id": "c5",
+       "text": "2",
+       "tone": "good",
+       "cue": "Dp of five"
+      },
+      {
+       "id": "calc",
+       "text": "dp[5] = 1 + dp[4]",
+       "cue": "on top of dp of four"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Table: the last cell",
+     "say": "Last cell, dp of six. Three choices for the last coin. A one: one plus dp of five, three. A three: one plus dp of three, two. A four: one plus dp of two, three. Take the smallest: two. That's three plus three.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         0,
+         1,
+         2,
+         1,
+         1,
+         2,
+         "?"
+        ],
+        "y": 380,
+        "cue": "Last cell"
+       }
+      },
+      {
+       "id": "o1",
+       "x": 200,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 1",
+       "text": "1 + dp[5] = 3",
+       "size": 44,
+       "tone": "dim",
+       "cue": "A one"
+      },
+      {
+       "id": "o3",
+       "x": 720,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 3",
+       "text": "1 + dp[3] = 2",
+       "size": 44,
+       "tone": "info",
+       "cue": "A three"
+      },
+      {
+       "id": "o4",
+       "x": 1240,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 4",
+       "text": "1 + dp[2] = 3",
+       "size": 44,
+       "tone": "dim",
+       "cue": "A four"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c6",
+       "text": "2",
+       "tone": "good",
+       "cue": "smallest: two"
+      },
+      {
+       "id": "o3",
+       "glow": true,
+       "tone": "good",
+       "cue": "three plus three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The whole table in code",
+     "say": "The table in code. Start every cell at infinity, and dp of zero at zero. For each amount, try each coin that fits, and keep the best. Dp of six prints two. Memo is easier to write. A table avoids deep recursion.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> dp(7, 1e9);\ndp[0] = 0;\nfor (int a = 1; a <= 6; a++)\n    for (int c : {1, 3, 4})\n        if (a >= c) dp[a] = min(dp[a], dp[a - c] + 1);\ncout << dp[6];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Start every cell"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "For each amount"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Dp of six prints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "infinity: neutral for min",
+       "tone": "info",
+       "cue": "at infinity"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "2",
+      "cue": "prints two"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Extend the table one cell, amount seven, same coins. Dp zero to six is zero, one, two, one, one, two, two. What is dp of seven? Pause and predict.",
+     "q": "Coins 1, 3, 4. What is dp[7]?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+     ],
+     "answer": 1,
+     "pause": 6
+    },
+    {
+     "type": "diagram",
+     "head": "dp[7] = 2",
+     "say": "Two. A one coin leaves six, and that's three coins. A three leaves four: two coins. A four leaves three: also two. The best is two: three plus four.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         0,
+         1,
+         2,
+         1,
+         1,
+         2,
+         2,
+         "?"
+        ],
+        "y": 380
+       }
+      },
+      {
+       "id": "o1",
+       "x": 200,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 1",
+       "text": "1 + dp[6] = 3",
+       "size": 44,
+       "tone": "dim",
+       "cue": "A one coin"
+      },
+      {
+       "id": "o3",
+       "x": 720,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 3",
+       "text": "1 + dp[4] = 2",
+       "size": 44,
+       "tone": "info",
+       "cue": "A three leaves"
+      },
+      {
+       "id": "o4",
+       "x": 1240,
+       "y": 700,
+       "w": 480,
+       "h": 120,
+       "label": "last coin 4",
+       "text": "1 + dp[3] = 2",
+       "size": 44,
+       "tone": "info",
+       "cue": "A four leaves"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c7",
+       "text": "2",
+       "tone": "good",
+       "cue": "The best is two"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Trap: start the table at zero",
+     "say": "The classic trap. Start every cell at zero instead of infinity. Then min of zero and anything stays zero, and the table claims six cents costs zero coins. Infinity is the neutral start for min. And first, say what dp of a means.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "vector<int> dp(7, 0);\ndp[0] = 0;\nfor (int a = 1; a <= 6; a++)\n    for (int c : {1, 3, 4})\n        if (a >= c) dp[a] = min(dp[a], dp[a - c] + 1);\ncout << dp[6];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Start every cell"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "0 beats every real answer",
+       "tone": "bad",
+       "cue": "stays zero"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "fix: start at 1e9",
+       "tone": "good",
+       "cue": "neutral start"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0",
+      "tone": "bad",
+      "cue": "costs zero coins"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp14"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What's greedy? Take the locally best choice, never undo it. Why is it correct? Exchange argument: swap it into any best answer. Example? Meetings, sorted by end time. When does it fail? Coins one, three, four. Then D P.",
+     "rows": [
+      [
+       "What is greedy?",
+       "best local choice, never undone"
+      ],
+      [
+       "Why is it correct?",
+       "exchange argument: swap it into any best answer"
+      ],
+      [
+       "Example?",
+       "meetings sorted by end time"
+      ],
+      [
+       "When does it fail?",
+       "coins 1, 3, 4: use DP"
+      ]
+     ],
+     "cues": [
+      "What's greedy",
+      "Why is it correct",
+      "Example",
+      "When does it fail"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp12"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you start D P? Define dp of i, then transition, base, order. Memo or table? Memo is easier, table avoids deep recursion. Cost? Amount times coins. How do you spot it? Repeated subproblems.",
+     "rows": [
+      [
+       "How do you start?",
+       "define dp[i], transition, base, order"
+      ],
+      [
+       "Memo or table?",
+       "memo easier; table avoids deep recursion"
+      ],
+      [
+       "Cost?",
+       "O(amount × coins), not exponential"
+      ],
+      [
+       "How do you spot DP?",
+       "repeated subproblems, best or count"
+      ]
+     ],
+     "cues": [
+      "How do you start",
+      "Memo or table",
+      "Cost",
+      "How do you spot"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode four thirty five, Non-overlapping Intervals, is today's earliest end greedy. LeetCode seventy, Climbing Stairs, is the gentlest D P. LeetCode three twenty two, Coin Change, is exactly our table.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 435 · Non-overlapping Intervals",
+       "greedy: sort by end"
+      ],
+      [
+       "LeetCode 70 · Climbing Stairs",
+       "first DP: dp[i] from two cells back"
+      ],
+      [
+       "LeetCode 322 · Coin Change",
+       "today's table, with real inputs"
+      ]
+     ],
+     "cues": [
+      "four thirty five",
+      "seventy",
+      "three twenty two"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Greedy takes the best local choice, proved by an exchange argument. When a small case breaks it, say what dp of i means. Memo goes top down, a table bottom up.",
+     "lines": [
+      "Greedy: best local choice, proved by exchange.",
+      "Greedy breaks? Say what dp[i] means, then DP.",
+      "Memo is top down; a table is bottom up."
+     ],
+     "cues": [
+      "Greedy takes",
+      "When a small case",
+      "Memo goes"
+     ]
+    }
+   ]
+  }
+ ]
+}

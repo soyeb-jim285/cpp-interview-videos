@@ -1,0 +1,2022 @@
+{
+ "id": "dsa-02",
+ "track": "DSA",
+ "num": 2,
+ "title": "Hash Maps & Prefix Sums",
+ "covers": [
+  "cp02",
+  "cp05"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "cnt of x\\+\\+",
+   "cnt[x]++"
+  ],
+  [
+   "cnt of seven",
+   "cnt[7]"
+  ],
+  [
+   "unordered map",
+   "unordered_map"
+  ],
+  [
+   "p of r plus one",
+   "p[r + 1]"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Two sum in one pass",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Find two numbers that add up to a target. It looks like two nested loops. It needs one lookup. By the end, you'll do it in one pass, then count subarrays that sum to k.",
+     "lines": [
+      {
+       "text": "Two numbers that add to a target",
+       "cue": "Find two numbers"
+      },
+      {
+       "text": "Two loops? No. One lookup.",
+       "cue": "It needs one lookup"
+      },
+      {
+       "text": "Subarrays summing to k: one pass",
+       "cue": "count subarrays",
+       "accent": "one pass"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today's plan. Hash maps first: two sum, counting, and why lookups are fast. Then prefix sums for range sums. Finally, both together to count subarrays, plus difference arrays.",
+     "lines": [
+      "Solve two sum in one pass",
+      "Answer range sums instantly",
+      "Count subarrays with sum k"
+     ],
+     "cues": [
+      "Hash maps first",
+      "Then prefix sums",
+      "Finally, both together"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Two Sum",
+     "statement": "Given an array and a target, return the indexes of two numbers that add to the target.",
+     "example": {
+      "input": "[2, 7, 11, 15], target 9",
+      "output": "indexes 0 and 1"
+     },
+     "say": "Given an array and a target, find two numbers that add to the target. For example, two, seven, eleven, fifteen, target nine. The answer: indexes zero and one. Ten thousand numbers means fifty million pairs, so we need better.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "fifty million pairs"
+     },
+     "note": "10,000 numbers: 50 million pairs to check"
+    },
+    {
+     "type": "flow",
+     "head": "A coat check",
+     "say": "Think of a coat check. You hand over a coat and get a ticket. Later, you show the ticket and they fetch the coat at once, never searching the rack. A hash map works the same: ticket is key, coat is value.",
+     "items": [
+      {
+       "label": "hand over",
+       "text": "coat",
+       "sub": "the value",
+       "cue": "hand over a coat"
+      },
+      {
+       "label": "get",
+       "text": "ticket",
+       "sub": "the key",
+       "cue": "get a ticket"
+      },
+      {
+       "label": "later",
+       "text": "fetch at once",
+       "sub": "no rack search",
+       "tone": "good",
+       "cue": "fetch the coat at once"
+      },
+      {
+       "label": "hash map",
+       "text": "key → value",
+       "sub": "ticket → coat",
+       "tone": "blue",
+       "cue": "A hash map works"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Two sum: [2, 7, 11, 15], target 9",
+     "say": "Array two, seven, eleven, fifteen. Target nine. For each number, ask which partner I need. First, two. I need seven. Is seven in the map? No. Store two at index zero. Next, seven. I need two. Two is in the map! The answer is indexes zero and one.",
+     "items": [
+      {
+       "array": {
+        "id": "t",
+        "values": [
+         2,
+         7,
+         11,
+         15
+        ],
+        "y": 380,
+        "cue": "Array two"
+       }
+      },
+      {
+       "id": "tg",
+       "x": 160,
+       "y": 400,
+       "w": 300,
+       "h": 140,
+       "label": "target",
+       "text": "9",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Target nine"
+      },
+      {
+       "id": "i",
+       "x": 630,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "i",
+       "tone": "warn",
+       "cue": "First, two"
+      },
+      {
+       "id": "ans",
+       "x": 160,
+       "y": 730,
+       "w": 300,
+       "h": 110,
+       "label": "answer",
+       "text": "?",
+       "size": 56,
+       "cue": "The answer is"
+      },
+      {
+       "id": "need",
+       "x": 610,
+       "y": 730,
+       "w": 300,
+       "h": 110,
+       "label": "need",
+       "text": "?",
+       "size": 56,
+       "cue": "which partner"
+      },
+      {
+       "id": "mp",
+       "x": 1000,
+       "y": 730,
+       "w": 760,
+       "h": 110,
+       "label": "map: value → index",
+       "text": "(empty)",
+       "cue": "in the map"
+      }
+     ],
+     "changes": [
+      {
+       "id": "need",
+       "text": "7",
+       "cue": "I need seven"
+      },
+      {
+       "id": "mp",
+       "text": "2 → 0",
+       "cue": "Store two"
+      },
+      {
+       "id": "i",
+       "move": [
+        810,
+        570
+       ],
+       "cue": "Next, seven"
+      },
+      {
+       "id": "need",
+       "text": "2",
+       "cue": "I need two"
+      },
+      {
+       "id": "mp",
+       "glow": true,
+       "tone": "good",
+       "cue": "Two is in the map"
+      },
+      {
+       "id": "ans",
+       "text": "0, 1",
+       "tone": "good",
+       "cue": "indexes zero and one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Two sum in code",
+     "say": "In code: a map from value to index. For each number, look up the target minus it. Found? Print both indexes. Not found? Store this number and move on. On our array it prints zero and one. One pass, O of n.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void twoSum(vector<int>& a, int t) {\n    unordered_map<int,int> idx;\n    for (int i = 0; i < (int)a.size(); i++) {\n        auto it = idx.find(t - a[i]);\n        if (it != idx.end()) { cout << it->second << ' ' << i; return; }\n        idx[a[i]] = i;\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "a map from value"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "look up"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Print both"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Store this number"
+      },
+      {
+       "lines": [],
+       "cue": "prints zero and one"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "O(1) average",
+       "tone": "good",
+       "cue": "look up"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 1",
+      "cue": "prints zero and one"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Array three, two, four. Target six. Which indexes come back? Pause and predict.",
+     "q": "a = [3, 2, 4], target 6. Which indexes?",
+     "options": [
+      "0 0",
+      "0 2",
+      "1 2",
+      "none"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "code",
+     "head": "The classic bug: store first",
+     "say": "One and two: two plus four. Now the classic bug. Store first, then look up, and three finds itself. Zero, zero. The fix: look up first, then store.",
+     "panels": [
+      {
+       "file": "bug.cpp",
+       "label": "bug",
+       "tone": "bad",
+       "code": "idx[a[i]] = i;\nauto it = idx.find(t - a[i]);\nif (it != idx.end())\n    return {it->second, i};"
+      },
+      {
+       "file": "fix.cpp",
+       "label": "fix",
+       "tone": "good",
+       "code": "auto it = idx.find(t - a[i]);\nif (it != idx.end())\n    return {it->second, i};\nidx[a[i]] = i;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "Store first"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 1,
+       "cue": "look up first"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "bug  0 0\nfix  1 2",
+      "cue": "Zero, zero"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Count anything with a map",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Most frequent value",
+     "statement": "Given an array, return the value that appears most often.",
+     "example": {
+      "input": "[3, 1, 3, 2, 3, 1]",
+      "output": "3 (appears 3 times)"
+     },
+     "say": "Next problem. Which value appears most often in an array? For example, three, one, three, two, three, one. The answer: three, three times. The same map solves Group Anagrams and Top K Frequent Elements.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "Group Anagrams"
+     },
+     "note": "same map: Group Anagrams, Top K Frequent Elements"
+    },
+    {
+     "type": "diagram",
+     "head": "Which value appears most?",
+     "say": "Which value appears most? Keep a map from value to count. First, three. A new key. Then one. Another new key. Three again: it now has two. Then two. A third key. Three, a third time: it has three. One again: it has two. The biggest count wins: three.",
+     "items": [
+      {
+       "array": {
+        "id": "q",
+        "values": [
+         3,
+         1,
+         3,
+         2,
+         3,
+         1
+        ],
+        "y": 330,
+        "cue": "Which value appears"
+       }
+      },
+      {
+       "id": "x",
+       "x": 450,
+       "y": 520,
+       "w": 120,
+       "h": 70,
+       "text": "x",
+       "tone": "warn",
+       "cue": "First, three"
+      },
+      {
+       "id": "k3",
+       "x": 430,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "key 3",
+       "text": "3 → 1",
+       "cue": "A new key"
+      },
+      {
+       "id": "k1",
+       "x": 810,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "key 1",
+       "text": "1 → 1",
+       "cue": "Another new key"
+      },
+      {
+       "id": "k2",
+       "x": 1190,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "key 2",
+       "text": "2 → 1",
+       "cue": "A third key"
+      }
+     ],
+     "changes": [
+      {
+       "id": "x",
+       "move": [
+        630,
+        520
+       ],
+       "cue": "Then one"
+      },
+      {
+       "id": "x",
+       "move": [
+        810,
+        520
+       ],
+       "cue": "Three again"
+      },
+      {
+       "id": "k3",
+       "text": "3 → 2",
+       "cue": "it now has two"
+      },
+      {
+       "id": "x",
+       "move": [
+        990,
+        520
+       ],
+       "cue": "Then two"
+      },
+      {
+       "id": "x",
+       "move": [
+        1170,
+        520
+       ],
+       "cue": "a third time"
+      },
+      {
+       "id": "k3",
+       "text": "3 → 3",
+       "cue": "it has three"
+      },
+      {
+       "id": "x",
+       "move": [
+        1350,
+        520
+       ],
+       "cue": "One again"
+      },
+      {
+       "id": "k1",
+       "text": "1 → 2",
+       "cue": "it has two"
+      },
+      {
+       "id": "k3",
+       "glow": true,
+       "tone": "good",
+       "cue": "biggest count wins"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Counting in code",
+     "say": "In code, the counting is one line. The line cnt of x plus plus makes a zero if the key is missing, then adds one. Then scan the map for the biggest count. It prints three, seen three times.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void mostFrequent(vector<int> a) {\n    unordered_map<int,int> cnt;\n    for (int x : a) cnt[x]++;\n    int best = 0, mode = a[0];\n    for (auto& [v, c] : cnt)\n        if (c > best) { best = c; mode = v; }\n    cout << mode << ' ' << best;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "one line"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "scan the map"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "It prints three"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "missing key starts at 0",
+       "tone": "good",
+       "cue": "makes a zero"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3 3",
+      "cue": "It prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A map holds three keys. Now you read the count of seven, which isn't there. How many keys does it hold after that? Pause and predict.",
+     "q": "`cnt` has 3 keys. After `cout << cnt[7];` its size is?",
+     "options": [
+      "3",
+      "4",
+      "error",
+      "7"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "code",
+     "head": "Reading a key creates it",
+     "say": "Four. Reading cnt of seven quietly creates the key, with a zero. To check without creating, use count or find. Here count of nine says zero, and the size stays three. Then cnt of seven prints zero, and the size jumps to four.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "unordered_map<int,int> cnt =\n    {{3, 3}, {1, 2}, {2, 1}};\ncout << cnt.count(9) << ' ' << cnt.size() << '\\n';\ncout << cnt[7] << ' ' << cnt.size();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Reading cnt of seven"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "To check without creating"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Here count of nine"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Then cnt of seven"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "inserts key 7",
+       "tone": "warn",
+       "cue": "jumps to four"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 3\n0 4",
+      "cue": "prints zero"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Why a lookup costs one step",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why is a lookup O(1)?",
+     "statement": "A hash map finds a key in one step on average. How does it do that, and when does it break?",
+     "example": {
+      "input": "key: cat",
+      "output": "bucket 2, found in one step"
+     },
+     "say": "How can a hash map find any key in one step? When does it break? For example, the key cat. The answer: hash it to a bucket, and jump straight there.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Key to bucket",
+     "say": "Picture four buckets. Say the key is cat. A hash function is a recipe that turns any key into a number. Here it says two. So cat goes in bucket two. To find cat later, run the same recipe and jump straight there. That's the ticket from the coat check: no searching, one step on average.",
+     "items": [
+      {
+       "array": {
+        "id": "bk",
+        "values": [
+         "·",
+         "·",
+         "·",
+         "·"
+        ],
+        "y": 500,
+        "cue": "four buckets"
+       }
+      },
+      {
+       "id": "key",
+       "x": 920,
+       "y": 230,
+       "w": 260,
+       "h": 110,
+       "text": "cat",
+       "size": 48,
+       "tone": "warn",
+       "cue": "the key is cat"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "key",
+       "to": "bk2",
+       "label": "hash = 2",
+       "cue": "Here it says two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "key",
+       "glow": true,
+       "cue": "A hash function is a recipe"
+      },
+      {
+       "id": "bk2",
+       "text": "cat",
+       "cue": "cat goes in bucket two"
+      },
+      {
+       "id": "bk2",
+       "glow": true,
+       "tone": "good",
+       "cue": "jump straight there"
+      },
+      {
+       "id": "key",
+       "glow": true,
+       "tone": "good",
+       "cue": "no searching"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now every key lands in bucket two. Cat, dog, emu, all n of them. What does one lookup cost? Pause and predict.",
+     "q": "All n keys hash to the same bucket. One lookup costs?",
+     "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n²)"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "diagram",
+     "head": "When every key collides",
+     "say": "O of n. Dog and emu land in bucket two too, chained one after another. To find emu, walk past cat, then dog, then reach emu. That's n steps when n keys collide. Normal hashing spreads keys out, so chains stay short.",
+     "items": [
+      {
+       "array": {
+        "id": "bk",
+        "values": [
+         "·",
+         "·",
+         "cat",
+         "·"
+        ],
+        "y": 500
+       }
+      },
+      {
+       "id": "dog",
+       "x": 950,
+       "y": 690,
+       "w": 200,
+       "h": 90,
+       "text": "dog",
+       "cue": "Dog and emu"
+      },
+      {
+       "id": "emu",
+       "x": 950,
+       "y": 810,
+       "w": 200,
+       "h": 90,
+       "text": "emu",
+       "cue": "chained one after"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "bk2",
+       "to": "dog",
+       "cue": "Dog and emu"
+      },
+      {
+       "from": "dog",
+       "to": "emu",
+       "cue": "chained one after"
+      }
+     ],
+     "changes": [
+      {
+       "id": "bk2",
+       "glow": true,
+       "tone": "bad",
+       "cue": "walk past cat"
+      },
+      {
+       "id": "dog",
+       "glow": true,
+       "tone": "bad",
+       "cue": "then dog"
+      },
+      {
+       "id": "emu",
+       "glow": true,
+       "tone": "good",
+       "cue": "reach emu"
+      },
+      {
+       "id": "bk0",
+       "glow": true,
+       "tone": "good",
+       "cue": "spreads keys out"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "map vs unordered_map",
+     "heads": [
+      "`map`",
+      "`unordered_map`"
+     ],
+     "rowHeads": [
+      "lookup",
+      "worst case",
+      "order",
+      "contest tip"
+     ],
+     "say": "Last question: map or unordered map? Lookup? Sorted tree, O of log n, versus hash, O of one on average. Worst case? Map stays log n. Hashing can hit O of n. Order? Only map keeps keys sorted. Contest tip? Setters can build colliding inputs, so add a custom hash.",
+     "rows": [
+      [
+       "O(log n), tree walk",
+       "O(1) average"
+      ],
+      [
+       "O(log n)",
+       "O(n) if all collide"
+      ],
+      [
+       "sorted by key",
+       "no order"
+      ],
+      [
+       "not needed",
+       "add a custom hash"
+      ]
+     ],
+     "cues": [
+      "Lookup?",
+      "Worst case?",
+      "Order?",
+      "Contest tip?"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Prefix sums: the odometer",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Range sum queries",
+     "statement": "Answer many questions of the form: what is the sum from index l to index r?",
+     "example": {
+      "input": "[1, 2, 3, -2, 2], sum of a[1..3]",
+      "output": "3"
+     },
+     "say": "New problem. Answer many questions: what is the sum from index l to r? For example, one, two, three, minus two, two, from index one to three. The answer: three. We want each answer instantly.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "each answer instantly"
+     },
+     "note": "many queries: no re-adding each time"
+    },
+    {
+     "type": "flow",
+     "head": "A car odometer",
+     "say": "Think of a car odometer. At the start of a trip it reads thirty. At the end, eighty. The trip was fifty kilometers: one subtraction. A prefix sum array is an odometer for your array.",
+     "items": [
+      {
+       "label": "start",
+       "text": "30 km",
+       "cue": "reads thirty"
+      },
+      {
+       "label": "end",
+       "text": "80 km",
+       "cue": "At the end"
+      },
+      {
+       "label": "trip",
+       "text": "80 − 30",
+       "sub": "= 50 km",
+       "tone": "good",
+       "cue": "The trip was"
+      },
+      {
+       "label": "prefix sums",
+       "text": "one subtraction",
+       "tone": "blue",
+       "cue": "A prefix sum array"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Running totals of [1, 2, 3, -2, 2]",
+     "say": "Array one, two, three, minus two, two. Build a running total, called p. Start at zero. Add one: one. Add two: three. Add three: six. Add minus two: four. Add two: six. Now the sum from index one to three? Take p at four, which is four. Subtract p at one, which is one. Four minus one is three.",
+     "items": [
+      {
+       "array": {
+        "id": "ar",
+        "values": [
+         1,
+         2,
+         3,
+         -2,
+         2
+        ],
+        "y": 300,
+        "cue": "Array one"
+       }
+      },
+      {
+       "array": {
+        "id": "p",
+        "values": [
+         "0",
+         "?",
+         "?",
+         "?",
+         "?",
+         "?"
+        ],
+        "y": 620,
+        "cue": "running total"
+       }
+      },
+      {
+       "id": "s",
+       "x": 660,
+       "y": 820,
+       "w": 600,
+       "h": 90,
+       "text": "a[1..3] = ?",
+       "size": 40,
+       "cue": "Now the sum"
+      }
+     ],
+     "changes": [
+      {
+       "id": "p1",
+       "text": "1",
+       "cue": "Add one"
+      },
+      {
+       "id": "p2",
+       "text": "3",
+       "cue": "Add two: three"
+      },
+      {
+       "id": "p3",
+       "text": "6",
+       "cue": "Add three"
+      },
+      {
+       "id": "p4",
+       "text": "4",
+       "cue": "Add minus two"
+      },
+      {
+       "id": "p5",
+       "text": "6",
+       "cue": "Add two: six"
+      },
+      {
+       "id": "p4",
+       "glow": true,
+       "tone": "good",
+       "cue": "Take p at four"
+      },
+      {
+       "id": "p1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Subtract p at one"
+      },
+      {
+       "id": "s",
+       "text": "a[1..3] = 4 − 1 = 3",
+       "tone": "good",
+       "cue": "Four minus one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Prefix sums in code",
+     "say": "In code, p has n plus one slots, all zero. Each slot is the one before it, plus the next number. Build is O of n. Print p, and the query: p at four, minus p at one. Zero, one, three, six, four, six, then three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> a = {1, 2, 3, -2, 2};\nint n = a.size();\nvector<long long> p(n + 1, 0);\nfor (int i = 0; i < n; i++)\n    p[i + 1] = p[i] + a[i];\nfor (long long v : p) cout << v << ' ';\ncout << '\\n' << p[4] - p[1];"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "n plus one slots"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Each slot"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Print p"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "the query"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "O(n) to build",
+       "tone": "warn",
+       "cue": "Build is"
+      },
+      {
+       "line": 7,
+       "inside": true,
+       "text": "O(1) per query",
+       "tone": "good",
+       "cue": "the query"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 1 3 6 4 6\n3",
+      "cue": "Zero, one, three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same array. What is the sum of index zero to three? Pause and predict.",
+     "q": "Sum of a[0..3] for [1, 2, 3, -2, 2]?",
+     "options": [
+      "4",
+      "6",
+      "1",
+      "3"
+     ],
+     "answer": "4"
+    },
+    {
+     "type": "diagram",
+     "head": "Why p has n + 1 slots",
+     "say": "Four. P at four is four, minus p at zero, which is zero. Check: one plus two plus three minus two is four. Why p zero? A range starting at index zero needs an empty prefix to subtract. That's the plus one in n plus one slots.",
+     "items": [
+      {
+       "array": {
+        "id": "ar",
+        "values": [
+         1,
+         2,
+         3,
+         -2,
+         2
+        ],
+        "y": 300
+       }
+      },
+      {
+       "array": {
+        "id": "p",
+        "values": [
+         0,
+         1,
+         3,
+         6,
+         4,
+         6
+        ],
+        "y": 620
+       }
+      },
+      {
+       "id": "s",
+       "x": 660,
+       "y": 820,
+       "w": 600,
+       "h": 90,
+       "text": "a[0..3] = ?",
+       "size": 40
+      }
+     ],
+     "noZoom": true,
+     "notes": [
+      {
+       "x": 130,
+       "y": 670,
+       "text": "empty prefix",
+       "tone": "warn",
+       "cue": "Why p zero"
+      },
+      {
+       "x": 1530,
+       "y": 670,
+       "text": "n + 1 slots",
+       "tone": "good",
+       "cue": "n plus one slots"
+      }
+     ],
+     "changes": [
+      {
+       "id": "p4",
+       "glow": true,
+       "tone": "good",
+       "cue": "P at four"
+      },
+      {
+       "id": "p0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "minus p at zero"
+      },
+      {
+       "id": "s",
+       "text": "a[0..3] = 4 − 0 = 4",
+       "tone": "good",
+       "cue": "Check"
+      },
+      {
+       "id": "p0",
+       "glow": true,
+       "tone": "good",
+       "cue": "needs an empty prefix"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three traps",
+     "heads": [
+      "Trap",
+      "What happens",
+      "Fix"
+     ],
+     "say": "Three traps. P of r minus p of l misses a of r. Use r plus one. Sums past two billion overflow an int. Use long long. Updates between queries? Prefix sums are static. Use a Fenwick tree.",
+     "rows": [
+      [
+       "`p[r] - p[l]`",
+       "misses `a[r]`",
+       "`p[r + 1] - p[l]`"
+      ],
+      [
+       "`vector<int> p`",
+       "overflows at 2.1 billion",
+       "`long long`"
+      ],
+      [
+       "updates mid-queries",
+       "`p` is static",
+       "Fenwick tree"
+      ]
+     ],
+     "cues": [
+      "P of r minus",
+      "Sums past two billion",
+      "Updates between queries"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Subarray sum equals k",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Subarray Sum Equals K",
+     "statement": "Count the subarrays whose elements add up to exactly k.",
+     "example": {
+      "input": "[1, 2, 3, -2, 2], k = 3",
+      "output": "4 subarrays"
+     },
+     "say": "The famous problem. Count the subarrays whose sum is exactly k. For example, the same array, with k equal to three. The answer: four subarrays. Two nested loops would work, but we want one pass.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "one pass"
+     },
+     "note": "brute force O(n²); target: one pass"
+    },
+    {
+     "type": "flow",
+     "head": "Turn it into a lookup",
+     "say": "Now the famous one: count subarrays with sum k. A subarray's sum is the prefix at its end, minus the prefix just before it. That should equal k, so the earlier prefix must equal the current prefix minus k. Finding a value is exactly what a map does.",
+     "items": [
+      {
+       "label": "want",
+       "text": "sum = k",
+       "cue": "count subarrays"
+      },
+      {
+       "label": "sum is",
+       "text": "p[r+1]−p[l]",
+       "cue": "minus the prefix just before"
+      },
+      {
+       "label": "so",
+       "text": "p[l] = p − k",
+       "cue": "so the earlier prefix"
+      },
+      {
+       "label": "ask the map",
+       "text": "seen p − k?",
+       "tone": "good",
+       "cue": "Finding a value"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "k = 3, walk the totals (1/2)",
+     "say": "Walk the totals, with k equal to three. The map starts with zero seen once, the empty prefix. Total one. Need minus two. None. Store one. Total three. Need zero. One match. Store three. Total six. Need three. Match again. Store six.",
+     "items": [
+      {
+       "array": {
+        "id": "p",
+        "values": [
+         0,
+         1,
+         3,
+         6,
+         4,
+         6
+        ],
+        "y": 330,
+        "cue": "Walk the totals"
+       }
+      },
+      {
+       "id": "now",
+       "x": 630,
+       "y": 520,
+       "w": 120,
+       "h": 70,
+       "text": "now",
+       "tone": "warn",
+       "cue": "Total one"
+      },
+      {
+       "id": "need",
+       "x": 240,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "need p − 3",
+       "text": "-2",
+       "size": 48,
+       "cue": "Need minus two"
+      },
+      {
+       "id": "mp",
+       "x": 640,
+       "y": 700,
+       "w": 780,
+       "h": 110,
+       "label": "map: total → times seen",
+       "text": "0:1",
+       "cue": "The map starts"
+      },
+      {
+       "id": "fd",
+       "x": 1500,
+       "y": 700,
+       "w": 320,
+       "h": 110,
+       "label": "found",
+       "text": "1",
+       "size": 56,
+       "tone": "good",
+       "cue": "One match"
+      }
+     ],
+     "changes": [
+      {
+       "id": "mp",
+       "text": "0:1  1:1",
+       "cue": "Store one"
+      },
+      {
+       "id": "now",
+       "move": [
+        810,
+        520
+       ],
+       "cue": "Total three"
+      },
+      {
+       "id": "need",
+       "text": "0",
+       "cue": "Need zero"
+      },
+      {
+       "id": "mp",
+       "text": "0:1  1:1  3:1",
+       "cue": "Store three"
+      },
+      {
+       "id": "now",
+       "move": [
+        990,
+        520
+       ],
+       "cue": "Total six"
+      },
+      {
+       "id": "need",
+       "text": "3",
+       "cue": "Need three"
+      },
+      {
+       "id": "fd",
+       "text": "2",
+       "cue": "Match again"
+      },
+      {
+       "id": "mp",
+       "text": "0:1  1:1  3:1  6:1",
+       "cue": "Store six"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "k = 3, walk the totals (2/2)",
+     "say": "Two more totals. Total four. Need one. A match. Store four. Total six again. Need three. Another match. Store six. Four subarrays in all.",
+     "items": [
+      {
+       "array": {
+        "id": "p",
+        "values": [
+         0,
+         1,
+         3,
+         6,
+         4,
+         6
+        ],
+        "y": 330
+       }
+      },
+      {
+       "id": "now",
+       "x": 990,
+       "y": 520,
+       "w": 120,
+       "h": 70,
+       "text": "now",
+       "tone": "warn"
+      },
+      {
+       "id": "need",
+       "x": 240,
+       "y": 700,
+       "w": 300,
+       "h": 110,
+       "label": "need p − 3",
+       "text": "3",
+       "size": 48
+      },
+      {
+       "id": "mp",
+       "x": 640,
+       "y": 700,
+       "w": 780,
+       "h": 110,
+       "label": "map: total → times seen",
+       "text": "0:1  1:1  3:1  6:1"
+      },
+      {
+       "id": "fd",
+       "x": 1500,
+       "y": 700,
+       "w": 320,
+       "h": 110,
+       "label": "found",
+       "text": "2",
+       "size": 56,
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "now",
+       "move": [
+        1170,
+        520
+       ],
+       "cue": "Total four"
+      },
+      {
+       "id": "need",
+       "text": "1",
+       "cue": "Need one"
+      },
+      {
+       "id": "fd",
+       "text": "3",
+       "cue": "A match"
+      },
+      {
+       "id": "mp",
+       "text": "0:1  1:1  3:1  6:1  4:1",
+       "cue": "Store four"
+      },
+      {
+       "id": "now",
+       "move": [
+        1350,
+        520
+       ],
+       "cue": "Total six again"
+      },
+      {
+       "id": "need",
+       "text": "3",
+       "cue": "Need three"
+      },
+      {
+       "id": "fd",
+       "text": "4",
+       "cue": "Another match"
+      },
+      {
+       "id": "fd",
+       "glow": true,
+       "tone": "good",
+       "cue": "Four subarrays"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Subarray sum equals k",
+     "say": "In code, the map starts with zero seen once. Keep a running sum. For each number, add it, then add how often sum minus k was seen. Then record the sum. It prints four. One pass, O of n.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "// a = {1, 2, 3, -2, 2}, k = 3\nunordered_map<long long,int> seen = {{0, 1}};\nlong long sum = 0, count = 0;\nfor (int x : a) {\n    sum += x;\n    count += seen[sum - k];\n    seen[sum]++;\n}\ncout << count;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "starts with zero"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "running sum"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "add it"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "record the sum"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "prints four"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4",
+      "cue": "prints four"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Delete the zero seed from the map. The array is just three, and k is three. What comes back? Pause and predict.",
+     "q": "No `{0, 1}` seed. a = [3], k = 3. Result?",
+     "options": [
+      "0",
+      "1",
+      "2",
+      "crash"
+     ],
+     "answer": "0"
+    },
+    {
+     "type": "code",
+     "head": "Trap: forget the seed",
+     "say": "Zero, and that's wrong. The answer is one: the subarray three itself. It starts at index zero, so no prefix sits before it. The seed stands for that empty prefix. Without it, you lose every subarray that starts at the beginning.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "no seed",
+       "tone": "bad",
+       "code": "vector<int> a = {3};\nunordered_map<long long,int> seen;\nlong long sum = 0, count = 0;\nfor (int x : a) {\n    sum += x;\n    count += seen[sum - 3];\n    seen[sum]++;\n}\ncout << count;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        9
+       ],
+       "cue": "Zero, and"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "It starts at index zero"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The seed stands"
+      },
+      {
+       "lines": [],
+       "cue": "lose every subarray"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "missing {0, 1}",
+       "tone": "bad",
+       "cue": "The seed stands"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0",
+      "tone": "bad",
+      "cue": "Zero, and"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Difference arrays",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Many range updates",
+     "statement": "Apply many updates of the form add v to indexes l to r, then print the final array.",
+     "example": {
+      "input": "add 5 to indexes 1..3, length 6",
+      "output": "[0, 5, 5, 5, 0, 0]"
+     },
+     "say": "Last problem. Many updates, each adding a value to a range. For example, add five to indexes one to three, in six zeros. The answer: zero, five, five, five, zero, zero.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Mark the start and the stop",
+     "say": "Now the mirror image: many range updates. Think of a heater schedule: on at day one, off at day four. Mark just those two days, then sweep the days with a running total.",
+     "items": [
+      {
+       "label": "day 1",
+       "text": "heater on",
+       "tone": "good",
+       "cue": "on at day one"
+      },
+      {
+       "label": "day 4",
+       "text": "heater off",
+       "tone": "bad",
+       "cue": "off at day four"
+      },
+      {
+       "label": "sweep",
+       "text": "running total",
+       "sub": "rebuilds every day",
+       "tone": "blue",
+       "cue": "sweep the days"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Add 5 to indexes 1 to 3",
+     "say": "Task: add five to indexes one to three, without touching each one. Plus five at index one. Minus five at index four, where the range stops. Now sweep a running total. Zero, five, five, five, zero, zero. Two steps per update, however long the range.",
+     "noZoom": true,
+     "items": [
+      {
+       "array": {
+        "id": "d",
+        "values": [
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "y": 330,
+        "cue": "Task: add five"
+       }
+      },
+      {
+       "array": {
+        "id": "r",
+        "values": [
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "y": 620,
+        "cue": "Now sweep"
+       }
+      }
+     ],
+     "notes": [
+      {
+       "x": 130,
+       "y": 380,
+       "text": "marks d",
+       "tone": "warn",
+       "cue": "Task: add five"
+      },
+      {
+       "x": 130,
+       "y": 670,
+       "text": "result",
+       "tone": "good",
+       "cue": "Now sweep"
+      }
+     ],
+     "changes": [
+      {
+       "id": "d1",
+       "text": "5",
+       "tone": "good",
+       "cue": "Plus five"
+      },
+      {
+       "id": "d4",
+       "text": "-5",
+       "tone": "bad",
+       "cue": "Minus five"
+      },
+      {
+       "id": "r1",
+       "text": "5",
+       "cue": "five, five, five"
+      },
+      {
+       "id": "r2",
+       "text": "5",
+       "cue": "five, five, five"
+      },
+      {
+       "id": "r3",
+       "text": "5",
+       "cue": "five, five, five"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Difference array in code",
+     "say": "In code: zeros, then the range from l to r with value v. Add v at l. Subtract v at r plus one. Then one pass of running total. It prints zero, five, five, five, zero, zero.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> d(6, 0);\nint l = 1, r = 3, v = 5;\nd[l] += v;\nd[r + 1] -= v;\nfor (int i = 1; i < 6; i++)\n    d[i] += d[i - 1];\nfor (int x : d) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "from l to r"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Add v at l"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Subtract v"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "running total"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "It prints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "one past the end",
+       "tone": "warn",
+       "cue": "Subtract v"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 5 5 5 0 0",
+      "cue": "It prints"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Also add two to indexes two to four. What does the final array look like? Pause and predict.",
+     "q": "Also add 2 to indexes 2 to 4. Final array?",
+     "options": [
+      "0 5 7 7 2 0",
+      "0 5 7 7 2 2",
+      "0 5 5 5 2 0",
+      "0 7 7 7 2 0"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "diagram",
+     "head": "Two updates, one sweep",
+     "say": "Zero, five, seven, seven, two, zero. The second update marks plus two at index two, and minus two at index five. Sweep again, and the two stacks on top of the five.",
+     "noZoom": true,
+     "items": [
+      {
+       "array": {
+        "id": "d",
+        "values": [
+         0,
+         5,
+         0,
+         0,
+         -5,
+         0
+        ],
+        "y": 330
+       }
+      },
+      {
+       "array": {
+        "id": "r",
+        "values": [
+         0,
+         5,
+         5,
+         5,
+         0,
+         0
+        ],
+        "y": 620
+       }
+      }
+     ],
+     "notes": [
+      {
+       "x": 130,
+       "y": 380,
+       "text": "marks d",
+       "tone": "warn"
+      },
+      {
+       "x": 130,
+       "y": 670,
+       "text": "result",
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "d2",
+       "text": "2",
+       "tone": "good",
+       "cue": "plus two at index two"
+      },
+      {
+       "id": "d5",
+       "text": "-2",
+       "tone": "bad",
+       "cue": "minus two at index five"
+      },
+      {
+       "id": "r2",
+       "text": "7",
+       "cue": "Sweep again"
+      },
+      {
+       "id": "r3",
+       "text": "7",
+       "cue": "Sweep again"
+      },
+      {
+       "id": "r4",
+       "text": "2",
+       "cue": "Sweep again"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Difference array traps",
+     "heads": [
+      "Trap",
+      "What happens",
+      "Fix"
+     ],
+     "say": "Two traps. Subtracting at r, not r plus one, stops the range a cell early. And r plus one can equal n, so the array needs n plus one slots. Many big updates can also overflow, so use long long.",
+     "rows": [
+      [
+       "`d[r] -= v`",
+       "range stops a cell early",
+       "`d[r + 1] -= v`"
+      ],
+      [
+       "`d` has `n` slots",
+       "`r + 1` can equal `n`",
+       "`d(n + 1)`"
+      ],
+      [
+       "many large updates",
+       "sums can overflow int",
+       "`long long`"
+      ]
+     ],
+     "cues": [
+      "Subtracting at r",
+      "r plus one can equal",
+      "Many big updates"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp02"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Two sum? Look up target minus x, store x. One pass. Counting? Map value to count. Why O of one? Hash the key, jump to its bucket.",
+     "rows": [
+      [
+       "Two sum with a hash map?",
+       "look up target − x, then store x: O(n)"
+      ],
+      [
+       "Frequency counting?",
+       "map value → count, `cnt[x]++`: O(n)"
+      ],
+      [
+       "Why is lookup O(1)?",
+       "hash the key, jump to its bucket (average)"
+      ]
+     ],
+     "cues": [
+      "Two sum?",
+      "Counting?",
+      "Why O of one"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The follow-ups",
+     "covers": [
+      "cp02"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Worst case? O of n if everything collides, so contest code uses a custom hash. Map versus unordered map? Map is a sorted tree, log n. Unordered is a hash. Common mistake? Inserting first, so a number pairs with itself.",
+     "rows": [
+      [
+       "Worst case?",
+       "O(n) if all collide: use a custom hash"
+      ],
+      [
+       "`map` vs `unordered_map`?",
+       "sorted tree O(log n) vs hash O(1)"
+      ],
+      [
+       "Common mistake?",
+       "insert first: x pairs with itself"
+      ]
+     ],
+     "cues": [
+      "Worst case?",
+      "Map versus",
+      "Common mistake?"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp05"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Prefix sums? A running total, built once in O of n. Any range sum is one subtraction. Subarray sum equals k? Count earlier prefixes equal to sum minus k.",
+     "rows": [
+      [
+       "Prefix sums?",
+       "running total: `p[i+1] = p[i] + a[i]`"
+      ],
+      [
+       "Range sum l to r?",
+       "`p[r+1] - p[l]`, O(1) per query"
+      ],
+      [
+       "Subarray sum = k?",
+       "prefix sums + hash map: O(n)"
+      ]
+     ],
+     "cues": [
+      "Prefix sums?",
+      "Any range sum",
+      "Subarray sum equals k"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The follow-ups",
+     "covers": [
+      "cp05"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Difference array? Mark plus v at the start, minus v after the end, then sweep. Why n plus one entries? Zero is the empty prefix. Updates between queries? Prefix sums are static, so use a Fenwick tree.",
+     "rows": [
+      [
+       "Difference array?",
+       "two marks per update, one sweep"
+      ],
+      [
+       "Why n + 1 entries?",
+       "`p[0]` is the empty prefix"
+      ],
+      [
+       "Updates between queries?",
+       "`p` is static: Fenwick tree"
+      ]
+     ],
+     "cues": [
+      "Difference array?",
+      "Why n plus one",
+      "Updates between queries?"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode one, Two Sum, is today's first lookup. LeetCode five sixty, Subarray Sum Equals K, is prefix sums plus a map. LeetCode eleven oh nine, Corporate Flight Bookings, is a difference array.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 1 · Two Sum",
+       "look up the partner, then store"
+      ],
+      [
+       "LeetCode 560 · Subarray Sum Equals K",
+       "prefix sums + a map of counts"
+      ],
+      [
+       "LeetCode 1109 · Corporate Flight Bookings",
+       "difference array, one sweep"
+      ]
+     ],
+     "cues": [
+      "LeetCode one",
+      "five sixty",
+      "eleven oh nine"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A hash map turns a search into one lookup. A running total turns any range sum into a subtraction. Together, they count subarrays in one pass.",
+     "lines": [
+      "A hash map: one lookup instead of a search.",
+      "Prefix sums: any range sum is one subtraction.",
+      "Together: count subarrays in one pass, O(n)."
+     ],
+     "cues": [
+      "A hash map turns",
+      "A running total",
+      "Together"
+     ]
+    }
+   ]
+  }
+ ]
+}

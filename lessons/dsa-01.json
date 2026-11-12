@@ -1,0 +1,914 @@
+{
+ "id": "dsa-01",
+ "track": "DSA",
+ "num": 1,
+ "title": "Read the Constraints, Pick the Complexity",
+ "covers": [
+  "cp01"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "Three Sum",
+   "3Sum"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "The one-second wallet",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Count the pairs in two hundred thousand numbers that add to zero. One program runs two hundred seconds and fails. Another finishes instantly. By the end, you'll read the limits and know which one to write.",
+     "lines": [
+      {
+       "text": "Count pairs that add to zero",
+       "cue": "Count the pairs"
+      },
+      {
+       "text": "One program: 200 seconds. Fails.",
+       "cue": "two hundred seconds"
+      },
+      {
+       "text": "Read the limits. Pick the right one.",
+       "cue": "read the limits",
+       "accent": "right one"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today's plan. First, the one second budget. Then the cheat sheet that turns n into a complexity. Then we count pairs two ways, slow and fast.",
+     "lines": [
+      "Read n, know the budget",
+      "Pick the complexity from n",
+      "Fix a too slow solution"
+     ],
+     "cues": [
+      "the one second budget",
+      "the cheat sheet",
+      "count pairs two ways"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Will it finish in one second?",
+     "statement": "The judge gives you one second and tells you n. Decide which algorithms can possibly pass.",
+     "example": {
+      "input": "n = 200,000",
+      "output": "O(n log n) or better"
+     },
+     "say": "The judge gives one second, and tells you n. Which algorithms can pass? For example, n is two hundred thousand. The answer: n log n or better. The budget is about a hundred million steps.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer",
+      "note": "The budget"
+     },
+     "note": "budget: about 10⁸ simple steps per second"
+    },
+    {
+     "type": "flow",
+     "head": "A wallet of 100 million steps",
+     "say": "Your gain: know in ten seconds which ideas are worth typing. The judge allows about one hundred million simple steps per second. That's your wallet. Every algorithm has a price, in steps. Price above the wallet? Time limit exceeded.",
+     "items": [
+      {
+       "label": "Budget",
+       "text": "1 second",
+       "sub": "about 10⁸ steps",
+       "cue": "one hundred million"
+      },
+      {
+       "label": "Price",
+       "text": "your algorithm",
+       "sub": "steps it needs for n",
+       "cue": "has a price"
+      },
+      {
+       "label": "Verdict",
+       "text": "price ≤ budget",
+       "sub": "else: time limit exceeded",
+       "cue": "Time limit exceeded"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Worked example: n = 200,000",
+     "say": "Say n is two hundred thousand, against a budget of one hundred million. N squared needs forty billion steps, four hundred times too many. Too slow. N log n is n times about eighteen: three and a half million. Easy. Plain n needs two hundred thousand. The limit says: n log n or better.",
+     "items": [
+      {
+       "id": "n",
+       "x": 160,
+       "y": 480,
+       "w": 300,
+       "h": 150,
+       "label": "input size",
+       "text": "n = 200,000",
+       "size": 38,
+       "tone": "blue",
+       "cue": "Say n is"
+      },
+      {
+       "id": "sq",
+       "x": 640,
+       "y": 340,
+       "w": 560,
+       "h": 130,
+       "label": "O(n²)",
+       "text": "40,000,000,000",
+       "size": 42,
+       "cue": "N squared needs"
+      },
+      {
+       "id": "nl",
+       "x": 640,
+       "y": 530,
+       "w": 560,
+       "h": 130,
+       "label": "O(n log n)",
+       "text": "about 3,500,000",
+       "size": 42,
+       "cue": "N log n is"
+      },
+      {
+       "id": "ln",
+       "x": 640,
+       "y": 720,
+       "w": 560,
+       "h": 130,
+       "label": "O(n)",
+       "text": "200,000",
+       "size": 42,
+       "cue": "Plain n needs"
+      },
+      {
+       "id": "v0",
+       "x": 1420,
+       "y": 340,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 44,
+       "cue": "Too slow"
+      },
+      {
+       "id": "v1",
+       "x": 1420,
+       "y": 530,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 44,
+       "cue": "Easy"
+      },
+      {
+       "id": "v2",
+       "x": 1420,
+       "y": 720,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 44,
+       "cue": "or better"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n",
+       "to": "sq",
+       "cue": "N squared needs"
+      },
+      {
+       "from": "n",
+       "to": "nl",
+       "cue": "N log n is"
+      },
+      {
+       "from": "n",
+       "to": "ln",
+       "cue": "Plain n needs"
+      }
+     ],
+     "notes": [
+      {
+       "x": 130,
+       "y": 700,
+       "text": "Budget: 10⁸ steps",
+       "tone": "warn",
+       "cue": "budget of one hundred million"
+      }
+     ],
+     "changes": [
+      {
+       "id": "v0",
+       "text": "too slow",
+       "tone": "bad",
+       "cue": "Too slow"
+      },
+      {
+       "id": "v1",
+       "text": "fits",
+       "tone": "good",
+       "cue": "Easy"
+      },
+      {
+       "id": "v2",
+       "text": "fits",
+       "tone": "good",
+       "cue": "or better"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and predict. A hundred thousand items, a one second limit. Which of these fits?",
+     "q": "n = 100,000 and a 1-second limit. What fits?",
+     "options": [
+      "Only O(n²)",
+      "Only O(n log n)",
+      "O(n) and O(n log n)",
+      "All three"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "chart",
+     "head": "Steps for n = 100,000",
+     "unit": "steps",
+     "say": "Steps needed at a hundred thousand items. O of n and n log n fit. Plain n is a hundred thousand steps, n log n under two million. N squared needs ten billion. At a hundred million a second, that's a hundred seconds.",
+     "bars": [
+      {
+       "label": "n",
+       "value": 100000,
+       "tone": "good",
+       "cue": "Plain n is"
+      },
+      {
+       "label": "n log n",
+       "value": 1700000,
+       "tone": "good",
+       "cue": "under two million"
+      },
+      {
+       "label": "n squared",
+       "value": 10000000000,
+       "tone": "bad",
+       "cue": "N squared needs"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Read n, pick the complexity",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which complexity does this n allow?",
+     "statement": "Every problem hides a hint in its limit on n. Read it, then name the complexity you can afford.",
+     "example": {
+      "input": "n ≤ 1,000,000",
+      "output": "O(n log n), or O(n)"
+     },
+     "say": "Every problem hides a hint in its limit on n. Read it, name the complexity. For example, n is at most one million. The answer: n log n, or plain n.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The setter leaves you a hint",
+     "say": "Most candidates spot two loops and start typing. Then the setter's trap springs. He wrote his own solution, timed it, and set n just under its limit. So n is a hint about the answer.",
+     "items": [
+      {
+       "label": "candidate",
+       "text": "starts typing",
+       "cue": "start typing"
+      },
+      {
+       "label": "setter",
+       "text": "best solution",
+       "cue": "wrote his own solution"
+      },
+      {
+       "label": "setter",
+       "text": "n just fits it",
+       "cue": "set n just under"
+      },
+      {
+       "label": "you",
+       "text": "read n first",
+       "sub": "n = the hint",
+       "cue": "n is a hint"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Cheat sheet: small n",
+     "heads": [
+      "n up to",
+      "You can afford"
+     ],
+     "say": "The cheat sheet. Around ten, try every order: ten factorial is under four million. Around twenty, try every subset: two to the twentieth is about a million. Around five hundred, three nested loops, right at the edge.",
+     "rows": [
+      [
+       "about 10",
+       "n!: try every order"
+      ],
+      [
+       "about 20",
+       "2ⁿ: try every subset"
+      ],
+      [
+       "about 500",
+       "n³: three nested loops"
+      ]
+     ],
+     "cues": [
+      "Around ten",
+      "Around twenty",
+      "Around five hundred"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Cheat sheet: big n",
+     "heads": [
+      "n up to",
+      "You can afford"
+     ],
+     "say": "Keep going. Around five thousand, n squared: two nested loops. A million needs n log n, or plain n. A hundred million needs plain n, with a small constant. And ten to the eighteen? Only log n, or a formula.",
+     "rows": [
+      [
+       "about 5,000",
+       "n²: two nested loops"
+      ],
+      [
+       "about 1,000,000",
+       "n log n, or n"
+      ],
+      [
+       "about 100,000,000",
+       "plain n, small constant"
+      ],
+      [
+       "up to 10¹⁸",
+       "log n, or a formula"
+      ]
+     ],
+     "cues": [
+      "Around five thousand",
+      "A million needs",
+      "A hundred million",
+      "ten to the eighteen"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A problem says n is at most three thousand. Which is the biggest complexity that still fits? Pause and predict.",
+     "q": "n ≤ 3,000. Biggest complexity that fits?",
+     "options": [
+      "O(n)",
+      "O(n log n)",
+      "O(n²)",
+      "O(n³)"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "flow",
+     "head": "One more loop, out of budget",
+     "say": "O of n squared. Three thousand squared is nine million, comfortable. Cubed is twenty seven billion, hopeless. Same n, one more loop, and you leave the budget behind.",
+     "items": [
+      {
+       "label": "n",
+       "text": "3,000",
+       "cue": "O of n squared"
+      },
+      {
+       "label": "n²",
+       "text": "9 million",
+       "sub": "fits",
+       "tone": "good",
+       "cue": "nine million"
+      },
+      {
+       "label": "n³",
+       "text": "27 billion",
+       "sub": "too slow",
+       "tone": "bad",
+       "cue": "twenty seven billion"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Two prices, one answer",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Count pairs that add to zero",
+     "statement": "Given n numbers, count the pairs of positions whose values add to zero.",
+     "example": {
+      "input": "[2, -2, 5, -2, 2]",
+      "output": "4"
+     },
+     "say": "Count pairs of positions whose values add to zero, n up to two hundred thousand. For example, two, minus two, five, minus two, two. The answer is four. With n that big, brute force is too slow.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer is four",
+      "note": "too slow"
+     },
+     "note": "n up to 200,000: brute force is too slow"
+    },
+    {
+     "type": "diagram",
+     "head": "Count pairs that add to zero",
+     "say": "Walk left to right, with a notebook of numbers seen so far. Two comes first. Has minus two come before? No. Write two down. Next, minus two. Has a two come before? Once. Count one. Note it too. Five has no partner. File the five. Minus two again. A two came once. Count two. Note it again. Last, two. Minus two came twice. Count four.",
+     "items": [
+      {
+       "array": {
+        "id": "arr",
+        "values": [
+         2,
+         -2,
+         5,
+         -2,
+         2
+        ],
+        "y": 380,
+        "cue": "Walk left to right"
+       }
+      },
+      {
+       "id": "x",
+       "x": 540,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "x",
+       "tone": "warn",
+       "cue": "Two comes first"
+      },
+      {
+       "id": "c",
+       "x": 520,
+       "y": 730,
+       "w": 300,
+       "h": 110,
+       "label": "pairs",
+       "text": "0",
+       "size": 56,
+       "cue": "Has minus two come"
+      },
+      {
+       "id": "seen",
+       "x": 900,
+       "y": 730,
+       "w": 860,
+       "h": 110,
+       "label": "notebook",
+       "text": "(empty)",
+       "size": 40,
+       "cue": "a notebook of"
+      }
+     ],
+     "changes": [
+      {
+       "id": "seen",
+       "text": "2:1",
+       "cue": "Write two down"
+      },
+      {
+       "id": "x",
+       "move": [
+        720,
+        570
+       ],
+       "cue": "Next, minus two"
+      },
+      {
+       "id": "c",
+       "text": "1",
+       "tone": "good",
+       "cue": "Count one"
+      },
+      {
+       "id": "seen",
+       "text": "2:1  -2:1",
+       "cue": "Note it too"
+      },
+      {
+       "id": "x",
+       "move": [
+        900,
+        570
+       ],
+       "cue": "Five has no partner"
+      },
+      {
+       "id": "seen",
+       "text": "2:1  -2:1  5:1",
+       "cue": "File the five"
+      },
+      {
+       "id": "x",
+       "move": [
+        1080,
+        570
+       ],
+       "cue": "Minus two again"
+      },
+      {
+       "id": "c",
+       "text": "2",
+       "cue": "Count two"
+      },
+      {
+       "id": "seen",
+       "text": "2:1  -2:2  5:1",
+       "cue": "Note it again"
+      },
+      {
+       "id": "x",
+       "move": [
+        1260,
+        570
+       ],
+       "cue": "Last, two"
+      },
+      {
+       "id": "c",
+       "text": "4",
+       "tone": "good",
+       "cue": "Count four"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Brute force: two loops",
+     "say": "The brute force is two loops. It checks each pair once: twenty billion checks when n is two hundred thousand. That's still two hundred times the budget.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "label": "too slow",
+       "tone": "bad",
+       "code": "long long slow(vector<int>& a) {\n    long long c = 0;\n    for (size_t i = 0; i < a.size(); i++)\n        for (size_t j = i + 1; j < a.size(); j++)\n            if (a[i] + a[j] == 0) c++;\n    return c;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "two loops"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "twenty billion"
+      },
+      {
+       "lines": [],
+       "cue": "two hundred times"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "2e10 checks",
+       "tone": "bad",
+       "cue": "twenty billion"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix: remember what you saw",
+     "say": "The fix: remember. For each x, the notebook already knows how many minus x came before. Add that to the count, then write x down. One pass, O of n. On our array, it prints four.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void fast(vector<int> a) {\n    unordered_map<int,int> seen;\n    long long c = 0;\n    for (int x : a) {\n        c += seen[-x];\n        seen[x]++;\n    }\n    cout << c;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "remember"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "already knows"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "write x down"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "prints four"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "O(1) lookup",
+       "tone": "good",
+       "cue": "already knows"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4",
+      "cue": "prints four"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "n = 200,000: two prices",
+     "unit": "steps",
+     "say": "Steps for our pair counting problem, two ways. The brute force needs twenty billion checks, about two hundred seconds. The map needs two hundred thousand lookups. That's the whole lesson: the limit chose the algorithm.",
+     "bars": [
+      {
+       "label": "brute",
+       "value": 20000000000,
+       "tone": "bad",
+       "cue": "brute force needs"
+      },
+      {
+       "label": "map",
+       "value": 200000,
+       "tone": "good",
+       "cue": "map needs"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Add one more minus two at the end of the array. What does fast print now? Pause and predict.",
+     "q": "fast({2, -2, 5, -2, 2, -2}) prints?",
+     "options": [
+      "4",
+      "5",
+      "6",
+      "7"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "diagram",
+     "head": "The new minus two",
+     "say": "Six. The new minus two meets every earlier two. There are two of them, at positions zero and four. Four plus two is six.",
+     "items": [
+      {
+       "array": {
+        "id": "bb",
+        "values": [
+         2,
+         -2,
+         5,
+         -2,
+         2,
+         -2
+        ],
+        "y": 380,
+        "cue": "Six"
+       }
+      },
+      {
+       "id": "y",
+       "x": 1350,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "new",
+       "tone": "warn",
+       "cue": "new minus two"
+      },
+      {
+       "id": "d",
+       "x": 760,
+       "y": 730,
+       "w": 400,
+       "h": 110,
+       "label": "pairs",
+       "text": "4",
+       "size": 56,
+       "cue": "every earlier two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "bb0",
+       "glow": true,
+       "tone": "good",
+       "cue": "positions zero"
+      },
+      {
+       "id": "bb4",
+       "glow": true,
+       "tone": "good",
+       "cue": "and four"
+      },
+      {
+       "id": "d",
+       "count": [
+        4,
+        6
+       ],
+       "tone": "good",
+       "cue": "Four plus two"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "What the table leaves out",
+     "say": "What the table leaves out. A two second limit? Budget doubles, about two hundred million steps. Does n log n always pass? Not with a big constant, like maps. Memory? A million ints is four megabytes. Common mistake: brute force before reading n.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Time limit is 2 seconds?",
+       "budget doubles: ~2·10⁸ steps"
+      ],
+      [
+       "Does n log n always pass?",
+       "not with a big constant, like maps"
+      ],
+      [
+       "Memory limit?",
+       "10⁶ ints = 4 MB; 10⁸ ints = 400 MB"
+      ],
+      [
+       "Common mistake",
+       "brute force before reading `n`"
+      ]
+     ],
+     "cues": [
+      "A two second limit",
+      "Does n log n",
+      "Memory?",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp01"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What can you afford? A hundred million steps a second. n of two hundred thousand? N log n or better. Squared is forty billion. Cheat sheet? Twenty, two to the n. Five thousand, n squared.",
+     "rows": [
+      [
+       "What can you afford?",
+       "~10⁸ simple steps per second"
+      ],
+      [
+       "n = 200,000?",
+       "n log n or better: n² is 4·10¹⁰"
+      ],
+      [
+       "Cheat sheet?",
+       "20: 2ⁿ · 5,000: n² · 10⁶: n log n"
+      ]
+     ],
+     "cues": [
+      "What can you afford",
+      "n of two hundred",
+      "Cheat sheet"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The follow-ups",
+     "covers": [
+      "cp01"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Two second limit? The budget doubles. Does n log n always pass? Not with a big constant. Memory? A million ints is four megabytes. Mistake? Coding brute force before reading n.",
+     "rows": [
+      [
+       "Time limit is 2 seconds?",
+       "budget doubles"
+      ],
+      [
+       "n log n always passes?",
+       "not with a big constant"
+      ],
+      [
+       "Memory?",
+       "10⁶ ints = 4 MB"
+      ],
+      [
+       "Common mistake",
+       "brute force before reading `n`"
+      ]
+     ],
+     "cues": [
+      "Two second limit",
+      "Does n log n",
+      "Memory?",
+      "Mistake?"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode one, Two Sum: n is ten thousand, so even n squared passes. LeetCode fifteen, Three Sum: n is three thousand, so aim for n squared. LeetCode two thirty nine, Sliding Window Maximum: a hundred thousand, so brute force fails.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 1 · Two Sum",
+       "n ≤ 10⁴: O(n²) passes, O(n) is cleaner"
+      ],
+      [
+       "LeetCode 15 · 3Sum",
+       "n ≤ 3,000: aim for O(n²)"
+      ],
+      [
+       "LeetCode 239 · Sliding Window Maximum",
+       "n ≤ 10⁵: brute force fails"
+      ]
+     ],
+     "cues": [
+      "LeetCode one",
+      "LeetCode fifteen",
+      "two thirty nine"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. The judge gives about a hundred million steps. Read n first, then match the complexity. Two hundred thousand needs n log n or better.",
+     "lines": [
+      "The judge gives about 10⁸ steps per second.",
+      "Read n first, then match the complexity.",
+      "n = 200,000 needs O(n log n) or better."
+     ],
+     "cues": [
+      "The judge gives",
+      "Read n first",
+      "Two hundred thousand needs"
+     ]
+    }
+   ]
+  }
+ ]
+}

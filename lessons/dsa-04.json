@@ -1,0 +1,1877 @@
+{
+ "id": "dsa-04",
+ "track": "DSA",
+ "num": 4,
+ "title": "Sorting: Insertion, Merge, Quick & Counting",
+ "covers": [
+  "cp21",
+  "cp22"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n plus k",
+   "O(n + k)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "less or equal",
+   "less-or-equal"
+  ],
+  [
+   "unordered map",
+   "unordered_map"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Cards in your hand",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Sort a million ages. A comparison sort needs twenty million steps. Counting needs one million. By the end, you'll explain why s t d colon colon sort is fast, and when it's the wrong tool.",
+     "lines": [
+      {
+       "text": "Sort 1,000,000 ages",
+       "cue": "Sort a million ages"
+      },
+      {
+       "text": "20 million steps vs 1 million",
+       "cue": "twenty million steps",
+       "accent": "1 million"
+      },
+      {
+       "text": "Why is std::sort fast?",
+       "cue": "s t d colon colon sort"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today's plan. Insertion and merge sort first. Then quicksort, and what s t d colon colon sort really does. Finally, counting sort for small ranges.",
+     "lines": [
+      "Sort by hand, three ways",
+      "Explain what std::sort does",
+      "Sort a million ages in linear time"
+     ],
+     "cues": [
+      "Insertion and merge",
+      "Then quicksort",
+      "Finally, counting"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Sort the array",
+     "statement": "Rearrange numbers into increasing order, and say what that costs.",
+     "example": {
+      "input": "[5, 2, 4, 6, 1, 3]",
+      "output": "[1, 2, 3, 4, 5, 6]"
+     },
+     "say": "Here's the problem. Put numbers in increasing order, and say what it costs. For example, five, two, four, six, one, three. The answer: one through six. We start with the simplest way.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Sorting a hand of cards",
+     "say": "You already know insertion sort from card games. Hold sorted cards in your left hand. Pick up the next card, called the key. Slide it left past every bigger card, then drop it in the gap.",
+     "items": [
+      {
+       "label": "left hand",
+       "text": "sorted cards",
+       "cue": "left hand"
+      },
+      {
+       "label": "pick up",
+       "text": "the key",
+       "cue": "the key"
+      },
+      {
+       "label": "slide left",
+       "text": "past bigger",
+       "cue": "Slide it left"
+      },
+      {
+       "label": "drop",
+       "text": "into the gap",
+       "tone": "good",
+       "cue": "drop it in"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Insertion sort on 5, 2, 4, 6, 1, 3",
+     "say": "Take this array of six cards. Pick up the two. Five is bigger, so it slides right. Drop the two in the gap. Next, four. Five slides right, and four lands beside two. Six is already in place. Now one. Everything slides right, and one lands at the front. Last, three. Six, five, four slide, and three drops in.",
+     "items": [
+      {
+       "array": {
+        "id": "s",
+        "values": [
+         5,
+         2,
+         4,
+         6,
+         1,
+         3
+        ],
+        "y": 380,
+        "cue": "this array of six"
+       }
+      },
+      {
+       "id": "kb",
+       "x": 630,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "key",
+       "tone": "warn",
+       "cue": "Pick up the two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s1",
+       "text": "5",
+       "cue": "it slides right"
+      },
+      {
+       "id": "s0",
+       "text": "2",
+       "tone": "good",
+       "cue": "Drop the two"
+      },
+      {
+       "id": "kb",
+       "move": [
+        810,
+        570
+       ],
+       "cue": "Next, four"
+      },
+      {
+       "id": "s2",
+       "text": "5",
+       "cue": "Five slides right"
+      },
+      {
+       "id": "s1",
+       "text": "4",
+       "tone": "good",
+       "cue": "four lands"
+      },
+      {
+       "id": "s3",
+       "glow": true,
+       "tone": "good",
+       "cue": "Six is already"
+      },
+      {
+       "id": "kb",
+       "move": [
+        1170,
+        570
+       ],
+       "cue": "Now one"
+      },
+      {
+       "id": "s4",
+       "text": "6",
+       "cue": "Everything slides"
+      },
+      {
+       "id": "s3",
+       "text": "5",
+       "cue": "Everything slides"
+      },
+      {
+       "id": "s2",
+       "text": "4",
+       "cue": "Everything slides"
+      },
+      {
+       "id": "s1",
+       "text": "2",
+       "cue": "Everything slides"
+      },
+      {
+       "id": "s0",
+       "text": "1",
+       "tone": "good",
+       "cue": "one lands at the front"
+      },
+      {
+       "id": "kb",
+       "move": [
+        1350,
+        570
+       ],
+       "cue": "Last, three"
+      },
+      {
+       "id": "s5",
+       "text": "6",
+       "cue": "Six, five, four slide"
+      },
+      {
+       "id": "s4",
+       "text": "5",
+       "cue": "Six, five, four slide"
+      },
+      {
+       "id": "s3",
+       "text": "4",
+       "cue": "Six, five, four slide"
+      },
+      {
+       "id": "s2",
+       "text": "3",
+       "tone": "good",
+       "cue": "three drops in"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Insertion sort in code",
+     "say": "In code, the key is a of i. While the cell on its left is bigger, copy it one step right. Then drop the key in the gap. Worst case, a reversed array: every key slides past everything before it, about n squared over two moves. Already sorted? Nothing slides.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void insertionSort(vector<int>& a) {\n    for (int i = 1; i < (int)a.size(); i++) {\n        int key = a[i], j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];\n            j--;\n        }\n        a[j + 1] = key;\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "the key is"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "While the cell"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "drop the key"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Worst case"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "every key slides"
+      },
+      {
+       "lines": [],
+       "cue": "Already sorted"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "reversed: n²/2 moves",
+       "tone": "warn",
+       "cue": "Worst case"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The array is already sorted, one through six. How much work does insertion sort do? Pause and predict.",
+     "q": "Insertion sort on an already sorted array?",
+     "options": [
+      "O(1)",
+      "O(n)",
+      "O(n log n)",
+      "O(n²)"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "chart",
+     "head": "Slides to sort six cards",
+     "unit": "slides",
+     "say": "Slides to sort six cards. Sorted input means no slides, so O of n. Six sorted cards: zero slides. Our shuffled six: nine. Reversed: fifteen. That's why insertion sort wins on tiny or nearly sorted arrays.",
+     "bars": [
+      {
+       "label": "sorted",
+       "value": 0,
+       "tone": "good",
+       "cue": "Six sorted cards"
+      },
+      {
+       "label": "shuffled",
+       "value": 9,
+       "tone": "warn",
+       "cue": "Our shuffled six"
+      },
+      {
+       "label": "reversed",
+       "value": 15,
+       "tone": "bad",
+       "cue": "Reversed"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Split, then merge",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sort faster than O(n²)",
+     "statement": "Insertion sort needs half a trillion moves for a million reversed items. Can we do better?",
+     "example": {
+      "input": "1,000,000 items, reversed",
+      "output": "about 20,000,000 steps"
+     },
+     "say": "Insertion sort is too slow on big input. Can we do better? For example, a million items, in reverse. The answer: about twenty million steps, with merge sort.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Divide and conquer",
+     "say": "Merge sort uses divide and conquer. Split the pile in half. Sort each half the same way. Then merge two sorted piles by comparing their top cards.",
+     "items": [
+      {
+       "label": "1",
+       "text": "split in half",
+       "cue": "Split the pile"
+      },
+      {
+       "label": "2",
+       "text": "sort each half",
+       "cue": "Sort each half"
+      },
+      {
+       "label": "3",
+       "text": "merge",
+       "sub": "compare top cards",
+       "tone": "good",
+       "cue": "merge two sorted piles"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Merge sort, step 1: split",
+     "say": "Take this six card array. Cut it in half. Cut each half again. Keep cutting. A single card is already sorted, so cutting stops there. Six cards need three cuts: log base two of six, rounded up. Work happens on the way back up.",
+     "items": [
+      {
+       "id": "t0",
+       "x": 660,
+       "y": 210,
+       "w": 600,
+       "h": 100,
+       "text": "5 2 4 6 1 3",
+       "size": 48,
+       "tone": "blue",
+       "cue": "this six card array"
+      },
+      {
+       "id": "m0",
+       "x": 420,
+       "y": 410,
+       "w": 300,
+       "h": 100,
+       "text": "5 2 4",
+       "size": 44,
+       "cue": "Cut it in half"
+      },
+      {
+       "id": "m1",
+       "x": 1200,
+       "y": 410,
+       "w": 300,
+       "h": 100,
+       "text": "6 1 3",
+       "size": 44,
+       "cue": "Cut it in half"
+      },
+      {
+       "id": "l0",
+       "x": 350,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "5 2",
+       "size": 44,
+       "cue": "Cut each half again"
+      },
+      {
+       "id": "l1",
+       "x": 590,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "4",
+       "size": 44,
+       "cue": "Cut each half again"
+      },
+      {
+       "id": "l2",
+       "x": 1130,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "6 1",
+       "size": 44,
+       "cue": "Cut each half again"
+      },
+      {
+       "id": "l3",
+       "x": 1370,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "3",
+       "size": 44,
+       "cue": "Cut each half again"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t0",
+       "to": "m0",
+       "cue": "Cut it in half"
+      },
+      {
+       "from": "t0",
+       "to": "m1",
+       "cue": "Cut it in half"
+      },
+      {
+       "from": "m0",
+       "to": "l0",
+       "cue": "Cut each half again"
+      },
+      {
+       "from": "m0",
+       "to": "l1",
+       "cue": "Cut each half again"
+      },
+      {
+       "from": "m1",
+       "to": "l2",
+       "cue": "Cut each half again"
+      },
+      {
+       "from": "m1",
+       "to": "l3",
+       "cue": "Cut each half again"
+      }
+     ],
+     "notes": [
+      {
+       "x": 560,
+       "y": 740,
+       "text": "cut until single cards: 3 cuts",
+       "tone": "warn",
+       "cue": "three cuts"
+      }
+     ],
+     "changes": [
+      {
+       "id": "l1",
+       "glow": true,
+       "tone": "good",
+       "cue": "A single card"
+      },
+      {
+       "id": "l3",
+       "glow": true,
+       "tone": "good",
+       "cue": "A single card"
+      },
+      {
+       "id": "t0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Work happens"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Merge sort, step 2: merge",
+     "say": "Now merge back up. To merge two sorted piles, compare the fronts and take the smaller. Five and two: two goes first. Six and one: one goes first. Merge two five with four: two, four, five. Merge one six with three: one, three, six. Last merge: one through six. Every level touches all six cards. Three levels: O of n log n.",
+     "items": [
+      {
+       "id": "t0",
+       "x": 660,
+       "y": 210,
+       "w": 600,
+       "h": 100,
+       "text": "5 2 4 6 1 3",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "m0",
+       "x": 420,
+       "y": 410,
+       "w": 300,
+       "h": 100,
+       "text": "5 2 4",
+       "size": 44
+      },
+      {
+       "id": "m1",
+       "x": 1200,
+       "y": 410,
+       "w": 300,
+       "h": 100,
+       "text": "6 1 3",
+       "size": 44
+      },
+      {
+       "id": "l0",
+       "x": 350,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "5 2",
+       "size": 44
+      },
+      {
+       "id": "l1",
+       "x": 590,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "4",
+       "size": 44
+      },
+      {
+       "id": "l2",
+       "x": 1130,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "6 1",
+       "size": 44
+      },
+      {
+       "id": "l3",
+       "x": 1370,
+       "y": 610,
+       "w": 200,
+       "h": 100,
+       "text": "3",
+       "size": 44
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t0",
+       "to": "m0"
+      },
+      {
+       "from": "t0",
+       "to": "m1"
+      },
+      {
+       "from": "m0",
+       "to": "l0"
+      },
+      {
+       "from": "m0",
+       "to": "l1"
+      },
+      {
+       "from": "m1",
+       "to": "l2"
+      },
+      {
+       "from": "m1",
+       "to": "l3"
+      }
+     ],
+     "changes": [
+      {
+       "id": "l0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "compare the fronts"
+      },
+      {
+       "id": "l0",
+       "text": "2 5",
+       "tone": "good",
+       "cue": "two goes first"
+      },
+      {
+       "id": "l2",
+       "text": "1 6",
+       "tone": "good",
+       "cue": "one goes first"
+      },
+      {
+       "id": "m0",
+       "text": "2 4 5",
+       "tone": "good",
+       "cue": "two, four, five"
+      },
+      {
+       "id": "m1",
+       "text": "1 3 6",
+       "tone": "good",
+       "cue": "one, three, six"
+      },
+      {
+       "id": "t0",
+       "text": "1 2 3 4 5 6",
+       "tone": "good",
+       "cue": "one through six"
+      },
+      {
+       "id": "t0",
+       "glow": true,
+       "cue": "Every level touches"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Merge sort: split and recurse",
+     "say": "In code: sort the left half, sort the right half, then merge them. A range of one card or none is already sorted, so the recursion stops there. The middle splits the range.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void mergeSort(vector<int>& a, int l, int r) {\n    if (r - l < 2) return;\n    int m = (l + r) / 2;\n    mergeSort(a, l, m);\n    mergeSort(a, m, r);\n    merge(a, l, m, r);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "sort the left half"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "sort the right half"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "then merge"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "already sorted"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "The middle"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "base case: 0 or 1 card",
+       "tone": "good",
+       "cue": "already sorted"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The merge, and why it is stable",
+     "say": "Merge walks both halves with i and j, always taking the smaller front into a temp vector. Notice the less or equal sign. On a tie, the left card wins, so equal cards keep their order. That's called stable. The price: O of n extra memory.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void merge(vector<int>& a, int l, int m, int r) {\n    vector<int> t;\n    int i = l, j = m;\n    while (i < m || j < r) {\n        if (j == r || (i < m && a[i] <= a[j]))\n            t.push_back(a[i++]);\n        else\n            t.push_back(a[j++]);\n    }\n    copy(t.begin(), t.end(), a.begin() + l);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "walks both halves"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "smaller front"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "less or equal"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "left card wins"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The price"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "<= : left wins ties",
+       "tone": "good",
+       "cue": "less or equal"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. One thousand twenty four cards. How many times can you halve the pile before every card stands alone? Pause and predict.",
+     "q": "Halvings from 1,024 cards to single cards?",
+     "options": [
+      "10",
+      "32",
+      "512",
+      "1,024"
+     ],
+     "answer": "10"
+    },
+    {
+     "type": "flow",
+     "head": "Why merge sort is O(n log n)",
+     "say": "Ten. Two to the tenth is one thousand twenty four. Each of the ten levels merges all one thousand twenty four cards, so about ten thousand steps. That's n log n: log n levels, n work each.",
+     "items": [
+      {
+       "label": "halvings",
+       "text": "10",
+       "sub": "2¹⁰ = 1,024",
+       "cue": "Ten."
+      },
+      {
+       "label": "each level",
+       "text": "1,024 cards",
+       "sub": "merged once",
+       "cue": "Each of the ten levels"
+      },
+      {
+       "label": "total",
+       "text": "≈ 10,240",
+       "sub": "n log n",
+       "tone": "good",
+       "cue": "about ten thousand"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say these out loud",
+     "heads": [
+      "Question",
+      "Answer"
+     ],
+     "say": "Three things to say out loud. Stable means equal items keep their input order. Merge sort is stable if you merge with less or equal, not less than. Insertion sort? Great for tiny or nearly sorted arrays.",
+     "rows": [
+      [
+       "What is stable?",
+       "equal items keep input order"
+      ],
+      [
+       "Merge sort stable?",
+       "yes: merge with `<=`, not `<`"
+      ],
+      [
+       "Insertion sort, when?",
+       "tiny or nearly sorted: O(n)"
+      ]
+     ],
+     "cues": [
+      "Stable means",
+      "Merge sort is stable",
+      "Insertion sort?"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Quicksort: pick a boss",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sort in place, no merging",
+     "statement": "Sort an array without extra memory, by fixing one element's final spot at a time.",
+     "example": {
+      "input": "[5, 2, 4, 6, 1, 3], pivot 3",
+      "output": "3 lands at index 2: smaller left, bigger right"
+     },
+     "say": "The problem: sort in place, by fixing one element's final spot at a time. For example, five, two, four, six, one, three, with pivot three. The answer: three lands at index two, smaller cards left, bigger right.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Lining up a crowd by height",
+     "say": "Quicksort lines up a crowd by height. Pick one person as the boss, the pivot. Everyone shorter goes left. Everyone taller goes right. Now the boss stands in the final spot and never moves again. Repeat on each side.",
+     "items": [
+      {
+       "label": "pick",
+       "text": "a boss",
+       "sub": "the pivot",
+       "cue": "Pick one person"
+      },
+      {
+       "label": "shorter",
+       "text": "go left",
+       "cue": "shorter goes left"
+      },
+      {
+       "label": "taller",
+       "text": "go right",
+       "cue": "taller goes right"
+      },
+      {
+       "label": "the boss",
+       "text": "stays put",
+       "sub": "final spot",
+       "tone": "good",
+       "cue": "never moves again"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Partition around the last card",
+     "say": "Take this six card array. The pivot is the last card: three. Pointer i marks where the next small card goes. Pointer j scans. Five: bigger, skip. Two: smaller, swap it left. Four: bigger. Six: bigger. One: smaller, swap it left too. Last, swap the pivot into slot i. Three is home.",
+     "items": [
+      {
+       "array": {
+        "id": "q",
+        "values": [
+         5,
+         2,
+         4,
+         6,
+         1,
+         3
+        ],
+        "y": 380,
+        "cue": "this six card array"
+       }
+      },
+      {
+       "id": "pv",
+       "x": 140,
+       "y": 400,
+       "w": 240,
+       "h": 120,
+       "label": "pivot",
+       "text": "3",
+       "size": 56,
+       "tone": "warn",
+       "cue": "The pivot is the last card"
+      },
+      {
+       "id": "pi",
+       "x": 450,
+       "y": 570,
+       "w": 120,
+       "h": 70,
+       "text": "i",
+       "tone": "good",
+       "cue": "Pointer i"
+      },
+      {
+       "id": "pj",
+       "x": 450,
+       "y": 660,
+       "w": 120,
+       "h": 70,
+       "text": "j",
+       "tone": "bad",
+       "cue": "Pointer j scans"
+      }
+     ],
+     "changes": [
+      {
+       "id": "pj",
+       "move": [
+        630,
+        660
+       ],
+       "cue": "Two: smaller"
+      },
+      {
+       "id": "q0",
+       "text": "2",
+       "cue": "swap it left"
+      },
+      {
+       "id": "q1",
+       "text": "5",
+       "cue": "swap it left"
+      },
+      {
+       "id": "pi",
+       "move": [
+        630,
+        570
+       ],
+       "cue": "swap it left"
+      },
+      {
+       "id": "pj",
+       "move": [
+        810,
+        660
+       ],
+       "cue": "Four: bigger"
+      },
+      {
+       "id": "pj",
+       "move": [
+        990,
+        660
+       ],
+       "cue": "Six: bigger"
+      },
+      {
+       "id": "pj",
+       "move": [
+        1170,
+        660
+       ],
+       "cue": "One: smaller"
+      },
+      {
+       "id": "q1",
+       "text": "1",
+       "cue": "left too"
+      },
+      {
+       "id": "q4",
+       "text": "5",
+       "cue": "left too"
+      },
+      {
+       "id": "pi",
+       "move": [
+        810,
+        570
+       ],
+       "cue": "left too"
+      },
+      {
+       "id": "q2",
+       "text": "3",
+       "cue": "swap the pivot"
+      },
+      {
+       "id": "q5",
+       "text": "4",
+       "cue": "swap the pivot"
+      },
+      {
+       "id": "q2",
+       "glow": true,
+       "tone": "good",
+       "cue": "Three is home"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Partition in code",
+     "say": "In code, the pivot is the last card. Scan j from the left. When a card is smaller than the pivot, swap it to slot i and move i forward. At the end, swap the pivot into slot i, and return where it landed.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int partition(vector<int>& a, int lo, int hi) {\n    int pivot = a[hi], i = lo;\n    for (int j = lo; j < hi; j++) {\n        if (a[j] < pivot) {\n            swap(a[i], a[j]);\n            i++;\n        }\n    }\n    swap(a[i], a[hi]);\n    return i;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "the pivot is the last"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Scan j"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "swap it to slot i"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "swap the pivot into"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "return where"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Then recurse on both sides",
+     "say": "Three is placed. Now do the same on each side. Left side, two and one, becomes one, two. Right side: six, five, four. Pivot four lands in its place, and five, six fall into line. No merging needed, because every pivot is already home.",
+     "items": [
+      {
+       "array": {
+        "id": "q",
+        "values": [
+         2,
+         1,
+         3,
+         6,
+         5,
+         4
+        ],
+        "y": 380
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "q2",
+       "glow": true,
+       "tone": "good",
+       "cue": "Three is placed"
+      },
+      {
+       "id": "q0",
+       "text": "1",
+       "tone": "good",
+       "cue": "becomes one, two"
+      },
+      {
+       "id": "q1",
+       "text": "2",
+       "tone": "good",
+       "cue": "becomes one, two"
+      },
+      {
+       "id": "q3",
+       "text": "4",
+       "tone": "good",
+       "cue": "Pivot four lands"
+      },
+      {
+       "id": "q5",
+       "text": "6",
+       "tone": "good",
+       "cue": "fall into line"
+      },
+      {
+       "id": "q4",
+       "tone": "good",
+       "glow": true,
+       "cue": "fall into line"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Quicksort in code",
+     "say": "The recursion: partition, then sort what's left of the pivot, and what's right of it. Stop when a range has fewer than two cards. On our array, it prints one through six.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}\nvector<int> a = {5, 2, 4, 6, 1, 3};\nquickSort(a, 0, 5);\nfor (int x : a) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "partition, then"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "left of the pivot"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Stop when"
+      },
+      {
+       "lines": [
+        7,
+        8,
+        9
+       ],
+       "cue": "On our array"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "1 2 3 4 5 6",
+      "cue": "prints one through six"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The array is already sorted, and the pivot is the last card. How many cards land left of the pivot? Pause and predict.",
+     "q": "Sorted 1 to 6, pivot is the last card. Left side?",
+     "options": [
+      "0",
+      "3",
+      "5",
+      "6"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "diagram",
+     "head": "The worst case: a sorted array",
+     "say": "Five. Every card is smaller than six, so all five land on the left, and the right side is empty. Next round faces five cards, then four, then three. That's n rounds of n work: O of n squared. Random pivots avoid it.",
+     "items": [
+      {
+       "array": {
+        "id": "q",
+        "values": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
+        ],
+        "y": 380
+       }
+      },
+      {
+       "id": "L",
+       "x": 520,
+       "y": 640,
+       "w": 420,
+       "h": 110,
+       "label": "left of pivot",
+       "text": "?",
+       "size": 48,
+       "cue": "Every card is smaller"
+      },
+      {
+       "id": "R",
+       "x": 1060,
+       "y": 640,
+       "w": 420,
+       "h": 110,
+       "label": "right of pivot",
+       "text": "?",
+       "size": 48,
+       "cue": "right side is empty"
+      }
+     ],
+     "notes": [
+      {
+       "x": 520,
+       "y": 830,
+       "text": "n rounds × n work = O(n²)",
+       "tone": "bad",
+       "cue": "That's n rounds"
+      }
+     ],
+     "changes": [
+      {
+       "id": "q5",
+       "glow": true,
+       "tone": "warn",
+       "cue": "smaller than six"
+      },
+      {
+       "id": "L",
+       "text": "5 cards",
+       "tone": "bad",
+       "cue": "all five land"
+      },
+      {
+       "id": "R",
+       "text": "0 cards",
+       "cue": "empty"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "What std::sort really does",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "What does std::sort do?",
+     "statement": "Say what std::sort really does, and how to give it your own order.",
+     "example": {
+      "input": "words by length: banana, fig, apple, kiwi",
+      "output": "fig, kiwi, apple, banana"
+     },
+     "say": "What does s t d colon colon sort do? How about a custom order? For example, sort words by length. The answer: introsort, with a comparator.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Introsort: three sorts in one",
+     "say": "Call s t d colon colon sort. In common implementations, it's an introsort: quicksort first. If recursion gets too deep, it switches to heap sort, so the worst case stays O of n log n. On tiny ranges, it uses insertion sort.",
+     "items": [
+      {
+       "label": "usually",
+       "text": "quicksort",
+       "cue": "quicksort first"
+      },
+      {
+       "label": "too deep",
+       "text": "heap sort",
+       "sub": "worst case safe",
+       "tone": "warn",
+       "cue": "switches to heap sort"
+      },
+      {
+       "label": "tiny ranges",
+       "text": "insertion sort",
+       "tone": "good",
+       "cue": "On tiny ranges"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A comparator: shorter words first",
+     "say": "For a custom order, pass a comparator: does x come before y? Here, shorter words first. It must say strictly less. Fig, kiwi, apple, banana.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<string> w = {\"banana\", \"fig\", \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(), [](const string& x, const string& y) {\n    return x.size() < y.size();\n});\nfor (auto& s : w) cout << s << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "pass a comparator"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "shorter words first"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "strictly less"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Fig, kiwi"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "strict: < never <=",
+       "tone": "warn",
+       "cue": "strictly less"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "fig kiwi apple banana",
+      "cue": "Fig, kiwi"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Bob and Cat both scored ninety, and Bob came first in the input. Which call guarantees Bob stays ahead? Pause and predict.",
+     "q": "Equal scores, bob before cat. Which call keeps that?",
+     "options": [
+      "`sort` with `>`",
+      "`sort` with `>=`",
+      "`stable_sort` with `>`",
+      "`sort` with `<`"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "code",
+     "head": "stable_sort keeps ties in order",
+     "say": "Stable sort, with greater than. Plain sort makes no promise about ties. Stable sort keeps equal items in input order, so Bob stays ahead of Cat. Amy, with eighty five, comes last.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "Stable sort, with"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Plain sort makes"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "keeps equal items"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Bob stays ahead"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Amy"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "sort: ties in any order",
+       "tone": "warn",
+       "cue": "Plain sort makes"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "bob 90\ncat 90\namy 85",
+      "tone": "good",
+      "cue": "Bob stays ahead"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Traps and trade-offs",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "The traps. Is sort stable? No. Use stable sort. A comparator with greater or equal is undefined behavior, so stay strict. Quicksort versus merge? Quick is in place, merge is stable but needs memory. Worst case of s t d sort? Still n log n.",
+     "rows": [
+      [
+       "Is `std::sort` stable?",
+       "no: use `stable_sort` for ties"
+      ],
+      [
+       "Comparator with `>=`?",
+       "undefined behavior, can crash"
+      ],
+      [
+       "Quicksort or merge sort?",
+       "quick: in place · merge: stable"
+      ],
+      [
+       "Worst case of `std::sort`?",
+       "O(n log n): introsort"
+      ]
+     ],
+     "cues": [
+      "Is sort stable",
+      "A comparator with",
+      "Quicksort versus",
+      "Worst case of"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Beat n log n with counting",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sort a million ages",
+     "statement": "Sort values that are small whole numbers, like ages 0 to 120, faster than comparing.",
+     "example": {
+      "input": "[3, 1, 0, 3, 4, 1, 3]",
+      "output": "[0, 1, 1, 3, 3, 3, 4]"
+     },
+     "say": "The problem: sort small whole numbers, like ages, without comparing. For example, three, one, zero, three, four, one, three. The answer: zero, one, one, three, three, three, four.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Tally marks, not comparisons",
+     "say": "Say you have ages, zero to one hundred twenty. Keep one tally per age. Then read the tallies in order. That's counting sort. No comparing, so the cost is n plus k, not n log n.",
+     "items": [
+      {
+       "label": "ages",
+       "text": "0 to 120",
+       "sub": "121 values",
+       "cue": "ages, zero to"
+      },
+      {
+       "label": "tally",
+       "text": "a counter each",
+       "cue": "one tally per age"
+      },
+      {
+       "label": "read out",
+       "text": "in order",
+       "tone": "good",
+       "cue": "read the tallies"
+      },
+      {
+       "label": "cost",
+       "text": "n + k",
+       "sub": "k = value range",
+       "tone": "blue",
+       "cue": "the cost is"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Counting sort: values 0 to 4",
+     "say": "Say the ages are zero to four. Make one counter per value. Walk the input. Three bumps counter three. One bumps counter one. Zero bumps counter zero. Another three. Then four. Then another one. Then a last three. Now write each value out as often as its counter says: zero, one one, three three three, four.",
+     "items": [
+      {
+       "array": {
+        "id": "in",
+        "values": [
+         3,
+         1,
+         0,
+         3,
+         4,
+         1,
+         3
+        ],
+        "y": 280,
+        "cue": "Say the ages"
+       }
+      },
+      {
+       "array": {
+        "id": "cn",
+        "values": [
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "y": 580,
+        "cue": "one counter per value"
+       }
+      },
+      {
+       "id": "out",
+       "x": 520,
+       "y": 830,
+       "w": 900,
+       "h": 80,
+       "text": "(sorted output)",
+       "size": 40,
+       "cue": "write each value out"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cn3",
+       "text": "1",
+       "cue": "Three bumps"
+      },
+      {
+       "id": "cn1",
+       "text": "1",
+       "cue": "One bumps"
+      },
+      {
+       "id": "cn0",
+       "text": "1",
+       "cue": "Zero bumps"
+      },
+      {
+       "id": "cn3",
+       "text": "2",
+       "cue": "Another three"
+      },
+      {
+       "id": "cn4",
+       "text": "1",
+       "cue": "Then four"
+      },
+      {
+       "id": "cn1",
+       "text": "2",
+       "cue": "another one"
+      },
+      {
+       "id": "cn3",
+       "text": "3",
+       "cue": "a last three"
+      },
+      {
+       "id": "out",
+       "text": "0 1 1 3 3 3 4",
+       "tone": "good",
+       "cue": "zero, one one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Counting sort in code",
+     "say": "In code: a counter array of size five, all zero. One pass counts. Then for each value, print it as many times as its counter says. Sorted. The cost is O of n plus k, where k is the value range. For a million ages, k is just one hundred twenty one.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> a = {3, 1, 0, 3, 4, 1, 3};\nvector<int> cnt(5, 0);\nfor (int x : a) cnt[x]++;\nfor (int v = 0; v < 5; v++)\n    for (int c = 0; c < cnt[v]; c++)\n        cout << v << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "counter array"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "One pass counts"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "print it as many"
+      },
+      {
+       "lines": [],
+       "cue": "The cost is"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "k = 5 values here",
+       "tone": "warn",
+       "cue": "where k is"
+      },
+      {
+       "line": 4,
+       "inside": true,
+       "text": "k = 121 for ages",
+       "tone": "good",
+       "cue": "just one hundred"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "0 1 1 3 3 3 4",
+      "cue": "Sorted."
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Which of these suits counting sort? Pause and predict.",
+     "q": "Which input suits counting sort?",
+     "options": [
+      "1M ages, 0 to 120",
+      "1M ints up to 10⁹",
+      "1M long names",
+      "1M prices as doubles"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "chart",
+     "head": "Counters you would need",
+     "unit": "counters",
+     "say": "Counters each method needs. Ages: one hundred twenty one counters, nothing. Ints up to a billion need a billion counters, about four gigabytes. Names and doubles? Use plain sort.",
+     "bars": [
+      {
+       "label": "ages",
+       "value": 121,
+       "tone": "good",
+       "cue": "One hundred twenty one"
+      },
+      {
+       "label": "ints 10⁹",
+       "value": 1000000000,
+       "tone": "bad",
+       "cue": "a billion counters"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp21"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Insertion sort? Slide each card into place, quadratic. Merge sort? Split, sort the halves, merge. Why n log n? Log n levels of halving, and each level merges n items.",
+     "rows": [
+      [
+       "Insertion sort?",
+       "slide each card into place: O(n²)"
+      ],
+      [
+       "Merge sort?",
+       "split, sort halves, merge"
+      ],
+      [
+       "Why O(n log n)?",
+       "log n levels, each merges n items"
+      ]
+     ],
+     "cues": [
+      "Insertion sort?",
+      "Merge sort?",
+      "Why n log n?"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The follow-ups",
+     "covers": [
+      "cp21"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Stable? Equal items keep their order. When insertion sort? Tiny or nearly sorted arrays, where it's O of n. Common mistake? Less than instead of less or equal in the merge.",
+     "rows": [
+      [
+       "What does stable mean?",
+       "equal items keep input order"
+      ],
+      [
+       "When use insertion sort?",
+       "tiny or nearly sorted: O(n)"
+      ],
+      [
+       "Common mistake?",
+       "`<` instead of `<=` in the merge"
+      ]
+     ],
+     "cues": [
+      "Stable?",
+      "When insertion sort?",
+      "Common mistake?"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp22"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Quicksort? Pick a pivot, partition smaller left and bigger right, recurse. Worst case? O of n squared with bad pivots, like a sorted array. Quick or merge? Quick is in place, merge is stable.",
+     "rows": [
+      [
+       "How does quicksort work?",
+       "partition around a pivot, recurse"
+      ],
+      [
+       "Worst case?",
+       "O(n²), bad pivots: avg is O(n log n)"
+      ],
+      [
+       "Quick or merge sort?",
+       "quick: in place · merge: stable"
+      ]
+     ],
+     "cues": [
+      "Quicksort?",
+      "Worst case?",
+      "Quick or merge?"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "What std::sort does",
+     "covers": [
+      "cp22"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What does s t d sort do? Introsort: n log n worst case, not stable. Comparator? Strict less, never less or equal. Counting sort? A small integer range k, in O of n plus k.",
+     "rows": [
+      [
+       "What does `std::sort` do?",
+       "introsort: O(n log n), not stable"
+      ],
+      [
+       "Comparator rules?",
+       "strict `<`; `<=` is undefined behavior"
+      ],
+      [
+       "When counting sort?",
+       "small integer range k: O(n + k)"
+      ]
+     ],
+     "cues": [
+      "What does s t d",
+      "Comparator?",
+      "Counting sort?"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode seventy five, Sort Colors, is counting sort in disguise. LeetCode fifty six, Merge Intervals, sorts with a comparator first. LeetCode one forty eight, Sort List, is merge sort on a linked list.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 75 · Sort Colors",
+       "counting sort with three values"
+      ],
+      [
+       "LeetCode 56 · Merge Intervals",
+       "sort by start with a comparator"
+      ],
+      [
+       "LeetCode 148 · Sort List",
+       "merge sort on a linked list"
+      ]
+     ],
+     "cues": [
+      "seventy five",
+      "fifty six",
+      "one forty eight"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Insertion sort is quadratic, merge sort is n log n and stable. Quicksort partitions, and s t d sort is introsort. For a small integer range, counting sort is linear.",
+     "lines": [
+      "Insertion O(n²); merge O(n log n), stable.",
+      "Quicksort partitions; `std::sort` is introsort.",
+      "Small integer range: counting sort, O(n + k)."
+     ],
+     "cues": [
+      "Insertion sort is",
+      "Quicksort partitions",
+      "For a small integer"
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2117 @@
+{
+ "id": "dsa-14",
+ "track": "DSA",
+ "num": 14,
+ "title": "Contest Toolkit: Number Theory & Range Queries",
+ "covers": [
+  "cp18",
+  "cp19"
+ ],
+ "caps": [
+  [
+   "O of n log log n",
+   "O(n log log n)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of root n",
+   "O(√n)"
+  ],
+  [
+   "O of log e",
+   "O(log e)"
+  ],
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "Big O",
+   "Big-O"
+  ],
+  [
+   "one billion seven",
+   "1,000,000,007"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Clock arithmetic and gcd",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Compute three to the thirteen mod seven in five multiplications. Then answer range sums while values keep changing, in log n. By the end you'll do both, with number theory and trees.",
+     "lines": [
+      {
+       "text": "3^13 mod 7 in 5 multiplications",
+       "cue": "Compute three"
+      },
+      {
+       "text": "Range sums while values change",
+       "cue": "range sums"
+      },
+      {
+       "text": "Both in log n",
+       "cue": "do both",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Do arithmetic mod a big prime, with fast powers and gcd. List primes with a sieve. And answer range queries with a Fenwick tree or a segment tree.",
+     "lines": [
+      "Mod arithmetic, fast power, gcd",
+      "Primes with a sieve",
+      "Range queries: Fenwick, segment tree"
+     ],
+     "cues": [
+      "Do arithmetic",
+      "List primes",
+      "range queries"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Huge answer, small remainder",
+     "statement": "Contest answers are astronomically large. Print them modulo 1,000,000,007.",
+     "example": {
+      "input": "2^100 mod 1,000,000,007",
+      "output": "976371285"
+     },
+     "say": "Here is the problem. Contest answers get astronomically large, so you print the remainder. For example, two to the hundredth. The answer starts nine seven six, three seven one, two eight five.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer starts"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Mod is clock arithmetic",
+     "say": "A clock wraps at twelve. It's ten o'clock. Add five hours: fifteen, which wraps to three o'clock. That wrap is mod. In contests we mod by one billion seven. The remainder always fits.",
+     "items": [
+      {
+       "label": "now",
+       "text": "10 o'clock",
+       "cue": "ten o'clock"
+      },
+      {
+       "label": "add 5 hours",
+       "text": "15",
+       "cue": "Add five hours"
+      },
+      {
+       "label": "wraps (mod 12)",
+       "text": "3 o'clock",
+       "tone": "good",
+       "cue": "wraps to three"
+      },
+      {
+       "label": "contest",
+       "text": "mod 10⁹+7",
+       "sub": "remainder always fits",
+       "cue": "In contests"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Mod rules, gcd and lcm",
+     "say": "The constant is one billion seven, a prime. Reduce mod after every add and multiply. Both inputs below it, so a product fits in sixty four bits. Subtraction needs the plus M fix. Gcd is a library call. Lcm divides first so it can't overflow.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "const long long M = 1'000'000'007;\nlong long a = 5, b = 8;\ncout << (a + b) % M << ' ' << a * b % M << ' ';\ncout << ((a - b) % M + M) % M << '\\n';\ncout << gcd(48, 18) << ' ' << 48 / gcd(48, 18) * 18;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "after every add"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "a product fits"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Subtraction needs"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Gcd is a library"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "+ M keeps it positive",
+       "tone": "warn",
+       "cue": "plus M fix"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "13 40 1000000004\n6 144",
+      "cue": "divides first"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. In C plus plus, what does three minus five, then percent seven, print? Pause and predict.",
+     "q": "In C++, what does `(3 - 5) % 7` print?",
+     "options": [
+      "2",
+      "-2",
+      "5",
+      "-5"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "code",
+     "head": "Negative remainders",
+     "say": "Negative two. C plus plus keeps the sign of the left side, so the remainder can be negative. Add seven and take mod again: five, the true clock answer. That's why subtraction needs plus M.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "cout << (3 - 5) % 7 << ' ';\ncout << ((3 - 5) % 7 + 7) % 7;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "keeps the sign"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Add seven"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "negative!",
+       "tone": "bad",
+       "cue": "can be negative"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "-2 5",
+      "cue": "the true clock answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Euclid: gcd(48, 18)",
+     "say": "How does gcd work? Replace the pair with the second number and the remainder. Forty eight mod eighteen is twelve. Eighteen mod twelve is six. Twelve mod six is zero. When the remainder is zero, the other number is the answer: six.",
+     "items": [
+      {
+       "label": "start",
+       "text": "48, 18",
+       "cue": "the pair"
+      },
+      {
+       "label": "48 mod 18 = 12",
+       "text": "18, 12",
+       "cue": "Forty eight mod"
+      },
+      {
+       "label": "18 mod 12 = 6",
+       "text": "12, 6",
+       "cue": "Eighteen mod twelve"
+      },
+      {
+       "label": "12 mod 6 = 0",
+       "text": "gcd = 6",
+       "tone": "good",
+       "cue": "remainder is zero"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Fast power and inverses",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Fast power",
+     "statement": "Compute a big power modulo m without multiplying e times.",
+     "example": {
+      "input": "3^13 mod 7",
+      "output": "3, in five multiplications"
+     },
+     "say": "Next problem. Three to the thirteenth, mod seven. The answer is three, in five multiplications, not twelve.",
+     "cues": {
+      "example": "Three to the",
+      "output": "The answer is three"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "13 in binary: 1101",
+     "say": "Thirteen in binary is one one zero one: eight plus four plus one. So three to the thirteen is three to the eight, times three to the four, times three to the one. Squaring builds each power. That's three squarings and two joins.",
+     "items": [
+      {
+       "label": "13 in binary",
+       "text": "1101",
+       "cue": "one one zero one"
+      },
+      {
+       "label": "split",
+       "text": "8 + 4 + 1",
+       "cue": "eight plus four"
+      },
+      {
+       "label": "powers",
+       "text": "3⁸ · 3⁴ · 3",
+       "cue": "three to the eight"
+      },
+      {
+       "label": "cost",
+       "text": "5 mults",
+       "sub": "not 12",
+       "tone": "good",
+       "cue": "Squaring builds each"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "3^13 mod 7, step by step",
+     "say": "Start: result one, base three, exponent thirteen. Odd, so result becomes three. Square the base: two. Halve the exponent: six. Even: square the base, four, exponent three. Odd: result three times four, mod seven, is five. Square: two, exponent one. Odd: result five times two is three. Done: three.",
+     "items": [
+      {
+       "id": "r",
+       "x": 200,
+       "y": 420,
+       "w": 420,
+       "h": 150,
+       "label": "result",
+       "text": "1",
+       "size": 64,
+       "tone": "good",
+       "cue": "Start: result"
+      },
+      {
+       "id": "b",
+       "x": 750,
+       "y": 420,
+       "w": 420,
+       "h": 150,
+       "label": "base",
+       "text": "3",
+       "size": 64,
+       "tone": "blue",
+       "cue": "base three"
+      },
+      {
+       "id": "e",
+       "x": 1300,
+       "y": 420,
+       "w": 420,
+       "h": 150,
+       "label": "exponent",
+       "text": "13",
+       "size": 64,
+       "tone": "warn",
+       "cue": "exponent thirteen"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r",
+       "text": "3",
+       "cue": "becomes three"
+      },
+      {
+       "id": "b",
+       "text": "2",
+       "cue": "Square the base"
+      },
+      {
+       "id": "e",
+       "text": "6",
+       "cue": "Halve the exponent"
+      },
+      {
+       "id": "b",
+       "text": "4",
+       "cue": "base, four"
+      },
+      {
+       "id": "e",
+       "text": "3",
+       "cue": "exponent three"
+      },
+      {
+       "id": "r",
+       "text": "5",
+       "cue": "mod seven, is five"
+      },
+      {
+       "id": "b",
+       "text": "2",
+       "cue": "Square: two"
+      },
+      {
+       "id": "e",
+       "text": "1",
+       "cue": "exponent one"
+      },
+      {
+       "id": "r",
+       "text": "3",
+       "glow": true,
+       "cue": "is three. Done"
+      },
+      {
+       "id": "e",
+       "text": "0",
+       "cue": "Done"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fast power in code",
+     "say": "The loop in code. If the lowest bit of e is set, multiply the result. Always square the base, and shift e right. That's O of log e multiplications, not e. It prints three.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "long long power(long long b, long long e, long long m) {\n    long long r = 1; b %= m;\n    while (e > 0) {\n        if (e & 1) r = r * b % m;\n        b = b * b % m; e >>= 1;\n    }\n    return r;\n}\nint main() { cout << power(3, 13, 7); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "lowest bit"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "square the base"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "It prints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "O(log e) rounds",
+       "tone": "good",
+       "cue": "log e"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "3",
+      "cue": "prints three"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Dividing mod a prime means multiplying by an inverse, and Fermat says the inverse of a is a to the p minus two. What is the inverse of three mod seven? Pause and predict.",
+     "q": "Inverse of 3 mod 7 (3 · x ≡ 1)?",
+     "options": [
+      "2",
+      "4",
+      "5",
+      "6"
+     ],
+     "answer": 2,
+     "pause": 7
+    },
+    {
+     "type": "code",
+     "head": "Inverse of 3 mod 7",
+     "say": "Five. Three to the fifth is two forty three, which is five mod seven. And three times five is fifteen, which is one mod seven. So dividing by three means multiplying by five.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "cout << power(3, 7 - 2, 7) << ' ';\ncout << 3 * 5 % 7;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Three to the fifth"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "three times five"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 1",
+      "cue": "is one mod seven"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Three modular traps",
+     "say": "Three traps. Fermat's inverse needs a prime modulus. Otherwise use extended Euclid. Multiply three numbers and the product overflows before the mod: reduce after every times. And plain power loops e times, too slow for big e.",
+     "heads": [
+      "Trap",
+      "Fix"
+     ],
+     "rows": [
+      [
+       "Fermat inverse, composite m",
+       "needs a prime m; else extended Euclid"
+      ],
+      [
+       "`a * b * c % M`",
+       "`a * b % M * c % M`"
+      ],
+      [
+       "power by a loop of e",
+       "fast power: O(log e)"
+      ]
+     ],
+     "cues": [
+      "Fermat's inverse",
+      "Multiply three",
+      "plain power"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The sieve",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "All primes up to 30",
+     "statement": "List every prime up to n, fast.",
+     "example": {
+      "input": "n = 30",
+      "output": "2 3 5 7 11 13 17 19 23 29"
+     },
+     "note": "n up to 10,000,000",
+     "say": "Next problem. List every prime up to thirty. Ten primes, two up to twenty nine. And n can reach ten million.",
+     "cues": {
+      "example": "List every prime",
+      "output": "Ten primes",
+      "note": "ten million"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Sieve of Eratosthenes, up to 30",
+     "say": "Write the numbers one to thirty. One isn't prime, so it's out. Cross out the multiples of two, starting at four. Next survivor, three: cross out its multiples, starting at nine. Next, five: its first new multiple is twenty five. Seven squared is forty nine, past thirty, so stop. Everything left standing is prime.",
+     "items": [
+      {
+       "id": "n1",
+       "x": 510,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "1",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n2",
+       "x": 660,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "2",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n3",
+       "x": 810,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "3",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n4",
+       "x": 960,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "4",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n5",
+       "x": 1110,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "5",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n6",
+       "x": 1260,
+       "y": 260,
+       "w": 130,
+       "h": 100,
+       "text": "6",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n7",
+       "x": 510,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "7",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n8",
+       "x": 660,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "8",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n9",
+       "x": 810,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "9",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n10",
+       "x": 960,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "10",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n11",
+       "x": 1110,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "11",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n12",
+       "x": 1260,
+       "y": 380,
+       "w": 130,
+       "h": 100,
+       "text": "12",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n13",
+       "x": 510,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "13",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n14",
+       "x": 660,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "14",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n15",
+       "x": 810,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "15",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n16",
+       "x": 960,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "16",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n17",
+       "x": 1110,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "17",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n18",
+       "x": 1260,
+       "y": 500,
+       "w": 130,
+       "h": 100,
+       "text": "18",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n19",
+       "x": 510,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "19",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n20",
+       "x": 660,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "20",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n21",
+       "x": 810,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "21",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n22",
+       "x": 960,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "22",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n23",
+       "x": 1110,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "23",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n24",
+       "x": 1260,
+       "y": 620,
+       "w": 130,
+       "h": 100,
+       "text": "24",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n25",
+       "x": 510,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "25",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n26",
+       "x": 660,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "26",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n27",
+       "x": 810,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "27",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n28",
+       "x": 960,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "28",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n29",
+       "x": 1110,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "29",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      },
+      {
+       "id": "n30",
+       "x": 1260,
+       "y": 740,
+       "w": 130,
+       "h": 100,
+       "text": "30",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Write the numbers"
+      }
+     ],
+     "notes": [
+      {
+       "x": 300,
+       "y": 830,
+       "text": "stop: 7² = 49 > 30",
+       "tone": "warn",
+       "cue": "past thirty"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n1",
+       "tone": "dim",
+       "cue": "One isn't prime"
+      },
+      {
+       "id": "n4",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n6",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n8",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n10",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n12",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n14",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n16",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n18",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n20",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n22",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n24",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n26",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n28",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n30",
+       "tone": "dim",
+       "cue": "multiples of two"
+      },
+      {
+       "id": "n9",
+       "tone": "dim",
+       "cue": "starting at nine"
+      },
+      {
+       "id": "n15",
+       "tone": "dim",
+       "cue": "starting at nine"
+      },
+      {
+       "id": "n21",
+       "tone": "dim",
+       "cue": "starting at nine"
+      },
+      {
+       "id": "n27",
+       "tone": "dim",
+       "cue": "starting at nine"
+      },
+      {
+       "id": "n25",
+       "tone": "dim",
+       "cue": "twenty five"
+      },
+      {
+       "id": "n2",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n5",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n7",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n11",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n13",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n17",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n19",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n23",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      },
+      {
+       "id": "n29",
+       "glow": true,
+       "tone": "good",
+       "cue": "left standing"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Sieve in code",
+     "say": "Assume everything is prime, except zero and one. For each surviving i, start crossing at i squared, since smaller multiples were crossed by smaller primes. Stop when i squared passes n. Count the survivors: ten. Time is O of n log log n, nearly linear.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int n = 30;\nvector<bool> is(n + 1, true);\nis[0] = is[1] = false;\nfor (long long i = 2; i * i <= n; i++)\n    if (is[i])\n        for (long long j = i * i; j <= n; j += i)\n            is[j] = false;\ncout << count(is.begin(), is.end(), true);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Assume everything"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "For each surviving"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Stop when"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Count the survivors"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "start at i²",
+       "tone": "good",
+       "cue": "i squared, since"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "10",
+      "cue": "ten. Time"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Sieve up to one hundred. The outer loop crosses out multiples of primes only while i squared is at most one hundred. Which prime is the last one it crosses out? Pause and predict.",
+     "q": "Sieve up to 100: last prime crossed out?",
+     "options": [
+      "5",
+      "7",
+      "11",
+      "97"
+     ],
+     "answer": 1,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "Where the sieve stops at 100",
+     "say": "Seven. Two squared is four, three squared nine, five squared twenty five, seven squared forty nine. Eleven squared is one twenty one, past one hundred, so we stop.",
+     "items": [
+      {
+       "label": "2",
+       "text": "2² = 4",
+       "cue": "Two squared"
+      },
+      {
+       "label": "3",
+       "text": "3² = 9",
+       "cue": "three squared nine"
+      },
+      {
+       "label": "5",
+       "text": "5² = 25",
+       "cue": "five squared"
+      },
+      {
+       "label": "7",
+       "text": "7² = 49",
+       "tone": "good",
+       "cue": "seven squared"
+      },
+      {
+       "label": "11",
+       "text": "11² = 121",
+       "tone": "bad",
+       "cue": "Eleven squared"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Sieve follow-ups",
+     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i needs a long long, or it overflows.",
+     "heads": [
+      "Question",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Sieve time?",
+       "O(n log log n), nearly linear"
+      ],
+      [
+       "Test one number?",
+       "trial division up to √n: O(√n)"
+      ],
+      [
+       "`i * i <= n` with int i",
+       "can overflow: use long long"
+      ]
+     ],
+     "cues": [
+      "Sieve time",
+      "test one number",
+      "i times i"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Fenwick tree",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Range sums with updates",
+     "statement": "Answer sums of a prefix while single values change.",
+     "example": {
+      "input": "[5, 2, 9, 1, 7]: sum of first 4, add 3 at index 2, sum again",
+      "output": "17, then 20"
+     },
+     "note": "200,000 queries on a big array",
+     "say": "Here is the problem. The array five, two, nine, one, seven. Sum the first four, then add three at index two, and sum again. Seventeen, then twenty. Two hundred thousand queries.",
+     "cues": {
+      "example": "Sum the first four",
+      "output": "Seventeen, then twenty",
+      "note": "Two hundred thousand"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Cost of each idea, n values",
+     "say": "This table measures steps per operation. A plain array updates in one step, but a sum scans n. Prefix sums answer in one step, but an update rewrites up to n. A Fenwick tree does both in log n.",
+     "heads": [
+      "Structure",
+      "Sum",
+      "Update"
+     ],
+     "rows": [
+      [
+       "plain array",
+       "n steps",
+       "1 step"
+      ],
+      [
+       "prefix sums",
+       "1 step",
+       "n steps"
+      ],
+      [
+       "Fenwick tree",
+       "log n",
+       "log n"
+      ]
+     ],
+     "cues": [
+      "plain array",
+      "Prefix sums",
+      "Fenwick tree"
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Fenwick: subtotals, then a sum",
+     "say": "Here are five values. The tree stores subtotals. T one holds the first value, five. T three holds nine, and t five holds seven. T two covers two values: seven. T four covers four: seventeen. The sum of the first four is just t four: seventeen. One step, not four.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         5,
+         2,
+         9,
+         1,
+         7
+        ],
+        "y": 250,
+        "cue": "five values"
+       }
+      },
+      {
+       "id": "t1",
+       "x": 520,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t1=5",
+       "size": 36,
+       "tone": "blue",
+       "cue": "T one holds"
+      },
+      {
+       "id": "t3",
+       "x": 880,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t3=9",
+       "size": 36,
+       "tone": "blue",
+       "cue": "T three holds"
+      },
+      {
+       "id": "t5",
+       "x": 1240,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t5=7",
+       "size": 36,
+       "tone": "blue",
+       "cue": "t five holds"
+      },
+      {
+       "id": "t2",
+       "x": 520,
+       "y": 520,
+       "w": 340,
+       "h": 80,
+       "text": "t2=7",
+       "size": 36,
+       "tone": "blue",
+       "cue": "T two covers"
+      },
+      {
+       "id": "t4",
+       "x": 520,
+       "y": 610,
+       "w": 700,
+       "h": 80,
+       "text": "t4=17",
+       "size": 36,
+       "tone": "blue",
+       "cue": "T four covers"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t4",
+       "glow": true,
+       "tone": "good",
+       "cue": "just t four"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Fenwick: add 3 at index 2",
+     "say": "Now add three at index two. Which subtotals contain index two? T two, then t four. Add three to each: ten, then twenty. The sum of the first four is now twenty.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         5,
+         2,
+         9,
+         1,
+         7
+        ],
+        "y": 250
+       }
+      },
+      {
+       "id": "t1",
+       "x": 520,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t1=5",
+       "size": 36,
+       "tone": "blue"
+      },
+      {
+       "id": "t3",
+       "x": 880,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t3=9",
+       "size": 36,
+       "tone": "blue"
+      },
+      {
+       "id": "t5",
+       "x": 1240,
+       "y": 430,
+       "w": 160,
+       "h": 80,
+       "text": "t5=7",
+       "size": 36,
+       "tone": "blue"
+      },
+      {
+       "id": "t2",
+       "x": 520,
+       "y": 520,
+       "w": 340,
+       "h": 80,
+       "text": "t2=7",
+       "size": 36,
+       "tone": "blue"
+      },
+      {
+       "id": "t4",
+       "x": 520,
+       "y": 610,
+       "w": 700,
+       "h": 80,
+       "text": "t4=17",
+       "size": 36,
+       "tone": "blue"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c1",
+       "text": "5",
+       "tone": "warn",
+       "cue": "add three"
+      },
+      {
+       "id": "t2",
+       "glow": true,
+       "tone": "warn",
+       "cue": "T two, then"
+      },
+      {
+       "id": "t4",
+       "glow": true,
+       "tone": "warn",
+       "cue": "T two, then"
+      },
+      {
+       "id": "t2",
+       "text": "t2=10",
+       "tone": "warn",
+       "cue": "to each"
+      },
+      {
+       "id": "t4",
+       "text": "t4=20",
+       "tone": "warn",
+       "cue": "then twenty"
+      },
+      {
+       "id": "t4",
+       "glow": true,
+       "tone": "good",
+       "cue": "now twenty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fenwick tree in code",
+     "say": "Query goes down: subtract the lowest bit each time, adding subtotals. Update goes up: add the lowest bit each time, fixing every subtotal that covers i. Both loops run at most log n times. A range sum is sum of r minus sum of l minus one.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "long long t[6]; int n = 5;\nvoid add(int i, long long v) {\n    for (; i <= n; i += i & -i) t[i] += v;\n}\nlong long sum(int i) {\n    long long s = 0;\n    for (; i > 0; i -= i & -i) s += t[i];\n    return s;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "Query goes down"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Update goes up"
+      },
+      {
+       "lines": [],
+       "cue": "Both loops run"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "down: i −= lowbit",
+       "tone": "info",
+       "cue": "subtract the lowest bit"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "up: i += lowbit",
+       "tone": "good",
+       "cue": "add the lowest bit"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "range: sum(r) − sum(l−1)",
+       "tone": "warn",
+       "cue": "A range sum"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Run it: 17, then 20",
+     "say": "Load the values with add, one at a time. Sum of the first four prints seventeen. Add three at index two. Sum again: twenty.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int main() {\n    long long a[] = {5, 2, 9, 1, 7};\n    for (int i = 0; i < 5; i++) add(i + 1, a[i]);\n    cout << sum(4) << ' ';\n    add(2, 3);\n    cout << sum(4);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Load the values"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Sum of the first"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Add three"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "17 20",
+      "cue": "twenty"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. After the update the array is five, five, nine, one, seven. Sum the first three values using the tree. What do you get? Pause and predict.",
+     "q": "After the update, sum of the first 3 values?",
+     "options": [
+      "16",
+      "17",
+      "19",
+      "20"
+     ],
+     "answer": 2,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "sum(3) after the update",
+     "say": "Nineteen. Start at i equals three: add t three, nine. Drop the lowest bit: i is two. Add t two, now ten. Drop again: i is zero, stop. Nine plus ten is nineteen.",
+     "items": [
+      {
+       "label": "i = 3",
+       "text": "+ t3 = 9",
+       "cue": "add t three"
+      },
+      {
+       "label": "i = 2",
+       "text": "+ t2 = 10",
+       "cue": "Add t two"
+      },
+      {
+       "label": "i = 0",
+       "text": "stop",
+       "tone": "dim",
+       "cue": "i is zero"
+      },
+      {
+       "label": "total",
+       "text": "19",
+       "tone": "good",
+       "cue": "is nineteen"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Fenwick traps",
+     "say": "Index zero is the classic bug: the loop never moves. Fenwick needs an operation you can subtract, like sums. For min or max, use a segment tree.",
+     "heads": [
+      "Trap",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Index 0",
+       "`i += i & -i` stays 0: infinite loop"
+      ],
+      [
+       "Min or max",
+       "can't subtract: use a segment tree"
+      ],
+      [
+       "Range sum",
+       "`sum(r) - sum(l - 1)`"
+      ]
+     ],
+     "cues": [
+      "Index zero",
+      "needs an operation",
+      "For min or max"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Segment tree",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Range minimum with updates",
+     "statement": "Find the smallest value in a range while values change.",
+     "example": {
+      "input": "[5, 2, 9, 1]: min of positions 1 to 3",
+      "output": "1"
+     },
+     "say": "The problem: the array five, two, nine, one. Smallest value among positions one to three. The answer: one. Values will change.",
+     "cues": {
+      "example": "five, two, nine",
+      "output": "The answer"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A knockout tournament",
+     "say": "Think of a knockout tournament where each match keeps the smaller score. Four players, two matches, one final. The winner of everything sits at the top. That's a segment tree: every parent stores the combination of its two children.",
+     "items": [
+      {
+       "label": "4 players",
+       "text": "5 2 9 1",
+       "cue": "four players"
+      },
+      {
+       "label": "2 matches",
+       "text": "2   1",
+       "sub": "smaller of each pair",
+       "cue": "two matches"
+      },
+      {
+       "label": "final",
+       "text": "1",
+       "sub": "smallest of all",
+       "tone": "good",
+       "cue": "one final"
+      },
+      {
+       "label": "segment tree",
+       "text": "parent = min",
+       "cue": "every parent stores"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Segment tree for min",
+     "say": "Leaves hold the array: five, two, nine, one. Each parent holds the smaller of its children. Two, and one. The root holds the smallest of everything: one. Swap min for plus and the same tree stores sums.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 230,
+        "nodes": [
+         [
+          1,
+          -1
+         ],
+         [
+          2,
+          0
+         ],
+         [
+          5,
+          1
+         ],
+         [
+          2,
+          1
+         ],
+         [
+          1,
+          0
+         ],
+         [
+          9,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ],
+        "cues": [
+         "The root holds",
+         "Each parent holds",
+         "Leaves hold",
+         "Leaves hold",
+         "Each parent holds",
+         "Leaves hold",
+         "Leaves hold"
+        ]
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "t0",
+       "glow": true,
+       "tone": "good",
+       "cue": "the smallest of everything"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Query: take whole blocks",
+     "say": "Min of positions one to three. Take the leaf holding two. Then the block above nine and one, which already holds one. Min of two and one: one. Two blocks, not three leaves.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 230,
+        "nodes": [
+         [
+          1,
+          -1
+         ],
+         [
+          2,
+          0
+         ],
+         [
+          5,
+          1
+         ],
+         [
+          2,
+          1
+         ],
+         [
+          1,
+          0
+         ],
+         [
+          9,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       }
+      },
+      {
+       "id": "ans",
+       "x": 1400,
+       "y": 420,
+       "w": 360,
+       "h": 120,
+       "label": "min of 1..3",
+       "text": "?",
+       "size": 56,
+       "tone": "info",
+       "cue": "Min of positions"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t3",
+       "glow": true,
+       "tone": "good",
+       "cue": "leaf holding two"
+      },
+      {
+       "id": "t4",
+       "glow": true,
+       "tone": "good",
+       "cue": "block above"
+      },
+      {
+       "id": "ans",
+       "text": "1",
+       "tone": "good",
+       "cue": "Min of two and one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Update: walk up the parents",
+     "say": "To update, set the leaf, then walk up. At each step the parent becomes the min of its two children. One step per level, so O of log n. Setting position one to eight leaves the root at one, and the parent at five.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int n = 4, t[8] = {0, 1, 2, 1, 5, 2, 9, 1};\nvoid set(int i, int v) {\n    i += n;\n    t[i] = v;\n    for (; i > 1; i >>= 1)\n        t[i >> 1] = min(t[i], t[i ^ 1]);\n}\nint main() { set(1, 8); cout << t[2] << ' ' << t[1]; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "set the leaf"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "walk up"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Setting position one"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "parent = min of children",
+       "tone": "good",
+       "cue": "min of its two"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 1",
+      "cue": "the parent at five"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Query in code",
+     "say": "For a query over the half open range l to r, start at both leaves and walk inward. If l is a right child, take it and step right. If r is a right edge, step left and take it. Only whole blocks: O of log n.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int query(int l, int r) {\n    int m = INT_MAX;\n    for (l += n, r += n; l < r; l >>= 1, r >>= 1) {\n        if (l & 1) m = min(m, t[l++]);\n        if (r & 1) m = min(m, t[--r]);\n    }\n    return m;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "half open range"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "walk inward"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "If l is"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "If r is"
+      },
+      {
+       "lines": [],
+       "cue": "Only whole blocks"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "take l, step",
+       "tone": "info",
+       "cue": "take it and step"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Set position one to eight, so the array is five, eight, nine, one. What is the min of positions zero and one? Pause and predict.",
+     "q": "After set(1, 8): min of positions 0 and 1?",
+     "options": [
+      "1",
+      "2",
+      "5",
+      "8"
+     ],
+     "answer": 2,
+     "pause": 5
+    },
+    {
+     "type": "diagram",
+     "head": "After the update: min(5, 8) = 5",
+     "say": "Five. The leaf became eight, and its parent is the smaller of five and eight. Two would be stale. The root still holds one, from the nine and one block.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 230,
+        "nodes": [
+         [
+          1,
+          -1
+         ],
+         [
+          5,
+          0
+         ],
+         [
+          5,
+          1
+         ],
+         [
+          8,
+          1
+         ],
+         [
+          1,
+          0
+         ],
+         [
+          9,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       }
+      },
+      {
+       "id": "ans",
+       "x": 1400,
+       "y": 420,
+       "w": 360,
+       "h": 120,
+       "label": "min of 0..1",
+       "text": "?",
+       "size": 56,
+       "tone": "info"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t3",
+       "text": "8",
+       "tone": "warn",
+       "glow": true,
+       "cue": "became eight"
+      },
+      {
+       "id": "t1",
+       "glow": true,
+       "tone": "good",
+       "cue": "parent is the smaller"
+      },
+      {
+       "id": "ans",
+       "text": "5",
+       "tone": "good",
+       "cue": "Two would be stale"
+      },
+      {
+       "id": "t0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "root still holds"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Segment tree vs Fenwick",
+     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building a segment tree is linear. And the query range is half open: r is excluded.",
+     "heads": [
+      "Question",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Fenwick or segment tree?",
+       "Fenwick: sums, short. Segment tree: min, max, lazy"
+      ],
+      [
+       "Range updates?",
+       "lazy propagation: the usual follow-up"
+      ],
+      [
+       "Build time?",
+       "segment tree O(n); Fenwick n log n"
+      ],
+      [
+       "Query range",
+       "half open [l, r)"
+      ]
+     ],
+     "cues": [
+      "Fenwick for sums",
+      "lazy range",
+      "Building",
+      "half open"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp18"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Why mod one billion seven? Prime, and products fit in sixty four bits. Fast power? O of log e. Inverse? Fermat, prime modulus only. Sieve? n log log n. Mistake? Overflow before the mod.",
+     "rows": [
+      [
+       "Why mod 1e9+7?",
+       "prime; products fit in 64 bits"
+      ],
+      [
+       "Fast power?",
+       "O(log e) multiplications"
+      ],
+      [
+       "Inverse?",
+       "Fermat: a^(p−2), prime p only"
+      ],
+      [
+       "Sieve time? Mistake?",
+       "n log log n; overflow before mod"
+      ]
+     ],
+     "cues": [
+      "Why mod",
+      "Fast power",
+      "Inverse",
+      "Sieve"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp19"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Range sums with updates? Fenwick or segment tree, O of log n each. Which one? Fenwick for sums, segment tree for min, max, lazy. Why lowbit? Cell i covers lowbit i values. Mistake? Fenwick is one indexed.",
+     "rows": [
+      [
+       "Range sums, updates?",
+       "Fenwick or segment tree: O(log n)"
+      ],
+      [
+       "Which one?",
+       "Fenwick: sums. Segment: min, max, lazy"
+      ],
+      [
+       "Why lowbit?",
+       "cell i covers lowbit(i) values"
+      ],
+      [
+       "Common mistake?",
+       "index 0 in a Fenwick: infinite loop"
+      ]
+     ],
+     "cues": [
+      "Range sums",
+      "Which one",
+      "Why lowbit",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode two oh four, Count Primes, is the sieve. LeetCode fifty, Pow of x and n, is fast power. LeetCode three oh seven, Range Sum Query Mutable, is a Fenwick tree.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 204 · Count Primes",
+       "the sieve"
+      ],
+      [
+       "LeetCode 50 · Pow(x, n)",
+       "fast power"
+      ],
+      [
+       "LeetCode 307 · Range Sum Query - Mutable",
+       "Fenwick or segment tree"
+      ]
+     ],
+     "cues": [
+      "two oh four",
+      "fifty",
+      "three oh seven"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Reduce mod after every step, and use fast power for log e multiplications. A sieve lists primes in about n log log n. Fenwick and segment trees answer range queries with updates in log n.",
+     "lines": [
+      "Mod after every step; fast power: O(log e).",
+      "Sieve: all primes up to n in O(n log log n).",
+      "Fenwick or segment tree: O(log n) per query."
+     ],
+     "cues": [
+      "Reduce mod",
+      "A sieve",
+      "Fenwick and segment"
+     ]
+    }
+   ]
+  }
+ ]
+}
