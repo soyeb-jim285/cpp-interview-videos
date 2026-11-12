@@ -81,7 +81,7 @@
      "panels": [
       {
        "file": "over.cpp",
-       "code": "void print(int x)    { cout << \"int \" << x; }\nvoid print(double x) { cout << \"double \" << x; }\nvoid print(string s) { cout << \"string \" << s; }\nprint(42);\nprint(3.14);\nprint(string(\"hi\"));"
+       "code": "void print(int x)    { cout << \"int \" << x << \" \"; }\nvoid print(double x) { cout << \"double \" << x << \" \"; }\nvoid print(string s) { cout << \"string \" << s << \" \"; }\nint main() {\n    print(42);\n    print(3.14);\n    print(string(\"hi\"));\n}"
       }
      ],
      "steps": [
@@ -95,13 +95,13 @@
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Forty two"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Three point one four"
       },
@@ -117,7 +117,10 @@
      "output": {
       "cmd": "./over",
       "text": "int 42 double 3.14 string hi",
-      "cue": "compile time"
+      "cue": "compile time",
+      "setup": {
+       "over.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -127,7 +130,7 @@
      "panels": [
       {
        "file": "over2.cpp",
-       "code": "struct Base {\n    virtual void draw() const { cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n    void draw() const override { cout << \"Derived\\n\"; }\n};\nDerived d;\nBase& b = d;\nb.draw();"
+       "code": "struct Base {\n    virtual void draw() const { cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n    void draw() const override { cout << \"Derived\\n\"; }\n};\nint main() { Derived d; Base& b = d;\n    b.draw(); }"
       }
      ],
      "steps": [
@@ -139,13 +142,13 @@
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "Base reference"
       },
       {
        "lines": [
-        9
+        8
        ],
        "cue": "decided at runtime"
       },
@@ -159,7 +162,10 @@
      "output": {
       "cmd": "./over2",
       "text": "Derived",
-      "cue": "draw runs"
+      "cue": "draw runs",
+      "setup": {
+       "over2.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -181,7 +187,7 @@
      "panels": [
       {
        "file": "hide.cpp",
-       "code": "struct Base {\n    void f(int)    { cout << \"Base::f(int)\\n\"; }\n    void f(double) { cout << \"Base::f(double)\\n\"; }\n};\nstruct Derived : Base {\n    // using Base::f;   <- the fix\n    void f(int) { cout << \"Derived::f(int)\\n\"; }\n};\nDerived d; d.f(2.5);"
+       "code": "struct Base {\n    void f(int)    { cout << \"Base::f(int)\\n\"; }\n    void f(double) { cout << \"Base::f(double)\\n\"; }\n};\nstruct Derived : Base {\n    // using Base::f;   <- the fix\n    void f(int) { cout << \"Derived::f(int)\\n\"; }\n};\nint main() { Derived d; d.f(2.5); }"
       }
      ],
      "steps": [
@@ -217,7 +223,10 @@
       "cmd": "./hide",
       "text": "Derived::f(int)",
       "tone": "bad",
-      "cue": "brings the base"
+      "cue": "brings the base",
+      "setup": {
+       "hide.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -378,7 +387,7 @@
      "panels": [
       {
        "file": "vdtor.cpp",
-       "code": "struct Base {\n    virtual ~Base() { cout << \"~Base\\n\"; }\n};\nstruct Derived : Base {\n    ~Derived() override { cout << \"~Derived\\n\"; }\n};\nBase* p = new Derived;\ndelete p;"
+       "code": "struct Base {\n    virtual ~Base() { cout << \"~Base\\n\"; }\n};\nstruct Derived : Base {\n    ~Derived() override { cout << \"~Derived\\n\"; }\n};\nint main() { Base* p = new Derived;\n    delete p; }"
       }
      ],
      "steps": [
@@ -405,7 +414,10 @@
      "output": {
       "cmd": "./vdtor",
       "text": "~Derived\n~Base",
-      "cue": "reverse of construction"
+      "cue": "reverse of construction",
+      "setup": {
+       "vdtor.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -415,7 +427,7 @@
      "panels": [
       {
        "file": "rule.cpp",
-       "code": "struct Shape {\n    virtual void draw() const = 0;\n    virtual ~Shape() = default;\n};\nstruct Mixin {\nprotected:\n    ~Mixin() = default;\n};\nshared_ptr<Base> sp = make_shared<Derived>();"
+       "code": "struct Shape {\n    virtual void draw() const = 0;\n    virtual ~Shape() = default;\n};\nstruct Mixin {\nprotected:\n    ~Mixin() = default;\n};\nvoid demo() { shared_ptr<Base> sp = make_shared<Derived>(); }"
       }
      ],
      "steps": [
@@ -660,7 +672,7 @@
      "panels": [
       {
        "file": "copy.cpp",
-       "code": "struct T { T() {}\n    T(const T&)            { cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { cout << \"copy assign\\n\"; return *this; }\n};\nT a; T b = a;\nT c(a);\nc = b;"
+       "code": "struct T { T() {}\n    T(const T&)            { cout << \"copy ctor\\n\"; }\n    T& operator=(const T&) { cout << \"copy assign\\n\"; return *this; }\n};\nint main() { T a; T b = a;\n    T c(a);\n    c = b; }"
       }
      ],
      "steps": [
@@ -692,7 +704,10 @@
      "output": {
       "cmd": "./copy",
       "text": "copy ctor\ncopy ctor\ncopy assign",
-      "cue": "calls copy assignment"
+      "cue": "calls copy assignment",
+      "setup": {
+       "copy.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -887,7 +902,7 @@
      "panels": [
       {
        "file": "zero.cpp",
-       "code": "struct S {\n    S() {}\n    ~S() {}\n    S(const S&) { cout << \"copy\"; }\n};\nS a;\nS b = std::move(a);"
+       "code": "struct S {\n    S() {}\n    ~S() {}\n    S(const S&) { cout << \"copy\"; }\n};\nint main() {\n    S a;\n    S b = std::move(a);\n}"
       }
      ],
      "steps": [
@@ -900,7 +915,7 @@
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "become copies"
       }
@@ -918,7 +933,10 @@
       "cmd": "./zero",
       "text": "copy",
       "tone": "bad",
-      "cue": "rule of zero"
+      "cue": "rule of zero",
+      "setup": {
+       "zero.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     },
     {
@@ -928,7 +946,7 @@
      "panels": [
       {
        "file": "zero2.cpp",
-       "code": "class Buffer {\n    vector<int> data;\npublic:\n    Buffer(int n) : data(n) {}\n};\nBuffer a(3);\nBuffer b = a;             // deep copy\nBuffer c = std::move(a);  // cheap move"
+       "code": "class Buffer {\n    vector<int> data;\npublic:\n    Buffer(int n) : data(n) {}\n};\nint main() {\n    Buffer a(3);\n    Buffer b = a;             // deep copy\n    Buffer c = std::move(a);  // cheap move\n}"
       }
      ],
      "steps": [
@@ -940,13 +958,13 @@
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "copies deeply"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "moves cheaply"
       },
@@ -1086,7 +1104,7 @@
      "panels": [
       {
        "file": "bat.cpp",
-       "code": "struct Animal { int id; Animal(int i) : id(i) {} };\nstruct Mammal : virtual Animal { Mammal() : Animal(1) {} };\nstruct Bird   : virtual Animal { Bird()   : Animal(2) {} };\nstruct Bat : Mammal, Bird { Bat() : Animal(3) {} };\nBat b;\ncout << b.id;"
+       "code": "struct Animal { int id; Animal(int i) : id(i) {} };\nstruct Mammal : virtual Animal { Mammal() : Animal(1) {} };\nstruct Bird   : virtual Animal { Bird()   : Animal(2) {} };\nstruct Bat : Mammal, Bird { Bat() : Animal(3) {} };\nint main() {\n    Bat b;\n    cout << b.id;\n}"
       }
      ],
      "steps": [
@@ -1107,7 +1125,10 @@
      "output": {
       "cmd": "./bat",
       "text": "3",
-      "cue": "default one"
+      "cue": "default one",
+      "setup": {
+       "bat.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     }
    ]
@@ -1251,7 +1272,7 @@
      "panels": [
       {
        "file": "cost.cpp",
-       "code": "struct Plain   { int x; };\nstruct Virtual {\n    int x;\n    virtual void f() {}\n};\ncout << sizeof(Plain) << ' ';\ncout << sizeof(Virtual);"
+       "code": "struct Plain   { int x; };\nstruct Virtual {\n    int x;\n    virtual void f() {}\n};\nint main() {\n    cout << sizeof(Plain) << ' ';\n    cout << sizeof(Virtual);\n}"
       }
      ],
      "steps": [
@@ -1275,8 +1296,7 @@
       },
       {
        "lines": [
-        6,
-        7
+        4
        ],
        "cue": "extra hop"
       }
@@ -1284,7 +1304,10 @@
      "output": {
       "cmd": "./cost",
       "text": "4 16",
-      "cue": "usually not inlined"
+      "cue": "usually not inlined",
+      "setup": {
+       "cost.cpp": "#include <iostream>\n#include <string>\nusing namespace std;"
+      }
      }
     }
    ]
