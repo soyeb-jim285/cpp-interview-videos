@@ -168,7 +168,7 @@
      "notes": [
       {
        "x": 1000,
-       "y": 820,
+       "y": 520,
        "text": "dp[4] = dp[1] + 20 = 35",
        "tone": "good",
        "cue": "plus A's last kilo"
@@ -179,6 +179,11 @@
        "id": "hand",
        "text": "A: 1 kg, $15",
        "cue": "Item A"
+      },
+      {
+       "id": "c1",
+       "glow": true,
+       "cue": "Every capacity from one up"
       },
       {
        "id": "c1",
@@ -360,10 +365,10 @@
       "input": "[10, 9, 2, 5, 3, 7, 101, 18]",
       "output": "4"
      },
-     "say": "Pick numbers in order, each bigger than the last. Take ten, nine, two, five, three, seven, one hundred one, eighteen. Longest run? Four.",
+     "say": "Keep the order, skip freely. Each number must be bigger than the last. Input: ten, nine, two, five, three, seven, one hundred one, eighteen. Longest? Four.",
      "cues": {
-      "example": "Take ten",
-      "output": "Longest run"
+      "example": "Input",
+      "output": "Longest?"
      }
     },
     {
@@ -694,7 +699,7 @@
     {
      "type": "code",
      "head": "LIS with binary search",
-     "say": "In code, lower bound finds the first tail not smaller than x. None found means x is bigger than all: append. Otherwise overwrite that tail. One binary search per number: O of n log n. On our array it prints four.",
+     "say": "In code, lower bound finds the first tail not smaller than x. None found means x is bigger than all: append. Otherwise overwrite that tail. Its twin, upper bound, finds the first tail bigger than x. One binary search per number: O of n log n. On our array it prints four.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -788,7 +793,7 @@
     {
      "type": "compare",
      "head": "Three LIS traps",
-     "say": "Tails isn't the run. For three, five, one it ends as one, five. Only its length is real. Equal values? Lower bound is strict, upper bound allows equals. The simple table is O of n squared. That's our answer: a run of length four.",
+     "say": "Tails isn't the run. For three, five, one it ends as one, five. Only its length is real. Equal values? Lower bound replaces the equal tail. Upper bound would append a repeat. The simple table is O of n squared. That's our answer: a run of length four.",
      "heads": [
       "Trap",
       "Fact"
@@ -804,7 +809,7 @@
       ],
       [
        "Equal values?",
-       "lower_bound strict; upper_bound allows equal"
+       "lower_bound replaces the equal tail, so the run stays strictly rising"
       ],
       [
        "Simple table",
@@ -831,7 +836,7 @@
       "input": "\"ABCBDAB\" and \"BDCABA\"",
       "output": "4"
      },
-     "say": "Two strings: A B C B D A B and B D C A B A. Longest shared sequence, in order? Four.",
+     "say": "Two strings: A B C B D A B and B D C A B A. Longest shared? Four.",
      "cues": {
       "example": "B D C A B A",
       "output": "Longest shared"
@@ -868,7 +873,7 @@
     {
      "type": "diagram",
      "head": "LCS grid: rows A and B",
-     "say": "Now the grid. Rows are the letters of A B C B D A B, columns are B D C A B A. The border is zero: an empty string shares nothing. Row A against B, D, C: no match, so zero. Then A meets A: a match, so diagonal plus one makes one. The rest stays one. Row B: B meets B, a match: one. The rest follows the same rule.",
+     "say": "Now the grid. Rows are the letters of A B C B D A B, columns are B D C A B A. The border is zero: an empty string shares nothing. Row A against B, D, C: no match, so zero. Then A meets A: a match, so diagonal, the up-left cell, plus one makes one. The rest stays one. Row B: B meets B, a match: one. The rest follows the same rule.",
      "items": [
       {
        "id": "hr1",
@@ -1651,10 +1656,15 @@
        "text": "max(above, left)",
        "size": 44,
        "tone": "warn",
-       "cue": "no match"
+       "cue": "Row A against B, D, C"
       }
      ],
      "changes": [
+      {
+       "id": "hc1",
+       "glow": true,
+       "cue": "Row A against B, D, C"
+      },
       {
        "id": "g11",
        "text": "0",
@@ -3423,7 +3433,7 @@
       "1",
       "2",
       "3",
-      "4"
+      "ABC and ACB share AC"
      ],
      "answer": 1,
      "pause": 5
@@ -3508,7 +3518,7 @@
       ],
       [
        "LCS?",
-       "match: diagonal + 1; else max(above, left)"
+       "match: diagonal + 1; else max(above, left); O(n*m)"
       ],
       [
        "Common mistake?",
