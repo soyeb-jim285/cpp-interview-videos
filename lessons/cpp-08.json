@@ -134,7 +134,7 @@
     {
      "type": "code",
      "head": "Abstraction and encapsulation in code",
-     "say": "In code. Shape says what every shape can do: an area. Equals zero means no body here. That is abstraction. Circle hides its radius as private, and the constructor guards it. That is encapsulation.",
+     "say": "In code. Shape says what every shape can do: an area. Equals zero means no body here. That is abstraction. Circle hides its radius as private, and the constructor guards it. That is encapsulation. Override means this area replaces Shape's version, and the compiler checks the match.",
      "panels": [
       {
        "file": "shape.cpp",
@@ -167,6 +167,12 @@
         7
        ],
        "cue": "constructor guards"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Override means"
       }
      ]
     },
@@ -185,11 +191,11 @@
     {
      "type": "code",
      "head": "Inheritance and polymorphism",
-     "say": "Zero. The guard made the radius zero. Now Square also derives from Shape, so each one is a Shape. Put all three in a Shape pointer array, and loop. Same call, p arrow area, and each object runs its own formula: circle, square, and the guarded circle.",
+     "say": "Zero. The guard made the radius zero. Now Square also derives from Shape, like that Circle, like our Circle. Put all three in a Shape pointer array, and loop. Same call, p arrow area, and each object runs its own formula: circle, square, and the guarded circle.",
      "panels": [
       {
        "file": "loop.cpp",
-       "code": "struct Square : Shape {\n    double s;\n    Square(double s) : s(s) {}\n    double area() const override { return s * s; }\n};\nCircle c(2), bad(-5); Square q(3);\nShape* v[] = {&c, &q, &bad};\nfor (Shape* p : v) cout << p->area() << ' ';"
+       "code": "struct Square : Shape {\n    double s;\n    Square(double s) : s(s) {}\n    double area() const override { return s * s; }\n};\nint main() {\n    Circle c(2), bad(-5); Square q(3); Shape* v[] = {&c, &q, &bad};\n    for (Shape* p : v) cout << p->area() << ' ';\n}"
       }
      ],
      "steps": [
@@ -215,7 +221,10 @@
      "output": {
       "cmd": "./loop",
       "text": "12.5664 9 0",
-      "cue": "circle, square"
+      "cue": "circle, square",
+      "setup": {
+       "loop.cpp": "#include <iostream>\nusing namespace std;\nstruct Shape {\n    virtual double area() const = 0;\n};\nclass Circle : public Shape {\n    double r;\npublic:\n    Circle(double r) : r(r>0 ? r : 0) {}\n    double area() const override { return 3.14159*r*r; }\n};\n"
+      }
      }
     }
    ]
@@ -252,13 +261,50 @@
     {
      "type": "code",
      "head": "Guard the inside, simplify the outside",
-     "say": "A compile error. Account bundles the balance with deposit, which rejects bad amounts. That is encapsulation. On the right, backup only knows save. Where it goes, it never sees. That is abstraction, like push back on a vector.",
+     "say": "A compile error. Account bundles the balance with deposit, which rejects bad amounts. That is encapsulation.",
      "panels": [
       {
        "file": "acct.cpp",
        "label": "encapsulation",
-       "code": "class Account {\n    double balance = 0;\npublic:\n    void deposit(double a) {\n        if (a > 0) balance += a;\n    }\n};"
+       "code": "class Account {\n    double balance = 0;\npublic:\n    void deposit(double a) {\n        if (a > 0) balance += a;\n    }\n};\nint main() {\n    Account acc;\n    acc.balance = -1000;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        10
+       ],
+       "cue": "compile error"
       },
+      {
+       "lines": [
+        2,
+        4
+       ],
+       "cue": "bundles the balance"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "rejects bad amounts"
+      }
+     ],
+     "notes": [
+      {
+       "line": 10,
+       "inside": true,
+       "text": "private: won't compile",
+       "tone": "bad",
+       "cue": "compile error"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Simplify the outside: abstraction",
+     "say": "Now the other side. Backup only knows save. Where it goes, it never sees. That is abstraction, like push back on a vector.",
+     "panels": [
       {
        "file": "store.cpp",
        "label": "abstraction",
@@ -268,33 +314,10 @@
      "steps": [
       {
        "lines": [
-        2
-       ],
-       "panel": 0,
-       "cue": "compile error"
-      },
-      {
-       "lines": [
-        2,
-        4
-       ],
-       "panel": 0,
-       "cue": "bundles the balance"
-      },
-      {
-       "lines": [
-        5
-       ],
-       "panel": 0,
-       "cue": "rejects bad amounts"
-      },
-      {
-       "lines": [
         4,
         5,
         6
        ],
-       "panel": 1,
        "cue": "only knows save"
       },
       {
@@ -302,7 +325,6 @@
         1,
         2
        ],
-       "panel": 1,
        "cue": "That is abstraction"
       }
      ]
@@ -365,7 +387,7 @@
      "panels": [
       {
        "file": "dog.cpp",
-       "code": "class Animal {\npublic:    void eat() { cout << \"eating\\n\"; }\nprotected: int age = 0;\n};\nclass Dog : public Animal {\npublic: void bark() { cout << \"woof at \" << age << '\\n'; }\n};\nDog d; d.eat(); d.bark();"
+       "code": "class Animal {\npublic:    void eat() { cout << \"eating\\n\"; }\nprotected: int age = 0;\n};\nclass Dog : public Animal {\npublic: void bark() { cout << \"woof at \" << age << '\\n'; }\n};\nint main() { Dog d; d.eat(); d.bark(); }"
       }
      ],
      "steps": [
@@ -392,7 +414,10 @@
      "output": {
       "cmd": "./dog",
       "text": "eating\nwoof at 0",
-      "cue": "visible to derived"
+      "cue": "visible to derived",
+      "setup": {
+       "dog.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -440,7 +465,7 @@
      "panels": [
       {
        "file": "diamond.cpp",
-       "code": "struct Device  { int id = 0; };\nstruct Scanner : virtual Device {};\nstruct Printer : virtual Device {};\nstruct Copier  : Scanner, Printer {};\n\nCopier c;\nc.id = 7;\ncout << c.id;"
+       "code": "struct Device  { int id = 0; };\nstruct Scanner : virtual Device {};\nstruct Printer : virtual Device {};\nstruct Copier  : Scanner, Printer {};\nint main() {\n    Copier c;\n    c.id = 7;\n    cout << c.id;\n}"
       }
      ],
      "steps": [
@@ -459,8 +484,8 @@
       },
       {
        "lines": [
-        6,
-        7
+        7,
+        8
        ],
        "cue": "just works"
       }
@@ -468,7 +493,10 @@
      "output": {
       "cmd": "./diamond",
       "text": "7",
-      "cue": "prints seven"
+      "cue": "prints seven",
+      "setup": {
+       "diamond.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -492,7 +520,7 @@
        "file": "diamond.cpp",
        "label": "no virtual",
        "tone": "bad",
-       "code": "struct Device  { int id = 0; };\nstruct Scanner : Device {};\nstruct Printer : Device {};\nstruct Copier  : Scanner, Printer {};\n\nCopier c;\nc.id = 7;"
+       "code": "struct Device  { int id = 0; };\nstruct Scanner : Device {};\nstruct Printer : Device {};\nstruct Copier  : Scanner, Printer {};\nint main() {\n    Copier c;\n    c.id = 7;\n}"
       }
      ],
      "steps": [
@@ -516,10 +544,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -c diamond.cpp",
+      "cmd": "g++ -c diamond.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: request for member ‘id’ is ambiguous",
       "tone": "bad",
-      "cue": "A compile error"
+      "cue": "A compile error",
+      "setup": {
+       "diamond.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -586,27 +617,27 @@
      "panels": [
       {
        "file": "zoo.cpp",
-       "code": "struct Animal {\n    virtual void speak() const { cout << \"...\\n\"; }\n};\nstruct Dog : Animal { void speak() const override { cout << \"Woof\\n\"; } };\nstruct Cat : Animal { void speak() const override { cout << \"Meow\\n\"; } };\nAnimal* zoo[] = {new Dog, new Cat};\nfor (Animal* a : zoo) a->speak();"
+       "code": "struct Animal { virtual void speak() { cout << \"...\\n\"; } };\nstruct Dog : Animal { void speak() override { cout << \"Woof\\n\"; } };\nstruct Cat : Animal { void speak() override { cout << \"Meow\\n\"; } };\nint main() {\n    Animal* zoo[] = {new Dog, new Cat};\n    for (Animal* a : zoo) a->speak();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        1
        ],
        "cue": "declares speak"
       },
       {
        "lines": [
-        4,
-        5
+        2,
+        3
        ],
        "cue": "Dog and Cat"
       },
       {
        "lines": [
-        6,
-        7
+        5,
+        6
        ],
        "cue": "The loop holds"
       }
@@ -614,13 +645,16 @@
      "output": {
       "cmd": "./zoo",
       "text": "Woof\nMeow",
-      "cue": "woof, then meow"
+      "cue": "woof, then meow",
+      "setup": {
+       "zoo.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
      "type": "quiz",
      "say": "Your turn. Shape's area has a body that returns zero, and no virtual. Circle and Square define their own. The loop holds Shape pointers and calls p arrow area. What prints? Pause and predict.",
-     "q": "Shape's `area()` returns 0 and is not virtual. Circle and Square define their own `area()`. The loop calls `p->area()` through `Shape*`. What prints?",
+     "q": "Shape's `area()` is not virtual. What does `p->area()` print?",
      "options": [
       "12.57 9",
       "0 0",
@@ -636,14 +670,14 @@
      "panels": [
       {
        "file": "novirt.cpp",
-       "code": "struct Shape { double area() const { return 0; } };\nstruct Circle : Shape {\n    double area() const { return 12.56; }\n};\nstruct Square : Shape { double area() const { return 9; } };\nCircle c; Square q;\nShape* v[] = {&c, &q};\nfor (Shape* p : v) cout << p->area() << ' ';"
+       "code": "struct Shape { double area() const { return 0; } };\nstruct Circle : Shape {\n    double area() const { return 12.56; }\n};\nstruct Square : Shape { double area() const { return 9; } };\nint main() {\n    Circle c; Square q; Shape* v[] = {&c, &q};\n    for (Shape* p : v) cout << p->area() << ' ';\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        7,
-        8
+        8,
+        7
        ],
        "cue": "pointer's type"
       },
@@ -667,7 +701,10 @@
       "cmd": "./novirt",
       "text": "0 0",
       "tone": "bad",
-      "cue": "object's real type"
+      "cue": "object's real type",
+      "setup": {
+       "novirt.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -762,7 +799,7 @@
      "panels": [
       {
        "file": "ctor.cpp",
-       "code": "struct Base {\n    Base() { init(); }\n    virtual void init() { cout << \"Base::init \"; }\n    virtual ~Base() = default;\n};\nstruct Derived : Base {\n    void init() override { cout << \"Derived::init \"; }\n};\nDerived d;"
+       "code": "struct Base {\n    Base() { init(); }\n    virtual void init() { cout << \"Base::init \"; }\n};\nstruct Derived : Base {\n    void init() override { cout << \"Derived::init \"; }\n};\nint main() { Derived d; }"
       }
      ],
      "steps": [
@@ -774,7 +811,7 @@
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "Derived part"
       }
@@ -783,7 +820,10 @@
       "cmd": "./ctor",
       "text": "Base::init",
       "tone": "bad",
-      "cue": "Base's version"
+      "cue": "Base's version",
+      "setup": {
+       "ctor.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -793,7 +833,7 @@
      "panels": [
       {
        "file": "trap.cpp",
-       "code": "struct Base {\n    virtual void run(int) {}\n};\nstruct Derived : Base {\n    void run(long) override {}\n};"
+       "code": "struct Base {\n    virtual void run(int) {}\n};\nstruct Derived : Base {\n    void run(long) override {}\n};\nint main() {}"
       }
      ],
      "steps": [
@@ -814,10 +854,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -c trap.cpp",
+      "cmd": "g++ -c trap.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: ‘void Derived::run(long int)’ marked ‘override’, but does not override",
       "tone": "bad",
-      "cue": "always write override"
+      "cue": "always write override",
+      "setup": {
+       "trap.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     }
    ]
@@ -846,7 +889,7 @@
      "panels": [
       {
        "file": "ct.cpp",
-       "code": "int add(int a, int b) { return a + b; }\ndouble add(double a, double b) { return a + b; }\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\ncout << add(1, 2) << ' ' << add(1.5, 2.5) << ' ';\ncout << biggest(3, 7) << ' ' << biggest('a', 'z');"
+       "code": "int add(int a, int b) { return a + b; }\ndouble add(double a, double b) { return a + b; }\ntemplate <typename T>\nT biggest(T a, T b) { return a > b ? a : b; }\nint main() {\n    cout << add(1, 2) << ' ' << add(1.5, 2.5) << ' ';\n    cout << biggest(3, 7) << ' ' << biggest('a', 'z');\n}"
       }
      ],
      "steps": [
@@ -866,8 +909,8 @@
       },
       {
        "lines": [
-        5,
-        6
+        6,
+        7
        ],
        "cue": "settled before"
       }
@@ -875,7 +918,10 @@
      "output": {
       "cmd": "./ct",
       "text": "3 4 7 z",
-      "cue": "before the program"
+      "cue": "before the program",
+      "setup": {
+       "ct.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -935,19 +981,19 @@
      "panels": [
       {
        "file": "slice.cpp",
-       "code": "void byValue(Animal a) { a.speak(); }\nvoid byRef(const Animal& a) { a.speak(); }\n\nDog d;\nbyValue(d);\nbyRef(d);"
+       "code": "struct Animal { virtual void speak() { cout << \"...\\n\"; } };\nstruct Dog : Animal { void speak() override { cout << \"Woof\\n\"; } };\nvoid byValue(Animal a) { a.speak(); }\nvoid byRef(Animal& a) { a.speak(); }\nint main() { Dog d; byValue(d); byRef(d); }"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        3
        ],
        "cue": "copies only"
       },
       {
        "lines": [
-        2
+        4
        ],
        "cue": "By reference"
       },
@@ -958,7 +1004,7 @@
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 3,
        "inside": true,
        "text": "sliced",
        "tone": "bad",
@@ -968,7 +1014,10 @@
      "output": {
       "cmd": "./slice",
       "text": "...\nWoof",
-      "cue": "real type survives"
+      "cue": "real type survives",
+      "setup": {
+       "slice.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     }
    ]
@@ -1031,7 +1080,7 @@
     {
      "type": "code",
      "head": "An abstract class with real content",
-     "say": "Abstract does not mean empty. Employee has a constructor, real data, and a normal function, printSlip. Only pay is missing, because the base can't know how an employee is paid. That is the template method pattern. A class of only pure virtuals is an interface.",
+     "say": "Abstract does not mean empty. Employee has a constructor, real data, and a normal function, printSlip. Only pay is missing, because the base can't know how an employee is paid. That is the template method pattern: the base fixes the steps, and derived classes fill in the gap. A class of only pure virtuals is an interface.",
      "panels": [
       {
        "file": "emp.cpp",
@@ -1072,6 +1121,10 @@
       {
        "lines": [],
        "cue": "template method"
+      },
+      {
+       "lines": [],
+       "cue": "fill in the gap"
       }
      ]
     },
@@ -1094,7 +1147,7 @@
      "panels": [
       {
        "file": "poly.cpp",
-       "code": "class Polygon : public Shape {\npublic:\n    int sides() const { return 0; }\n};\nPolygon p;   // area() never overridden"
+       "code": "struct Shape { virtual double area() const = 0; };\nclass Polygon : public Shape { public: int sides() const { return 0; } };\nint main() { Polygon p; }   // area() never overridden"
       }
      ],
      "steps": [
@@ -1112,10 +1165,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -c poly.cpp",
+      "cmd": "g++ -c poly.cpp 2>&1 | grep -o \"error:.*\"",
       "text": "error: cannot declare variable ‘p’ to be of abstract type ‘Polygon’",
       "tone": "bad",
-      "cue": "A compile error"
+      "cue": "A compile error",
+      "setup": {
+       "poly.cpp": "#include <iostream>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -1172,7 +1228,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Example? Shape: private radius, area, Circle is a Shape. Encapsulation versus abstraction? Guard the inside, simplify the outside.",
+     "say": "Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Example? Shape: private radius, area, Circle is a Shape. Encapsulation versus abstraction? Encapsulation bundles data with its guards. Abstraction exposes what, hides how.",
      "heads": [
       "They ask",
       "You say"
@@ -1188,7 +1244,7 @@
       ],
       [
        "Enc. vs abs.?",
-       "guard the inside, simplify the outside"
+       "bundle data, guard it; expose what, hide how"
       ]
      ],
      "cues": [
@@ -1203,7 +1259,7 @@
     },
     {
      "type": "take",
-     "say": "What is inheritance? A derived class reuses a base, and public means is a. Types? Single, multilevel, multiple, hierarchical, hybrid. Diamond? Two copies of the base, fixed with virtual inheritance. Access modes? Public, protected, private.",
+     "say": "What is inheritance? A derived class reuses a base, and public means is a. Types? Single, multilevel, multiple, hierarchical, hybrid. Access modes? Public, protected, private. Diamond? Two copies of the base, fixed with virtual inheritance.",
      "lines": [
       "Derived reuses base. Public means is-a.",
       "Single, multilevel, multiple, hierarchical, hybrid",
