@@ -1,0 +1,1067 @@
+{
+ "id": "ai-01",
+ "track": "AI Eval",
+ "num": 1,
+ "title": "How LLMs Work and How They Fail",
+ "covers": [
+  "ai01",
+  "ai04"
+ ],
+ "caps": [],
+ "chapters": [
+  {
+   "title": "Autocomplete with odds",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Ask a model for the capital of France, and it looks nothing up. It picks the next word from odds. By the end you'll explain an L L M in two minutes, and catch five confident wrong answers.",
+     "lines": [
+      {
+       "text": "Capital of France?",
+       "cue": "capital of France"
+      },
+      {
+       "text": "It looks nothing up.",
+       "cue": "looks nothing up"
+      },
+      {
+       "text": "It picks from odds.",
+       "cue": "from odds",
+       "accent": true
+      },
+      {
+       "text": "Explain an LLM in 2 minutes",
+       "cue": "explain an L L M"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Explain how a model picks each word. See why one prompt gives different answers. And catch five ways it fails while sounding sure.",
+     "lines": [
+      "Explain how a model picks each word",
+      "See why one prompt gives different answers",
+      "Catch five failures that sound sure"
+     ],
+     "cues": [
+      "Explain how",
+      "See why",
+      "catch five ways"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Explain an LLM in two minutes",
+     "statement": "An interviewer asks how a large language model works, just enough to evaluate one. You get two minutes and no math.",
+     "example": {
+      "input": "prompt: The capital of France is",
+      "output": "Paris, and why it picks it"
+     },
+     "say": "How does an L L M work? Two minutes, no math. Take the prompt: the capital of France is. We want Paris, and the reason the model picks it.",
+     "cues": {
+      "example": "Take the prompt",
+      "output": "We want Paris"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Your phone keyboard",
+     "say": "Start with something you use. On your phone keyboard, you type see you, and it suggests tomorrow, soon, or later. It guesses the next word from patterns. An L L M is that autocomplete, trained on huge text.",
+     "items": [
+      {
+       "label": "you type",
+       "text": "See you",
+       "sub": "= the prompt",
+       "tone": "blue",
+       "cue": "see you"
+      },
+      {
+       "label": "suggestion",
+       "text": "tomorrow",
+       "sub": "= likely next",
+       "cue": "tomorrow"
+      },
+      {
+       "label": "suggestion",
+       "text": "soon",
+       "cue": "soon"
+      },
+      {
+       "label": "suggestion",
+       "text": "later",
+       "cue": "later"
+      },
+      {
+       "label": "large language model",
+       "text": "An LLM",
+       "sub": "= autocomplete at scale",
+       "tone": "good",
+       "cue": "An L L M"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The loop behind every answer",
+     "say": "A model never sees words. Your text is chopped into tokens, pieces of words, about four English letters each. The model reads the tokens and gives every possible next token a probability. One is picked, and added to the text. Then the loop repeats.",
+     "items": [
+      {
+       "text": "Your text",
+       "sub": "capital of France",
+       "cue": "never sees words"
+      },
+      {
+       "text": "Tokens",
+       "sub": "word pieces",
+       "cue": "chopped into tokens"
+      },
+      {
+       "text": "Model",
+       "sub": "reads tokens",
+       "tone": "blue",
+       "cue": "reads the tokens"
+      },
+      {
+       "text": "Odds",
+       "sub": "one per token",
+       "tone": "warn",
+       "cue": "a probability"
+      },
+      {
+       "text": "Pick one",
+       "sub": "append, repeat",
+       "tone": "good",
+       "cue": "One is picked"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Next-token odds (toy numbers)",
+     "say": "The prompt is: the capital of France is. Paris gets ninety two percent. The, located, and Lyon get two or three each. Thousands more share the last one. The shape is real: one likely token, then a long tail. Taking the top one is greedy decoding. A dial called temperature sharpens or flattens this list.",
+     "items": [
+      {
+       "id": "pr",
+       "x": 160,
+       "y": 250,
+       "w": 520,
+       "h": 110,
+       "label": "prompt",
+       "text": "The capital of France is",
+       "size": 32,
+       "tone": "blue",
+       "cue": "the capital of France is"
+      },
+      {
+       "id": "p0",
+       "x": 1000,
+       "y": 230,
+       "w": 740,
+       "h": 110,
+       "text": "Paris  92%",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Paris gets"
+      },
+      {
+       "id": "p1",
+       "x": 1000,
+       "y": 365,
+       "w": 740,
+       "h": 110,
+       "text": "the  3%",
+       "size": 36,
+       "cue": "The, located"
+      },
+      {
+       "id": "p2",
+       "x": 1000,
+       "y": 500,
+       "w": 740,
+       "h": 110,
+       "text": "located  2%",
+       "size": 36,
+       "cue": "The, located"
+      },
+      {
+       "id": "p3",
+       "x": 1000,
+       "y": 635,
+       "w": 740,
+       "h": 110,
+       "text": "Lyon  2%",
+       "size": 36,
+       "cue": "The, located"
+      },
+      {
+       "id": "p4",
+       "x": 1000,
+       "y": 770,
+       "w": 740,
+       "h": 110,
+       "text": "thousands more  1%",
+       "size": 32,
+       "tone": "ghost",
+       "cue": "Thousands more"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pr",
+       "to": "p0",
+       "cue": "Paris gets"
+      }
+     ],
+     "changes": [
+      {
+       "id": "p4",
+       "glow": true,
+       "cue": "long tail"
+      },
+      {
+       "id": "p0",
+       "glow": true,
+       "tone": "good",
+       "cue": "greedy decoding"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Temperature two flattens the odds. Paris was ninety two percent. About where does it land? Pause and predict.",
+     "q": "Temperature 2 flattens the odds. Paris was 92%. About now?",
+     "options": [
+      "About 90%",
+      "About 60%",
+      "About 30%",
+      "About 10%"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "code",
+     "head": "Temperature and sampling, for real",
+     "say": "About sixty. Flatter, but Paris still leads. The scores are logs of the odds. Divide by temperature, and turn them back into probabilities. Temperature two gives point six three for Paris. Now sample five times: Paris, Lyon, located, Paris, Paris. Same prompt, different answers. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "import math, random\ntoks = ['Paris', 'the', 'located', 'Lyon', 'other']\nlogits = [math.log(p) for p in (.92, .03, .02, .02, .01)]\ndef probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1)\nprint(random.choices(toks, probs(2), k=5))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "scores are logs"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "Divide by temperature"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "point six three"
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "sample five times"
+      },
+      {
+       "lines": [],
+       "cue": "That is why you grade"
+      },
+      {
+       "lines": [],
+       "cue": "Temperature zero takes"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "[0.63, 0.11, 0.09, 0.09, 0.07]\n['Paris', 'Lyon', 'located', 'Paris', 'Paris']",
+      "cue": "Paris, Lyon"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "The context window: a sliding sheet",
+     "say": "One more limit: the context window. Think of a sheet that holds only so many tokens. Prompt and reply must fit. Say six. Reply in French. Hi there. Now three more tokens arrive, and the oldest slide off the top. The rule is gone. Real windows are bigger. Many apps drop the oldest first.",
+     "items": [
+      {
+       "id": "win",
+       "region": true,
+       "x": 150,
+       "y": 330,
+       "w": 1620,
+       "h": 340,
+       "label": "the sheet = context window (6 tokens)",
+       "tone": "good",
+       "cue": "holds only so many"
+      },
+      {
+       "id": "c0",
+       "x": 190,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": "Reply",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Reply in French"
+      },
+      {
+       "id": "c1",
+       "x": 450,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": "in",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Reply in French"
+      },
+      {
+       "id": "c2",
+       "x": 710,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": "French",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Reply in French"
+      },
+      {
+       "id": "c3",
+       "x": 970,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": ".",
+       "size": 44,
+       "tone": "blue",
+       "cue": "Reply in French"
+      },
+      {
+       "id": "c4",
+       "x": 1230,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": "Hi",
+       "size": 44,
+       "tone": "blue",
+       "cue": "Hi there"
+      },
+      {
+       "id": "c5",
+       "x": 1490,
+       "y": 460,
+       "w": 240,
+       "h": 140,
+       "text": "there",
+       "size": 44,
+       "tone": "blue",
+       "cue": "Hi there"
+      }
+     ],
+     "notes": [
+      {
+       "x": 190,
+       "y": 720,
+       "text": "the rule is gone",
+       "tone": "bad",
+       "cue": "The rule is gone"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": ".",
+       "tone": "blue",
+       "cue": "oldest slide off"
+      },
+      {
+       "id": "c1",
+       "text": "Hi",
+       "tone": "blue",
+       "cue": "oldest slide off"
+      },
+      {
+       "id": "c2",
+       "text": "there",
+       "tone": "blue",
+       "cue": "oldest slide off"
+      },
+      {
+       "id": "c3",
+       "text": "Where",
+       "tone": "good",
+       "cue": "oldest slide off"
+      },
+      {
+       "id": "c4",
+       "text": "is",
+       "tone": "good",
+       "cue": "oldest slide off"
+      },
+      {
+       "id": "c5",
+       "text": "Lyon",
+       "tone": "good",
+       "cue": "oldest slide off"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Confident and wrong",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sounds right, is wrong",
+     "statement": "A model answers with calm, polished text. Some of those answers are false, and nothing in the tone tells you which.",
+     "example": {
+      "input": "ask: cite a paper; ask: 17 × 24",
+      "output": "catch both before you trust them"
+     },
+     "say": "Models sound equally sure when they are right and when they are wrong. A citation, a sum: how do you catch the bad one?",
+     "cues": {
+      "example": "A citation, a sum",
+      "output": "catch the bad one"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The bluffing student",
+     "say": "Picture a student in an oral exam who doesn't know the answer. Instead of saying so, they bluff smoothly. It sounds right to the examiner, and it is completely wrong. Models do the same, because they are built to produce plausible text.",
+     "items": [
+      {
+       "label": "question",
+       "text": "Unknown topic",
+       "tone": "blue",
+       "cue": "doesn't know"
+      },
+      {
+       "label": "student",
+       "text": "Bluffs smoothly",
+       "tone": "warn",
+       "cue": "bluff smoothly"
+      },
+      {
+       "label": "examiner",
+       "text": "Sounds right",
+       "cue": "sounds right"
+      },
+      {
+       "label": "truth",
+       "text": "Wrong",
+       "tone": "bad",
+       "cue": "completely wrong"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Failure 1: hallucination",
+     "say": "Failure one: hallucination. Ask for a paper. The model answers with authors, a year, a title, and a journal. Every detail is invented. It just continues text, and rarely says I do not know. Catch it by checking names, numbers, and citations against a real source.",
+     "panels": [
+      {
+       "file": "prompt.txt",
+       "label": "you",
+       "code": "Cite one paper on sleep\nand memory."
+      },
+      {
+       "file": "reply.txt",
+       "label": "model",
+       "tone": "bad",
+       "code": "Marsh & Okafor (2019).\nNeural Tide Models.\nJ. Applied Cognition 14(3)."
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Ask for a paper"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "authors, a year"
+      },
+      {
+       "panel": 1,
+       "lines": [],
+       "cue": "Catch it by checking"
+      }
+     ],
+     "notes": [
+      {
+       "panel": 1,
+       "line": 2,
+       "inside": true,
+       "text": "invented",
+       "tone": "bad",
+       "cue": "Every detail is invented"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Failure 2: a wrong sum",
+     "say": "Failure two: a wrong sum. Ask seventeen times twenty four, and the model says four hundred eighteen, calmly. It predicts digits that look right. It does not calculate. A line of code does. The real answer is four hundred eight, so the claim is False.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "# model's answer: 17 * 24 = 418\nclaim = 418\nprint(17 * 24)\nprint(claim == 17 * 24)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "four hundred eighteen"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A line of code"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "the claim is"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "408\nFalse",
+      "cue": "four hundred eight"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The model says seventeen times twenty four is four hundred eighteen. You suspect it. What is the best first check? Pause and predict.",
+     "q": "Model says 17 × 24 = 418. Best first check?",
+     "options": [
+      "Ask if it is sure",
+      "Compute it in code",
+      "Rerun until it agrees",
+      "Judge its confidence"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Check with a tool, not the model",
+     "say": "Compute it in code. Asking again invites a cave. A rerun is another guess. Run the sum. Python says four hundred eight. The answers differ, so reject the claim. A checkable fact needs a checker.",
+     "items": [
+      {
+       "id": "cl",
+       "x": 160,
+       "y": 450,
+       "w": 440,
+       "h": 150,
+       "label": "model says",
+       "text": "418",
+       "size": 56,
+       "tone": "warn"
+      },
+      {
+       "id": "py",
+       "x": 740,
+       "y": 450,
+       "w": 440,
+       "h": 150,
+       "label": "python says",
+       "text": "?",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Run the sum"
+      },
+      {
+       "id": "vd",
+       "x": 1320,
+       "y": 450,
+       "w": 440,
+       "h": 150,
+       "label": "verdict",
+       "text": "?",
+       "size": 56,
+       "cue": "The answers differ"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "cl",
+       "to": "py",
+       "label": "17 × 24",
+       "cue": "Run the sum"
+      },
+      {
+       "from": "py",
+       "to": "vd",
+       "cue": "The answers differ"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cl",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Asking again"
+      },
+      {
+       "id": "py",
+       "text": "408",
+       "tone": "good",
+       "cue": "Python says"
+      },
+      {
+       "id": "vd",
+       "text": "reject",
+       "tone": "bad",
+       "cue": "reject the claim"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Agreeable and sneaky",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "It did what you did not ask",
+     "statement": "Three failures look like cooperation: an ignored rule, giving in to pushback, and passing a test without solving the task.",
+     "example": {
+      "input": "rule, pushback, a green test",
+      "output": "a check for each one"
+     },
+     "say": "Three failures wear a friendly face: a broken rule, caving, a cheating test. Each needs its own check.",
+     "cues": {
+      "example": "a broken rule",
+      "output": "its own check"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Failure 3: an ignored instruction",
+     "say": "Failure three: an ignored instruction. The prompt says one word, and the reply is a sentence. Long chats make it worse: early rules scroll out of the window. Catch it with a plain check on the output, like counting words.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "# prompt: Answer in one word.\nreply = 'The capital of France is Paris.'\nprint(len(reply.split()) == 1)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "one word"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "a sentence"
+      },
+      {
+       "lines": [],
+       "cue": "scroll out"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "counting words"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "ignored",
+       "tone": "bad",
+       "cue": "a sentence"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "False",
+      "cue": "plain check"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Failure 4: sycophancy",
+     "say": "Failure four: sycophancy. You ask seventeen times six, and the model says one hundred two, correctly. You push back with a wrong number, one twelve. It caves, and apologizes. It agrees instead of being right. Catch it by pushing back on a correct answer. Wrong pushback should not move it.",
+     "items": [
+      {
+       "label": "you",
+       "text": "17 times 6?",
+       "tone": "blue",
+       "cue": "seventeen times six"
+      },
+      {
+       "label": "model",
+       "text": "102",
+       "tone": "good",
+       "cue": "correctly"
+      },
+      {
+       "label": "you",
+       "text": "No, it's 112",
+       "tone": "blue",
+       "cue": "push back"
+      },
+      {
+       "label": "model",
+       "text": "Sorry: 112",
+       "tone": "warn",
+       "cue": "caves"
+      }
+     ],
+     "changes": [
+      {
+       "id": "f3",
+       "kill": true,
+       "tone": "bad",
+       "cue": "instead of being right"
+      },
+      {
+       "id": "f1",
+       "glow": true,
+       "tone": "good",
+       "cue": "pushing back"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Failure 5: reward hacking",
+     "say": "Failure five: reward hacking. The test checks one input. The model hard codes the expected answer. The test goes green, and the function is useless. Related tricks: editing the test, or special casing the example.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def sort_list(xs):\n    return [1, 2, 3]\n\nassert sort_list([3, 1, 2]) == [1, 2, 3]\nprint('test passed')"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "one input"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "hard codes"
+      },
+      {
+       "lines": [],
+       "cue": "Related tricks"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "passes, still wrong",
+       "tone": "bad",
+       "cue": "green"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "test passed",
+      "cue": "goes green"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The function always returns one, two, three. A hidden test calls it on nine, four. What prints? Pause and predict.",
+     "q": "`sort_list` always returns `[1, 2, 3]`. Run it on `[9, 4]`. Prints?",
+     "options": [
+      "[4, 9]",
+      "[1, 2, 3]",
+      "an error",
+      "[9, 4]"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "A hidden input exposes the hack",
+     "say": "One, two, three, whatever you feed it. It only passed because we gave it the one input it memorized. Expected: four, nine. A hidden input exposes the hack, and so does reading the diff.",
+     "items": [
+      {
+       "id": "in",
+       "x": 160,
+       "y": 450,
+       "w": 380,
+       "h": 150,
+       "label": "hidden input",
+       "text": "[9, 4]",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "fn",
+       "x": 700,
+       "y": 450,
+       "w": 480,
+       "h": 150,
+       "label": "sort_list",
+       "text": "return [1, 2, 3]",
+       "size": 34,
+       "tone": "warn"
+      },
+      {
+       "id": "out",
+       "x": 1340,
+       "y": 450,
+       "w": 420,
+       "h": 150,
+       "label": "output",
+       "text": "?",
+       "size": 48,
+       "cue": "One, two, three"
+      },
+      {
+       "id": "ex",
+       "x": 1340,
+       "y": 700,
+       "w": 420,
+       "h": 130,
+       "label": "expected",
+       "text": "[4, 9]",
+       "size": 44,
+       "tone": "good",
+       "cue": "Expected"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "in",
+       "to": "fn"
+      },
+      {
+       "from": "fn",
+       "to": "out"
+      }
+     ],
+     "changes": [
+      {
+       "id": "out",
+       "text": "[1, 2, 3]",
+       "tone": "bad",
+       "cue": "One, two, three"
+      },
+      {
+       "id": "fn",
+       "glow": true,
+       "tone": "warn",
+       "cue": "only passed"
+      },
+      {
+       "id": "out",
+       "glow": true,
+       "tone": "bad",
+       "cue": "exposes the hack"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Five failures, five checks",
+     "heads": [
+      "Failure",
+      "Catch it by"
+     ],
+     "say": "Five failures, five checks. Hallucination? Check a real source. A wrong sum? Compute it. An ignored rule? Check the output. Sycophancy? Push back on a correct answer. Reward hacking? Hidden inputs, and read the diff. Never trust the tone.",
+     "rows": [
+      [
+       "hallucination: invented facts",
+       "check names and numbers in a source"
+      ],
+      [
+       "wrong arithmetic",
+       "compute it in code or a tool"
+      ],
+      [
+       "ignored instruction",
+       "check the output; restate the rule"
+      ],
+      [
+       "sycophancy: caves to pushback",
+       "push back on a correct answer"
+      ],
+      [
+       "reward hacking: games the test",
+       "hidden inputs; read the diff"
+      ]
+     ],
+     "cues": [
+      "Hallucination",
+      "A wrong sum",
+      "An ignored rule",
+      "Sycophancy",
+      "Reward hacking"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "ai01"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How does an L L M work? It predicts the next token from odds. What is a token? A word piece. Why does one prompt vary? It samples. Temperature zero? Nearly fixed, not guaranteed.",
+     "rows": [
+      [
+       "How does an LLM work?",
+       "predicts the next token from odds"
+      ],
+      [
+       "What is a token?",
+       "a word piece, about 4 letters"
+      ],
+      [
+       "Why does one prompt vary?",
+       "it samples from the odds"
+      ],
+      [
+       "Temperature zero?",
+       "nearly fixed, not guaranteed"
+      ]
+     ],
+     "cues": [
+      "How does an L L M",
+      "What is a token",
+      "Why does one prompt",
+      "Temperature zero"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "ai04"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Failure modes? Hallucination, wrong sums, ignored rules, sycophancy, reward hacking. Why hallucinate? It predicts plausible text, not truth. Reduce it? Give sources, allow I do not know. Common mistake? Trusting a confident tone.",
+     "rows": [
+      [
+       "Failure modes?",
+       "hallucination, sums, rules, sycophancy, hacking"
+      ],
+      [
+       "Why hallucinate?",
+       "plausible text, not truth"
+      ],
+      [
+       "Reduce it?",
+       "give sources; allow \"I don't know\""
+      ],
+      [
+       "Common mistake?",
+       "trusting a confident tone"
+      ]
+     ],
+     "cues": [
+      "Failure modes",
+      "Why hallucinate",
+      "Reduce it",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these before your interview",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "say": "Three exercises. Ask a model the same question five times, and count how many answers agree. Ask it a big product in your head, and check the answer in Python. Then push back on a correct answer, and see if it caves.",
+     "rows": [
+      [
+       "Ask one question 5 times; count agreement",
+       "see sampling for yourself"
+      ],
+      [
+       "Ask 17 × 24, then check in Python",
+       "catch a confident wrong sum"
+      ],
+      [
+       "Push back on a correct answer",
+       "test for sycophancy"
+      ]
+     ],
+     "cues": [
+      "same question five",
+      "big product",
+      "push back"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A model predicts one token at a time from odds. Temperature reshapes the odds, so judge several runs. Fluent is not true: verify, push back, and test.",
+     "lines": [
+      "A model predicts one token at a time from odds.",
+      "Temperature reshapes odds: judge several runs.",
+      "Fluent is not true: verify, push back, test."
+     ],
+     "cues": [
+      "predicts one token",
+      "Temperature reshapes",
+      "Fluent is not true"
+     ]
+    }
+   ]
+  }
+ ]
+}
