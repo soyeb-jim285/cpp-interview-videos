@@ -81,7 +81,7 @@
       "input": "A-B 4, A-C 1, C-B 2, B-D 1 (minutes)",
       "output": "A 0, C 1, B 3, D 4"
      },
-     "note": "Roads go both ways; arrows show the way we travel them.",
+     "note": "Roads go both ways.",
      "cues": {
       "example": "travel times",
       "output": "the answer is",
@@ -92,7 +92,7 @@
     {
      "type": "diagram",
      "head": "Fewest roads is not cheapest",
-     "say": "Here's a map: four towns, and a travel time on each road. A to B directly takes four minutes. That's one road, so breadth first search would pick it. But A to C to B is one plus two, three minutes. Two roads, and cheaper. So counting roads is the wrong question. We count minutes.",
+     "say": "Here's a map: four towns, and a travel time on each road. A to B directly takes four minutes. That's one road, so breadth first search would pick it. But A to C to B is one plus two, three minutes. Two roads, and cheaper. So counting roads is the wrong question. We count minutes. Arrows show the way we relax, out from A.",
      "items": [
       {
        "id": "nA",
@@ -207,19 +207,19 @@
     {
      "type": "flow",
      "head": "Settle, then relax",
-     "say": "Dijkstra works like a GPS. Keep the best known time to every town. Pick the unsettled town with the smallest time. A priority queue hands it over. Settle it: that time is final. Then relax its roads: cheaper through this town? Update it.",
+     "say": "Dijkstra works like a GPS. Each town is a stop with its best known time. The priority queue is your to-visit list, closest first. That queue is a min-heap. Pick the smallest unsettled town. Settle it: that time is final. Then relax its roads: cheaper through this town? Update it.",
      "items": [
       {
        "label": "keep",
        "text": "best time",
        "sub": "to every town",
-       "cue": "Keep the best known time"
+       "cue": "best known time"
       },
       {
        "label": "pick",
        "text": "smallest",
        "sub": "unsettled town",
-       "cue": "Pick the unsettled town"
+       "cue": "closest first"
       },
       {
        "label": "settle",
@@ -240,7 +240,7 @@
     {
      "type": "diagram",
      "head": "Dijkstra on the map",
-     "say": "Start at A. Its time is zero, everything else infinity. The queue holds A. Settle A, and relax its roads. B becomes four. C becomes one. The queue now holds C at one, B at four. Pop C, the closest. Through C, B costs three. Better than four, so update it. Pop B at three. D becomes four. Now B's old entry, four, pops. Stale: skip it. Last, D at four. All settled.",
+     "say": "Start at A. Its time is zero, everything else infinity. The queue holds A. Settle A, and relax its roads. B becomes four. C becomes one. The queue now holds C at one, B at four. Pop C, the closest. Through C, B costs three. Better than four, so update it. Pop B at three. D becomes four. Now B's old entry, four, pops. Stale: skip it. D's four stays live. Last, D at four. All settled.",
      "items": [
       {
        "id": "nA",
@@ -302,7 +302,7 @@
        "text": "∞",
        "size": 44,
        "tone": "warn",
-       "cue": "Its time is zero"
+       "cue": "everything else infinity"
       },
       {
        "id": "dC",
@@ -313,7 +313,7 @@
        "text": "∞",
        "size": 44,
        "tone": "warn",
-       "cue": "Its time is zero"
+       "cue": "everything else infinity"
       },
       {
        "id": "dD",
@@ -324,7 +324,7 @@
        "text": "∞",
        "size": 44,
        "tone": "warn",
-       "cue": "Its time is zero"
+       "cue": "everything else infinity"
       },
       {
        "id": "pq",
@@ -463,9 +463,15 @@
       },
       {
        "id": "pq",
-       "text": "(4,D)",
+       "text": "(4,B)",
        "tone": "bad",
-       "cue": "Stale: skip it"
+       "cue": "B's old entry, four, pops"
+      },
+      {
+       "id": "pq",
+       "text": "(4,D)",
+       "tone": "info",
+       "cue": "D's four stays live"
       },
       {
        "id": "nD",
@@ -663,7 +669,7 @@
     {
      "type": "problem",
      "title": "Code it",
-     "statement": "Write dijkstra(start, roads): return the least time from start to every town. Weights are never negative.",
+     "statement": "Write dijkstra(s, g): g[u] lists each road from town u as (weight, town). Weights are never negative.",
      "example": {
       "input": "A-B 4, A-C 1, C-B 2, B-D 1; start A",
       "output": "dist: A 0, B 3, C 1, D 4"
@@ -674,7 +680,7 @@
       "output": "returns the least",
       "note": "No negative weights"
      },
-     "say": "Time to write it. The function takes a start town and the roads. Same map, start at A. It returns the least time to every town: zero, three, one, four. No negative weights."
+     "say": "Time to write it. The function takes a start town s and the graph g. Same map, start at A. It returns the least time to every town: zero, three, one, four. No negative weights."
     },
     {
      "type": "code",
@@ -1289,20 +1295,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. After those four friendships, a fifth arrives: zero and three. How many clubs now? Pause and predict.",
-     "q": "Friendship (0, 3) arrives. How many clubs?",
+     "say": "Your turn. After those four friendships, a fifth arrives: zero and three. What does unite return, and how many clubs now? Pause and predict.",
+     "q": "Friendship (0, 3) arrives. What does unite return, and how many clubs?",
      "options": [
-      "3",
-      "4",
-      "5",
-      "2"
+      "true, 3 clubs",
+      "false, 4 clubs",
+      "true, 4 clubs",
+      "false, 5 clubs"
      ],
-     "answer": "4"
+     "answer": "false, 4 clubs"
     },
     {
      "type": "code",
      "head": "Same friendships, in code",
-     "say": "Four. Zero and three are already one club, through one and two. So unite returns false, and nothing merges. Here it runs: four clubs, then unite zero three says false, and still four. A false from unite means that pair closes a cycle.",
+     "say": "False, and four clubs. Zero and three are already one club, through one and two. So unite returns false, and nothing merges. Here it runs: four clubs, then unite zero three says false, and still four. A false from unite means that pair closes a cycle.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1416,7 +1422,7 @@
      "covers": [
       "cp10"
      ],
-     "say": "How does Dijkstra work? Settle closest, relax roads, min heap. Cost? O of E log V. Negative weights? It fails: use Bellman Ford. Unweighted? Plain breadth first search.",
+     "say": "How does Dijkstra work? Keep best-known times, settle the closest, relax its roads. Cost? O of E log V, with a min heap. Negative weights? It fails: use Bellman Ford. Unweighted? Plain breadth first search.",
      "heads": [
       "They ask",
       "You say"
@@ -1424,7 +1430,7 @@
      "rows": [
       [
        "How does Dijkstra work?",
-       "settle closest, relax its roads, min-heap"
+       "keep best-known times; settle the closest unsettled town from a min-heap, then relax its roads"
       ],
       [
        "Cost?",
@@ -1452,7 +1458,7 @@
      "covers": [
       "cp11"
      ],
-     "say": "What is Union Find? Parent pointers, and the root names the group. Path compression? Find repoints nodes at the root. Union by size? Smaller tree under bigger. Cost? Inverse Ackermann: nearly constant. Cycle? Unite returns false.",
+     "say": "What is Union Find? Parent pointers, and the root names the group. Path compression? Find repoints nodes at the root. Union by size? Smaller tree under bigger, so trees stay shallow. Cost? Inverse Ackermann: nearly constant. Cycle? Unite returns false.",
      "heads": [
       "They ask",
       "You say"
@@ -1468,7 +1474,7 @@
       ],
       [
        "Union by size?",
-       "smaller tree hangs under bigger"
+       "smaller tree hangs under bigger, so trees stay shallow"
       ],
       [
        "Cost? Cycle?",
