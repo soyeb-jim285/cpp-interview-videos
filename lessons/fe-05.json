@@ -79,7 +79,7 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Make a form work without a mouse. Cut a page load from four seconds to two. And stop X S S, C S R F and C O R S mistakes.",
+     "say": "Today you will do three things. Make a form work without a mouse. Cut a page load from four seconds to two. And stop X S S, C S R F, cross origin resource sharing, C O R S, mistakes.",
      "lines": [
       "Make a form usable without a mouse",
       "Speed up the hero image: LCP 4.1 s to 2.3 s",
@@ -87,8 +87,8 @@
      ],
      "cues": [
       "Make a form",
-      "Cut a page",
-      "stop X S S"
+      "four seconds",
+      "cross origin"
      ]
     },
     {
@@ -108,7 +108,7 @@
     {
      "type": "diagram",
      "head": "What a screen reader hears",
-     "say": "Think of an audio guide reading your page aloud. That is a screen reader. For a div with a click handler, it says group. No name, no role, and the keyboard cannot reach it. Use a real button, and it says: Sign up, button. Enter and space work for free.",
+     "say": "Think of an audio guide reading your page aloud. That is a screen reader. For a div with a click handler, it often says group, with no name. No role, and the keyboard cannot reach it. Use a real button, and it says: Sign up, button. Enter and space work for free.",
      "items": [
       {
        "id": "p1",
@@ -132,7 +132,7 @@
        "text": "group",
        "size": 44,
        "tone": "bad",
-       "cue": "it says group"
+       "cue": "it often says group"
       },
       {
        "id": "k1",
@@ -185,7 +185,7 @@
        "from": "p1",
        "to": "s1",
        "tone": "bad",
-       "cue": "it says group"
+       "cue": "it often says group"
       },
       {
        "from": "p2",
@@ -254,7 +254,7 @@
     {
      "type": "diagram",
      "head": "Focus order and live errors",
-     "say": "Now press Tab. Focus should move email, then password, then Sign up, in reading order, with a visible outline. Never remove it. When validation fails, write the message into an A R I A live region. It must already be on the page. Screen readers read it aloud when it changes. The screen reader announces it, and focus stays put.",
+     "say": "Now press Tab. Focus should move email, then password, then Sign up, in reading order, with a visible outline. Never remove it. When validation fails, write the message into an A R I A live region, a box screen readers watch. It must already be there. Screen readers read it aloud when it changes. The screen reader announces it, and focus stays put.",
      "panels": [
       {
        "file": "Form.tsx",
@@ -447,7 +447,8 @@
      "changes": [
       {
        "id": "dv",
-       "kill": true,
+       "text": "no focus",
+       "tone": "bad",
        "cue": "cannot take focus"
       },
       {
@@ -471,7 +472,7 @@
       "Detail",
       "Rule"
      ],
-     "say": "Four more details. Never write outline none without a replacement, or keyboard users lose their place. Text contrast: W C A G double A wants four point five to one. Alt text describes purpose, and stays empty if decorative. ARIA only fills gaps. That fixes the form: button reached, field named, errors announced. Test with the keyboard, a screen reader, and axe.",
+     "say": "Four more details. Never write outline none without a replacement, or keyboard users lose their place. Text contrast: W C A G double A wants four point five to one. Alt text describes purpose, and stays empty if decorative. ARIA only fills gaps. That fixes the form: button reached, field named, errors announced. Test with the keyboard, a screen reader, and axe, an automatic checker.",
      "rows": [
       [
        "`outline: none`",
@@ -578,7 +579,7 @@
     {
      "type": "diagram",
      "head": "When does the browser see the hero?",
-     "say": "Why so slow? A script set the hero image. The browser had to download the page, then the script, run it, and only then ask for the image. With a preload, it asks right after the page arrives. The image starts about two seconds earlier.",
+     "say": "Why so slow? A script set the hero image. The browser had to download the page, then the script, run it, and only then ask for the image. With a preload, it asks right after the page arrives. The image starts about one point eight seconds earlier.",
      "items": [
       {
        "id": "h1",
@@ -654,7 +655,7 @@
        "text": "LCP 2.3 s",
        "size": 36,
        "tone": "good",
-       "cue": "about two seconds earlier"
+       "cue": "one point eight seconds"
       }
      ],
      "arrows": [
@@ -684,7 +685,7 @@
        "from": "i2",
        "to": "p2",
        "tone": "good",
-       "cue": "about two seconds earlier"
+       "cue": "one point eight seconds"
       }
      ]
     },
@@ -740,7 +741,8 @@
       "Is covered by it",
       "Blocks the load"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "what happens to the text below"
     },
     {
      "type": "diagram",
@@ -771,7 +773,7 @@
       {
        "id": "para",
        "x": 360,
-       "y": 480,
+       "y": 660,
        "w": 800,
        "h": 200,
        "text": "You are reading this paragraph",
@@ -810,19 +812,15 @@
        "cue": "the ad loads"
       },
       {
-       "id": "para",
-       "move": [
-        360,
-        660
-       ],
-       "tone": "bad",
-       "cue": "shoves your text"
-      },
-      {
        "id": "fx",
        "glow": true,
        "tone": "good",
        "cue": "up front"
+      },
+      {
+       "id": "para",
+       "tone": "bad",
+       "cue": "shoves your text"
       }
      ]
     },
@@ -1072,7 +1070,7 @@
       {
        "label": "2",
        "text": "Open evil.com",
-       "sub": "hidden form to bank",
+       "sub": "form posts to bank",
        "tone": "bad",
        "cue": "evil dot com"
       },
@@ -1095,7 +1093,7 @@
     {
      "type": "code",
      "head": "The attack, and the cookie defense",
-     "say": "Here is the attack. A hidden form on evil dot com posts to the bank. The browser adds your cookie. The defense sits on the bank's side. HttpOnly hides the cookie from scripts. SameSite Lax makes the browser skip it on a cross site post. Add a C S R F token too, a secret the attacker cannot read.",
+     "say": "Here is the attack. A form on evil dot com posts to the bank. The browser adds your cookie. The defense sits on the bank's side. HttpOnly hides the cookie from scripts. SameSite Lax makes the browser skip it on a cross site post. Add a C S R F token too, a secret the attacker cannot read.",
      "panels": [
       {
        "file": "evil.html",
@@ -1118,7 +1116,7 @@
         2,
         3
        ],
-       "cue": "hidden form"
+       "cue": "posts to the bank"
       },
       {
        "panel": 1,
@@ -1161,7 +1159,7 @@
       "Attack or mistake",
       "Defense"
      ],
-     "say": "X S S runs script on your site: escape output and add a policy. C S R F forges requests: same site cookies and tokens. A token in local storage? Any X S S can read it, so use an HttpOnly cookie. And never change data on a GET. So comments print as plain text, and never run.",
+     "say": "X S S runs script on your site: escape output and add a policy. C S R F forges requests: same site cookies and tokens. A token in local storage? Any X S S can read it, so use an HttpOnly cookie. And never change data on a GET. So for X S S: plain text, never run.",
      "rows": [
       [
        "XSS: script runs on your site",
@@ -1279,6 +1277,15 @@
        "text": "blocked",
        "tone": "bad",
        "cue": "If not"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1240,
+       "y": 830,
+       "text": "sites can't read each other",
+       "tone": "info",
+       "cue": "cannot read each other"
       }
      ]
     },
@@ -1427,11 +1434,11 @@
       "Mistake",
       "Reality"
      ],
-     "say": "Three mistakes. Fixing C O R S in React? Impossible, the server sends headers. A star origin with cookies? Rejected, so name the origin. And C O R S as security? It protects browsers only. With the header, your page reads the response.",
+     "say": "Three mistakes. Fixing C O R S in React? Not a frontend fix. The server sends headers. Star origin with cookies? Rejected, so name the origin. And C O R S as security? It protects browsers only. A dev proxy hides the error locally.",
      "rows": [
       [
        "fix CORS in React code",
-       "impossible: the server sends headers"
+       "not a frontend fix: the server sends the header"
       ],
       [
        "`Allow-Origin: *` with cookies",
@@ -1493,7 +1500,13 @@
      "pause": 5,
      "say": "Self-test. Normal body text, W C A G double A. What contrast ratio do you need? Pause and answer.",
      "q": "WCAG AA contrast for normal text?",
-     "answer": "4.5 to 1"
+     "options": [
+      "3 to 1",
+      "4.5 to 1",
+      "7 to 1",
+      "No minimum"
+     ],
+     "answer": 1
     },
     {
      "type": "take",
@@ -1501,14 +1514,14 @@
      "covers": [
       "fe11"
      ],
-     "say": "Contrast? W C A G double A: four point five to one. Alt text? Purpose, empty if decorative. Common mistake? Clickable divs, and outline none.",
+     "say": "Four point five to one, for normal text. Low-vision readers need that extra contrast. Alt text? Purpose, empty if decorative. Common mistake? Clickable divs, and outline none.",
      "lines": [
       "Contrast? 4.5 to 1 for normal text",
       "Alt text? Purpose; empty if decorative",
       "Common mistake? Clickable divs, outline none"
      ],
      "cues": [
-      "Contrast",
+      "Four point five",
       "Alt text",
       "Common mistake"
      ]
@@ -1557,7 +1570,13 @@
      "pause": 5,
      "say": "Self-test. Before the real request, the browser sends a preflight. Which HTTP method does it use? Pause and answer.",
      "q": "Which HTTP method is the CORS preflight?",
-     "answer": "OPTIONS"
+     "options": [
+      "GET",
+      "POST",
+      "OPTIONS",
+      "PUT"
+     ],
+     "answer": 2
     },
     {
      "type": "compare",
@@ -1569,7 +1588,7 @@
       "They ask",
       "You say"
      ],
-     "say": "X S S versus C S R F? X S S runs script. Escape output, add a policy. C S R F forges requests: same site cookies and tokens.",
+     "say": "The answer is OPTIONS, the preflight method. X S S versus C S R F? X S S runs script. Escape output, add a policy. C S R F forges requests: same site cookies and tokens.",
      "rows": [
       [
        "XSS vs CSRF?",
@@ -1629,7 +1648,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Try these in 3 steps",
+     "head": "Try these",
      "heads": [
       "Do next",
       "Why"
@@ -1657,7 +1676,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Native elements first, keyboard everywhere, test with a screen reader. Vitals: L C P, I N P, C L S, each with one fix. Escape output, use same site cookies, and let the server set C O R S.",
+     "say": "So say this. Native elements first, keyboard everywhere, test with a screen reader. Vitals: L C P, I N P, C L S, each with one fix. Escape output. Same site cookies. Let the server set C O R S.",
      "lines": [
       "Native HTML first. Keyboard works everywhere.",
       "LCP, INP, CLS: preload, split, reserve space.",
