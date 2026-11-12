@@ -462,6 +462,15 @@ go in a temp dir).
       `for(a;b;c)` tricks into plain loops); claims are scoped exactly ("for sum-threshold windows", not
       "always"); a printed output needs the print code visible; directions are literal ("R steps one cell
       left", not "move right in"); state preconditions (sorted input) and hidden costs (O(n log n) sort).
+- [ ] Production audit lessons (most common RED causes): every term (TTL, rebase, idempotency key, hop…)
+      is defined in plain words the FIRST time it is spoken; a quiz asks for a PREDICTION on new inputs —
+      never an answer already said, and never a question whose `say` gives the answer away; distractors are
+      plausible mistakes; the drill mixes scene types (no 3 compare tables in a row) and answers in full
+      spoken sentences, not fragments; chart narration derives a number before showing it, never talks over
+      an empty chart; diagram labels never overlap (shorten labels, bend arrows, widen gaps); every panel
+      labelled "run.sh"/"main.py" is genuinely runnable as shown; numbers spoken unambiguously ("ninety
+      nine commits back", not "the one ninety nine back"); each chapter ends by saying how it answered its
+      problem card.
 
 ## 13. Complete example lesson (passes the lint)
 
