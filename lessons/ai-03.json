@@ -713,7 +713,7 @@
      "title": "Scrub emails and phones before they leak",
      "statement": "Support tickets hold emails and phone numbers. Before text is logged or sent to a model, remove them.",
      "example": {
-      "input": "Mail ann@example.com or 555‑0142",
+      "input": "Mail ann@example.com\nor 555-0142",
       "output": "Mail [EMAIL] or [PHONE]"
      },
      "say": "Third risk: private data. P I I means personal information about a person. For example, this sentence has an email address. We want a placeholder instead.",
