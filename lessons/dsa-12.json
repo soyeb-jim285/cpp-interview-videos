@@ -23,11 +23,11 @@
  ],
  "chapters": [
   {
-   "title": "Pick the meeting that ends first",
+   "title": "One room, five requests",
    "scenes": [
     {
      "type": "hook",
-     "say": "One meeting room, five requests. Pick the obvious rule and you lose a meeting. By the end you'll know when the obvious choice is provably right, and build a DP when it isn't.",
+     "say": "One meeting room, five requests. Book as many as you can. The obvious rule loses one. By the end you'll know when the obvious choice is provably right, and build a DP when it isn't.",
      "lines": [
       {
        "text": "1 room, 5 requests",
@@ -35,7 +35,7 @@
       },
       {
        "text": "The obvious rule loses one",
-       "cue": "lose a meeting"
+       "cue": "The obvious rule loses one"
       },
       {
        "text": "Provably right?",
@@ -80,7 +80,7 @@
     {
      "type": "flow",
      "head": "Two tools for best, most, fewest",
-     "say": "Questions asking for the most, the fewest or the best come down to two tools. Greedy is short and fast, but needs a proof. D P is more work, but always safe. Choosing is half the interview.",
+     "say": "Questions asking for the most, the fewest or the best come down to two tools. Greedy takes the best pick now and never undoes it. Fast, but needs a proof. D P is recursion that remembers its answers, and checks every option.",
      "items": [
       {
        "label": "the question",
@@ -91,15 +91,15 @@
       {
        "label": "greedy",
        "text": "fast, short",
-       "sub": "needs a proof",
-       "cue": "Greedy is short"
+       "sub": "best pick now, never undone",
+       "cue": "Greedy takes"
       },
       {
        "label": "DP",
        "text": "more work",
-       "sub": "always safe",
+       "sub": "recursion plus memory",
        "tone": "good",
-       "cue": "D P is more"
+       "cue": "D P is recursion"
       }
      ]
     },
@@ -298,6 +298,16 @@
        "cue": "ends first"
       },
       {
+       "id": "cnt",
+       "count": [
+        0,
+        1
+       ],
+       "dur": 1,
+       "tone": "good",
+       "cue": "so take it"
+      },
+      {
        "id": "last",
        "text": "4",
        "cue": "Last end is four"
@@ -311,6 +321,16 @@
        "id": "m3",
        "tone": "dim",
        "cue": "Zero to six"
+      },
+      {
+       "id": "cnt",
+       "count": [
+        1,
+        2
+       ],
+       "dur": 1,
+       "tone": "good",
+       "cue": "Five to seven starts after four, so take it"
       },
       {
        "id": "m4",
@@ -332,12 +352,12 @@
       {
        "id": "cnt",
        "count": [
-        0,
+        2,
         3
        ],
        "dur": 1,
        "tone": "good",
-       "cue": "Three meetings"
+       "cue": "Eight to nine fits"
       }
      ]
     },
@@ -563,7 +583,7 @@
        "id": "best",
        "x": 360,
        "y": 740,
-       "w": 1000,
+       "w": 700,
        "h": 110,
        "label": "better plan",
        "text": "1–5 and 6–10 = 2",
@@ -581,12 +601,12 @@
       },
       {
        "id": "s1",
-       "kill": true,
+       "tone": "dim",
        "cue": "overlaps both"
       },
       {
        "id": "s3",
-       "kill": true,
+       "tone": "dim",
        "cue": "overlaps both"
       }
      ]
@@ -742,7 +762,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int greedyCoins(vector<int> c, int amt) {\n    int n = 0;\n    for (int x : c) { n += amt / x; amt %= x; }\n    return n;\n}\nint main() { cout << greedyCoins({4, 3, 1}, 6); }"
+       "code": "int greedyCoins(vector<int> c, int amt) {\n    int n = 0;\n    for (int x : c) {\n        n += amt / x;\n        amt %= x;\n    }\n    return n;\n}\nint main() { cout << greedyCoins({4, 3, 1}, 6); }"
       }
      ],
      "steps": [
@@ -754,14 +774,14 @@
       },
       {
        "lines": [
-        6
+        9
        ],
        "cue": "Six: one four"
       }
      ],
      "notes": [
       {
-       "line": 4,
+       "line": 3,
        "inside": true,
        "text": "never revisits a choice",
        "tone": "warn",
@@ -829,7 +849,7 @@
     {
      "type": "compare",
      "head": "Greedy or DP?",
-     "say": "How do you choose? If you can swap the greedy pick into any best answer, go greedy. If a small case breaks it, like coins one, three, four, use D P. Same for knapsack by value ratio. And if subproblems overlap, D P. That's why six cents needs a D P.",
+     "say": "How do you choose? If you can swap the greedy pick into any best answer, go greedy. If a small case breaks it, like coins one, three, four, use D P. Same for zero-one knapsack by value ratio. And if subproblems overlap, D P. That's why six cents needs a D P.",
      "heads": [
       "Ask yourself",
       "Then use"
@@ -910,8 +930,8 @@
     },
     {
      "type": "diagram",
-     "head": "Plain recursion on 6",
-     "say": "Plain recursion on six. Six asks f of five. Five asks f of four. And f of two. And f of one. Then six asks f of three. Three asks f of two again. And f of zero. Last, six asks f of two, which asks f of one. Count the twos: three times.",
+     "head": "Part of plain recursion on 6",
+     "say": "Plain recursion on six, part of the tree. Six asks f of five. Five asks f of four. And f of two. And f of one. Then six asks f of three. Three asks f of two again. And f of zero. Last, six asks f of two, which asks f of one. Count the twos in this slice: three times.",
      "items": [
       {
        "tree": {
@@ -1030,7 +1050,7 @@
     {
      "type": "diagram",
      "head": "Seven questions, one table",
-     "say": "Seven, one per amount from zero to six. The picture had ten boxes, but only seven different questions. Seven answers fill the notebook.",
+     "say": "Seven, one per amount from zero to six. The slice had ten boxes, but only seven different questions. Seven answers fill the notebook.",
      "items": [
       {
        "array": {
@@ -1054,7 +1074,7 @@
        "y": 700,
        "w": 420,
        "h": 130,
-       "label": "boxes in the tree",
+       "label": "boxes in the slice",
        "text": "10",
        "size": 56,
        "tone": "dim",
@@ -1077,7 +1097,7 @@
     {
      "type": "compare",
      "head": "How do you know it is DP?",
-     "say": "How do you spot D P? The same question gets asked again. The problem wants a fewest, most, count or yes or no. And greedy has a counterexample. Then say what dp of i means. That's our road to fewest coins for thirty.",
+     "say": "How do you spot D P? The same question gets asked again. The problem wants a fewest, most, count or yes or no. And greedy has a counterexample. Then say what dp of i means. That's our road to thirty. The last cell for thirty is eight.",
      "heads": [
       "Sign",
       "What it means"
@@ -1104,7 +1124,7 @@
       "same question",
       "fewest, most",
       "greedy has",
-      "say what dp"
+      "That's our road"
      ]
     }
    ]
@@ -1209,7 +1229,7 @@
     {
      "type": "diagram",
      "head": "Table: fill 0 to 5",
-     "say": "Table time. Dp of zero is zero. Dp of one: one coin. Dp of two: two coins. Dp of three: the three coin plus dp of zero, so one. Dp of four: one coin. Dp of five: a one coin on top of dp of four, so two.",
+     "say": "Table time. Dp of zero is zero. Dp of one: one coin, one plus dp of zero. Dp of two: two coins, one plus dp of one. Dp of three: the three coin plus dp of zero, so one. Dp of four: one coin, the four coin plus dp of zero. Dp of five: a one coin on top of dp of four, so two.",
      "items": [
       {
        "array": {
@@ -1254,10 +1274,20 @@
        "cue": "Dp of one"
       },
       {
+       "id": "calc",
+       "text": "dp[1] = 1 + dp[0]",
+       "cue": "one plus dp of zero"
+      },
+      {
        "id": "c2",
        "text": "2",
        "tone": "good",
        "cue": "Dp of two"
+      },
+      {
+       "id": "calc",
+       "text": "dp[2] = 1 + dp[1]",
+       "cue": "one plus dp of one"
       },
       {
        "id": "c3",
@@ -1275,6 +1305,11 @@
        "text": "1",
        "tone": "good",
        "cue": "Dp of four"
+      },
+      {
+       "id": "calc",
+       "text": "dp[4] = 1 + dp[0]",
+       "cue": "four coin plus dp of zero"
       },
       {
        "id": "c5",
@@ -1497,7 +1532,7 @@
     {
      "type": "code",
      "head": "Trap: start the table at zero",
-     "say": "The classic trap. Start every cell at zero instead of infinity. Then min of zero and anything stays zero, and the table claims six cents costs zero coins. Infinity is the neutral start for min. That's how every amount gets its answer.",
+     "say": "The classic trap. Start every cell at zero instead of infinity. Then min of zero and anything stays zero, and the table claims six cents costs zero coins. Infinity is the neutral start for min.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1556,7 +1591,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's greedy? Take the locally best choice, never undo it. Why is it correct? Exchange argument: swap it into any best answer. Example? Meetings, sorted by end time. When does it fail? Coins one, three, four. Then D P.",
+     "say": "What's greedy? Take the locally best choice, never undo it. Why is it correct? Exchange argument: swap it into any best answer. Example? Meetings sorted by end time, since sorting by start or length each fails. When does it fail? Coins one, three, four. Then D P.",
      "rows": [
       [
        "What is greedy?",
@@ -1568,7 +1603,7 @@
       ],
       [
        "Example?",
-       "meetings sorted by end time"
+       "sort by end time; start or length each has a counterexample"
       ],
       [
        "When does it fail?",
@@ -1592,11 +1627,11 @@
       "They ask",
       "You say"
      ],
-     "say": "How do you start D P? Define dp of i, then transition, base, order. Memo or table? Memo is easier, table avoids deep recursion. Cost? Amount times coins. How do you spot it? Repeated subproblems.",
+     "say": "How do you start D P? Define dp of i, then transition, base, order. Memo or table? Plain recursion repeats work. Memo caches it, a table fills in order. Cost? Amount times coins. How do you spot it? Repeated subproblems.",
      "rows": [
       [
        "How do you start?",
-       "define dp[i], transition, base, order"
+       "state dp[i], transition, base, order; recursion, then memo, then table"
       ],
       [
        "Memo or table?",
