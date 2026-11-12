@@ -475,8 +475,8 @@
      "title": "One database, many servers",
      "statement": "Every app server hits one database. Reads and writes pile up on one machine.",
      "example": {
-      "input": "10,000 queries/s reach 1 database",
-      "output": "the database keeps up"
+      "input": "100,000 req/s; cache answers 9 in 10",
+      "output": "10,000 queries/s reach 1 database"
      },
      "note": "users see their own posts",
      "say": "Copying the app was the easy part. Every copy still talks to one database. Ten thousand queries a second hit that one machine. It has to keep up. And people must still see their own posts.",
@@ -644,9 +644,9 @@
     },
     {
      "type": "chart",
-     "head": "Adding one shard",
+     "head": "Share of users who keep their shard (%)",
      "unit": "%",
-     "say": "About twenty percent. The chart counts users that keep their shard. The other eighty percent move. Consistent hashing, a later topic, moves fewer.",
+     "say": "Share of users who keep their shard: about twenty percent. The other eighty percent move. Consistent hashing, a later topic, moves fewer.",
      "bars": [
       {
        "label": "Stay",
@@ -998,7 +998,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Billions of log lines a day, read back by key, never joined. Which store fits best? Pause and predict.",
-     "q": "Billions of log lines, read by key, never joined. Best store?",
+     "q": "A billion log lines a day, written once, read later. Which store, not Postgres?",
      "options": [
       "Postgres, one table",
       "Postgres with JSONB",
@@ -1069,7 +1069,7 @@
     {
      "type": "diagram",
      "head": "Two bank branches",
-     "say": "Two bank branches share one account, balance one hundred. The phone line between them goes down. A customer withdraws forty at branch A. Branch B can't know. Someone asks B for the balance. Guess one hundred, or say come back later? That dilemma is the C A P theorem.",
+     "say": "Two bank branches share one account, balance one hundred. The phone line between them goes down. A customer withdraws forty at branch A. Branch B can't know. Someone asks B for the balance. Guess one hundred, or say come back later?",
      "items": [
       {
        "id": "ba",
@@ -1148,7 +1148,7 @@
     {
      "type": "diagram",
      "head": "A partition: B must choose",
-     "say": "Same thing with data. Replica A and replica B hold x, which is one. The link breaks. That's a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it. Now a read arrives at B. Consistency means every read sees the latest write. Availability means every request gets an answer. Partition is the broken link. B can't have both.",
+     "say": "That dilemma is the C A P theorem. Same thing with data. Replica A and replica B hold x, which is one. The link breaks. That's a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it. Now a read arrives at B. Consistency means every read sees the latest write. Availability means every request gets an answer. Partition is the broken link. B can't have both.",
      "items": [
       {
        "id": "ra",
@@ -1366,7 +1366,7 @@
     {
      "type": "compare",
      "head": "CAP myths in interviews",
-     "say": "Interviewers set traps here. Pick any two of three? No. Networks split anyway. Then you choose C or A. Eventual consistency is bad? Fine for a feed, wrong for a balance. Two writes clash? Last write wins silently drops one. Version vectors keep a counter per replica, so you can see the clash and merge.",
+     "say": "Interviewers set traps here. Pick any two of three? No. Networks split anyway. Then you choose C or A. Eventual consistency is bad? Fine for a feed, wrong for a balance. Two writes clash? The same newest-wins rule from the code silently drops one. Version vectors keep a counter per replica, so you can see the clash and merge.",
      "heads": [
       "Myth or question",
       "Truth"
@@ -1382,7 +1382,7 @@
       ],
       [
        "Two writes clash?",
-       "Last write wins drops one"
+       "Newest timestamp wins, so the other write vanishes"
       ],
       [
        "Version vectors?",
@@ -1495,7 +1495,7 @@
      "rows": [
       [
        "Explain CAP.",
-       "In a partition: C (latest write) or A (always answers)"
+       "C = consistency (latest write), A = availability (always answers), P = partition tolerance; pick C or A."
       ],
       [
        "Pick any two?",
