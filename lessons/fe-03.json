@@ -1,0 +1,975 @@
+{
+ "id": "fe-03",
+ "track": "Frontend",
+ "num": 3,
+ "title": "React Rendering: Keys, State & Effects",
+ "covers": [
+  "fe05",
+  "fe06"
+ ],
+ "caps": [
+  [
+   "[Ss]et count",
+   "setCount"
+  ],
+  [
+   "[Uu]se state",
+   "useState"
+  ],
+  [
+   "[Uu]se effect",
+   "useEffect"
+  ],
+  [
+   "set interval",
+   "setInterval"
+  ],
+  [
+   "clear interval",
+   "clearInterval"
+  ],
+  [
+   "Math dot random",
+   "Math.random()"
+  ],
+  [
+   "exhaustive deps",
+   "exhaustive-deps"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Why typed text jumps rows",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "You type two litres into the first todo. A new task appears on top, and your text lands on the wrong row. You'll explain what React re-renders, and fix this bug.",
+     "lines": [
+      {
+       "text": "Type '2 litres' in row 1",
+       "cue": "You type two litres"
+      },
+      {
+       "text": "A new todo appears on top",
+       "cue": "A new task appears"
+      },
+      {
+       "text": "Text lands on the wrong row.",
+       "cue": "wrong row",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Explain what React re-renders, and why. Fix the key bug that moves typed text. And fix a counter stuck at one, a stale closure.",
+     "lines": [
+      "Explain what React re-renders, and why",
+      "Fix the key bug that moves typed text",
+      "Fix a counter stuck at 1: a stale closure"
+     ],
+     "cues": [
+      "Explain what",
+      "Fix the key bug",
+      "counter stuck"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Why does the text move?",
+     "statement": "A todo list renders each row with key equal to its index. Add one todo on top. The typed text stays in row one.",
+     "example": {
+      "input": "`key={i}`, add 'Pay rent' on top",
+      "output": "'2 litres' ends on the wrong row"
+     },
+     "say": "Here is the problem. For example, index keys, and a new todo added on top. We want to know why the text lands on Pay rent.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A host with a seating chart",
+     "say": "Think of a host with a seating chart. Last night: Ann, Bo, Cy. Tonight Dee joins at the front. A bad host reseats everyone. A good host reads name tags. React is that host, and the key is the name tag.",
+     "items": [
+      {
+       "label": "last night",
+       "text": "Ann, Bo, Cy",
+       "cue": "Last night"
+      },
+      {
+       "label": "tonight",
+       "text": "Dee joins",
+       "tone": "warn",
+       "cue": "Dee joins at the front"
+      },
+      {
+       "label": "good host",
+       "text": "Seat Dee only",
+       "tone": "good",
+       "cue": "reads name tags"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Index keys, step by step",
+     "say": "Before: Buy milk has key zero, Walk dog has key one. You type two litres into key zero. Now Pay rent is added on top, and takes key zero. React sees key zero again, so it reuses that row, typed text and all. Buy milk shifts to key one. Walk dog gets key two, a new row.",
+     "items": [
+      {
+       "id": "r0",
+       "x": 140,
+       "y": 330,
+       "w": 520,
+       "h": 120,
+       "text": "Buy milk",
+       "label": "before: key 0",
+       "tone": "blue",
+       "cue": "Buy milk has key zero"
+      },
+      {
+       "id": "r1",
+       "x": 140,
+       "y": 530,
+       "w": 520,
+       "h": 120,
+       "text": "Walk dog",
+       "label": "before: key 1",
+       "tone": "blue",
+       "cue": "Walk dog has key one"
+      },
+      {
+       "id": "n0",
+       "x": 1200,
+       "y": 230,
+       "w": 520,
+       "h": 120,
+       "text": "Buy milk",
+       "label": "after: key 0",
+       "tone": "blue",
+       "cue": "Pay rent is added"
+      },
+      {
+       "id": "n1",
+       "x": 1200,
+       "y": 430,
+       "w": 520,
+       "h": 120,
+       "text": "Walk dog",
+       "label": "after: key 1",
+       "tone": "blue",
+       "cue": "Buy milk shifts"
+      },
+      {
+       "id": "n2",
+       "x": 1200,
+       "y": 630,
+       "w": 520,
+       "h": 120,
+       "text": "Walk dog",
+       "label": "after: key 2",
+       "tone": "good",
+       "cue": "a new row"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r0",
+       "to": "n0",
+       "cue": "sees key zero again"
+      },
+      {
+       "from": "r1",
+       "to": "n1",
+       "cue": "Buy milk shifts"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r0",
+       "text": "Buy milk [2 litres]",
+       "tone": "warn",
+       "cue": "type two litres"
+      },
+      {
+       "id": "n0",
+       "text": "Pay rent",
+       "cue": "takes key zero"
+      },
+      {
+       "id": "n0",
+       "text": "Pay rent [2 litres]",
+       "tone": "bad",
+       "cue": "typed text and all"
+      },
+      {
+       "id": "n1",
+       "text": "Buy milk",
+       "cue": "to key one"
+      },
+      {
+       "id": "n2",
+       "text": "Walk dog",
+       "cue": "gets key two"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix is one word",
+     "say": "Left: key is the index, so identity follows the position. Right: key is the id, so identity follows the todo. Buy milk keeps its id, and its typed text. Pay rent is simply a new row. Use a stable, unique id from your data.",
+     "panels": [
+      {
+       "file": "bad.tsx",
+       "label": "bad",
+       "tone": "bad",
+       "code": "{todos.map((t, i) => (\n  <Row key={i} todo={t} />\n))}"
+      },
+      {
+       "file": "good.tsx",
+       "label": "good",
+       "tone": "good",
+       "code": "{todos.map(t => (\n  <Row key={t.id} todo={t} />\n))}"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        2
+       ],
+       "cue": "key is the index"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2
+       ],
+       "cue": "key is the id"
+      },
+      {
+       "panel": 1,
+       "lines": [],
+       "cue": "Buy milk keeps"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2
+       ],
+       "cue": "Pay rent is simply"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2
+       ],
+       "cue": "stable, unique id"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A developer sets key to Math dot random on every row. Each row has a controlled input, so it re-renders on every keystroke. What happens as you type? Pause and predict.",
+     "q": "`key={Math.random()}` on rows. What happens when you type?",
+     "options": [
+      "Works fine",
+      "Remount, text lost",
+      "Text jumps rows",
+      "React throws"
+     ],
+     "answer": "Remount, text lost"
+    },
+    {
+     "type": "compare",
+     "head": "What React does with a key",
+     "say": "Remount. A new key is a new item, so the text is gone. A different type throws the subtree away. The same type keeps state. Lists match by key. Index keys suit static lists only.",
+     "heads": [
+      "Situation",
+      "React does"
+     ],
+     "rows": [
+      [
+       "`key={Math.random()}`",
+       "remounts every row, every render"
+      ],
+      [
+       "`<div>` becomes `<span>`",
+       "throws away the subtree, state too"
+      ],
+      [
+       "same type, new props",
+       "keeps the instance and its state"
+      ],
+      [
+       "list of children",
+       "matches them by `key`"
+      ],
+      [
+       "`key={index}`",
+       "fine only if the list never reorders"
+      ]
+     ],
+     "cues": [
+      "Remount",
+      "different type",
+      "same type keeps",
+      "Lists match",
+      "static lists"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "State is a snapshot",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does one click add only 1?",
+     "statement": "A button calls setCount(count + 1) three times. You expect +3. The screen shows 1. Explain it and fix it.",
+     "example": {
+      "input": "count 0, three `setCount(count + 1)`",
+      "output": "shows 1; the fix gives 3"
+     },
+     "say": "Here is the problem. For example, count is zero, and one click calls set count three times. We want three, but the screen shows one.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "What a state change does",
+     "say": "First, what React actually does. A state change schedules a render. React runs your component again, and its children by default. It compares the new tree to the old one. Then it patches only the differences into the real page.",
+     "items": [
+      {
+       "label": "1",
+       "text": "setState",
+       "sub": "schedules a render",
+       "cue": "A state change"
+      },
+      {
+       "label": "2",
+       "text": "Run again",
+       "sub": "component + children",
+       "cue": "runs your component"
+      },
+      {
+       "label": "3",
+       "text": "Diff",
+       "sub": "new tree vs old",
+       "tone": "warn",
+       "cue": "compares the new tree"
+      },
+      {
+       "label": "4",
+       "text": "Patch",
+       "sub": "only the changes",
+       "tone": "good",
+       "cue": "patches only"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Think of photographs",
+     "say": "Think of photographs. Each time your component renders, React takes a photo of your screen. In this photo, count is zero, frozen. A click asks for a new photo, where count is one. You never edit an old photo.",
+     "items": [
+      {
+       "label": "photo 1",
+       "text": "count = 0",
+       "sub": "frozen",
+       "cue": "In this photo"
+      },
+      {
+       "label": "you click",
+       "text": "setCount",
+       "sub": "ask for a new photo",
+       "tone": "warn",
+       "cue": "A click asks"
+      },
+      {
+       "label": "photo 2",
+       "text": "count = 1",
+       "sub": "a new snapshot",
+       "tone": "good",
+       "cue": "where count is one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Three calls, one photo",
+     "say": "In this render, count is zero. So all three calls say zero plus one. The screen ends at one, not three. And set state does not change count right now, it only schedules a render. Fix it with an updater function: each call gets the latest value. Now you get three.",
+     "panels": [
+      {
+       "file": "Counter.tsx",
+       "code": "function addThree() {\n  setCount(count + 1);\n  setCount(count + 1);\n  setCount(count + 1);\n}  // screen shows 1\n\nsetCount(c => c + 1);\n// updater: always the latest"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "all three calls"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "ends at one"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "does not change count"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "updater function"
+      },
+      {
+       "lines": [],
+       "cue": "you get three"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "count is 0 here",
+       "tone": "warn",
+       "cue": "count is zero"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Count is zero. One click calls set count of count plus one, then set count with an updater, c becomes c plus one. What does the screen show? Pause and predict.",
+     "q": "From 0: `setCount(count + 1); setCount(c => c + 1);` Result?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "0"
+     ],
+     "answer": "2"
+    },
+    {
+     "type": "diagram",
+     "head": "The update queue, in order",
+     "say": "Two. React queues both calls and applies them in order. State starts at zero. The first call sets it to one. The updater receives that one, and returns two. React renders once, with two.",
+     "items": [
+      {
+       "id": "s0",
+       "x": 140,
+       "y": 400,
+       "w": 340,
+       "h": 140,
+       "label": "state",
+       "text": "0",
+       "size": 64,
+       "tone": "blue",
+       "cue": "starts at zero"
+      },
+      {
+       "id": "q1",
+       "x": 620,
+       "y": 400,
+       "w": 340,
+       "h": 140,
+       "label": "call 1",
+       "text": "set 0 + 1",
+       "tone": "warn",
+       "cue": "The first call"
+      },
+      {
+       "id": "q2",
+       "x": 1100,
+       "y": 400,
+       "w": 340,
+       "h": 140,
+       "label": "call 2",
+       "text": "c => c + 1",
+       "tone": "warn",
+       "cue": "The updater"
+      },
+      {
+       "id": "s1",
+       "x": 1580,
+       "y": 400,
+       "w": 240,
+       "h": 140,
+       "label": "render",
+       "text": "?",
+       "size": 64,
+       "tone": "good",
+       "cue": "renders once"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "s0",
+       "to": "q1",
+       "cue": "first call"
+      },
+      {
+       "from": "q1",
+       "to": "q2",
+       "label": "1",
+       "cue": "receives that one"
+      },
+      {
+       "from": "q2",
+       "to": "s1",
+       "cue": "returns two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "q1",
+       "text": "gives 1",
+       "tone": "good",
+       "cue": "sets it to one"
+      },
+      {
+       "id": "q2",
+       "text": "gives 2",
+       "tone": "good",
+       "cue": "returns two"
+      },
+      {
+       "id": "s1",
+       "text": "2",
+       "cue": "with two"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Effects and stale closures",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does the timer stick at 1?",
+     "statement": "A counter starts an interval that adds one every second. It shows 1, then never moves again.",
+     "example": {
+      "input": "`setInterval(() => setCount(count + 1))`",
+      "output": "stuck at 1; fix: 1, 2, 3, 4, 5"
+     },
+     "say": "Here is the problem. For example, an interval that calls set count of count plus one every second. We want one, two, three. We get one, forever.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A sticky note for React",
+     "say": "Think of a sticky note you hand to React. After you paint the screen, do this. Redo it only if a listed value changed. And the note has a second part: how to undo it first. That is an effect, its dependency list, and its cleanup.",
+     "items": [
+      {
+       "label": "after paint",
+       "text": "Run effect",
+       "cue": "After you paint"
+      },
+      {
+       "label": "list changed?",
+       "text": "Re-run",
+       "sub": "dependency list",
+       "tone": "warn",
+       "cue": "Redo it only if"
+      },
+      {
+       "label": "before next",
+       "text": "Cleanup",
+       "sub": "undo it first",
+       "tone": "good",
+       "cue": "how to undo it"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Dependencies and cleanup",
+     "say": "The first effect sets the page title. Its list holds count, so it re-runs when count changes. The second starts a timer, and returns a cleanup that stops it. React runs the cleanup before the next effect, and when the component leaves. Empty list: run once, after the first render. No list: after every render.",
+     "panels": [
+      {
+       "file": "Effects.tsx",
+       "code": "useEffect(() => {\n  document.title = `Count ${count}`;\n}, [count]);\nuseEffect(() => {\n  const id = setInterval(tick, 1000);\n  return () => clearInterval(id);\n}, []);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "first effect"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "when count changes"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "starts a timer"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "returns a cleanup"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "React runs the cleanup"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Empty list"
+      },
+      {
+       "lines": [],
+       "cue": "No list"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Why the interval is stale",
+     "say": "Here is the bug. In render one, count is zero. The effect runs once, and its callback captures that zero. Every second the callback sets zero plus one. State becomes one. Render two has count one, but the effect never re-runs. The old callback still holds zero, so it sets one again.",
+     "items": [
+      {
+       "id": "r1",
+       "x": 140,
+       "y": 280,
+       "w": 480,
+       "h": 130,
+       "label": "render 1",
+       "text": "count = 0",
+       "tone": "blue",
+       "cue": "In render one"
+      },
+      {
+       "id": "cb",
+       "x": 140,
+       "y": 560,
+       "w": 480,
+       "h": 130,
+       "label": "interval callback",
+       "text": "sees count = 0",
+       "tone": "warn",
+       "cue": "captures that zero"
+      },
+      {
+       "id": "st",
+       "x": 860,
+       "y": 420,
+       "w": 360,
+       "h": 140,
+       "label": "state",
+       "text": "0",
+       "size": 64,
+       "cue": "sets zero plus one"
+      },
+      {
+       "id": "r2",
+       "x": 1400,
+       "y": 280,
+       "w": 420,
+       "h": 130,
+       "label": "render 2",
+       "text": "count = 1",
+       "tone": "blue",
+       "cue": "Render two has"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r1",
+       "to": "cb",
+       "label": "captured once",
+       "cue": "captures that zero"
+      },
+      {
+       "from": "cb",
+       "to": "st",
+       "label": "set(0 + 1)",
+       "cue": "Every second"
+      }
+     ],
+     "changes": [
+      {
+       "id": "st",
+       "text": "1",
+       "tone": "good",
+       "cue": "State becomes one"
+      },
+      {
+       "id": "cb",
+       "text": "still count = 0",
+       "tone": "bad",
+       "cue": "never re-runs"
+      },
+      {
+       "id": "st",
+       "glow": true,
+       "tone": "bad",
+       "cue": "sets one again"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Keep the empty list, but write the updater: set count of c becomes c plus one. The interval ticks once a second. What does the screen show after five seconds? Pause and predict.",
+     "q": "Interval uses `setCount(c => c + 1)`, deps `[]`. After 5 s?",
+     "options": [
+      "1",
+      "5",
+      "0",
+      "6"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "code",
+     "head": "Two ways to fix it",
+     "say": "Five. The updater never reads count, so there is nothing stale to capture. It always receives the latest value. The other fix is to list count in the dependency list. Then the effect re-runs each render, with a fresh callback. Never delete count from the list just to quiet it.",
+     "panels": [
+      {
+       "file": "bug.tsx",
+       "label": "bug",
+       "tone": "bad",
+       "code": "useEffect(() => {\n  setInterval(\n    () => setCount(count + 1),\n    1000);\n}, []);"
+      },
+      {
+       "file": "fix.tsx",
+       "label": "fix",
+       "tone": "good",
+       "code": "useEffect(() => {\n  setInterval(\n    () => setCount(c => c + 1),\n    1000);\n}, []);"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 1,
+       "lines": [
+        3
+       ],
+       "cue": "never reads count"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        3,
+        5
+       ],
+       "cue": "latest value"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        3,
+        5
+       ],
+       "cue": "list count"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        5
+       ],
+       "cue": "fresh callback"
+      },
+      {
+       "panel": 0,
+       "lines": [],
+       "cue": "Never delete"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Hooks follow-ups",
+     "say": "Follow-ups. Rules of hooks? Top level only, never in loops or conditions. An effect with no list? It runs after every render. Why must the list be honest? A missing value is a stale closure. Is set state synchronous? No, it schedules a render.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Rules of hooks?",
+       "top level only: no loops, no conditions"
+      ],
+      [
+       "Effect with no array?",
+       "runs after every render"
+      ],
+      [
+       "Lying in the deps array?",
+       "stale closure; `exhaustive-deps` lint catches it"
+      ],
+      [
+       "Is `setState` synchronous?",
+       "no: it schedules a render"
+      ]
+     ],
+     "cues": [
+      "Rules of hooks",
+      "no list",
+      "must the list be honest",
+      "Is set state"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe05"
+     ],
+     "say": "What is the virtual D O M? A cheap tree React diffs, then patches the real page. Why do keys matter? They give list items identity. Index as key? Only for static lists. Random keys? They remount every row. Common mistake: index keys with inputs.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is the virtual DOM?",
+       "a cheap tree React diffs, then patches the page"
+      ],
+      [
+       "Why do keys matter?",
+       "identity for list items: stable ids"
+      ],
+      [
+       "Index or random key?",
+       "index: static lists only. random: remounts every row"
+      ],
+      [
+       "Common mistake?",
+       "index keys on rows with inputs or state"
+      ]
+     ],
+     "cues": [
+      "virtual D O M",
+      "Why do keys",
+      "Index as key",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe06"
+     ],
+     "say": "How does use state work? Each render is a snapshot. What is a stale closure? A callback that captured an old value. Fix it with the updater or an honest dependency list. Effect with no array? Every render.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does `useState` work?",
+       "each render is a snapshot; updater for old-to-new"
+      ],
+      [
+       "What is a stale closure?",
+       "a callback that captured an old value"
+      ],
+      [
+       "How do you fix it?",
+       "updater, or an honest dependency list"
+      ],
+      [
+       "Effect with no array?",
+       "runs after every render"
+      ]
+     ],
+     "cues": [
+      "How does use state",
+      "stale closure",
+      "Fix it with",
+      "no array"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Do these next. Build a todo list, break it with index keys, then fix it. Write an interval counter, and fix the stuck one both ways. Turn on the exhaustive deps lint rule.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Todo list with inputs: break it with `key={i}`, fix it",
+       "see identity bugs yourself"
+      ],
+      [
+       "Interval counter: reproduce the stuck 1, fix it two ways",
+       "stale closures"
+      ],
+      [
+       "Enable the `exhaustive-deps` lint rule",
+       "it catches dishonest lists"
+      ]
+     ],
+     "cues": [
+      "Build a todo",
+      "Write an interval",
+      "exhaustive deps"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. React re-runs the component, diffs the trees, and patches only what changed. Keys are identity, so use stable ids. And each render is a snapshot, so use the updater, and keep effect dependencies honest.",
+     "lines": [
+      "Re-run, diff, patch only what changed.",
+      "Keys are identity: use stable ids, not indexes.",
+      "Each render is a snapshot: updater + honest deps."
+     ],
+     "cues": [
+      "re-runs the component",
+      "Keys are identity",
+      "snapshot"
+     ]
+    }
+   ]
+  }
+ ]
+}
