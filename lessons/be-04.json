@@ -67,7 +67,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Anyone can type any email. How does your server know who's calling? Attackers guess billions of passwords a second. By the end you'll store passwords, read a token, and stop one client flooding your API.",
+     "say": "Anyone can type any email. How does your server know who's calling? By the end you'll store passwords, read a token, and stop one client flooding your API.",
      "lines": [
       {
        "text": "Anyone can type any email",
@@ -76,11 +76,6 @@
       {
        "text": "Who is really calling?",
        "cue": "who's calling"
-      },
-      {
-       "text": "Billions of guesses a second",
-       "cue": "billions of passwords",
-       "accent": "Billions"
       },
       {
        "text": "Then: how much may they call?",
@@ -278,26 +273,26 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "pw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:7])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
+       "code": "import bcrypt\npw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:7])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
       }
      ],
      "steps": [
       {
        "lines": [
-        2,
-        3
+        3,
+        4
        ],
        "cue": "twice"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Print the first"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "The two hashes differ"
       }
@@ -306,10 +301,7 @@
       "cmd": "python3 app.py",
       "text": "$2b$12$\nTrue True",
       "tone": "good",
-      "cue": "says true",
-      "setup": {
-       "app.py": "import bcrypt"
-      }
+      "cue": "says true"
      }
     },
     {
@@ -483,32 +475,32 @@
     },
     {
      "type": "code",
-     "head": "A JWT is readable",
+     "head": "A JWT (JSON Web Token) is readable",
      "say": "Now the other way. A J W T needs no store. It has three parts joined by dots: header, payload, signature. Here's one for user forty two. Anyone can decode the payload. It prints sub forty two and an expiry.",
      "panels": [
       {
        "file": "app.py",
-       "code": "claims = {\"sub\": \"42\", \"exp\": 1893456000}\ntok = jwt.encode(claims, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\nraw = base64.urlsafe_b64decode(body + \"==\")\nprint(json.loads(raw))"
+       "code": "import jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\nclaims = {\"sub\": \"42\", \"exp\": 1893456000}\ntok = jwt.encode(claims, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\nraw = base64.urlsafe_b64decode(body + \"==\")\nprint(json.loads(raw))"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        5
        ],
        "cue": "three parts"
       },
       {
        "lines": [
-        1,
-        2
+        3,
+        4
        ],
        "cue": "Here's one"
       },
       {
        "lines": [
-        4,
-        5
+        6,
+        7
        ],
        "cue": "decode the payload"
       }
@@ -516,10 +508,7 @@
      "output": {
       "cmd": "python3 app.py",
       "text": "{'sub': '42', 'exp': 1893456000}",
-      "cue": "It prints",
-      "setup": {
-       "app.py": "import jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\""
-      }
+      "cue": "It prints"
      }
     },
     {
@@ -529,28 +518,29 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "body = b64({\"sub\": \"1\", \"exp\": 1893456000})\nforged = head + \".\" + body + \".\" + sig\ntry:\n    jwt.decode(forged, KEY, [\"HS256\"])\nexcept jwt.InvalidTokenError as e:\n    print(type(e).__name__, e)"
+       "code": "import jwt, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\nhead, _, sig = jwt.encode({\"sub\": \"42\"}, KEY, \"HS256\").split(\".\")\nb64 = lambda s: base64.urlsafe_b64encode(s.encode()).decode().rstrip(\"=\")\nforged = head + \".\" + b64('{\"sub\": \"1\"}') + \".\" + sig\ntry:\n    jwt.decode(forged, KEY, [\"HS256\"])\nexcept jwt.InvalidTokenError as e:\n    print(type(e).__name__, e)"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        4,
+        5
        ],
        "cue": "Change sub"
       },
       {
        "lines": [
-        2
+        5
        ],
        "cue": "keep the old signature"
       },
       {
        "lines": [
-        3,
-        4,
-        5,
-        6
+        6,
+        7,
+        8,
+        9
        ],
        "cue": "and verify"
       }
@@ -559,10 +549,7 @@
       "cmd": "python3 app.py",
       "text": "InvalidSignatureError Signature verification failed",
       "tone": "good",
-      "cue": "Rejected",
-      "setup": {
-       "app.py": "import jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\ntok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\ndef b64(d):\n    return base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip(\"=\")"
-      }
+      "cue": "Rejected"
      }
     },
     {
@@ -677,7 +664,7 @@
     {
      "type": "flow",
      "head": "A valet key",
-     "say": "Log in with Google. The app wants to know who you are, not your Google password. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key.",
+     "say": "The app wants to know who you are, not your Google password. That's OAuth, short for Open Authorization. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key.",
      "items": [
       {
        "label": "master key",
@@ -897,7 +884,7 @@
       },
       {
        "label": "coin jar",
-       "text": "10 tokens",
+       "text": "10 coins",
        "sub": "capacity ten",
        "cue": "coin jar"
       },
@@ -919,8 +906,8 @@
     },
     {
      "type": "diagram",
-     "head": "Fifteen requests, ten tokens",
-     "say": "The token says sub forty two, so that's the key: one bucket per user. User forty two sends a burst of fifteen requests at the same instant. Each takes a token. Ten tokens, ten requests pass. The last five are rejected with four twenty nine.",
+     "head": "Fifteen requests, ten coins",
+     "say": "The token says sub forty two, so that's the key: one bucket per user. User forty two sends a burst of fifteen requests at the same instant. Each takes a coin. Ten coins, ten requests pass. The last five are rejected with four twenty nine.",
      "items": [
       {
        "id": "rq",
@@ -975,7 +962,7 @@
       {
        "from": "rq",
        "to": "bk",
-       "cue": "Each takes a token"
+       "cue": "Each takes a coin"
       },
       {
        "from": "bk",
@@ -998,7 +985,7 @@
         0
        ],
        "dur": 1.5,
-       "cue": "Ten tokens"
+       "cue": "Ten coins"
       },
       {
        "id": "ok",
@@ -1023,7 +1010,7 @@
     {
      "type": "code",
      "head": "The whole algorithm",
-     "say": "The code needs no timer. We store the tokens, and the time of the last request. Each request, compute what was earned. Cap it at capacity. At least one? Spend it and say yes. Otherwise no. Constant time, constant memory per user.",
+     "say": "The code needs no timer. We store the coins, and the time of the last request. Each request, compute what was earned. Cap it at capacity. At least one? Spend it and say yes. Otherwise no. Constant time, constant memory per user.",
      "panels": [
       {
        "file": "app.py",
@@ -1037,7 +1024,7 @@
         3,
         4
        ],
-       "cue": "We store the tokens"
+       "cue": "We store the coins"
       },
       {
        "lines": [
@@ -1079,7 +1066,7 @@
     {
      "type": "code",
      "head": "Fifteen at once",
-     "say": "Now run it. Capacity ten, one token a second. Fifteen requests at the same instant. Count the passes. Ten pass, five fail. One second later, a token is back. In real code, now comes from the clock.",
+     "say": "Now run it. Capacity ten, one coin a second. Fifteen requests at the same instant. Count the passes. Ten pass, five fail. One second later, a coin is back. In real code, now comes from the clock.",
      "panels": [
       {
        "file": "app.py",
@@ -1143,7 +1130,7 @@
      "type": "chart",
      "head": "Five requests, three seconds later",
      "unit": "requests",
-     "say": "Three. Three seconds earned three tokens. Refill sets the long run speed. Of five requests, three pass and two get four twenty nine.",
+     "say": "Three. Three seconds earned three coins. Refill sets the long run speed. Of five requests, three pass and two get four twenty nine.",
      "bars": [
       {
        "label": "Sent",
@@ -1201,7 +1188,7 @@
      "q": "2 servers, local bucket of 10 each. 10 requests to each. Pass?",
      "options": [
       "10",
-      "11",
+      "5",
       "20",
       "0"
      ],
@@ -1307,7 +1294,7 @@
     {
      "type": "diagram",
      "head": "One shared bucket, one step",
-     "say": "The fix is one shared bucket in Redis, a fast shared store, with a key per user. Both servers ask Redis. But one token is left. Both servers read one, and both spend it. Two pass. So the read and the spend must be atomic. Atomic means no request slips in between. A small Lua script, run inside Redis, does it.",
+     "say": "The fix is one shared bucket in Redis, a fast shared store, with a key per user. Both servers ask Redis. But one coin is left. Both servers read one, and both spend it. Two pass. So the read and the spend must be atomic. Atomic means no request slips in between. A small Lua script, a tiny program that runs inside Redis, does it.",
      "items": [
       {
        "id": "s1",
@@ -1395,7 +1382,12 @@
       {
        "id": "rd",
        "text": "user:42 = 1",
-       "cue": "one token is left"
+       "cue": "one coin is left"
+      },
+      {
+       "id": "rd",
+       "text": "user:42 = 0",
+       "cue": "Both spend it"
       },
       {
        "id": "race",
@@ -1609,11 +1601,11 @@
       "They ask",
       "You say"
      ],
-     "say": "How do you implement a token bucket? Store two numbers per user: tokens, and the last request time. Each request adds rate times elapsed seconds, capped at capacity. One token or more? Spend one and allow it. Otherwise, return four twenty nine. That's O of one.",
+     "say": "How do you implement a token bucket? Store two numbers per user: coins, and the last request time. Each request adds rate times elapsed seconds, capped at capacity. One coin or more? Spend one and allow it. Otherwise, return four twenty nine. That's O of one.",
      "rows": [
       [
        "How to implement it?",
-       "store tokens and last time per user"
+       "store coins and last time per user"
       ],
       [
        "Each request?",
@@ -1621,7 +1613,7 @@
       ],
       [
        "Then?",
-       "one token or more: spend one, allow"
+       "one coin or more: spend one, allow"
       ],
       [
        "Otherwise?",
@@ -1631,7 +1623,7 @@
      "cues": [
       "Store two numbers",
       "Each request adds",
-      "One token or more",
+      "One coin or more",
       "Otherwise, return"
      ]
     },
@@ -1645,7 +1637,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Burst versus steady? Capacity sets the burst, refill sets the average. Many servers? One shared bucket in Redis, updated atomically by a Lua script. What does the client get? Four twenty nine, with a Retry After header. Common mistake? Local counters, so each server allows the full limit.",
+     "say": "Burst versus steady? Capacity sets the burst, refill sets the average. Many servers? One shared bucket in Redis, updated atomically by Lua, tiny code inside Redis. What does the client get? Four twenty nine, with a Retry After header. Common mistake? Local counters, so each server allows the full limit.",
      "rows": [
       [
        "Burst vs steady?",
@@ -1695,7 +1687,7 @@
        "signature check fails"
       ],
       [
-       "Bucket: 10 tokens, +1 per second",
+       "Bucket: 10 coins, +1 per second",
        "15 at once: 10 pass, 5 get 429"
       ]
      ],
