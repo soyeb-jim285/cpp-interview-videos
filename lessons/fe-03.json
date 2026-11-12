@@ -171,7 +171,7 @@
        "text": "Walk dog",
        "label": "after: key 2",
        "tone": "good",
-       "cue": "a new row"
+       "cue": "gets key two"
       }
      ],
      "arrows": [
@@ -208,13 +208,9 @@
        "id": "n1",
        "text": "Buy milk",
        "cue": "to key one"
-      },
-      {
-       "id": "n2",
-       "text": "Walk dog",
-       "cue": "gets key two"
       }
-     ]
+     ],
+     "hold": 2
     },
     {
      "type": "code",
@@ -272,20 +268,21 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A developer sets key to Math dot random on every row. Each row has a controlled input, so it re-renders on every keystroke. What happens as you type? Pause and predict.",
-     "q": "`key={Math.random()}` on rows. What happens when you type?",
+     "say": "Your turn. A developer sets key to Math dot random on every row. Each row keeps its own typed text in state. What happens as you type? Pause and predict.",
+     "q": "Rows use `key={Math.random()}` and keep typed text in state. You type:",
      "options": [
       "Works fine",
       "Remount, text lost",
       "Text jumps rows",
       "React throws"
      ],
-     "answer": "Remount, text lost"
+     "answer": "Remount, text lost",
+     "optCue": 0.5
     },
     {
      "type": "compare",
      "head": "What React does with a key",
-     "say": "Remount. A new key is a new item, so the text is gone. A different type throws the subtree away. The same type keeps state. Lists match by key. Index keys suit static lists only.",
+     "say": "Now the rules React follows for keys and types. Remount. A new key is a new item, so the text is gone. A different type throws the subtree away. The same type keeps state. Lists match by key. Index keys suit static lists only.",
      "heads": [
       "Situation",
       "React does"
@@ -375,13 +372,13 @@
     {
      "type": "flow",
      "head": "Think of photographs",
-     "say": "Think of photographs. Each time your component renders, React takes a photo of your screen. In this photo, count is zero, frozen. A click asks for a new photo, where count is one. You never edit an old photo.",
+     "say": "Think of photographs. Each render, React takes a photo where count is zero, frozen. A click asks for a new photo, where count is one. You never edit an old photo.",
      "items": [
       {
        "label": "photo 1",
        "text": "count = 0",
        "sub": "frozen",
-       "cue": "In this photo"
+       "cue": "takes a photo"
       },
       {
        "label": "you click",
@@ -464,7 +461,8 @@
       "3",
       "0"
      ],
-     "answer": "2"
+     "answer": "2",
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -598,6 +596,13 @@
        "sub": "undo it first",
        "tone": "good",
        "cue": "how to undo it"
+      },
+      {
+       "label": "in React",
+       "text": "useEffect",
+       "sub": "+ deps + cleanup",
+       "tone": "blue",
+       "cue": "That is an effect"
       }
      ]
     },
@@ -686,8 +691,8 @@
       },
       {
        "id": "st",
-       "x": 860,
-       "y": 420,
+       "x": 900,
+       "y": 380,
        "w": 360,
        "h": 140,
        "label": "state",
@@ -717,7 +722,6 @@
       {
        "from": "cb",
        "to": "st",
-       "label": "set(0 + 1)",
        "cue": "Every second"
       }
      ],
@@ -752,68 +756,81 @@
       "0",
       "6"
      ],
-     "answer": "5"
+     "answer": "5",
+     "optCue": 0.5
     },
     {
      "type": "code",
      "head": "Two ways to fix it",
-     "say": "Five. The updater never reads count, so there is nothing stale to capture. It always receives the latest value. The other fix is to list count in the dependency list. Then the effect re-runs each render, with a fresh callback. Never delete count from the list just to quiet it.",
+     "say": "Five. Fix one: the updater never reads count, so nothing stale is captured. It always gets the latest value. Fix two: list count in the dependency list. Then the effect re-runs each render, with a fresh callback. But it needs the cleanup, or every render leaks another interval. Never delete count from the list just to quiet it.",
      "panels": [
       {
-       "file": "bug.tsx",
-       "label": "bug",
-       "tone": "bad",
-       "code": "useEffect(() => {\n  setInterval(\n    () => setCount(count + 1),\n    1000);\n}, []);"
-      },
-      {
-       "file": "fix.tsx",
-       "label": "fix",
-       "tone": "good",
-       "code": "useEffect(() => {\n  setInterval(\n    () => setCount(c => c + 1),\n    1000);\n}, []);"
+       "file": "Timer.tsx",
+       "code": "// fix 1: updater, deps stay []\nuseEffect(() => {\n  const id = setInterval(() => setCount(c => c + 1), 1000);\n  return () => clearInterval(id);\n}, []);\n// fix 2: list count, clean up every run\nuseEffect(() => {\n  const id = setInterval(() => setCount(count + 1), 1000);\n  return () => clearInterval(id);\n}, [count]);"
       }
      ],
      "steps": [
       {
-       "panel": 1,
+       "lines": [
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "Fix one"
+      },
+      {
        "lines": [
         3
        ],
        "cue": "never reads count"
       },
       {
-       "panel": 1,
        "lines": [
-        3,
-        5
+        7,
+        8,
+        9,
+        10
        ],
-       "cue": "latest value"
+       "cue": "Fix two"
       },
       {
-       "panel": 0,
        "lines": [
-        3,
-        5
+        10
        ],
-       "cue": "list count"
+       "cue": "list count in"
       },
       {
-       "panel": 0,
        "lines": [
-        5
+        8
        ],
        "cue": "fresh callback"
       },
       {
-       "panel": 0,
+       "lines": [
+        9
+       ],
+       "cue": "needs the cleanup"
+      },
+      {
        "lines": [],
        "cue": "Never delete"
+      }
+     ],
+     "notes": [
+      {
+       "line": 9,
+       "inside": true,
+       "text": "else: a leak per render",
+       "tone": "warn",
+       "cue": "leaks another interval"
       }
      ]
     },
     {
      "type": "compare",
      "head": "Hooks follow-ups",
-     "say": "Follow-ups. Rules of hooks? Top level only, never in loops or conditions. An effect with no list? It runs after every render. Why must the list be honest? A missing value is a stale closure. Is set state synchronous? No, it schedules a render.",
+     "say": "Rules of hooks? Top level only, never in loops or conditions. An effect with no list? It runs after every render. Why must the list be honest? A missing value is a stale closure. Is set state synchronous? No, it schedules a render.",
      "heads": [
       "They ask",
       "You say"
@@ -855,7 +872,7 @@
      "covers": [
       "fe05"
      ],
-     "say": "What is the virtual D O M? A cheap tree React diffs, then patches the real page. Why do keys matter? They give list items identity. Index as key? Only for static lists. Random keys? They remount every row. Common mistake: index keys with inputs.",
+     "say": "What is the virtual D O M? A cheap tree React diffs, then patches. Why do keys matter? They give list items identity. Index as key? Only for static lists. Random keys? They remount every row. Common mistake: index keys with inputs.",
      "heads": [
       "They ask",
       "You say"
@@ -879,7 +896,7 @@
       ]
      ],
      "cues": [
-      "virtual D O M",
+      "What is the virtual D O M",
       "Why do keys",
       "Index as key",
       "Common mistake"
@@ -891,7 +908,7 @@
      "covers": [
       "fe06"
      ],
-     "say": "How does use state work? Each render is a snapshot. What is a stale closure? A callback that captured an old value. Fix it with the updater or an honest dependency list. Effect with no array? Every render.",
+     "say": "How does use state work? Each render is a snapshot. What is a stale closure? A callback that captured an old value. Fix it with the updater or an honest dependency list. What does use effect do? It runs after paint, and re-runs when the list changes. And cleanup? It runs before the next run, and when the component leaves.",
      "heads": [
       "They ask",
       "You say"
@@ -910,15 +927,20 @@
        "updater, or an honest dependency list"
       ],
       [
-       "Effect with no array?",
-       "runs after every render"
+       "What does `useEffect` do?",
+       "runs after paint; re-runs when deps change"
+      ],
+      [
+       "And cleanup?",
+       "runs before the next run, and on unmount"
       ]
      ],
      "cues": [
       "How does use state",
       "stale closure",
       "Fix it with",
-      "no array"
+      "What does use effect",
+      "And cleanup"
      ]
     }
    ]
