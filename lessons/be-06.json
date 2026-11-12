@@ -20,24 +20,24 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "One server handles a thousand requests a second, then it falls over. You'll take it to a hundred thousand, defend every database choice, and answer the C A P question.",
+     "say": "Launch day. Your one server handles a thousand requests a second. Then a hundred thousand arrive, and it falls over. By the end, you'll scale it, defend your database, and survive a network split.",
      "lines": [
       {
-       "text": "1 server = 1,000 requests/s",
-       "cue": "One server"
+       "text": "1 server: 1,000 requests/s",
+       "cue": "Your one server"
       },
       {
-       "text": "Then it falls over.",
-       "cue": "falls over"
+       "text": "Launch: 100,000 requests/s",
+       "cue": "a hundred thousand arrive"
       },
       {
-       "text": "Take it to 100,000.",
-       "cue": "hundred thousand"
+       "text": "It falls over.",
+       "cue": "falls over",
+       "accent": "falls over"
       },
       {
-       "text": "Defend every choice.",
-       "cue": "defend every",
-       "accent": "every choice"
+       "text": "Scale it. Defend it. Survive splits.",
+       "cue": "defend your database"
       }
      ]
     },
@@ -65,11 +65,11 @@
       "output": "100,000 req/s served"
      },
      "note": "users stay logged in",
-     "say": "Here is the problem. One server tops out at a thousand requests a second. Example: a hundred thousand arrive every second. We want all of it served. And users must stay logged in.",
+     "say": "Your app is a hundred times too small. One server tops out at a thousand requests a second. The launch sends a hundred thousand. Fix it, and don't log anyone out while you do.",
      "cues": {
-      "example": "Example",
-      "output": "We want all",
-      "note": "stay logged in"
+      "example": "One server tops",
+      "output": "The launch sends",
+      "note": "log anyone out"
      }
     },
     {
@@ -129,40 +129,46 @@
     {
      "type": "compare",
      "head": "Vertical vs horizontal",
-     "say": "Vertical means a bigger machine, horizontal means more machines. Good: vertical is simple, horizontal has no single point of failure. Limit: vertical hits a hardware ceiling, horizontal adds moving parts. Needs: horizontal needs a stateless app, and a front door that spreads requests.",
+     "say": "Vertical is one bigger machine. Horizontal is more machines. The good news? Vertical needs no code changes. Horizontal survives losing a box. The catch? No server is a hundred times faster. Horizontal adds moving parts. It needs a front door that spreads requests. And it needs stateless apps: servers that keep no user data between requests.",
      "heads": [
       "Vertical: bigger box",
       "Horizontal: more boxes"
      ],
      "rowHeads": [
       "Good",
-      "Limit",
-      "Needs"
+      "Catch",
+      "Front door",
+      "State"
      ],
      "rows": [
       [
-       "simple, no code changes",
-       "no single point of failure"
+       "no code changes",
+       "survives losing a box"
       ],
       [
-       "hardware ceiling, can die",
+       "no box is 100x faster",
        "more moving parts"
       ],
       [
-       "nothing",
-       "stateless app + a front door"
+       "not needed",
+       "a load balancer spreads requests"
+      ],
+      [
+       "sessions in memory: fine",
+       "stateless: no user data kept"
       ]
      ],
      "cues": [
-      "Good",
-      "Limit",
-      "Needs"
+      "The good news",
+      "The catch",
+      "a front door",
+      "stateless apps"
      ]
     },
     {
      "type": "diagram",
      "head": "Load balancer, identical copies",
-     "say": "The load balancer spreads requests across identical copies of the app. Add a third copy, and capacity grows by a thousand requests a second. One copy dies, and traffic simply goes to the others.",
+     "say": "The load balancer is that front door. It spreads requests across identical copies of the app. Add a third copy, and capacity grows by a thousand requests a second. One copy dies, and traffic goes to the others.",
      "items": [
       {
        "id": "lb",
@@ -255,21 +261,22 @@
       },
       {
        "id": "p2",
-       "kill": true,
+       "text": "App 2 down",
+       "tone": "bad",
        "cue": "copy dies"
       },
       {
        "id": "cap",
        "text": "2000",
        "tone": "bad",
-       "cue": "simply goes"
+       "cue": "goes to the others"
       }
      ]
     },
     {
      "type": "code",
      "head": "Why stateless matters",
-     "say": "Stateless means a server keeps no user data between requests. Here it is, by breaking it. Each server keeps sessions in its own memory. Ana logs in on server A. The balancer sends her next request to server B. B has never heard of her. She's logged out.",
+     "say": "Now break that rule on purpose. Each server keeps sessions in its own memory. A session is the server's note that you logged in. Ana logs in on server A. The balancer sends her next request to server B. B has never heard of her. She's logged out.",
      "panels": [
       {
        "file": "app.py",
@@ -281,7 +288,7 @@
        "lines": [
         1
        ],
-       "cue": "Here it is"
+       "cue": "on purpose"
       },
       {
        "lines": [
@@ -311,20 +318,21 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. How do you fix it? Where should the session live, so that any server can read it? Pause and predict.",
+     "say": "Your turn. Ana must stay logged in, whichever server she lands on. Where do the sessions go? Pause and predict.",
      "q": "Where should sessions live so any server works?",
      "options": [
       "Server A's memory",
-      "Shared Redis",
+      "A shared store",
       "Each server's disk",
       "A bigger server"
      ],
-     "answer": "Shared Redis"
+     "answer": "A shared store",
+     "optCue": "Where do the sessions"
     },
     {
      "type": "diagram",
      "head": "State lives outside the app",
-     "say": "A shared store, like Redis. Memory or disk on one machine fails, and a bigger server is still one machine. Now any server can read Ana's session. Sessions and cache live in Redis, durable data in the database. Kill a server and nobody is logged out. That's how a hundred copies reach a hundred thousand.",
+     "say": "A shared store. The usual pick is Redis, a fast in-memory store every server can reach. Memory or disk on one machine only helps that machine. A bigger server is still one machine. Now any server can read Ana's session. Redis also holds the cache: copies of popular data, kept in memory. Durable data stays in the database. Kill a server and nobody is logged out. That's how a hundred copies reach a hundred thousand.",
      "items": [
       {
        "id": "lb",
@@ -419,9 +427,9 @@
      ],
      "changes": [
       {
-       "id": "lb",
+       "id": "rd",
        "glow": true,
-       "cue": "bigger server"
+       "cue": "every server can reach"
       },
       {
        "id": "rd",
@@ -430,8 +438,14 @@
        "cue": "read Ana's session"
       },
       {
+       "id": "rd",
+       "glow": true,
+       "cue": "holds the cache"
+      },
+      {
        "id": "p1",
-       "kill": true,
+       "text": "App 1 down",
+       "tone": "bad",
        "cue": "Kill a server"
       },
       {
@@ -439,6 +453,15 @@
        "glow": true,
        "tone": "good",
        "cue": "hundred copies"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1340,
+       "y": 470,
+       "text": "local state: one box",
+       "tone": "bad",
+       "cue": "only helps that machine"
       }
      ]
     }
@@ -455,12 +478,12 @@
       "input": "10,000 queries/s reach 1 database",
       "output": "the database keeps up"
      },
-     "note": "reads must be fresh enough",
-     "say": "Next, the database. A hundred app servers now share one. Example: ten thousand queries a second reach it. We want it to keep up. And reads must stay fresh enough.",
+     "note": "users see their own posts",
+     "say": "Copying the app was the easy part. Every copy still talks to one database. Ten thousand queries a second hit that one machine. It has to keep up. And people must still see their own posts.",
      "cues": {
-      "example": "Example",
-      "output": "We want it",
-      "note": "fresh enough"
+      "example": "Ten thousand queries",
+      "output": "has to keep up",
+      "note": "their own posts"
      }
     },
     {
@@ -608,7 +631,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. You grow from four shards to five, and the rule becomes user id modulo five. Roughly what share of users stay on the same shard? Pause and predict.",
+     "say": "Your turn. Four shards become five, so the rule becomes user id modulo five. What share of users stay put? Pause and predict.",
      "q": "4 shards to 5, with user_id % N. Share that stay?",
      "options": [
       "about 80%",
@@ -616,7 +639,8 @@
       "about 20%",
       "all of them"
      ],
-     "answer": "about 20%"
+     "answer": "about 20%",
+     "optCue": "What share"
     },
     {
      "type": "chart",
@@ -671,9 +695,42 @@
      ]
     },
     {
+     "type": "compare",
+     "head": "Cheap wins before new servers",
+     "say": "Sharding hurts, so most teams try cheap wins first. Cache first: a page asked a thousand times? Serve it from memory. An index is a lookup shortcut, like the one at the back of a book. A queue holds slow work, like sending email, so the request returns now. A C D N serves your images from a server near the user.",
+     "heads": [
+      "Cheap win",
+      "What it saves"
+     ],
+     "rows": [
+      [
+       "Cache",
+       "repeat reads answered from memory"
+      ],
+      [
+       "Index",
+       "finds rows without scanning them all"
+      ],
+      [
+       "Queue",
+       "slow work done later by a worker"
+      ],
+      [
+       "CDN",
+       "images served from near the user"
+      ]
+     ],
+     "cues": [
+      "Cache first",
+      "An index is",
+      "A queue holds",
+      "A C D N"
+     ]
+    },
+    {
      "type": "flow",
      "head": "Order of attack",
-     "say": "So the order of attack. First, measure to find the bottleneck. Then cheap wins: indexes, a cache, queues, a C D N. Next, scale out the stateless app tier. Then read replicas. Shard last, because it adds permanent complexity.",
+     "say": "So, the order of attack. First, measure, to find the real bottleneck. Then the cheap wins. Next, scale out the stateless app tier. Then read replicas. Shard last, because once data is split, it stays split.",
      "items": [
       {
        "label": "1",
@@ -683,9 +740,9 @@
       },
       {
        "label": "2",
-       "text": "Cache",
-       "sub": "index, queue, CDN",
-       "cue": "cheap wins"
+       "text": "Cheap wins",
+       "sub": "cache, index, queue",
+       "cue": "the cheap wins"
       },
       {
        "label": "3",
@@ -711,7 +768,7 @@
     {
      "type": "compare",
      "head": "Whiteboard math",
-     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache, fast memory, absorbs ninety percent. The other ten thousand reach the database. Say eight in ten are reads: eight thousand, over four replicas. Two thousand writes hit the primary. Shard past that. Problem solved.",
+     "say": "Now the whiteboard math. A thousand requests per app server means a hundred servers. A cache in front answers nine in ten. Ten thousand reach the database. Say eight in ten are reads, one replica takes two thousand. Four replicas. The last two thousand are writes, all on the primary. Still too much? Four shards take five hundred each. Ten thousand queries, handled.",
      "heads": [
       "Layer",
       "100,000 req/s"
@@ -719,26 +776,31 @@
      "rows": [
       [
        "100 app servers",
-       "1,000 each handles it all"
+       "1,000 each; 100 servers cover it"
       ],
       [
-       "Cache absorbs 90%",
+       "Cache answers 90%",
        "10,000 reach the database"
       ],
       [
-       "4 read replicas (80% reads)",
+       "4 read replicas",
        "8,000 reads: 2,000 each"
       ],
       [
        "Primary",
-       "2,000 writes; shard: 500 each"
+       "2,000 writes, all here"
+      ],
+      [
+       "4 shards (if needed)",
+       "500 writes each"
       ]
      ],
      "cues": [
-      "A hundred servers",
-      "A cache",
-      "Say eight",
-      "Two thousand writes"
+      "a hundred servers",
+      "A cache in front",
+      "Say eight in ten",
+      "The last two thousand",
+      "Four shards"
      ]
     }
    ]
@@ -755,26 +817,17 @@
       "output": "a pick and a reason each"
      },
      "note": "start from access patterns",
-     "say": "Mongo or Postgres? Pick a database for orders, another for billions of event logs. Example: orders, and the logs. We want a pick and a reason for each. Start from access patterns.",
+     "say": "Classic trap: say Mongo because it scales, and the follow-up sinks you. You have orders, and billions of event logs. Pick a store for each, with a reason. Start from the access pattern: how you'll read the data.",
      "cues": {
-      "example": "Example",
-      "output": "We want a pick",
-      "note": "access patterns"
+      "example": "You have orders",
+      "output": "Pick a store",
+      "note": "access pattern"
      }
     },
     {
      "type": "diagram",
      "head": "Two ways to store an order",
-     "say": "Mongo or Postgres? Start from access patterns, not favorites. Two ways to store orders. S Q L is linked spreadsheets: an orders sheet and an items sheet, joined by id. A document store keeps a folder per order, items inside.",
-     "notes": [
-      {
-       "x": 560,
-       "y": 220,
-       "text": "Start from access patterns",
-       "tone": "good",
-       "cue": "Start from access"
-      }
-     ],
+     "say": "Two ways to store an order. S Q L is linked spreadsheets: an orders sheet and an items sheet, joined by id. A document store keeps a folder per order, items inside. Mongo is the famous one.",
      "items": [
       {
        "id": "s1",
@@ -818,6 +871,14 @@
        "to": "s2",
        "label": "joined by id",
        "cue": "joined by id"
+      }
+     ],
+     "changes": [
+      {
+       "id": "d1",
+       "glow": true,
+       "tone": "good",
+       "cue": "Mongo is the famous"
       }
      ]
     },
@@ -892,7 +953,7 @@
     {
      "type": "compare",
      "head": "How to choose",
-     "say": "Compare on five things. Shape: tables or documents. Relationships: joins are natural in S Q L. Transactions: strong across rows in S Q L. Scaling: S Q L goes up first, then replicas. Schema: enforced by the database, or by your code.",
+     "say": "Shape first: if every order has the same fields, tables fit. Relationships: a join is one query, not two round trips from your code. Transactions: moving money between two rows must be all or nothing. Scaling: Postgres grows up. Key-value stores, giant dictionaries, spread across machines. Schema: someone checks every field. The database, or your code at three a.m.",
      "heads": [
       "SQL (Postgres)",
       "NoSQL (Mongo, Dynamo)"
@@ -919,7 +980,7 @@
       ],
       [
        "up first, then replicas",
-       "built to spread across nodes"
+       "key-value: spreads across nodes"
       ],
       [
        "enforced by the database",
@@ -927,7 +988,7 @@
       ]
      ],
      "cues": [
-      "Shape",
+      "Shape first",
       "Relationships",
       "Transactions",
       "Scaling",
@@ -936,20 +997,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Billions of log lines arrive, and you only ever read them by key, never joined. Which store fits best? Pause and predict.",
+     "say": "Your turn. Billions of log lines a day, read back by key, never joined. Which store fits best? Pause and predict.",
      "q": "Billions of log lines, read by key, never joined. Best store?",
      "options": [
-      "Postgres",
-      "Key-value store",
-      "Spreadsheet",
-      "One text file"
+      "Postgres, one table",
+      "Postgres with JSONB",
+      "Key-value store"
      ],
-     "answer": "Key-value store"
+     "answer": "Key-value store",
+     "optCue": "Which store"
     },
     {
      "type": "compare",
      "head": "Match data to store",
-     "say": "A key-value or wide column store. Event logs are huge, appended, and read by key. Money needs Postgres, with all or nothing transactions. Carts and sessions are one lookup by key. Odd extra fields? Postgres has a JSONB type. That defends each pick.",
+     "say": "A key-value or wide-column store. Wide-column means one key holds many columns, like a user's day of logs. Money needs Postgres, because a payment is all or nothing. Carts and sessions are one lookup by key, so key-value again. Odd extra fields? Postgres JSONB holds them, no second database. Every pick, defended.",
      "heads": [
       "Data",
       "Pick",
@@ -978,7 +1039,7 @@
       ]
      ],
      "cues": [
-      "A key-value or wide",
+      "Wide-column means",
       "Money needs",
       "Carts and sessions",
       "Odd extra"
@@ -998,11 +1059,11 @@
       "output": "x=1 (stale) or an error"
      },
      "note": "you must pick one",
-     "say": "Last, the network splits. Two data centers lose contact. Example: a write lands on A, and a read lands on B. We want a clear answer: stale, or an error. You must pick one.",
+     "say": "Last: a backhoe cuts the cable between two data centers. A write lands on A. A read lands on B, which never heard about it. Old data, or an error? B must pick one, and so must you.",
      "cues": {
-      "example": "Example",
-      "output": "We want a clear",
-      "note": "pick one"
+      "example": "A write lands",
+      "output": "Old data, or",
+      "note": "must pick one"
      }
     },
     {
@@ -1195,28 +1256,28 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. During the partition, B refuses to answer rather than risk a stale value. Which side of C A P did B choose? Pause and predict.",
-     "q": "During a partition, B refuses to answer. It chose...",
+     "say": "Your turn. Mid-partition, replica B holds a post's like count. Someone loads the post. Answer stale, or refuse? Pause and predict.",
+     "q": "Mid-partition, B holds a post's like count. B should...",
      "options": [
-      "Availability (A)",
-      "Consistency (C)",
-      "Both",
-      "Neither"
+      "Answer, maybe stale",
+      "Refuse with an error",
+      "Wait until it heals"
      ],
-     "answer": "Consistency (C)"
+     "answer": "Answer, maybe stale",
+     "optCue": "Someone loads"
     },
     {
      "type": "compare",
      "head": "B has two choices",
-     "say": "Consistency. B gives up availability to avoid a wrong answer. Choice one: B says x is one. Choice two: B waits until healed. Result: stale but up, or never stale with failed requests. Examples: Cassandra leans available, Zookeeper and etcd lean consistent.",
+     "say": "Answer, even if stale. A like count off by three hurts nobody. That's availability. Choice one: serve its best guess. Choice two: error until the link heals. The cost? Stale reads, or failed requests. Cassandra leans available. Zookeeper and etcd lean consistent: they hold locks and settings.",
      "heads": [
       "Answer: stay available (AP)",
       "Refuse: stay consistent (CP)"
      ],
      "rowHeads": [
       "B says",
-      "Result",
-      "Examples"
+      "Cost",
+      "Who"
      ],
      "rows": [
       [
@@ -1234,14 +1295,14 @@
      ],
      "cues": [
       "Choice one",
-      "Result",
-      "Examples"
+      "The cost",
+      "Cassandra leans"
      ]
     },
     {
      "type": "code",
      "head": "Eventual consistency, healed",
-     "say": "Availability-first systems offer eventual consistency. Each value carries a timestamp. A holds two at time five. B still says one. After the link heals, merge keeps the newest. Both now say two. Fine for likes and feeds, wrong for balances.",
+     "say": "Choosing availability gives you eventual consistency: replicas disagree for a while, then agree. Each value carries a timestamp. A holds two at time five. B still says one. After the link heals, merge keeps the newest. Both now say two. Fine for likes and feeds, wrong for balances.",
      "panels": [
       {
        "file": "merge.py",
@@ -1251,7 +1312,19 @@
      "steps": [
       {
        "lines": [
-        3,
+        1,
+        2
+       ],
+       "cue": "replicas disagree"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "carries a timestamp"
+      },
+      {
+       "lines": [
         4
        ],
        "cue": "A holds two"
@@ -1293,7 +1366,7 @@
     {
      "type": "compare",
      "head": "CAP myths in interviews",
-     "say": "Pick any two of three? No. That answers the split: choose consistency or availability. Is eventual consistency bad? Fine for feeds, not balances. Conflicting writes? Last write wins can drop one. Version vectors keep a counter per replica.",
+     "say": "Interviewers set traps here. Pick any two of three? No. Networks split anyway. Then you choose C or A. Eventual consistency is bad? Fine for a feed, wrong for a balance. Two writes clash? Last write wins silently drops one. Version vectors keep a counter per replica, so you can see the clash and merge.",
      "heads": [
       "Myth or question",
       "Truth"
@@ -1308,14 +1381,19 @@
        "Fine for feeds, not balances"
       ],
       [
-       "Conflicting writes?",
-       "Last write wins, or version vectors"
+       "Two writes clash?",
+       "Last write wins drops one"
+      ],
+      [
+       "Version vectors?",
+       "a counter per replica: clash spotted"
       ]
      ],
      "cues": [
       "Pick any two",
-      "Is eventual",
-      "Conflicting writes"
+      "Eventual consistency is bad",
+      "Two writes clash",
+      "Version vectors keep"
      ]
     }
    ]
@@ -1330,7 +1408,7 @@
      "covers": [
       "be11"
      ],
-     "say": "Scale a service? Measure, cache, stateless servers behind a load balancer, replicas. Shard last. Why stateless? Any server can serve any request. Replica lag? Read your own writes from the primary. Common mistake? Scaling before measuring.",
+     "say": "How do you scale a service? Measure, add a cache, then replicas, and shard last. Up or out? Out, behind a load balancer, because one box hits a ceiling. Why stateless? So any server can take any request. Replica lag? Read your own writes from the primary. Biggest mistake? Scaling before you measure.",
      "heads": [
       "They ask",
       "You say"
@@ -1338,26 +1416,31 @@
      "rows": [
       [
        "Scale a service?",
-       "Measure; cache; LB + stateless apps; replicas; shard last"
+       "Measure; cache; replicas; shard last"
+      ],
+      [
+       "Up or out?",
+       "Out, behind a load balancer: no ceiling"
       ],
       [
        "Why stateless?",
-       "Any server can serve any request"
+       "Any server can take any request"
       ],
       [
        "Replica lag?",
        "Read your own writes from the primary"
       ],
       [
-       "Common mistake?",
+       "Biggest mistake?",
        "Scaling before measuring"
       ]
      ],
      "cues": [
-      "Scale a service",
+      "scale a service",
+      "Up or out",
       "Why stateless",
       "Replica lag",
-      "Common mistake"
+      "Biggest mistake"
      ]
     },
     {
@@ -1366,21 +1449,21 @@
      "covers": [
       "be05"
      ],
-     "say": "S Q L or No S Q L? Postgres first, because of joins and transactions. No S Q L for huge scale or simple key access. Odd extra fields? Postgres has JSONB. The mistake is choosing No S Q L because it's trendy.",
+     "say": "S Q L or No S Q L? Start with Postgres, for joins and transactions. Pick No S Q L for huge scale or simple key lookups. Odd extra fields? Postgres has JSONB. The classic mistake is picking No S Q L because it's trendy. Pick by access pattern.",
      "items": [
       {
        "label": "which database?",
        "text": "Postgres first",
        "sub": "joins, transactions",
        "tone": "blue",
-       "cue": "Postgres first"
+       "cue": "Start with Postgres"
       },
       {
        "label": "then NoSQL for",
        "text": "scale, keys",
        "sub": "huge, key access",
        "tone": "warn",
-       "cue": "No S Q L for huge"
+       "cue": "Pick No S Q L"
       },
       {
        "label": "odd fields?",
@@ -1394,7 +1477,7 @@
        "text": "trendy",
        "sub": "pick by access pattern",
        "tone": "bad",
-       "cue": "The mistake"
+       "cue": "because it's trendy"
       }
      ]
     },
@@ -1404,7 +1487,7 @@
      "covers": [
       "be12"
      ],
-     "say": "Explain C A P. Split: consistency, the latest write, or availability, an answer every time. Pick any two? No, partitions are not optional. Eventual consistency? Replicas converge, fine for likes. Conflicting writes? Last write wins, or version vectors.",
+     "say": "Explain C A P. In a partition, choose consistency or availability: latest write, or any answer. Pick any two? No, partitions aren't optional. Eventual consistency? Replicas agree later, fine for likes. Conflicting writes? Last write wins, or version vectors to spot the clash.",
      "heads": [
       "They ask",
       "You say"
@@ -1412,7 +1495,7 @@
      "rows": [
       [
        "Explain CAP.",
-       "C: latest write. A: always answers. Pick one"
+       "In a partition: C (latest write) or A (always answers)"
       ],
       [
        "Pick any two?",
@@ -1420,7 +1503,7 @@
       ],
       [
        "Eventual consistency?",
-       "Replicas converge; fine for likes"
+       "Replicas agree later; fine for likes"
       ],
       [
        "Conflicting writes?",
@@ -1428,7 +1511,7 @@
       ]
      ],
      "cues": [
-      "Explain C A P",
+      "choose consistency",
       "Pick any two",
       "Eventual consistency",
       "Conflicting writes"
@@ -1443,7 +1526,7 @@
     {
      "type": "compare",
      "head": "Build these next",
-     "say": "Three exercises. Run two copies of a small web app, and move the sessions into Redis. Count how many ids move from four shards to five. Then explain C A P to a friend, using two bank branches.",
+     "say": "Three things to try this week. Run two app copies and watch a login vanish. Move sessions to Redis. Count how many ids move from four shards to five: about eighty percent. Explain C A P to a friend with bank branches. If they follow, you're ready.",
      "heads": [
       "Build next",
       "Why"
@@ -1463,9 +1546,9 @@
       ]
      ],
      "cues": [
-      "Run two copies",
+      "Run two app",
       "Count how many",
-      "explain C A P"
+      "Explain C A P"
      ]
     },
     {
