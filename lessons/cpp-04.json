@@ -217,7 +217,7 @@
      "say": "Leaks are silent, so use a tool. Compile with dash f sanitize equals address. Leak Sanitizer lists every block nobody can reach, at exit. Here: one hundred bytes, from line two.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "leak.cpp",
        "code": "void work(bool fail) {\n    char* d = new char[100];\n    if (fail) return;\n    delete[] d;\n}"
       }
      ],
@@ -230,9 +230,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -g -fsanitize=address leak.cpp && ./a.out",
-      "text": "Direct leak of 100 byte(s) in 1 object(s)\n    #1 0x... in work(bool) leak.cpp:2",
+      "cmd": "g++ -g -fsanitize=address leak.cpp && ./a.out 2>&1 | sh f",
+      "text": "Direct leak of 100 byte(s) in 1 object(s) allocated from:\n    #1 in work(bool) leak.cpp:2",
       "cue": "Leak Sanitizer lists",
+      "setup": {
+       "leak.cpp": "void work(bool);\nint main() { work(true); }\n#line 0\n",
+       "f": "grep -E \"Direct|work\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
+      },
       "tone": "bad"
      }
     },
@@ -430,7 +434,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int* local() {\n    int x = 1;\n    return &x;\n}\n\nint* first = &v[0];\nv.push_back(4);"
+       "code": "int* local() {\n    int x = 1;\n    return &x;\n}\nvoid g(vector<int>& v) {\n    int* first = &v[0];\n    v.push_back(4);\n    *first = 9;\n}"
       }
      ],
      "steps": [
@@ -444,21 +448,25 @@
       {
        "lines": [
         6,
-        7
+        7,
+        8
        ],
        "cue": "keep a pointer"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "It may reallocate"
       }
      ],
      "output": {
-      "cmd": "g++ -Wall -c main.cpp",
+      "cmd": "g++ -Wall -c main.cpp 2>&1 | grep -o \"warning:.*\"",
       "text": "warning: address of local variable ‘x’ returned [-Wreturn-local-addr]",
       "cue": "The compiler warns",
+      "setup": {
+       "main.cpp": "#include <vector>\nusing namespace std;\nint main() {}\n"
+      },
       "tone": "warn"
      }
     },
@@ -496,9 +504,12 @@
       }
      ],
      "output": {
-      "cmd": "g++ -Wall -c main.cpp",
+      "cmd": "g++ -Wall -c main.cpp 2>&1 | grep -o \"warning:.*\"",
       "text": "warning: ‘p’ is used uninitialized [-Wuninitialized]",
       "cue": "Dash Wall",
+      "setup": {
+       "main.cpp": "int main() {}\n"
+      },
       "tone": "warn"
      }
     },
@@ -680,7 +691,7 @@
      "say": "Formally it is undefined, so the standard promises nothing. Address Sanitizer catches it at the exact line, and shows where the memory was freed. Line four read it, line three freed it.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "uaf.cpp",
        "code": "int read() {\n    char* p = new char[100];\n    delete[] p;\n    return p[0];\n}"
       }
      ],
@@ -699,9 +710,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -g -fsanitize=address uaf.cpp && ./a.out",
-      "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 1 ... in read() uaf.cpp:4\nfreed by thread T0 here: ... uaf.cpp:3",
+      "cmd": "g++ -g -fsanitize=address uaf.cpp && ./a.out 2>&1 | sh f",
+      "text": "ERROR: AddressSanitizer: heap-use-after-free\nREAD of size 1\n    #0 in read() uaf.cpp:4",
       "cue": "exact line",
+      "setup": {
+       "uaf.cpp": "int read();\nint main() { return read(); }\n#line 0\n",
+       "f": "grep -E \"ERROR|READ|#0 .* in read\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
+      },
       "tone": "bad"
      }
     },
@@ -906,7 +921,7 @@
      "say": "Here is the whole class. The destructor deletes the array. The copy in copyIt shares it. Address Sanitizer reports attempting double free, in the destructor on line four, called from line nine.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "buffer.cpp",
        "code": "struct Buffer {\n    char* data;\n    Buffer() : data(new char[100]) {}\n    ~Buffer() { delete[] data; }\n};\nvoid copyIt() {\n    Buffer b1;\n    Buffer b2 = b1;\n}"
       }
      ],
@@ -925,9 +940,13 @@
       }
      ],
      "output": {
-      "cmd": "g++ -g -fsanitize=address buffer.cpp && ./a.out",
-      "text": "ERROR: AddressSanitizer: attempting double-free\n    #1 ... in Buffer::~Buffer() buffer.cpp:4\n    #2 ... in copyIt() buffer.cpp:9",
+      "cmd": "g++ -g -fsanitize=address buffer.cpp && ./a.out 2>&1 | sh f",
+      "text": "ERROR: AddressSanitizer: attempting double-free\n    #1 in Buffer::~Buffer() buffer.cpp:4\n    #2 in copyIt() buffer.cpp:9",
       "cue": "attempting double free",
+      "setup": {
+       "buffer.cpp": "void copyIt();\nint main() { copyIt(); }\n#line 0\n",
+       "f": "grep -E \"ERROR|#[12] .* in (Buffer|copyIt)\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##' | head -3\n"
+      },
       "tone": "bad"
      }
     },
@@ -949,34 +968,38 @@
      "say": "Write a copy constructor. It allocates a fresh block, and copies the bytes. Now each destructor frees its own block. Add a matching assignment operator too: that is the rule of three. Or delete copying, like unique pointer does.",
      "panels": [
       {
-       "file": "main.cpp",
-       "code": "Buffer(const Buffer& o)\n    : data(new char[100]) {\n    copy(o.data, o.data + 100, data);\n}\n// + operator=, or = delete"
+       "file": "buffer.cpp",
+       "code": "struct Buffer {\n    char* data;\n    Buffer() : data(new char[100]) {}\n    Buffer(const Buffer& o)\n        : data(new char[100]) {\n        copy(o.data, o.data + 100, data);\n    }\n    ~Buffer() { delete[] data; }\n};"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        5
        ],
        "cue": "allocates a fresh block"
       },
       {
        "lines": [
-        3
+        6
        ],
        "cue": "copies the bytes"
       },
       {
        "lines": [
-        5
+        8
        ],
        "cue": "rule of three"
       }
      ],
      "output": {
-      "cmd": "./app",
+      "cmd": "g++ -fsanitize=address t.cpp && ./a.out",
       "text": "ok",
-      "cue": "its own block"
+      "cue": "its own block",
+      "setup": {
+       "buffer.cpp": "#include <algorithm>\nusing namespace std;\n#line 0\n",
+       "t.cpp": "#include <cstdio>\n#include \"buffer.cpp\"\nint main() { Buffer b1; Buffer b2 = b1; puts(\"ok\"); }\n"
+      }
      }
     },
     {
@@ -1173,10 +1196,10 @@
     {
      "type": "code",
      "head": "ASan: the report",
-     "say": "Compile with dash g and the sanitizer flag, then run. Address Sanitizer stops at the bad write. A heap buffer overflow, a write of four bytes, in overflow, line three, right after a sixteen byte block.",
+     "say": "Compile with dash g and the sanitizer flag, then run. Address Sanitizer stops at the bad write. A heap buffer overflow, a write of four bytes, in overflow, line three.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "bug.cpp",
        "code": "void overflow() {\n    int* a = new int[4];\n    a[4] = 1;\n    delete[] a;\n}"
       }
      ],
@@ -1188,19 +1211,14 @@
        "cue": "stops at the bad write"
       }
      ],
-     "notes": [
-      {
-       "line": 3,
-       "inside": true,
-       "text": "right after a 16-byte block",
-       "tone": "warn",
-       "cue": "right after a sixteen"
-      }
-     ],
      "output": {
-      "cmd": "g++ -g -fsanitize=address bug.cpp && ./a.out",
-      "text": "ERROR: AddressSanitizer: heap-buffer-overflow\nWRITE of size 4 ... in overflow() bug.cpp:3\n0 bytes after 16-byte region",
+      "cmd": "g++ -g -fsanitize=address bug.cpp && ./a.out 2>&1 | sh f",
+      "text": "ERROR: AddressSanitizer: heap-buffer-overflow\nWRITE of size 4\n    #0 in overflow() bug.cpp:3",
       "cue": "A heap buffer overflow",
+      "setup": {
+       "bug.cpp": "void overflow();\nint main() { overflow(); }\n#line 0\n",
+       "f": "grep -E \"ERROR|WRITE|#0 .* in overflow\" | sed -E 's#.*ERROR#ERROR#; s# on .*##; s# at 0x.*##; s# 0x[0-9a-f]+##; s#/[^ ]*/##'\n"
+      },
       "tone": "bad"
      }
     },
