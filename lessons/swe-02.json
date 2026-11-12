@@ -139,7 +139,7 @@
     {
      "type": "diagram",
      "head": "What does each one share?",
-     "say": "Now the real thing. One process owns its memory. Inside it, threads are separate lines of execution. Each has its own stack, for its local variables. All share the heap, where objects live. Sharing is cheap, and that causes race conditions. A second process has completely separate memory. Safer, but talking across is slower.",
+     "say": "Now the real thing. One process owns its memory. Inside it, threads are separate lines of execution. Each has its own stack, for its local variables. All share the heap, where objects live. Sharing is cheap, but two threads can collide. A second process has completely separate memory, reached through a pipe or socket. Safer, but talking across is slower.",
      "items": [
       {
        "id": "pa",
@@ -201,10 +201,10 @@
        "y": 520,
        "w": 420,
        "h": 160,
-       "text": "own heap",
-       "sub": "separate memory",
+       "text": "pipe or socket",
+       "sub": "to its own heap",
        "tone": "good",
-       "cue": "completely separate"
+       "cue": "reached through a pipe or socket"
       }
      ],
      "arrows": [
@@ -216,12 +216,11 @@
       {
        "from": "t2",
        "to": "heap",
-       "cue": "race conditions"
+       "cue": "can collide"
       },
       {
        "from": "heap",
        "to": "hb",
-       "label": "pipe or socket",
        "tone": "bad",
        "cue": "slower"
       }
@@ -243,7 +242,7 @@
     {
      "type": "code",
      "head": "Same global, two answers",
-     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory. That answers what each shares.",
+     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory.",
      "panels": [
       {
        "file": "app.py",
@@ -256,6 +255,12 @@
         7
        ],
        "cue": "A thread shares"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "main sees ninety nine"
       },
       {
        "lines": [
@@ -541,7 +546,7 @@
     {
      "type": "code",
      "head": "One blocking call ruins it",
-     "say": "The mistake: calling async multithreading. It's one thread. So a task that never awaits blocks everyone. Both of these run two tasks. The good one awaits sleep. The bad one calls time sleep, and the tasks queue up. Async wins, if nothing blocks.",
+     "say": "The mistake: thinking async is multithreading. It runs on one thread. A task that never awaits blocks everyone. Both of these run two tasks. The good one awaits sleep. The bad one calls time sleep, and the tasks queue up. Async wins, if nothing blocks.",
      "panels": [
       {
        "file": "app.py",
@@ -640,8 +645,7 @@
        "y": 460,
        "w": 420,
        "h": 150,
-       "label": "the lock",
-       "text": "GIL",
+       "text": "GIL: the lock",
        "sub": "one holder at a time",
        "tone": "warn",
        "cue": "the G I L"
@@ -695,7 +699,7 @@
     {
      "type": "code",
      "head": "Four CPU-heavy jobs",
-     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads, from a thread pool: no faster, they just share the mic. Four processes, from a process pool, each get their own interpreter, and finish much sooner.",
+     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads, from a thread pool: no faster, they just share the mic. Four processes, from a process pool, each gets their own interpreter, and finish much sooner.",
      "panels": [
       {
        "file": "app.py",
@@ -739,7 +743,7 @@
        "run.py": "import multiprocessing as mp\nmp.set_start_method(\"fork\")\nimport app\n\ndef sequential(f, jobs):\n    for j in jobs: f(j)\n\nfor how in (sequential, app.threads, app.processes):\n    app.run(how)\n"
       },
       "text": "sequential 1.8 s\nthreads 2.2 s\nprocesses 1.0 s",
-      "cue": "about two seconds"
+      "cue": "finish much sooner"
      }
     },
     {
@@ -1391,7 +1395,7 @@
     {
      "type": "code",
      "head": "Decorators wrap functions",
-     "say": "A decorator is a function that takes a function and returns a new one. The wrapper runs extra code around the call. Writing at logged above work means work becomes logged of work. And functools wraps keeps the original name.",
+     "say": "A decorator is a function that takes a function and returns a new one. The wrapper runs extra code around the call. Putting the logged decorator above def work means work becomes logged of work, wrapped. And functools wraps keeps the original name.",
      "panels": [
       {
        "file": "deco.py",
@@ -1418,7 +1422,7 @@
         7,
         8
        ],
-       "cue": "Writing at logged"
+       "cue": "Putting the logged decorator"
       },
       {
        "lines": [
@@ -1488,7 +1492,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Process, thread, async? A process owns its memory, threads share it, async is one thread. Trade off? Processes are safe but slow, threads fast but racy, async cheap, never blocking. A race condition? Timing decides the result, so I use a lock. The GIL? Only one thread runs Python at a time. Deadlock? Two threads wait on each other forever. Which to pick? Async for waiting, processes for crunching.",
+     "say": "Process, thread, async? Own memory, shared memory, one thread. Trade off? Processes are safe but slow. Threads are fast but racy. Async is cheap. Race condition? Timing decides, so I use a lock. The GIL? One thread at a time. Threads still help while waiting on I/O. Deadlock? Two threads wait on each other. Which to pick? Async to wait, processes to crunch.",
      "rows": [
       [
        "Process, thread, async?",
@@ -1504,7 +1508,7 @@
       ],
       [
        "The GIL?",
-       "One thread runs Python at a time."
+       "One at a time. Threads still help while waiting on I/O."
       ],
       [
        "Deadlock?",
@@ -1518,7 +1522,7 @@
      "cues": [
       "Process, thread",
       "Trade off",
-      "A race condition",
+      "Race condition",
       "The GIL",
       "Deadlock",
       "Which to pick"
@@ -1564,7 +1568,7 @@
      "covers": [
       "sw09"
      ],
-     "say": "The GIL lets one thread run Python at a time, so processes crunch. A generator makes values on demand, so a million cost almost no memory. A decorator wraps a function, and I add functools wraps so it keeps its name.",
+     "say": "The GIL lets one thread run Python at a time, so processes crunch. A generator makes values on demand, so a million cost almost no memory. A decorator wraps a function. Add functools wraps to keep its name.",
      "lines": [
       "GIL: one thread at a time. Processes to crunch.",
       "Generator: values on demand, almost no memory.",
