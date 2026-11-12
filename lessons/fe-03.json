@@ -78,10 +78,10 @@
     {
      "type": "problem",
      "title": "Why does the text move?",
-     "statement": "A todo list renders each row with key equal to its index. Add one todo on top. The typed text stays in row one.",
+     "statement": "A todo list renders each row with key equal to its index. Add one todo on top. The typed text stays in position one, on the wrong todo.",
      "example": {
       "input": "`key={i}`, add 'Pay rent' on top",
-      "output": "'2 litres' ends on the wrong row"
+      "output": "'2 litres' ends on Pay rent"
      },
      "say": "A todo list uses each row's position, its index, as the key. You type into row one, then add a todo on top. Now the text sits on Pay rent. Why?",
      "cues": {
@@ -92,7 +92,7 @@
     {
      "type": "flow",
      "head": "A host with a seating chart",
-     "say": "Think of a host with a seating chart. Last night: Ann, Bo, Cy. Tonight Dee joins at the front. A bad host reseats everyone. A good host reads name tags. React is that host, and the key is the name tag.",
+     "say": "Think of a host with a seating chart. Last night: Ann, Bo, Cy. Tonight Dee joins at the front. A bad host reseats everyone. A good host reads name tags. The key is the name tag. Keys let React match rows.",
      "items": [
       {
        "label": "last night",
@@ -104,6 +104,12 @@
        "text": "Dee joins",
        "tone": "warn",
        "cue": "Dee joins at the front"
+      },
+      {
+       "label": "bad host",
+       "text": "Reseat everyone",
+       "tone": "bad",
+       "cue": "A bad host reseats everyone"
       },
       {
        "label": "good host",
@@ -320,7 +326,7 @@
       "input": "count 0, three `setCount(count + 1)`",
       "output": "shows 1; the fix gives 3"
      },
-     "say": "Next puzzle. Count starts at zero. One click calls set count of count plus one, three times. The screen shows one, not three. Why, and what is the fix?",
+     "say": "Here you will learn why three updates can add only one. Count starts at zero. One click calls set count of count plus one, three times. The screen shows one, not three. Why, and what is the fix?",
      "cues": {
       "example": "One click calls",
       "output": "The screen shows one"
@@ -361,8 +367,8 @@
     },
     {
      "type": "flow",
-     "head": "Think of photographs",
-     "say": "Think of photographs. Each render, React takes a photo where count is zero, frozen. A click asks for a new photo, where count is one. You never edit an old photo.",
+     "head": "Photographs of each render",
+     "say": "Picture a stack of photographs. Each render, React takes a photo where count is zero, frozen. A click asks for a new photo, where count is one. You never edit an old photo.",
      "items": [
       {
        "label": "photo 1",
@@ -444,7 +450,7 @@
     },
     {
      "type": "quiz",
-     "say": "Try this one. Count is zero. One click calls set count of count plus one, then set count with an updater, c becomes c plus one. What does the screen show? Pause and predict.",
+     "say": "Mixing both styles shows how the queue works. Count is zero. One click calls set count of count plus one, then set count with an updater, c becomes c plus one. What does the screen show? Pause and predict.",
      "q": "From 0: `setCount(count + 1); setCount(c => c + 1);` Result?",
      "options": [
       "1",
@@ -558,7 +564,7 @@
       "input": "`setInterval(() => setCount(count + 1))`",
       "output": "stuck at 1; fix: 1, 2, 3, 4, 5"
      },
-     "say": "Last one. A counter starts an interval that adds one every second. It shows one, then never moves again. Why does the timer stick?",
+     "say": "This one teaches stale closures, the bug behind a stuck timer. A counter starts an interval that adds one every second. It shows one, then never moves again. Why does the timer stick?",
      "cues": {
       "example": "starts an interval",
       "output": "It shows one"
@@ -567,7 +573,7 @@
     {
      "type": "flow",
      "head": "A sticky note for React",
-     "say": "Think of a sticky note you hand to React. After you paint the screen, do this. Redo it only if a listed value changed. And the note has a second part: how to undo it first. That is an effect, its dependency list, and its cleanup.",
+     "say": "Imagine a sticky note you hand to React. After you paint the screen, do this. Redo it only if a listed value changed. And the note has a second part: how to undo it first. Effects handle work outside React, like timers. That is an effect, its dependency list, and its cleanup.",
      "items": [
       {
        "label": "after paint",
@@ -748,7 +754,7 @@
     },
     {
      "type": "quiz",
-     "say": "Last prediction. Keep the empty list, but write the updater: set count of c becomes c plus one. The interval ticks once a second. What does the screen show after five seconds? Pause and predict.",
+     "say": "Here you will test whether the updater alone fixes the timer. Keep the empty list, but write the updater: set count of c becomes c plus one. The interval ticks once a second. What does the screen show after five seconds? Pause and predict.",
      "q": "Interval uses `setCount(c => c + 1)`, deps `[]`. After 5 s?",
      "options": [
       "1",
@@ -762,7 +768,7 @@
     {
      "type": "code",
      "head": "Two ways to fix it",
-     "say": "Five. Fix one: the updater never reads count, so nothing stale is captured. It always gets the latest value. Fix two: list count in the dependency list. Then the effect re-runs whenever count changes, with a fresh callback. But it needs the cleanup, or every render leaks another interval. Never delete count from the list just to quiet it.",
+     "say": "Five. Fix one: the updater never reads count, so nothing stale is captured. It always gets the latest value. Fix two: list count in the dependency list. Then the effect re-runs whenever count changes, with a fresh callback. But it needs the cleanup, or every change to count leaks another interval. Never delete count from the list just to quiet it.",
      "panels": [
       {
        "file": "Timer.tsx",
@@ -804,7 +810,7 @@
        "lines": [
         8
        ],
-       "cue": "fresh callback"
+       "cue": "Then the effect re-runs"
       },
       {
        "lines": [
@@ -821,7 +827,7 @@
       {
        "line": 9,
        "inside": true,
-       "text": "drop this: a leak per render",
+       "text": "drop this: a leak per change",
        "tone": "warn",
        "cue": "leaks another interval"
       }
@@ -867,39 +873,20 @@
    "kind": "drill",
    "scenes": [
     {
-     "type": "compare",
-     "head": "Say it in 25 seconds",
+     "type": "take",
      "covers": [
       "fe05"
      ],
-     "say": "How does React decide what to update? It diffs by type and key, then patches. Why do keys matter? React matches items by key, so typed text follows the todo. Index or random keys? Index is for static lists, and random remounts every row. Common mistake? Index keys on rows that hold inputs.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "How does React decide what to update?",
-       "diff by type and key, then patch the changes"
-      ],
-      [
-       "Why do keys matter?",
-       "matched by key, so state follows the item"
-      ],
-      [
-       "Index or random key?",
-       "index: static lists only. random: remounts every row"
-      ],
-      [
-       "Common mistake?",
-       "index keys on rows with inputs or state"
-      ]
+     "say": "Three rules for keys. React diffs by type and key, then patches. Keys are identity, so state follows the key. Index keys suit static lists, but break rows with inputs. Random keys remount every row.",
+     "lines": [
+      "React diffs by type and key, then patches",
+      "Keys are identity: state follows the key",
+      "Index: static lists only. Random: remounts every row"
      ],
      "cues": [
-      "How does React decide",
-      "Why do keys",
-      "Index or random",
-      "Common mistake"
+      "React diffs by type and key",
+      "Keys are identity",
+      "Index keys suit static lists"
      ]
     },
     {
