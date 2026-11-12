@@ -10,6 +10,7 @@ id=$(basename "$f" .json)
 node flatten.mjs "$f"
 node validate.mjs "build/$id.json"
 [ -n "${AUDIT_SKIP_COVERAGE:-}" ] || node coverage.mjs --lesson "$f"
+node codecheck.mjs "$f"   # output.text must match what the code prints (exit 1 on FAIL)
 if [ "${AUDIT_REAL_TTS:-}" ]; then "${PY:-.venv/bin/python}" tts.py "build/$id.json" > "build/$id.tts.log" 2>&1 || { grep -vi warn "build/$id.tts.log" | tail -20; echo "TTS failed" >&2; exit 1; }
 else node audit/estimate-vo.mjs "build/$id.json"; fi   # default: estimated timing (fast; real TTS runs at render)
 mkdir -p "$id"; cp -n hf/hyperframes.json hf/package.json "$id/"

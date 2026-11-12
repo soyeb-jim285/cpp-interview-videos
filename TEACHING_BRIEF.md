@@ -403,10 +403,13 @@ sqlite3 :memory: < query.sql                                                    
 Run from the repo root (`/stuff/Study/cpp-videos`):
 
 ```sh
-node flatten.mjs lessons/<id>.json && node validate.mjs build/<id>.json && node coverage.mjs --lesson lessons/<id>.json
+node flatten.mjs lessons/<id>.json && node validate.mjs build/<id>.json && node coverage.mjs --lesson lessons/<id>.json && node codecheck.mjs lessons/<id>.json
 ```
 
-Green = the three commands succeed (`ok`, and coverage prints nothing and exits 0). Fix every message and rerun. Do
+Green = the four commands succeed (`ok`, coverage prints nothing and exits 0, codecheck has no FAIL).
+`codecheck` runs every scene's `output.cmd` on that scene's panels and compares with `output.text`: every scene must
+PASS or SKIP; a FAIL means the shown output is not what the code produces (fix code or text). A SKIP (network, fragment
+without `main`, git) means you must have run it yourself elsewhere. Panels of one scene must be self-contained. Fix every message and rerun. Do
 not run TTS, `build.mjs`, `make.sh` or a render; do not edit any file except `lessons/<id>.json` (scratch code files
 go in a temp dir).
 

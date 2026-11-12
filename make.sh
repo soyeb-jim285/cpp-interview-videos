@@ -10,6 +10,7 @@ for q in "$@"; do
     node flatten.mjs "lessons/$q.json"
     node validate.mjs "build/$q.json"   # set -e stops here on failure, before TTS
     node coverage.mjs --lesson "lessons/$q.json"   # covers exist and are not claimed elsewhere
+    node codecheck.mjs "lessons/$q.json"   # shown outputs must be real (fails on FAIL)
     spec="build/$q.json"
     dest="out/course/$(node -p "require('./$spec').series.toLowerCase()")"
   else
