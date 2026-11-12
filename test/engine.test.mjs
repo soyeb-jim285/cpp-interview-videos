@@ -116,3 +116,11 @@ test("auto-zoom bbox includes move targets and stays above captions", () => {
   // moved window box bottom (y=900+100) in screen space
   assert.ok(ty + 1000 * k <= 930, `bottom ${ty + 1000 * k}`);
 });
+
+test("reveals.json: sorted, per-scene, starts at scene start", () => {
+  const rv = JSON.parse(fs.readFileSync(path.join(tmp, "t1fx/reveals.json"), "utf8"));
+  assert.ok(rv.length > 5);
+  for (let i = 1; i < rv.length; i++) assert.ok(rv[i].t >= rv[i - 1].t);
+  assert.ok(rv.some((r) => r.scene === 2 && r.what !== "scene start"));
+  assert.match(rv.find((r) => r.scene === 2).what, /^scene start/);
+});

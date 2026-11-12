@@ -279,12 +279,29 @@ function sceneTake(sc, sid, sfx) {
 // spoken -> written forms for captions
 const CAPS = [[/\bnull p t r\b/g, "nullptr"], [/\bs t d colon colon (\w+)/g, "std::$1"], [/\bs t d\b/g, "std"], [/\b(\w+) colon colon (\w+)/g, "$1::$2"], [/\bC plus plus eleven\b/g, "C++11"], [/\bC plus plus seventeen\b/g, "C++17"], [/\bC plus plus\b/g, "C++"], [/\b[Pp]lus plus ([a-z])\b/g, "++$1"], [/\b([a-z]) plus plus\b/g, "$1++"], [/\b[A-Z](?: [A-Z]\b)+/g, (m) => m.replace(/ /g, "")]];
 const capfix = (s, spec) => hlInline([...CAPS, ...(spec.caps || []).map(([a, b]) => [new RegExp(a, "g"), b])].reduce((x, [a, b]) => x.replace(a, b), s));
+// Reveal times for the audit (audit.sh): every tween that brings something in, merged within 0.5 s.
+export function revealsOf(scene, t0, tweens) {
+  const hits = [{ t: r3(t0), what: "scene start" }];
+  for (const tw of tweens) for (const st of tw.split(/(?<=\);)(?=tl\.)/)) {
+    const m = st.match(/^tl\.(fromTo|to)\("([^"]+)",(\{[^}]*\})[\s\S]*,(-?[\d.]+)\);$/);
+    if (!m || /-stage$|-q$/.test(m[2]) || (m[1] === "to" && /^\{opacity:0[,}]/.test(m[3]))) continue;
+    hits.push({ t: Number(m[4]), what: m[2].replace(/^#s\d+-?/, "") || "scene" });
+  }
+  hits.sort((a, b) => a.t - b.t);
+  const out = [];
+  for (const h of hits) {
+    const l = out.at(-1);
+    if (l && h.t - l.t < 0.5) { if (!l.what.split(", ").includes(h.what) && l.what.length < 60) l.what += ", " + h.what; } else out.push({ scene, t: h.t, what: h.what });
+  }
+  return out;
+}
 // ---------- assemble ----------
 function build(specPath) {
   const spec = JSON.parse(fs.readFileSync(specPath, "utf8"));
   const dir = spec.id;
   const durs = JSON.parse(fs.readFileSync(path.join(dir, "assets/vo/durations.json"), "utf8"));
   fs.mkdirSync(path.join(dir, "assets/sfx"), { recursive: true });
+  const reveals = [];
   let t = 0, scenesHtml = "", tws = [], audio = "", caps = "";
   const sfx = [];
   spec.scenes.forEach((sc, i) => {
@@ -297,6 +314,7 @@ function build(specPath) {
     scenesHtml += `<section id="${sid}" class="clip scene" data-start="${r3(t)}" data-duration="${dur}" data-track-index="1">${head}${r.html}</section>\n`;
     if (sc.head) tws.push(`tl.fromTo("#${sid}-head",{opacity:0,x:-30},{opacity:1,x:0,duration:0.5,ease:"power3.out"},${r3(t + 0.05)});`);
     tws.push(`// ${sid} t0=${r3(t)}`, ...r.tw);
+    reveals.push(...revealsOf(i, t, sc.head ? [`tl.fromTo("#${sid}-head",{opacity:0},{opacity:1},${r3(t + 0.05)});`, ...r.tw] : r.tw));
     // scene exit
     tws.push(`tl.to("#${sid} > *",{opacity:0,duration:0.3},${r3(t + dur - 0.35)});`);
     if (sc.say !== undefined) audio += `<audio id="vo${i}" class="clip" src="assets/vo/s${i}.wav" data-start="${r3(t + LEAD)}" data-duration="${sc.vo}" data-track-index="10" data-volume="1"></audio>\n`;
@@ -328,6 +346,7 @@ function build(specPath) {
     audio += `<audio id="fx${k++}" class="clip" src="assets/sfx/${s.file}" data-start="${s.t}" data-duration="${SFXLEN[s.file]}" data-track-index="${11 + (k % 2)}" data-volume="${s.vol}"></audio>\n`;
   }
   const total = r3(t);
+  fs.writeFileSync(path.join(dir, "reveals.json"), JSON.stringify(reveals, null, 1));
   const html = fs.readFileSync(new URL("./template.html", import.meta.url), "utf8")
     .replace("%TITLE%", esc(`${spec.series ? spec.series + " " : "Q"}${spec.num}: ${spec.question}`))
     .replaceAll("%DUR%", total).replace("%BRAND%", ({ Backend: "BE", SWE: "SWE", DSA: "DSA", Frontend: "FE", "AI Eval": "AI" })[spec.series] || "C++").replace("%QCHIP%", `${spec.series ? esc(spec.series) + " " : "Q"}${spec.num} · ${esc(spec.short)}`)
@@ -343,4 +362,4 @@ function build(specPath) {
   console.log(`${dir}: ${spec.scenes.length} scenes, ${total}s`);
 }
 
-for (const p of process.argv.slice(2)) build(p);
+if (import.meta.url === `file://${process.argv[1]}`) for (const p of process.argv.slice(2)) build(p);
