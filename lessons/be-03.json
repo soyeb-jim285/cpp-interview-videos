@@ -1,0 +1,1394 @@
+{
+ "id": "be-03",
+ "track": "Backend",
+ "num": 3,
+ "title": "Transactions, Isolation & Race Conditions",
+ "covers": [
+  "be04",
+  "be13"
+ ],
+ "caps": [
+  [
+   "Select for update",
+   "SELECT ... FOR UPDATE"
+  ],
+  [
+   "select for update",
+   "SELECT ... FOR UPDATE"
+  ],
+  [
+   "begin and commit",
+   "BEGIN and COMMIT"
+  ],
+  [
+   "Begin opens",
+   "BEGIN opens"
+  ],
+  [
+   "Only commit",
+   "Only COMMIT"
+  ],
+  [
+   "no commit",
+   "no COMMIT"
+  ],
+  [
+   "a commit",
+   "a COMMIT"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "All or nothing, or lose money",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Two people withdraw from one account at the same moment, and the bank loses money. By the end, you'll explain exactly how, and the three ways to stop it.",
+     "lines": [
+      {
+       "text": "Two withdrawals at once",
+       "cue": "Two people"
+      },
+      {
+       "text": "Bank loses money.",
+       "cue": "loses money",
+       "accent": true
+      },
+      {
+       "text": "Three ways to stop it",
+       "cue": "three ways"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Two steps, one promise",
+     "say": "Start smaller. Move one hundred dollars from Alice to Bob. That's two steps: take it from Alice, give it to Bob. Think of handing cash through a window: the whole handoff happens, or the cash goes back. A transaction is that promise.",
+     "items": [
+      {
+       "label": "step 1",
+       "text": "Alice -100",
+       "sub": "debit",
+       "cue": "take it from Alice"
+      },
+      {
+       "label": "step 2",
+       "text": "Bob +100",
+       "sub": "credit",
+       "cue": "give it to Bob"
+      },
+      {
+       "label": "cash window",
+       "text": "all or back",
+       "sub": "the analogy",
+       "cue": "handing cash"
+      },
+      {
+       "label": "transaction",
+       "text": "all or nothing",
+       "sub": "the real thing",
+       "tone": "good",
+       "cue": "A transaction is that promise"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A transfer, then a crash",
+     "say": "Alice has five hundred, Bob has two hundred. Seven hundred between them. Step one takes a hundred from Alice. Now she has four hundred. The server crashes before step two. Bob never gets his hundred. Six hundred left. A hundred dollars just vanished.",
+     "items": [
+      {
+       "id": "alice",
+       "x": 200,
+       "y": 480,
+       "w": 360,
+       "h": 180,
+       "label": "Alice",
+       "text": "500",
+       "size": 64,
+       "tone": "blue",
+       "cue": "Alice has five hundred"
+      },
+      {
+       "id": "bob",
+       "x": 1360,
+       "y": 480,
+       "w": 360,
+       "h": 180,
+       "label": "Bob",
+       "text": "200",
+       "size": 64,
+       "tone": "blue",
+       "cue": "Bob has two hundred"
+      },
+      {
+       "id": "total",
+       "x": 780,
+       "y": 780,
+       "w": 360,
+       "h": 130,
+       "label": "total",
+       "text": "700",
+       "size": 56,
+       "cue": "Seven hundred"
+      },
+      {
+       "id": "crash",
+       "x": 780,
+       "y": 270,
+       "w": 360,
+       "h": 110,
+       "text": "server crash",
+       "tone": "bad",
+       "cue": "crashes"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "alice",
+       "to": "bob",
+       "label": "100",
+       "cue": "Step one"
+      }
+     ],
+     "changes": [
+      {
+       "id": "alice",
+       "text": "400",
+       "tone": "warn",
+       "cue": "four hundred"
+      },
+      {
+       "id": "bob",
+       "glow": true,
+       "tone": "bad",
+       "cue": "never gets"
+      },
+      {
+       "id": "total",
+       "text": "600",
+       "tone": "bad",
+       "cue": "Six hundred left"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "No transaction: money vanishes",
+     "say": "In SQL, that's two statements. Each saves itself the moment it runs. So when the crash hits, the first is already saved. The second never runs. After the restart, Alice shows four hundred and Bob two hundred.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "label": "bug",
+       "tone": "bad",
+       "code": "UPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash!\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n-- after restart:\nSELECT * FROM accounts;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        3
+       ],
+       "cue": "two statements"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "saves itself"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "the first is already saved"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "never runs"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "After the restart"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "update 1 is already saved",
+       "tone": "bad",
+       "cue": "the first is already saved"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 bank.db",
+      "text": "1|Alice|400\n2|Bob|200",
+      "tone": "bad",
+      "cue": "Alice shows four hundred"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Alice started at five hundred. What does she show after the restart? Pause and predict.",
+     "q": "BEGIN; debit Alice 100; crash before COMMIT. Alice started at 500: now?",
+     "options": [
+      "400",
+      "500",
+      "600",
+      "unknown"
+     ],
+     "answer": "500"
+    },
+    {
+     "type": "code",
+     "head": "BEGIN ... COMMIT",
+     "say": "Five hundred. The database never saw a commit, so on restart it undoes the half-done work. Begin opens the transaction. Both updates wait inside it. Only commit makes them permanent. After the restart, Alice shows five hundred and Bob two hundred.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "label": "fixed",
+       "tone": "good",
+       "code": "BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n-- crash!\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\n-- after restart:\nSELECT * FROM accounts;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "never saw a commit"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Begin opens"
+      },
+      {
+       "lines": [
+        2,
+        4
+       ],
+       "cue": "Both updates wait"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Only commit"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "After the restart"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 bank.db",
+      "text": "1|Alice|500\n2|Bob|200",
+      "tone": "good",
+      "cue": "Alice shows five hundred"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "ACID: four promises",
+     "say": "That's the A in ACID. Four promises. Atomic: all or nothing, like the transfer. Consistent: rules like balance never below zero still hold. Isolated: transactions running together don't see each other's half-done work. Durable: once committed, it survives a crash.",
+     "items": [
+      {
+       "label": "A",
+       "text": "Atomic",
+       "sub": "all or nothing",
+       "cue": "Atomic"
+      },
+      {
+       "label": "C",
+       "text": "Consistent",
+       "sub": "rules still hold",
+       "cue": "Consistent"
+      },
+      {
+       "label": "I",
+       "text": "Isolated",
+       "sub": "no peeking",
+       "cue": "Isolated"
+      },
+      {
+       "label": "D",
+       "text": "Durable",
+       "sub": "kept in a disk log",
+       "tone": "good",
+       "cue": "Durable"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "One balance, two withdrawals",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "Two cashiers, one notepad",
+     "say": "Now the real trouble. Picture two cashiers sharing one notepad, which says one hundred. It's a database row, and they're two requests. Each cashier reads it, subtracts in their head, then writes the answer back. Read, think, write.",
+     "items": [
+      {
+       "label": "the notepad",
+       "text": "balance 100",
+       "sub": "= a database row",
+       "cue": "one notepad"
+      },
+      {
+       "label": "1  read",
+       "text": "both see 100",
+       "sub": "= two requests",
+       "cue": "Each cashier reads"
+      },
+      {
+       "label": "2  think",
+       "text": "subtract alone",
+       "sub": "in their heads",
+       "cue": "subtracts in their head"
+      },
+      {
+       "label": "3  write",
+       "text": "answer back",
+       "sub": "last one wins",
+       "tone": "warn",
+       "cue": "writes the answer back"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The lost update, step by step",
+     "say": "The balance is one hundred. A wants to withdraw thirty. B wants twenty. A reads one hundred. B reads one hundred too. A writes seventy. Then B writes eighty, because it never saw A's write. The final balance is eighty. It should be fifty.",
+     "items": [
+      {
+       "id": "ra",
+       "x": 140,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "request A",
+       "text": "-30",
+       "size": 52,
+       "tone": "blue",
+       "cue": "A wants to withdraw"
+      },
+      {
+       "id": "db",
+       "x": 720,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "balance in database",
+       "text": "100",
+       "size": 56,
+       "cue": "The balance"
+      },
+      {
+       "id": "rb",
+       "x": 1300,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "request B",
+       "text": "-20",
+       "size": 52,
+       "tone": "blue",
+       "cue": "B wants twenty"
+      },
+      {
+       "id": "ans",
+       "x": 720,
+       "y": 780,
+       "w": 480,
+       "h": 110,
+       "text": "should be 50",
+       "size": 44,
+       "tone": "warn",
+       "cue": "It should be"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ra",
+       "to": "db",
+       "tone": "good",
+       "bend": -50,
+       "cue": "A writes"
+      },
+      {
+       "from": "rb",
+       "to": "db",
+       "tone": "bad",
+       "bend": 50,
+       "cue": "Then B writes"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ra",
+       "text": "reads 100",
+       "cue": "A reads one hundred"
+      },
+      {
+       "id": "rb",
+       "text": "reads 100",
+       "cue": "B reads one hundred"
+      },
+      {
+       "id": "db",
+       "text": "70",
+       "tone": "good",
+       "cue": "seventy"
+      },
+      {
+       "id": "db",
+       "text": "80",
+       "tone": "bad",
+       "cue": "eighty"
+      },
+      {
+       "id": "ans",
+       "glow": true,
+       "tone": "warn",
+       "cue": "fifty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The same race, replayed",
+     "say": "Here's that exact interleaving in code. A and B are two database connections. A reads. B reads. A writes thirty less. B writes twenty less, from its stale copy. The print shows the balance: eighty.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "x = read(a)\ny = read(b)\nwrite(a, x - 30)\nwrite(b, y - 20)\nprint(read(a))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A reads"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "B reads"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A writes"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "B writes"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The print"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "A's 30 is lost",
+       "tone": "bad",
+       "cue": "stale copy"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "80",
+      "tone": "bad",
+      "cue": "shows the balance"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same replay, but now B writes first, then A. A takes thirty, B takes twenty, from one hundred. What's the final balance? Pause and predict.",
+     "q": "Both read 100. B writes first, then A. Final balance?",
+     "options": [
+      "50",
+      "70",
+      "80",
+      "100"
+     ],
+     "answer": "70"
+    },
+    {
+     "type": "chart",
+     "head": "Same requests, different timing",
+     "unit": "balance",
+     "say": "Seventy. A wrote last, so A's seventy erased B's write. If B wrote last, eighty. The result depends on timing. That's a race condition. The correct answer is fifty.",
+     "bars": [
+      {
+       "label": "A last",
+       "value": 70,
+       "tone": "warn",
+       "cue": "A wrote last"
+      },
+      {
+       "label": "B last",
+       "value": 80,
+       "tone": "bad",
+       "cue": "eighty"
+      },
+      {
+       "label": "Correct",
+       "value": 50,
+       "tone": "good",
+       "cue": "correct answer"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Two fixes that don't work",
+     "say": "Two tempting fixes fail. First, wrapping the read and write in begin and commit. Both read one hundred. Second, a lock inside your app code. It breaks with many servers.",
+     "heads": [
+      "Tempting fix",
+      "Why it fails"
+     ],
+     "rows": [
+      [
+       "Wrap in `BEGIN` / `COMMIT`",
+       "both still read 100 at read committed"
+      ],
+      [
+       "Lock in app code",
+       "breaks with many servers"
+      ]
+     ],
+     "cues": [
+      "wrapping the read",
+      "a lock inside"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Three ways to stop it",
+   "scenes": [
+    {
+     "type": "code",
+     "head": "Fix one: one atomic statement",
+     "say": "Fix one: skip the read. Let the database subtract inside one statement. The extra condition blocks overdrafts. A takes thirty, B takes twenty. The balance prints fifty. If a statement changes zero rows, there wasn't enough money.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "code": "UPDATE accounts SET balance = balance - 30\n  WHERE id = 1 AND balance >= 30;\nUPDATE accounts SET balance = balance - 20\n  WHERE id = 1 AND balance >= 20;\nSELECT balance FROM accounts;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "subtract inside"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "extra condition"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A takes thirty"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "B takes twenty"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "balance prints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "blocks overdrafts",
+       "tone": "good",
+       "cue": "extra condition"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 bank.db",
+      "text": "50",
+      "tone": "good",
+      "cue": "prints fifty"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Why one statement is safe",
+     "say": "Why is that safe? While A's statement runs, the database locks the row. B arrives, and has to wait. A finishes: the balance is seventy, and the lock opens. Now B runs on seventy, not on a stale hundred. Seventy minus twenty is fifty.",
+     "items": [
+      {
+       "id": "ra",
+       "x": 140,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "request A",
+       "text": "-30",
+       "size": 52,
+       "tone": "blue",
+       "cue": "A's statement"
+      },
+      {
+       "id": "db",
+       "x": 720,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "balance in database",
+       "text": "100",
+       "size": 56,
+       "cue": "Why is that safe"
+      },
+      {
+       "id": "rb",
+       "x": 1300,
+       "y": 470,
+       "w": 480,
+       "h": 150,
+       "label": "request B",
+       "text": "-20",
+       "size": 52,
+       "tone": "blue",
+       "cue": "B arrives"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ra",
+       "to": "db",
+       "tone": "good",
+       "cue": "A's statement"
+      },
+      {
+       "from": "rb",
+       "to": "db",
+       "tone": "warn",
+       "cue": "Now B runs"
+      }
+     ],
+     "changes": [
+      {
+       "id": "db",
+       "tone": "warn",
+       "cue": "locks the row"
+      },
+      {
+       "id": "rb",
+       "tone": "dim",
+       "cue": "has to wait"
+      },
+      {
+       "id": "db",
+       "text": "70",
+       "tone": "good",
+       "cue": "balance is seventy"
+      },
+      {
+       "id": "rb",
+       "tone": "blue",
+       "cue": "lock opens"
+      },
+      {
+       "id": "db",
+       "text": "50",
+       "tone": "good",
+       "cue": "is fifty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix two: lock the row first",
+     "say": "Fix two: lock the row yourself. Think of a bathroom door lock. Select for update locks the row, and B waits outside. A reads, computes seventy, writes, commits. The lock opens, and B reads seventy. That's pessimistic locking. It needs Postgres or MySQL.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "code": "BEGIN;\nSELECT balance FROM accounts\n  WHERE id = 1 FOR UPDATE;\n-- compute: 100 - 30 = 70\nUPDATE accounts SET balance = 70\n  WHERE id = 1;\nCOMMIT;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Select for update"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "computes seventy"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "commits"
+      },
+      {
+       "lines": [],
+       "cue": "That's pessimistic locking"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "B waits here",
+       "tone": "warn",
+       "cue": "B waits outside"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix three: a version column",
+     "say": "Fix three: take no lock. Give each row a version number, here seven. A and B both read it. A writes seventy, but only if the version is still seven. One row changed, and the version becomes eight. B tries the same, but the version is now eight. Zero rows changed. B lost, and knows it.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "code": "-- A writes 70\nUPDATE accounts SET balance = 70, version = 8\n  WHERE id = 1 AND version = 7;\nSELECT changes();\n-- B writes 80\nUPDATE accounts SET balance = 80, version = 8\n  WHERE id = 1 AND version = 7;\nSELECT changes();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "a version number"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "A writes seventy"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "One row changed"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "B tries the same"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Zero rows changed"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 bank.db",
+      "text": "1\n0",
+      "cue": "Zero rows changed"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. B lost, so it reads the row again: balance seventy, version eight. It writes fifty, and bumps the version to nine. How many rows change? Pause and predict.",
+     "q": "B re-reads: balance 70, version 8. Writes 50 `WHERE version = 8`. Rows changed?",
+     "options": [
+      "0",
+      "1",
+      "2"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "code",
+     "head": "The retry",
+     "say": "One. The version really is eight now, so the check passes. B retries, and the balance ends at fifty, with version nine. That's the loop: read, write if unchanged, retry on zero rows.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "code": "-- B re-reads: balance 70, version 8\nUPDATE accounts SET balance = 50, version = 9\n  WHERE id = 1 AND version = 8;\nSELECT changes();\nSELECT balance, version FROM accounts;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "The version really is eight"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "the check passes"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "ends at fifty"
+      },
+      {
+       "lines": [],
+       "cue": "That's the loop"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 bank.db",
+      "text": "1\n50|9",
+      "tone": "good",
+      "cue": "with version nine"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Optimistic or pessimistic?",
+     "say": "Which one? Try the atomic update first, since it needs no locking. Optimistic checks a version, retries on conflict. Pessimistic locks the row. The cost? Retries, or waiting. Best when? Rare conflicts: optimistic. Constant conflicts, like a hot counter: pessimistic.",
+     "heads": [
+      "",
+      "Optimistic (version)",
+      "Pessimistic (lock)"
+     ],
+     "rows": [
+      [
+       "How",
+       "check version, retry",
+       "lock row until commit"
+      ],
+      [
+       "Cost",
+       "wasted retries",
+       "others wait"
+      ],
+      [
+       "Best when",
+       "conflicts are rare",
+       "conflicts are frequent"
+      ]
+     ],
+     "cues": [
+      "Optimistic checks",
+      "The cost",
+      "Best when"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Isolation levels and deadlocks",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A whiteboard with drafts",
+     "say": "Isolation means what one transaction may see of another. Picture a whiteboard. Someone writes a draft number, seventy. You read it. They erase it. You acted on a number that never existed. That's a dirty read.",
+     "items": [
+      {
+       "label": "whiteboard",
+       "text": "balance 100",
+       "sub": "committed",
+       "cue": "Picture a whiteboard"
+      },
+      {
+       "label": "T2 writes",
+       "text": "draft: 70",
+       "sub": "not committed",
+       "tone": "warn",
+       "cue": "writes a draft"
+      },
+      {
+       "label": "T1 reads",
+       "text": "T1 sees 70",
+       "sub": "unsaved data",
+       "cue": "You read it"
+      },
+      {
+       "label": "T2 rolls back",
+       "text": "erased: 100",
+       "sub": "the draft is gone",
+       "cue": "They erase it"
+      },
+      {
+       "label": "verdict",
+       "text": "dirty read",
+       "sub": "read unsaved data",
+       "tone": "bad",
+       "cue": "a dirty read"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Isolation levels: what can go wrong",
+     "say": "Four levels trade safety for speed. Read uncommitted allows all three problems. Read committed stops dirty reads: the Postgres default. Repeatable read also stops a row changing between two reads: the MySQL default. Serializable acts like one at a time: safest, slower, more retries.",
+     "heads": [
+      "Dirty read",
+      "Non-repeatable",
+      "Phantom row"
+     ],
+     "rowHeads": [
+      "Read uncommitted",
+      "Read committed",
+      "Repeatable read",
+      "Serializable"
+     ],
+     "rows": [
+      [
+       "possible",
+       "possible",
+       "possible"
+      ],
+      [
+       "prevented",
+       "possible",
+       "possible"
+      ],
+      [
+       "prevented",
+       "prevented",
+       "possible"
+      ],
+      [
+       "prevented",
+       "prevented",
+       "prevented"
+      ]
+     ],
+     "cues": [
+      "Read uncommitted",
+      "Read committed",
+      "Repeatable read",
+      "Serializable"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. You're at the Postgres default, read committed. T1 reads the balance twice. In between, T2 commits a change. Do both reads match? Pause and predict.",
+     "q": "Read committed. T2 commits between T1's two reads. Do T1's reads match?",
+     "options": [
+      "Yes, always the same",
+      "No: second read is new",
+      "Error"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "A non-repeatable read",
+     "say": "No. T1 reads one hundred. T2 updates the row to seventy and commits. T1 reads again and gets seventy. Same query, two answers, inside one transaction. That's a non-repeatable read. Repeatable read keeps showing one hundred. A phantom is the same trick with rows: a new row appears.",
+     "items": [
+      {
+       "id": "t1",
+       "x": 140,
+       "y": 280,
+       "w": 380,
+       "h": 110,
+       "text": "T1 reads twice",
+       "tone": "blue",
+       "cue": "T1 reads"
+      },
+      {
+       "id": "r1",
+       "x": 140,
+       "y": 480,
+       "w": 380,
+       "h": 120,
+       "label": "1st read",
+       "text": "?",
+       "size": 52,
+       "cue": "T1 reads"
+      },
+      {
+       "id": "r2",
+       "x": 140,
+       "y": 680,
+       "w": 380,
+       "h": 120,
+       "label": "2nd read",
+       "text": "?",
+       "size": 52,
+       "cue": "T1 reads"
+      },
+      {
+       "id": "row",
+       "x": 760,
+       "y": 560,
+       "w": 400,
+       "h": 130,
+       "label": "balance",
+       "text": "100",
+       "size": 56,
+       "cue": "T1 reads"
+      },
+      {
+       "id": "t2",
+       "x": 1380,
+       "y": 280,
+       "w": 360,
+       "h": 110,
+       "text": "T2 updates",
+       "tone": "blue",
+       "cue": "T2 updates"
+      },
+      {
+       "id": "cm",
+       "x": 1380,
+       "y": 560,
+       "w": 360,
+       "h": 130,
+       "text": "COMMIT",
+       "tone": "good",
+       "size": 44,
+       "cue": "and commits"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "row",
+       "to": "r1",
+       "cue": "T1 reads"
+      },
+      {
+       "from": "t2",
+       "to": "row",
+       "cue": "T2 updates"
+      },
+      {
+       "from": "row",
+       "to": "r2",
+       "cue": "reads again"
+      }
+     ],
+     "notes": [
+      {
+       "x": 480,
+       "y": 840,
+       "text": "non-repeatable read",
+       "tone": "bad",
+       "cue": "non-repeatable read"
+      },
+      {
+       "x": 1000,
+       "y": 840,
+       "text": "phantom: new row appears",
+       "tone": "warn",
+       "cue": "A phantom"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r1",
+       "text": "100",
+       "cue": "one hundred"
+      },
+      {
+       "id": "row",
+       "text": "70",
+       "tone": "warn",
+       "cue": "to seventy"
+      },
+      {
+       "id": "r2",
+       "text": "70",
+       "tone": "bad",
+       "cue": "gets seventy"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Deadlock: waiting in a circle",
+     "say": "Last danger: deadlock. T1 locks row one. T2 locks row two. Now T1 wants row two, and T2 wants row one. Each waits for the other, forever. The database spots the cycle and aborts one transaction. Your code must retry it. To avoid it, lock rows in the same order, and keep transactions short.",
+     "items": [
+      {
+       "id": "t1",
+       "x": 160,
+       "y": 470,
+       "w": 300,
+       "h": 130,
+       "text": "T1",
+       "size": 52,
+       "tone": "blue",
+       "cue": "T1 locks row one"
+      },
+      {
+       "id": "r1",
+       "x": 780,
+       "y": 280,
+       "w": 360,
+       "h": 120,
+       "text": "row 1",
+       "size": 44,
+       "cue": "T1 locks row one"
+      },
+      {
+       "id": "r2",
+       "x": 780,
+       "y": 700,
+       "w": 360,
+       "h": 120,
+       "text": "row 2",
+       "size": 44,
+       "cue": "T2 locks row two"
+      },
+      {
+       "id": "t2",
+       "x": 1460,
+       "y": 470,
+       "w": 300,
+       "h": 130,
+       "text": "T2",
+       "size": 52,
+       "tone": "blue",
+       "cue": "T2 locks row two"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t1",
+       "to": "r1",
+       "tone": "good",
+       "cue": "T1 locks row one"
+      },
+      {
+       "from": "t2",
+       "to": "r2",
+       "tone": "good",
+       "cue": "T2 locks row two"
+      },
+      {
+       "from": "t1",
+       "to": "r2",
+       "tone": "bad",
+       "cue": "T1 wants row two"
+      },
+      {
+       "from": "t2",
+       "to": "r1",
+       "tone": "bad",
+       "cue": "T2 wants row one"
+      }
+     ],
+     "notes": [
+      {
+       "x": 160,
+       "y": 700,
+       "text": "green holds, red waits",
+       "tone": "info",
+       "cue": "Now T1 wants"
+      },
+      {
+       "x": 1380,
+       "y": 640,
+       "text": "aborted: code retries",
+       "tone": "warn",
+       "cue": "must retry it"
+      },
+      {
+       "x": 560,
+       "y": 880,
+       "text": "same lock order, keep it short",
+       "tone": "good",
+       "cue": "same order"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r1",
+       "glow": true,
+       "tone": "bad",
+       "cue": "spots the cycle"
+      },
+      {
+       "id": "t2",
+       "kill": true,
+       "cue": "aborts one transaction"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be04"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Transaction? Statements that all happen or none. ACID? Atomic, consistent, isolated, durable. Lost update? Two requests read one hundred, write seventy and eighty, and one vanishes. Isolation? Read committed blocks dirty reads. Deadlock? Two wait on each other. One aborts, you retry.",
+     "rows": [
+      [
+       "What is a transaction?",
+       "Statements that all happen, or none"
+      ],
+      [
+       "What is ACID?",
+       "Atomic, consistent, isolated, durable"
+      ],
+      [
+       "Give a lost update",
+       "Both read 100, write 70 then 80: 80"
+      ],
+      [
+       "Isolation levels?",
+       "Read committed blocks dirty reads"
+      ],
+      [
+       "What is a deadlock?",
+       "Two wait on each other: one aborts, retry"
+      ]
+     ],
+     "cues": [
+      "Transaction",
+      "ACID",
+      "Lost update",
+      "Isolation",
+      "Deadlock"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be13"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Race condition? A gap between read and write where another request sneaks in. Best fix? One atomic update. Otherwise? A version column and retry, or select for update. Optimistic when? Conflicts are rare. Lock in app code? Breaks with many servers.",
+     "rows": [
+      [
+       "What is a race condition?",
+       "Read, think, write: someone sneaks in"
+      ],
+      [
+       "Best fix?",
+       "One atomic `UPDATE`"
+      ],
+      [
+       "Otherwise?",
+       "Version column + retry, or `FOR UPDATE`"
+      ],
+      [
+       "Optimistic locking, when?",
+       "Conflicts are rare"
+      ],
+      [
+       "Lock in app code?",
+       "Breaks with many servers"
+      ]
+     ],
+     "cues": [
+      "Race condition",
+      "Best fix",
+      "Otherwise",
+      "Optimistic when",
+      "Lock in app code"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try this tonight",
+     "say": "Try three things. Replay the lost update with two connections: read, read, write, write. Then fix it with one atomic update, and watch the balance come out right. Finally, add a version column, and watch the second write change zero rows.",
+     "heads": [
+      "Exercise",
+      "What you'll see"
+     ],
+     "rows": [
+      [
+       "Replay read, read, write, write",
+       "final balance is wrong"
+      ],
+      [
+       "Use `SET balance = balance - 30`",
+       "the balance is 50"
+      ],
+      [
+       "Add a `version` column",
+       "second write changes 0 rows"
+      ]
+     ],
+     "cues": [
+      "Replay the lost update",
+      "one atomic update",
+      "add a version column"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A transaction is all or nothing, and ACID keeps it safe. A lost update is read, think, write, with a gap. Fix it with one atomic update, a row lock, or a version column.",
+     "lines": [
+      "A transaction: all or nothing. ACID keeps it safe.",
+      "Lost update: read, think, write, with a gap.",
+      "Fix: one atomic UPDATE, a row lock, or a version."
+     ],
+     "cues": [
+      "A transaction",
+      "A lost update",
+      "Fix it"
+     ]
+    }
+   ]
+  }
+ ]
+}
