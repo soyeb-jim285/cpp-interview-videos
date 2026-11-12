@@ -31,15 +31,15 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "An interviewer asks for two numbers that add to ten. You write two loops, and watch an eyebrow rise. By the end you'll do it in one pass, then slide a window over strings.",
+     "say": "Two numbers in a sorted list must add up to ten. Which two? Two loops work, but slowly. By the end you'll find them in one pass, then slide a window over strings.",
      "lines": [
       {
-       "text": "Two numbers that add to 10",
-       "cue": "An interviewer"
+       "text": "Which two add up to 10?",
+       "cue": "Two numbers"
       },
       {
-       "text": "Two loops. One eyebrow.",
-       "cue": "two loops"
+       "text": "Two loops: slow",
+       "cue": "Two loops"
       },
       {
        "text": "One pass.",
@@ -49,10 +49,41 @@
      ]
     },
     {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Find a pair that hits a target, in one pass. Slide a window instead of recounting. And grow and shrink a window to fit a rule.",
+     "lines": [
+      "Find a pair that hits a target, in one pass",
+      "Slide a window instead of recounting",
+      "Grow and shrink a window to fit a rule"
+     ],
+     "cues": [
+      "Find a pair",
+      "Slide a window",
+      "grow and shrink"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Pair with a target sum",
+     "statement": "Given a sorted array and a target, find two numbers that add up to the target.",
+     "example": {
+      "input": "[1, 3, 4, 6, 8, 11], target 10",
+      "output": "4 + 6"
+     },
+     "note": "n up to 100,000",
+     "say": "Here is the problem. For example, this array and a target of ten. The pair that adds up: four and six. Up to a hundred thousand numbers.",
+     "cues": {
+      "example": "For example",
+      "output": "four and six",
+      "note": "Up to a hundred"
+     }
+    },
+    {
      "type": "chart",
      "head": "A thousand numbers, one target",
      "unit": "steps",
-     "say": "Every pair: five hundred thousand additions. Two pointers: nine hundred ninety nine. Five hundred times less.",
+     "say": "Count the steps for a thousand numbers. Every pair: five hundred thousand additions. Two pointers: nine hundred ninety nine. Five hundred times less.",
      "bars": [
       {
        "label": "Every pair",
@@ -528,6 +559,22 @@
    "title": "Slide, don't recount",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Best sum of k in a row",
+     "statement": "Given an array and a number k, find the largest sum of k numbers in a row.",
+     "example": {
+      "input": "[2, 1, 5, 1, 3, 2], k = 3",
+      "output": "9 (5 + 1 + 3)"
+     },
+     "note": "n up to 100,000",
+     "say": "Here is the next problem. For example, this array, k of three. Best three in a row: five, one, three. Up to a hundred thousand numbers.",
+     "cues": {
+      "example": "For example",
+      "output": "five, one, three",
+      "note": "Up to a hundred"
+     }
+    },
+    {
      "type": "flow",
      "head": "A bus with three seats",
      "say": "Most candidates recount every window, politely and slowly. Picture a bus with three seats and a fare total of eight. One rider steps off, one steps on. Recount everyone? No. Subtract the leaver, add the arrival.",
@@ -861,9 +908,25 @@
    "title": "Grow right, shrink left",
    "scenes": [
     {
+     "type": "problem",
+     "title": "Longest substring, no repeats",
+     "statement": "Given a string, find the length of the longest stretch of letters with no letter repeated.",
+     "example": {
+      "input": "\"abcabcbb\"",
+      "output": "3 (\"abc\")"
+     },
+     "note": "a stretch = consecutive letters",
+     "say": "Here is the problem. For example, this string. The longest stretch with no repeat is a, b, c: three. A stretch means consecutive letters.",
+     "cues": {
+      "example": "For example",
+      "output": "a, b, c: three",
+      "note": "A stretch means"
+     }
+    },
+    {
      "type": "diagram",
      "head": "Longest run with no repeat",
-     "say": "Interviewers love this one: longest stretch with no repeated letter. Here is the string: a, b, c, a, b, c, b, b. L and R start on the first letter. R moves right, reading b. Then c. Three different letters. Now R reads a second a. A repeat! So L steps right, past the first a. Still three.",
+     "say": "That's our problem. Here is the string: a, b, c, a, b, c, b, b. L and R start on the first letter. R moves right, reading b. Then c. Three different letters. Now R reads a second a. A repeat! So L steps right, past the first a. Still three.",
      "items": [
       {
        "array": {
@@ -1431,6 +1494,22 @@
   {
    "title": "When the rule breaks",
    "scenes": [
+    {
+     "type": "problem",
+     "title": "Shortest subarray, sum ≥ target",
+     "statement": "Given positive numbers and a target, find the length of the shortest run in a row whose sum is at least the target.",
+     "example": {
+      "input": "[2, 3, 1, 2, 4, 3], target 7",
+      "output": "2 (4 + 3)"
+     },
+     "note": "numbers are positive, for now",
+     "say": "Here is the last problem. For example, these numbers, target seven. The shortest run reaching seven is four, three: length two. Numbers are positive, for now.",
+     "cues": {
+      "example": "For example",
+      "output": "four, three",
+      "note": "Numbers are positive"
+     }
+    },
     {
      "type": "code",
      "head": "Shrink while the rule holds",
