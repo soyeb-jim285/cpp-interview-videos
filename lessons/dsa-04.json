@@ -351,12 +351,12 @@
     },
     {
      "type": "take",
-     "say": "That's why insertion sort wins on tiny or nearly sorted arrays.",
+     "say": "That's why insertion sort wins on tiny or nearly sorted arrays. That answers the sort-the-array problem.",
      "lines": [
       "Tiny or nearly sorted? Insertion wins."
      ],
      "cues": [
-      "That's why"
+      "That answers"
      ]
     }
    ]
@@ -900,7 +900,7 @@
       "Question",
       "Answer"
      ],
-     "say": "Three things to say out loud. Stable means equal items keep their input order. Merge sort is stable if you merge with less or equal, not less than. Insertion sort? Great for tiny or nearly sorted arrays.",
+     "say": "Three things to say out loud. Stable means equal items keep their input order. Merge sort is stable if you merge with less or equal, not less than. Insertion sort? Great for tiny or nearly sorted arrays. That answers the faster-sort problem.",
      "rows": [
       [
        "What is stable?",
@@ -946,24 +946,22 @@
      "say": "Quicksort lines up a crowd by height. Pick one person as the boss, the pivot. Everyone shorter goes left. Everyone taller goes right. Now the boss stands in the final spot and never moves again. Repeat on each side.",
      "items": [
       {
-       "label": "pick",
-       "text": "a boss",
+       "text": "pick a boss",
        "sub": "the pivot",
        "cue": "Pick one person"
       },
       {
-       "label": "shorter",
-       "text": "go left",
+       "text": "shorter",
+       "sub": "goes left",
        "cue": "shorter goes left"
       },
       {
-       "label": "taller",
-       "text": "go right",
+       "text": "taller",
+       "sub": "goes right",
        "cue": "taller goes right"
       },
       {
-       "label": "the boss",
-       "text": "stays put",
+       "text": "boss stays",
        "sub": "final spot",
        "tone": "good",
        "cue": "never moves again"
@@ -1277,7 +1275,7 @@
     {
      "type": "diagram",
      "head": "The worst case: a sorted array",
-     "say": "Five. Every card is smaller than six, so all five land on the left, and the right side is empty. Next round faces five cards, then four, then three. That's n rounds of n work: O of n squared. Random pivots avoid it.",
+     "say": "Five. Every card is smaller than six, so all five land on the left, and the right side is empty. Next round faces five cards, then four, then three. That's n rounds of n work, about n squared over two comparisons: O of n squared. Random pivots avoid it. That answers the in-place problem.",
      "items": [
       {
        "array": {
@@ -1319,8 +1317,8 @@
      "notes": [
       {
        "x": 520,
-       "y": 870,
-       "text": "n rounds × n work = O(n²)",
+       "y": 540,
+       "text": "about n²/2 comparisons",
        "tone": "bad",
        "cue": "That's n rounds"
       }
@@ -1342,6 +1340,18 @@
        "id": "R",
        "text": "0 cards",
        "cue": "empty"
+      },
+      {
+       "id": "q5",
+       "glow": true,
+       "tone": "bad",
+       "cue": "O of n squared"
+      },
+      {
+       "id": "R",
+       "glow": true,
+       "tone": "good",
+       "cue": "That answers the in-place problem"
       }
      ]
     }
@@ -1362,9 +1372,9 @@
      "cues": {
       "example": "Say, words",
       "output": "It's an introsort",
-      "note": "a mix of three sorts"
+      "note": "A comparator says"
      },
-     "note": "Mix of three sorts"
+     "note": "your comparator sets the order"
     },
     {
      "type": "flow",
@@ -1372,20 +1382,19 @@
      "say": "Call s t d colon colon sort. In common implementations, it's an introsort: quicksort first. If recursion gets too deep, it switches to heap sort, so the worst case stays O of n log n. On tiny ranges, it uses insertion sort.",
      "items": [
       {
-       "label": "usually",
-       "text": "quicksort",
+       "text": "usually",
+       "sub": "quicksort",
        "cue": "quicksort first"
       },
       {
-       "label": "too deep",
-       "text": "heap sort",
-       "sub": "worst case safe",
+       "text": "too deep",
+       "sub": "heap sort",
        "tone": "warn",
        "cue": "switches to heap sort"
       },
       {
-       "label": "tiny ranges",
-       "text": "insertion sort",
+       "text": "tiny ranges",
+       "sub": "insertion sort",
        "tone": "good",
        "cue": "On tiny ranges"
       }
@@ -1531,7 +1540,7 @@
       "They ask",
       "You say"
      ],
-     "say": "The traps. Is sort stable? No. Use stable sort. A comparator with greater or equal is undefined behavior, so stay strict. Quicksort versus merge? Quick is in place, merge is stable but needs memory. Worst case of s t d sort? Still n log n.",
+     "say": "The traps. Is sort stable? No. Use stable sort. A comparator with greater or equal is undefined behavior, so stay strict. Quicksort versus merge? Quick is in place, merge is stable but needs memory. Worst case of s t d sort? Still n log n. That answers the problem.",
      "rows": [
       [
        "Is `std::sort` stable?",
@@ -1582,25 +1591,23 @@
      "say": "Say you have ages, zero to one hundred twenty. Keep one tally per age. Then read the tallies in order. That's counting sort. No comparing, so the cost is n plus k, not n log n.",
      "items": [
       {
-       "label": "ages",
-       "text": "0 to 120",
-       "sub": "121 values",
+       "text": "ages",
+       "sub": "0 to 120",
        "cue": "ages, zero to"
       },
       {
-       "label": "tally",
-       "text": "a counter each",
+       "text": "tally",
+       "sub": "a counter each",
        "cue": "one tally per age"
       },
       {
-       "label": "read out",
-       "text": "in order",
+       "text": "read out",
+       "sub": "in order",
        "tone": "good",
        "cue": "read the tallies"
       },
       {
-       "label": "cost",
-       "text": "n + k",
+       "text": "cost: n + k",
        "sub": "k = value range",
        "tone": "blue",
        "cue": "the cost is"
@@ -1759,21 +1766,21 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Which of these suits counting sort? Pause and predict.",
-     "q": "Which input suits counting sort?",
+     "say": "Your turn. Which input should you sort by counting, not by comparing? Pause and predict.",
+     "q": "Which input should you sort by counting?",
      "options": [
+      "1M ints, 0 to 10⁹",
+      "1M doubles, 0 to 120",
       "1M ages, 0 to 120",
-      "1M ints up to 10⁹",
-      "1M long names",
-      "1M prices as doubles"
+      "1M ages, no upper limit"
      ],
-     "answer": 0
+     "answer": 2
     },
     {
      "type": "chart",
      "head": "Counters you would need",
      "unit": "counters",
-     "say": "Counters each method needs. Ages: one hundred twenty one counters, nothing. Ints up to a billion need a billion counters, about four gigabytes. Names and doubles? Use plain sort.",
+     "say": "Counters each method needs. Ages: one hundred twenty one counters, nothing. Ints up to a billion need a billion counters, about four gigabytes.",
      "bars": [
       {
        "label": "ages",
@@ -1785,8 +1792,21 @@
        "label": "ints 10⁹",
        "value": 1000000000,
        "tone": "bad",
-       "cue": "a billion counters"
+       "cue": "about four gigabytes"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Remember",
+     "say": "Names and doubles? Use plain sort. That answers the million-ages problem.",
+     "lines": [
+      "Names and doubles: plain sort",
+      "That answers the million-ages problem"
+     ],
+     "cues": [
+      "Names and doubles",
+      "That answers"
      ]
     }
    ]
@@ -1868,11 +1888,12 @@
       "cp22"
      ],
      "pause": 5,
-     "say": "Quick self test. A million integers, each up to a billion. Counting sort, or s t d colon colon sort? Pause and predict.",
+     "say": "Quick self test. A million integers, each up to a billion. Counting sort, std sort, or insertion sort? Pause and predict.",
      "q": "1M ints up to 10⁹: which sort?",
      "options": [
       "Counting sort",
-      "std::sort"
+      "std::sort",
+      "Insertion sort"
      ],
      "answer": 1
     },
@@ -1922,7 +1943,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What does s t d sort do? Introsort: n log n worst case, not stable. When a comparator? Custom order, like shorter first. Strict less, never less or equal. Counting sort? A small integer range k, in O of n plus k.",
+     "say": "What does s t d sort do? Introsort: n log n worst case, not stable. When a comparator? Custom order, like shorter first.",
      "rows": [
       [
        "What does `std::sort` do?",
@@ -1931,15 +1952,28 @@
       [
        "When a comparator?",
        "custom order, e.g. shorter first; strict `<`"
-      ],
+      ]
+     ],
+     "cues": [
+      "What does s t d",
+      "When a comparator?"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Counting sort",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Strict less, never less or equal. Counting sort? A small integer range k, in O of n plus k.",
+     "rows": [
       [
        "When counting sort?",
        "small integer range k: O(n + k)"
       ]
      ],
      "cues": [
-      "What does s t d",
-      "When a comparator?",
       "Counting sort?"
      ]
     }
