@@ -256,14 +256,14 @@
      ],
      "notes": [
       {
-       "x": 300,
+       "x": 345,
        "y": 660,
        "text": "reflow: layout runs again",
        "tone": "warn",
        "cue": "That's a reflow"
       },
       {
-       "x": 760,
+       "x": 805,
        "y": 660,
        "text": "repaint: pixels redrawn",
        "tone": "good",
