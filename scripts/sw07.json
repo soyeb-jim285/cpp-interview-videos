@@ -1,0 +1,234 @@
+{
+ "id": "sw07",
+ "num": 7,
+ "series": "SWE",
+ "short": "Refactoring legacy code",
+ "question": "How do you refactor legacy code safely?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Pin the behavior first. Then change the structure in tiny steps.",
+   "say": "Refactoring legacy code. Refactoring means changing how code is built without changing what it does. The interviewer wants to hear that you don't rewrite and hope."
+  },
+  {
+   "type": "diagram",
+   "head": "Think of renovating a house you live in",
+   "items": [
+    {
+     "id": "p",
+     "x": 150,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Photograph every room",
+     "sub": "so you can check later",
+     "size": 34,
+     "tone": "blue",
+     "cue": "photograph"
+    },
+    {
+     "id": "w",
+     "x": 720,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Move one wall",
+     "sub": "not the whole house",
+     "size": 34,
+     "tone": "warn",
+     "cue": "one wall"
+    },
+    {
+     "id": "c",
+     "x": 1290,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Compare to photos",
+     "sub": "nothing else changed?",
+     "size": 34,
+     "tone": "good",
+     "cue": "compare"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "p",
+     "to": "w",
+     "cue": "one wall"
+    },
+    {
+     "from": "w",
+     "to": "c",
+     "cue": "compare"
+    }
+   ],
+   "say": "Think of renovating a house you still live in. You don't knock everything down. First you photograph every room. Then you move one wall. Then you compare with the photos. Safe refactoring works the same way, with tests as the photos."
+  },
+  {
+   "type": "code",
+   "head": "Step one: tests that photograph today's behavior",
+   "panels": [
+    {
+     "file": "test_pricing.py",
+     "size": 34,
+     "code": "# price(): 10 percent off gold, 5 off orders over 100\ndef order(c, p, q):\n    return {\"c\": c, \"items\": [{\"p\": p, \"q\": q}]}\n\ndef test_pins_current_behavior():\n    assert price(order(\"gold\", 60, 2)) == 103.0\n    assert price(order(\"none\", 60, 2)) == 115.0\n    assert price(order(\"none\", 50, 2)) == 100.0"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "legacy function",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "gold customer",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "no customer",
+     "lines": [
+      7
+     ]
+    },
+    {
+     "cue": "exactly one hundred",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "exactly one hundred",
+     "line": 8,
+     "inside": true,
+     "text": "boundary: no discount",
+     "tone": "warn"
+    }
+   ],
+   "say": "Say you inherit a legacy function with no tests. Write characterization tests. Run the code and record what it really returns. A gold customer buying one hundred twenty dollars gets one oh three. A no customer order gets one fifteen. And exactly one hundred gets no discount. These tests describe today, bugs included."
+  },
+  {
+   "type": "diagram",
+   "head": "Step two: the safe loop",
+   "items": [
+    {
+     "id": "c",
+     "x": 150,
+     "y": 330,
+     "w": 380,
+     "h": 190,
+     "text": "One tiny change",
+     "sub": "rename or extract",
+     "size": 34,
+     "tone": "blue",
+     "cue": "tiny change"
+    },
+    {
+     "id": "r",
+     "x": 640,
+     "y": 330,
+     "w": 380,
+     "h": 190,
+     "text": "Run the tests",
+     "sub": "takes seconds",
+     "size": 34,
+     "tone": "warn",
+     "cue": "Run the tests"
+    },
+    {
+     "id": "k",
+     "x": 1130,
+     "y": 330,
+     "w": 300,
+     "h": 190,
+     "text": "Green: commit",
+     "size": 34,
+     "tone": "good",
+     "cue": "commit"
+    },
+    {
+     "id": "u",
+     "x": 640,
+     "y": 680,
+     "w": 380,
+     "h": 160,
+     "text": "Red: undo it",
+     "sub": "that one step",
+     "size": 34,
+     "tone": "bad",
+     "cue": "undo"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "c",
+     "to": "r",
+     "cue": "Run the tests"
+    },
+    {
+     "from": "r",
+     "to": "k",
+     "cue": "commit"
+    },
+    {
+     "from": "r",
+     "to": "u",
+     "cue": "undo"
+    }
+   ],
+   "say": "Step two is a loop. Make one tiny change, like extracting a helper. Run the tests. Green, commit. Red, undo that one step. A failure then points at exactly one change. And never mix a refactor with a bug fix in the same commit."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: follow-ups",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "No tests and hard to test?",
+     "Find a seam, a spot to inject a dependency, then add tests."
+    ],
+    [
+     "You spot a bug mid-refactor?",
+     "Write it down, finish, fix it in its own commit."
+    ],
+    [
+     "How big is a step?",
+     "Small enough to undo with one revert."
+    ],
+    [
+     "Common mistake",
+     "Rewriting from scratch and changing behavior unnoticed."
+    ]
+   ],
+   "cues": [
+    "No tests",
+    "spot a bug",
+    "How big",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. No tests and hard to test? Find a seam, then add tests. Spot a bug mid-refactor? Write it down, and fix it in its own commit. How big is a step? Small enough to undo with one revert. And the common mistake: rewriting from scratch and changing behavior without noticing."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "First I pin current behavior with characterization tests.",
+    "Then tiny steps: change, run tests, commit or undo.",
+    "I never mix refactoring with behavior changes."
+   ],
+   "cues": [
+    "First I pin",
+    "Then I take tiny",
+    "never mix"
+   ],
+   "say": "First I pin the current behavior with characterization tests. Then I take tiny steps: change, run the tests, commit or undo. And I never mix refactoring with behavior changes."
+  }
+ ]
+}

@@ -16,7 +16,9 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:
 #prog{position:absolute;left:0;bottom:0;width:1920px;height:6px;background:linear-gradient(90deg,var(--acc),var(--blue));transform-origin:left center;opacity:.8}
 .chip{position:absolute;left:96px;top:56px;font:600 22px var(--mono);color:var(--mute);letter-spacing:.04em}
 .chip b{color:var(--acc);font-weight:700}
-.head{position:absolute;left:160px;top:104px;font:700 46px var(--sans);letter-spacing:-.02em}
+.head{position:absolute;left:120px;top:92px;font:800 58px var(--sans);letter-spacing:-.025em}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.arrow path.pulse{stroke:#fff;stroke-width:9;filter:drop-shadow(0 0 8px rgba(255,255,255,.9))}
 .head code,.cc code,.cap code,.tl code,h1 code,.ttl p code,.box code,.sub code{font-family:var(--mono);color:var(--acc);font-size:.92em}
 /* code panels */
 .panel{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);overflow:hidden}
@@ -37,8 +39,8 @@ i{font-style:normal}.k{color:#ff8f40}.t{color:var(--blue)}.s{color:var(--green)}
 .cmp{position:absolute;left:160px;right:160px;top:220px;display:grid;gap:14px 18px}
 .ch{font:800 34px var(--sans);padding:14px 26px;border-radius:14px;background:#1b2130}
 .ch.h0{color:var(--blue)}.ch.h1{color:var(--acc)}.ch.h2{color:var(--green)}
-.rh{font:600 26px var(--sans);color:var(--mute);padding:18px 10px;display:flex;align-items:center}
-.cc{font:500 30px/1.35 var(--sans);padding:18px 26px;background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center}
+.rh{font:700 28px var(--sans);color:var(--mute);padding:18px 10px;display:flex;align-items:center}
+.cc{font:500 34px/1.3 var(--sans);padding:18px 26px;background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center}
 /* diagram */
 .wires{position:absolute;left:0;top:0;pointer-events:none}
 .arrow path{fill:none;stroke:var(--blue);stroke-width:5;stroke-linecap:round}.arrow polygon{fill:var(--blue)}
@@ -47,8 +49,8 @@ i{font-style:normal}.k{color:#ff8f40}.t{color:var(--blue)}.s{color:var(--green)}
 .region{position:absolute;border:2px dashed #2f3747;border-radius:22px;background:rgba(255,255,255,.015)}
 .region span{position:absolute;left:22px;top:-20px;padding:2px 12px;background:var(--bg);font:800 28px var(--sans);letter-spacing:.18em;color:var(--mute)}
 .region.blue{border-color:rgba(89,194,255,.4)}.region.blue span{color:var(--blue)}.region.warn{border-color:rgba(255,180,84,.4)}.region.warn span{color:var(--acc)}.region.good{border-color:rgba(170,217,76,.4)}.region.good span{color:var(--green)}.region.bad{border-color:rgba(240,113,120,.4)}.region.bad span{color:var(--red)}
-.box{position:absolute;background:var(--panel);border:2px solid #39425a;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px}
-.box.blue{border-color:var(--blue)}.box.warn{border-color:var(--acc)}.box.good{border-color:var(--green)}.box.bad{border-color:var(--red)}.box.ghost{border-style:dashed}
+.box{position:absolute;background:#171d2a;border:3px solid #4a5672;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px}
+.box.blue{border-color:var(--blue);background:#10243a}.box.warn{border-color:var(--acc);background:#2d2312}.box.good{border-color:var(--green);background:#1b2b12}.box.bad{border-color:var(--red);background:#331a1e}.box.dim{opacity:.55}.box.ghost{border-style:dashed}
 .box .lbl{position:absolute;top:-44px;left:4px;font:600 28px var(--mono);color:var(--mute);white-space:nowrap}
 .box .val{position:relative;width:100%;height:1.3em;font-family:var(--mono);font-weight:700}
 .box .val span{position:absolute;left:0;right:0;top:0;white-space:nowrap}
@@ -64,14 +66,14 @@ i{font-style:normal}.k{color:#ff8f40}.t{color:var(--blue)}.s{color:var(--green)}
 .take .tl{font:700 50px/1.25 var(--sans);letter-spacing:-.02em;display:flex;gap:28px}
 .take .tl s{text-decoration:none;font:700 30px/1.9 var(--mono);color:var(--acc)}
 /* captions */
-.cap{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);max-width:1500px;width:max-content;padding:12px 28px;border-radius:12px;background:rgba(7,9,13,.82);font:500 31px/1.35 var(--sans);color:#fff;text-align:center}
+.cap{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);max-width:1600px;width:max-content;padding:12px 30px;border-radius:12px;background:rgba(7,9,13,.86);font:600 36px/1.3 var(--sans);color:#fff;text-align:center}
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="%DUR%" data-width="1920" data-height="1080">
 <div id="bgfx"></div>
 <div id="prog"></div>
-<div class="chip" id="qchip" data-layout-ignore><b>C++</b> &nbsp;%QCHIP%</div>
+<div class="chip" id="qchip" data-layout-ignore><b>%BRAND%</b> &nbsp;%QCHIP%</div>
 %SCENES%
 %CAPS%
 %AUDIO%

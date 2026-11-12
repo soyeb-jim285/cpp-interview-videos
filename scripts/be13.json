@@ -1,0 +1,80 @@
+{
+  "id": "be13", "num": 13, "series": "Backend", "short": "Race conditions and locking",
+  "question": "What is a race condition in a backend, and how do you prevent it? Explain optimistic locking.",
+  "scenes": [
+    { "type": "title", "sub": "Two requests touch the same row at the same time.",
+      "say": "Race conditions in backends. They never show up in testing, and they show up in production on the busiest day." },
+
+    { "type": "flow", "head": "Think of two people editing one shared note",
+      "items": [
+        { "label": "Note says", "text": "5 tickets", "sub": "left to sell", "tone": "blue", "cue": "shared note" },
+        { "label": "Both read", "text": "5", "sub": "at the same time", "tone": "warn", "cue": "both read" },
+        { "label": "Both write", "text": "4", "sub": "should be 3!", "tone": "bad", "cue": "writes back four" }
+      ],
+      "say": "Imagine a shared note that says five tickets left. Two clerks both read five at the same moment. Each sells one ticket and writes back four. Two tickets are sold, but the note says four, not three. One sale vanished. That is a race condition: the result depends on timing." },
+
+    { "type": "diagram", "head": "The lost update, step by step",
+      "items": [
+        { "id": "ra", "x": 140, "y": 260, "w": 340, "h": 130, "label": "Request A", "text": "reads 5", "size": 38, "tone": "blue", "cue": "Request A reads" },
+        { "id": "rb", "x": 140, "y": 640, "w": 340, "h": 130, "label": "Request B", "text": "reads 5", "size": 38, "tone": "blue", "cue": "Request B reads" },
+        { "id": "db", "x": 1100, "y": 440, "w": 420, "h": 170, "label": "stock in database", "text": "5", "size": 60, "tone": "warn", "cue": "starts at five" }
+      ],
+      "arrows": [
+        { "from": "ra", "to": "db", "cue": "Request A reads" },
+        { "from": "rb", "to": "db", "cue": "Request B reads" }
+      ],
+      "changes": [
+        { "id": "db", "text": "4", "cue": "A writes four" },
+        { "id": "db", "text": "4", "cue": "B also writes four" },
+        { "id": "db", "tone": "bad", "cue": "One sale is lost" }
+      ],
+      "say": "Stock in the database starts at five. Request A reads five. Request B reads five. A writes four. B also writes four, because it never saw A. One sale is lost. The pattern is always read, think, write, with a gap in the middle where someone else can sneak in." },
+
+    { "type": "code", "head": "Fix 1: let the database do it atomically",
+      "panels": [{ "file": "fix.sql", "size": 34, "code": "-- bad: read, then write\nSELECT stock FROM items WHERE id = 7;\nUPDATE items SET stock = 4 WHERE id = 7;\n\n-- good: one atomic statement\nUPDATE items\nSET stock = stock - 1\nWHERE id = 7 AND stock > 0;\n-- 0 rows changed? sold out" }],
+      "steps": [
+        { "cue": "The bad version", "lines": [1, 2, 3] },
+        { "cue": "The good version", "lines": [5, 6, 7, 8] },
+        { "cue": "zero rows", "lines": [9] }
+      ],
+      "say": "The bad version reads, then writes a number computed in the app. The good version is one statement: stock equals stock minus one, only where stock is above zero. The database locks the row while it runs, so no gap exists. If zero rows changed, you're sold out. Always try this first, because it needs no extra locking." },
+
+    { "type": "code", "head": "Fix 2: optimistic locking with a version column",
+      "panels": [{ "file": "optimistic.sql", "size": 34, "code": "-- read the row and remember its version\nSELECT stock, version FROM items WHERE id = 7;\n-- got stock = 5, version = 3\n\nUPDATE items\nSET stock = 4, version = version + 1\nWHERE id = 7 AND version = 3;\n\n-- 1 row changed: success\n-- 0 rows changed: someone else won, retry" }],
+      "steps": [
+        { "cue": "read the row", "lines": [1, 2, 3] },
+        { "cue": "only if the version", "lines": [5, 6, 7] },
+        { "cue": "One row changed", "lines": [9] },
+        { "cue": "Zero rows", "lines": [10] }
+      ],
+      "notes": [
+        { "cue": "only if the version", "line": 7, "inside": true, "text": "the guard", "tone": "info" }
+      ],
+      "say": "Optimistic locking assumes conflicts are rare, so it takes no lock. Read the row and remember its version, here three. On update, add one to the version, but only if the version is still three. One row changed: you won. Zero rows changed: someone else got there first, so reread and retry. Use it when conflicts are rare, like editing a profile." },
+
+    { "type": "compare", "head": "Optimistic vs pessimistic",
+      "heads": ["Optimistic (version)", "Pessimistic (lock)"], "rowHeads": ["How", "Cost", "Best when"],
+      "rows": [
+        ["Check version on write, retry on conflict", "SELECT FOR UPDATE locks the row until commit"],
+        ["No waiting, but wasted retries", "Others wait, risk of deadlock"],
+        ["Conflicts are rare", "Conflicts are frequent, like a hot counter"]
+      ],
+      "cues": ["Optimistic", "The cost", "Best when"],
+      "say": "Optimistic checks a version on write and retries on conflict. Pessimistic uses select for update, which locks the row until commit. The cost: optimistic wastes work on retries, pessimistic makes others wait and can deadlock. Optimistic is best when conflicts are rare. Pessimistic wins when they're frequent, like one hot counter." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Likely follow-up", "One-line answer"],
+      "rows": [
+        ["Why not a lock in app code?", "It breaks with many servers. Use the database"],
+        ["What about a deadlock?", "Lock rows in a consistent order, keep transactions short"],
+        ["Does a transaction alone fix it?", "Not at read committed. Use atomic update or locking"],
+        ["Common mistake", "Read in the app, compute, write back"]
+      ],
+      "cues": ["Why not", "deadlock", "transaction alone", "common mistake"],
+      "say": "Likely follow-ups. Why not a lock in app code? It breaks with many servers, so use the database. A deadlock? Lock rows in a consistent order and keep transactions short. Does a transaction alone fix it? Not at read committed. The common mistake: reading in the app, computing, and writing back." },
+
+    { "type": "take", "lines": ["A race condition is a read, think, write gap where another request sneaks in.", "Best fix: one atomic update. Otherwise a version column and retry, or select for update.", "Optimistic when conflicts are rare, pessimistic when they are common."],
+      "cues": ["A race condition", "Best fix", "Optimistic when"],
+      "say": "A race condition is a gap between read and write where another request sneaks in. The best fix is one atomic update. Otherwise use a version column and retry, or select for update. Optimistic when conflicts are rare, pessimistic when they're common." }
+  ]
+}

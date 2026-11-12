@@ -1,0 +1,279 @@
+{
+  "id": "fe01",
+  "num": 1,
+  "series": "Frontend",
+  "short": "How the browser renders",
+  "question": "How does the browser render a page? What are reflow and repaint?",
+  "caps": [
+    [
+      "C S S O M",
+      "CSSOM"
+    ],
+    [
+      "D O M",
+      "DOM"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "From bytes to pixels, and which step you keep paying for.",
+      "say": "How the browser turns H T M L into pixels. Interviewers love this one, because it explains why some code is fast and some code makes a page janky."
+    },
+    {
+      "type": "flow",
+      "head": "Think of building a house",
+      "y": 400,
+      "h": 260,
+      "items": [
+        {
+          "label": "blueprint",
+          "text": "DOM",
+          "sub": "what rooms exist",
+          "cue": "blueprint"
+        },
+        {
+          "label": "paint swatches",
+          "text": "CSSOM",
+          "sub": "how each room looks",
+          "cue": "swatches"
+        },
+        {
+          "label": "measuring",
+          "text": "Layout",
+          "sub": "size and position",
+          "tone": "warn",
+          "cue": "measure"
+        },
+        {
+          "label": "painting",
+          "text": "Paint",
+          "sub": "fill in the color",
+          "tone": "good",
+          "cue": "painting"
+        }
+      ],
+      "say": "Think of building a house. First you have a blueprint, which rooms exist. Then paint swatches, how each room should look. Then you measure where every wall goes. Then you do the painting. A browser does the same four jobs for every page, in the same order."
+    },
+    {
+      "type": "flow",
+      "head": "The rendering pipeline",
+      "y": 400,
+      "h": 260,
+      "items": [
+        {
+          "label": "1",
+          "text": "DOM",
+          "sub": "parsed HTML tree",
+          "cue": "H T M L is parsed"
+        },
+        {
+          "label": "2",
+          "text": "CSSOM",
+          "sub": "parsed CSS rules",
+          "cue": "C S S becomes"
+        },
+        {
+          "label": "3",
+          "text": "Render tree",
+          "sub": "visible nodes + styles",
+          "size": 30,
+          "cue": "combined"
+        },
+        {
+          "label": "4",
+          "text": "Layout",
+          "sub": "size and position",
+          "tone": "warn",
+          "cue": "Layout works out"
+        },
+        {
+          "label": "5",
+          "text": "Paint",
+          "sub": "pixels, then composite",
+          "tone": "good",
+          "cue": "Paint fills"
+        }
+      ],
+      "say": "The browser downloads the page. The H T M L is parsed into the DOM, a tree of nodes. The C S S becomes the C S S O M, a tree of rules. They are combined into a render tree of visible nodes with their styles. Layout works out the size and position of every box. Paint fills in the pixels, and the compositor stacks the layers on screen."
+    },
+    {
+      "type": "diagram",
+      "head": "What each change costs",
+      "items": [
+        {
+          "id": "w",
+          "x": 200,
+          "y": 260,
+          "w": 520,
+          "h": 130,
+          "text": "width, top, font size",
+          "size": 34,
+          "cue": "Change a width"
+        },
+        {
+          "id": "wc",
+          "x": 1100,
+          "y": 260,
+          "w": 620,
+          "h": 130,
+          "text": "Layout + Paint + Composite",
+          "size": 32,
+          "tone": "bad",
+          "cue": "Change a width"
+        },
+        {
+          "id": "c",
+          "x": 200,
+          "y": 480,
+          "w": 520,
+          "h": 130,
+          "text": "color, background",
+          "size": 34,
+          "cue": "Change a color"
+        },
+        {
+          "id": "cc",
+          "x": 1100,
+          "y": 480,
+          "w": 620,
+          "h": 130,
+          "text": "Paint + Composite",
+          "size": 32,
+          "tone": "warn",
+          "cue": "Change a color"
+        },
+        {
+          "id": "t",
+          "x": 200,
+          "y": 700,
+          "w": 520,
+          "h": 130,
+          "text": "transform, opacity",
+          "size": 34,
+          "cue": "transform or opacity"
+        },
+        {
+          "id": "tc",
+          "x": 1100,
+          "y": 700,
+          "w": 620,
+          "h": 130,
+          "text": "Composite only",
+          "size": 32,
+          "tone": "good",
+          "cue": "transform or opacity"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "w",
+          "to": "wc",
+          "cue": "Change a width"
+        },
+        {
+          "from": "c",
+          "to": "cc",
+          "cue": "Change a color"
+        },
+        {
+          "from": "t",
+          "to": "tc",
+          "cue": "transform or opacity"
+        }
+      ],
+      "say": "After the first render, every change re-runs part of the pipeline. Change a width or a position, and the browser must redo layout. That is called reflow, and it repaints too. Change a color, and it skips layout but still repaints. Change only transform or opacity, and it can run on the graphics card, with no layout and no repaint. That is why animations use transform."
+    },
+    {
+      "type": "code",
+      "head": "Layout thrashing",
+      "panels": [
+        {
+          "file": "thrash.ts",
+          "code": "// slow: write, read, write, read...\nfor (const el of items) {\n  el.style.width = '50px';   // invalidates layout\n  total += el.offsetHeight;  // forces layout NOW\n}\n\n// fast: read everything, then write\nconst hs = items.map(el => el.offsetHeight);\nitems.forEach(el => { el.style.width = '50px'; });"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "writes a style",
+          "lines": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "cue": "forces the browser",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "cue": "Batch your reads",
+          "lines": [
+            7,
+            8,
+            9
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "forces the browser",
+          "line": 4,
+          "inside": true,
+          "text": "sync reflow each loop",
+          "tone": "bad"
+        }
+      ],
+      "say": "The classic trap is layout thrashing. This loop writes a style, then reads offset height. Reading a layout value forces the browser to recompute layout right now, so it does a full reflow on every iteration. Batch your reads first, then do all the writes, and the browser reflows once."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rows": [
+        [
+          "What is reflow?",
+          "Layout runs again because geometry changed."
+        ],
+        [
+          "Reflow vs repaint?",
+          "Repaint redraws pixels. Reflow also recomputes positions, so it costs more."
+        ],
+        [
+          "Why is transform cheap?",
+          "It only composites, no layout, no repaint."
+        ],
+        [
+          "Common mistake",
+          "Reading offsetHeight between writes in a loop."
+        ]
+      ],
+      "cues": [
+        "reflow",
+        "repaint",
+        "cheap",
+        "mistake"
+      ],
+      "say": "Likely follow-ups. What is reflow? Layout runs again because geometry changed. Reflow versus repaint? Repaint redraws pixels, reflow also recomputes positions, so it costs more. Why is transform cheap? It only composites. And the common mistake: reading offset height between writes in a loop, which forces reflow every time."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "HTML and CSS become the DOM and CSSOM, then a render tree.",
+        "Then layout, paint, composite. Reflow means layout runs again.",
+        "Animate transform and opacity. Batch reads before writes."
+      ],
+      "cues": [
+        "H T M L and",
+        "Then layout",
+        "Animate transform"
+      ],
+      "say": "H T M L and C S S become the DOM and C S S O M, then a render tree. Then layout, paint, and composite. A reflow means layout runs again, which is expensive. So animate transform and opacity, and batch your reads before your writes."
+    }
+  ]
+}

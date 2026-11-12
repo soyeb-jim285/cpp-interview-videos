@@ -1,0 +1,214 @@
+{
+  "id": "fe04",
+  "num": 4,
+  "series": "Frontend",
+  "short": "Promises and async/await",
+  "question": "How do Promises and async/await work? How do you handle errors?",
+  "caps": [
+    [
+      "a sync",
+      "async"
+    ],
+    [
+      "promise dot all",
+      "Promise.all"
+    ],
+    [
+      "all settled",
+      "allSettled"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "A promise is a value that arrives later.",
+      "say": "Promises and async await. The interviewer wants three things: the states, how errors flow, and when to run things in parallel."
+    },
+    {
+      "type": "flow",
+      "head": "Think of a pizza order",
+      "y": 400,
+      "h": 240,
+      "items": [
+        {
+          "label": "you order",
+          "text": "Pending",
+          "sub": "buzzer in hand",
+          "tone": "warn",
+          "cue": "buzzer"
+        },
+        {
+          "label": "it buzzes",
+          "text": "Pizza",
+          "sub": "fulfilled",
+          "tone": "good",
+          "cue": "pizza arrives"
+        },
+        {
+          "label": "or it buzzes",
+          "text": "Sorry, out",
+          "sub": "rejected",
+          "tone": "bad",
+          "cue": "sold out"
+        }
+      ],
+      "say": "Think of ordering a pizza. You get a buzzer and you go sit down. You do not stand at the counter. Later the buzzer goes off, and either your pizza arrives, or they tell you they sold out. A promise is that buzzer. Await means: sit down until it buzzes."
+    },
+    {
+      "type": "flow",
+      "head": "A promise has three states",
+      "y": 400,
+      "h": 240,
+      "items": [
+        {
+          "label": "start",
+          "text": "Pending",
+          "sub": "work in progress",
+          "tone": "warn",
+          "cue": "starts pending"
+        },
+        {
+          "label": "success",
+          "text": "Fulfilled",
+          "sub": "has a value",
+          "tone": "good",
+          "cue": "fulfilled"
+        },
+        {
+          "label": "failure",
+          "text": "Rejected",
+          "sub": "has an error",
+          "tone": "bad",
+          "cue": "rejected"
+        }
+      ],
+      "say": "A promise starts pending. It later settles exactly once, either fulfilled with a value, or rejected with an error. After that it never changes. Then callbacks and await receive that result."
+    },
+    {
+      "type": "code",
+      "head": "Errors: try and catch",
+      "panels": [
+        {
+          "file": "load.ts",
+          "size": 34,
+          "code": "async function loadUser(id: number) {\n  try {\n    const res = await fetch(`/api/users/${id}`);\n    if (!res.ok) throw new Error('H' + res.status);\n    return await res.json();\n  } catch (err) {\n    console.error(err);\n    return null;\n  }\n}"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "await pauses",
+          "lines": [
+            3
+          ]
+        },
+        {
+          "cue": "A four hundred",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "cue": "catch block",
+          "lines": [
+            6,
+            7,
+            8
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "A four hundred",
+          "line": 4,
+          "inside": true,
+          "text": "fetch does not throw",
+          "tone": "warn"
+        }
+      ],
+      "say": "Await pauses the function until the promise settles, and a rejection becomes a normal throw. So try and catch just works. One trap: fetch only rejects on network failure. A four hundred or five hundred response still resolves, so you must check res dot ok yourself. Then the catch block handles both."
+    },
+    {
+      "type": "code",
+      "head": "Sequential vs parallel",
+      "panels": [
+        {
+          "file": "par.ts",
+          "size": 34,
+          "code": "// sequential: about 200 ms\nconst a = await getA();\nconst b = await getB();\n\n// parallel: about 100 ms\nconst [x, y] = await Promise.all([getA(), getB()]);\n\n// keep going even if one fails\nconst rs = await Promise.allSettled([getA(), getB()]);"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "Two awaits in a row",
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "cue": "start both",
+          "lines": [
+            5,
+            6
+          ]
+        },
+        {
+          "cue": "all settled",
+          "lines": [
+            8,
+            9
+          ]
+        }
+      ],
+      "say": "Two awaits in a row run one after the other, so two hundred milliseconds here. If the calls are independent, start both and wait together with promise dot all. About one hundred milliseconds. If any promise rejects, promise dot all rejects immediately. When you want every result regardless, use all settled. It reports fulfilled or rejected for each one."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rows": [
+        [
+          "Promise vs callback?",
+          "Promises chain and share one error path, no callback pyramid."
+        ],
+        [
+          "Does await block?",
+          "No. It pauses only that function. Other code keeps running."
+        ],
+        [
+          "Promise.all fails?",
+          "It rejects as soon as one rejects."
+        ],
+        [
+          "Common mistake",
+          "Forgetting await, or awaiting in a loop that could be parallel."
+        ]
+      ],
+      "cues": [
+        "callback",
+        "block",
+        "fails",
+        "mistake"
+      ],
+      "say": "Likely follow-ups. Promise versus callback? Promises chain and share one error path, so no callback pyramid. Does await block? No, it pauses only that function. If promise dot all fails? It rejects as soon as one rejects. The common mistake: forgetting await, or awaiting in a loop that could run in parallel."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Pending, then fulfilled or rejected, exactly once.",
+        "await turns a rejection into a throw. Use try and catch. Check res.ok.",
+        "Independent work: Promise.all. Want every result: allSettled."
+      ],
+      "cues": [
+        "Pending",
+        "await turns",
+        "Independent work"
+      ],
+      "say": "Pending, then fulfilled or rejected, exactly once. Await turns a rejection into a throw, so use try and catch, and check res dot ok with fetch. For independent work, use promise dot all. When you want every result, use all settled."
+    }
+  ]
+}

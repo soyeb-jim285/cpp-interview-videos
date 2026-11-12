@@ -1,0 +1,373 @@
+{
+ "id": "cp20",
+ "num": 20,
+ "series": "DSA",
+ "short": "Tries",
+ "question": "What is a trie, and when would you use it instead of a hash set? Implement insert, search and startsWith.",
+ "caps": [
+  [
+   "startsWith",
+   "startsWith"
+  ],
+  [
+   "starts with",
+   "startsWith"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "A tree of letters that shares common beginnings.",
+   "say": "A trie, pronounced try, is a tree where each step down is one letter. It's built for prefix questions, like autocomplete, and it shows up in word-search problems."
+  },
+  {
+   "type": "diagram",
+   "head": "Why not just a list?",
+   "items": [
+    {
+     "id": "w1",
+     "x": 200,
+     "y": 300,
+     "w": 300,
+     "h": 100,
+     "text": "cat",
+     "size": 44,
+     "tone": "blue",
+     "cue": "cat, car, and cow"
+    },
+    {
+     "id": "w2",
+     "x": 200,
+     "y": 440,
+     "w": 300,
+     "h": 100,
+     "text": "car",
+     "size": 44,
+     "tone": "blue",
+     "cue": "cat, car, and cow"
+    },
+    {
+     "id": "w3",
+     "x": 200,
+     "y": 580,
+     "w": 300,
+     "h": 100,
+     "text": "cow",
+     "size": 44,
+     "tone": "blue",
+     "cue": "cat, car, and cow"
+    },
+    {
+     "id": "q",
+     "x": 800,
+     "y": 440,
+     "w": 920,
+     "h": 130,
+     "label": "Which words start with ca?",
+     "text": "check every word, letter by letter",
+     "size": 38,
+     "tone": "bad",
+     "cue": "Which words"
+    },
+    {
+     "id": "t",
+     "x": 800,
+     "y": 700,
+     "w": 920,
+     "h": 110,
+     "text": "trie: walk c, a, then look below",
+     "size": 38,
+     "tone": "good",
+     "cue": "walk down"
+    }
+   ],
+   "changes": [
+    {
+     "id": "w1",
+     "tone": "warn",
+     "cue": "all start with c"
+    },
+    {
+     "id": "w2",
+     "tone": "warn",
+     "cue": "all start with c"
+    },
+    {
+     "id": "w3",
+     "tone": "warn",
+     "cue": "all start with c"
+    }
+   ],
+   "say": "Say we store cat, car, and cow. They all start with c, and two share ca. Which words start with ca? A list makes you check every word, letter by letter. A hash set is no better, since it only answers whole words. A trie stores the shared start once. To find words starting with ca, just walk down c, then a, and look below."
+  },
+  {
+   "type": "diagram",
+   "head": "Building the trie",
+   "items": [
+    {
+     "id": "rt",
+     "x": 150,
+     "y": 480,
+     "w": 150,
+     "h": 100,
+     "text": "root",
+     "size": 34,
+     "tone": "blue",
+     "cue": "empty root"
+    },
+    {
+     "id": "c",
+     "x": 480,
+     "y": 480,
+     "w": 150,
+     "h": 100,
+     "text": "c",
+     "size": 48,
+     "tone": "blue",
+     "cue": "inserting cat"
+    },
+    {
+     "id": "a",
+     "x": 810,
+     "y": 350,
+     "w": 150,
+     "h": 100,
+     "text": "a",
+     "size": 48,
+     "tone": "blue",
+     "cue": "inserting cat"
+    },
+    {
+     "id": "t",
+     "x": 1140,
+     "y": 260,
+     "w": 150,
+     "h": 100,
+     "text": "t",
+     "size": 48,
+     "tone": "good",
+     "cue": "inserting cat",
+     "sub": "end"
+    },
+    {
+     "id": "r",
+     "x": 1140,
+     "y": 440,
+     "w": 150,
+     "h": 100,
+     "text": "r",
+     "size": 48,
+     "tone": "good",
+     "cue": "Insert car",
+     "sub": "end"
+    },
+    {
+     "id": "o",
+     "x": 810,
+     "y": 640,
+     "w": 150,
+     "h": 100,
+     "text": "o",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Insert cow"
+    },
+    {
+     "id": "w",
+     "x": 1140,
+     "y": 640,
+     "w": 150,
+     "h": 100,
+     "text": "w",
+     "size": 48,
+     "tone": "good",
+     "cue": "Insert cow",
+     "sub": "end"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "rt",
+     "to": "c",
+     "cue": "inserting cat"
+    },
+    {
+     "from": "c",
+     "to": "a",
+     "cue": "inserting cat"
+    },
+    {
+     "from": "a",
+     "to": "t",
+     "cue": "inserting cat"
+    },
+    {
+     "from": "a",
+     "to": "r",
+     "cue": "Insert car"
+    },
+    {
+     "from": "c",
+     "to": "o",
+     "cue": "Insert cow"
+    },
+    {
+     "from": "o",
+     "to": "w",
+     "cue": "Insert cow"
+    }
+   ],
+   "changes": [
+    {
+     "id": "c",
+     "tone": "info",
+     "cue": "Search for ca"
+    },
+    {
+     "id": "a",
+     "tone": "info",
+     "cue": "Search for ca"
+    },
+    {
+     "id": "t",
+     "tone": "info",
+     "cue": "everything below"
+    },
+    {
+     "id": "r",
+     "tone": "info",
+     "cue": "everything below"
+    }
+   ],
+   "say": "Start with an empty root. Inserting cat makes a path: c, a, t, and we mark t as the end of a word. Insert car: c and a already exist, so we only add r, and mark it. Insert cow: c exists, add o and w. Search for ca: walk two steps. Everything below is a word that starts with ca. A marker matters: ca is a prefix, but not a stored word."
+  },
+  {
+   "type": "code",
+   "head": "Trie in code: the core",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "struct Trie {\n    vector<array<int, 26>> nx = vector<array<int, 26>>(1);  // 0 is the root\n    vector<bool> isEnd = vector<bool>(1, false);\n    int step(int u, char ch, bool make) {\n        int c = ch - 'a';\n        if (!nx[u][c] && make) {\n            nx.push_back({}); isEnd.push_back(false);\n            nx[u][c] = nx.size() - 1;\n        }\n        return nx[u][c] ? nx[u][c] : -1;      // -1: no such child\n    }"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Each node",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "Step takes",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "create it",
+     "lines": [
+      6,
+      7,
+      8
+     ]
+    },
+    {
+     "cue": "minus one",
+     "lines": [
+      10
+     ]
+    }
+   ],
+   "say": "Each node is an array of twenty six child slots, stored by index. Node zero is the root, and zero also means no child, since nothing points back to the root. Step takes a node and a letter. If the child is missing and we're allowed to make it, create it. Otherwise return the child, or minus one if it doesn't exist."
+  },
+  {
+   "type": "code",
+   "head": "Inside Trie: insert, search, startsWith",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "    void insert(const string& w) {\n        int u = 0;\n        for (char ch : w) u = step(u, ch, true);\n        isEnd[u] = true;\n    }\n    bool has(const string& w) {\n        int u = 0;\n        for (char ch : w) if ((u = step(u, ch, false)) < 0) return false;\n        return isEnd[u];\n    }\n    bool startsWith(const string& p) {\n        int u = 0;\n        for (char ch : p) if ((u = step(u, ch, false)) < 0) return false;\n        return true;\n    }\n};"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Insert walks",
+     "lines": [
+      1,
+      2,
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "Search is the same",
+     "lines": [
+      6,
+      7,
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "Starts with",
+     "lines": [
+      11,
+      12,
+      13,
+      14
+     ]
+    }
+   ],
+   "say": "Insert walks the word, creating nodes, and marks the last node as an end. Search is the same walk without creating. If a letter is missing, return false. If we arrive, the word exists only if that node is marked. Starts with is identical, but skips the mark check. Each operation costs O of L, the word length, regardless of how many words are stored."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Trie vs hash set?",
+     "Hash set: exact lookup. Trie: prefix queries, autocomplete, sorted walks."
+    ],
+    [
+     "Memory too big?",
+     "Use a map for children, or compress chains into a radix tree."
+    ],
+    [
+     "Top three suggestions?",
+     "Store a count or small list of best words at each node."
+    ],
+    [
+     "Common mistake",
+     "Forgetting the end marker, so ca counts as a word."
+    ]
+   ],
+   "cues": [
+    "Trie versus",
+    "Memory too big",
+    "Top three",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Trie versus hash set? Use a trie for prefixes. Memory too big? Use maps for children, or a radix tree. Autocomplete top three? Store the best words at each node. Classics: Implement Trie, Word Search Two, Maximum X O R of Two Numbers, which uses a bit trie. The common mistake: forgetting the end marker, so a prefix looks like a word."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A trie stores words letter by letter, sharing common prefixes.",
+    "Insert, search, and prefix check each cost O of word length.",
+    "Mark word ends, or a prefix looks like a word."
+   ],
+   "cues": [
+    "stores words",
+    "Insert, search",
+    "Mark word ends"
+   ],
+   "say": "A trie stores words letter by letter, sharing common prefixes. Insert, search, and prefix check each cost the length of the word. And always mark word ends, or a prefix looks like a word."
+  }
+ ]
+}

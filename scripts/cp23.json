@@ -1,0 +1,490 @@
+{
+ "id": "cp23",
+ "num": 23,
+ "series": "DSA",
+ "short": "Linked lists I",
+ "question": "How does a linked list work, and how does it compare to an array?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Nodes chained by pointers: cheap to insert, slow to reach.",
+   "say": "A linked list is the simplest structure built from pointers, and interviewers love it. Let's see how it works, and when it beats an array."
+  },
+  {
+   "type": "flow",
+   "head": "A treasure hunt",
+   "items": [
+    {
+     "label": "Start card",
+     "text": "head",
+     "sub": "says where clue 1 is",
+     "cue": "start card"
+    },
+    {
+     "label": "Clue 1",
+     "text": "prize 10",
+     "sub": "next: clue 2",
+     "cue": "Each clue holds"
+    },
+    {
+     "label": "Clue 2",
+     "text": "prize 20",
+     "sub": "next: clue 3",
+     "cue": "tells you where"
+    },
+    {
+     "label": "Clue 3",
+     "text": "prize 30",
+     "sub": "next: nowhere",
+     "cue": "The last clue"
+    }
+   ],
+   "say": "Imagine a treasure hunt. You hold a start card that says where the first clue is. Each clue holds a prize, and tells you where the next clue is. The last clue says: nowhere, you are done. To reach clue three, you must follow every clue before it. That is a linked list. The start card is the head, each clue is a node, and each where is a pointer."
+  },
+  {
+   "type": "code",
+   "head": "A node, and three pointer moves",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "struct Node { int val; Node* next; };\n\nvoid insertHead(Node*& head, int v) {\n    Node* n = new Node{v, nullptr};\n    n->next = head;        // 1: new points at old first\n    head = n;              // 2: head points at new\n}\nvoid insertAfter(Node* p, int v) {\n    p->next = new Node{v, p->next};\n}\nvoid eraseAfter(Node* p) {\n    Node* dead = p->next;\n    p->next = dead->next;  // skip over it\n    delete dead;           // then free it\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "A node is",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "Insert at the head",
+     "lines": [
+      3,
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "Insert after",
+     "lines": [
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "Erase after",
+     "lines": [
+      11,
+      12,
+      13,
+      14
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "Nothing shifts",
+     "line": 9,
+     "inside": true,
+     "text": "O(1), nothing shifts",
+     "tone": "good"
+    }
+   ],
+   "say": "A node is a value plus a pointer to the next node. Insert at the head: make a node, point it at the old first, then move head to it. Insert after a node you hold: same two steps in the middle. Erase after: remember the doomed node, skip over it, then delete it. Nothing shifts. Each move is just a few pointer changes."
+  },
+  {
+   "type": "diagram",
+   "head": "Insert 5 at the head",
+   "items": [
+    {
+     "id": "hd",
+     "x": 140,
+     "y": 300,
+     "w": 200,
+     "h": 110,
+     "text": "head",
+     "size": 44,
+     "tone": "warn",
+     "cue": "Start with ten"
+    },
+    {
+     "id": "n1",
+     "x": 480,
+     "y": 300,
+     "w": 220,
+     "h": 110,
+     "text": "10",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Start with ten"
+    },
+    {
+     "id": "n2",
+     "x": 800,
+     "y": 300,
+     "w": 220,
+     "h": 110,
+     "text": "20",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Start with ten"
+    },
+    {
+     "id": "n3",
+     "x": 1120,
+     "y": 300,
+     "w": 220,
+     "h": 110,
+     "text": "30",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Start with ten"
+    },
+    {
+     "id": "nul",
+     "x": 1440,
+     "y": 300,
+     "w": 220,
+     "h": 110,
+     "text": "null",
+     "size": 44,
+     "tone": "dim",
+     "cue": "Start with ten"
+    },
+    {
+     "id": "nw",
+     "x": 140,
+     "y": 620,
+     "w": 200,
+     "h": 110,
+     "text": "5",
+     "size": 48,
+     "tone": "good",
+     "cue": "make the new node",
+     "label": "new node"
+    },
+    {
+     "id": "act",
+     "x": 480,
+     "y": 700,
+     "w": 1180,
+     "h": 110,
+     "text": "",
+     "size": 34,
+     "tone": "blue",
+     "cue": "make the new node",
+     "label": "what happens"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "hd",
+     "to": "n1",
+     "cue": "Head points at ten"
+    },
+    {
+     "from": "n1",
+     "to": "n2",
+     "cue": "Start with ten"
+    },
+    {
+     "from": "n2",
+     "to": "n3",
+     "cue": "Start with ten"
+    },
+    {
+     "from": "n3",
+     "to": "nul",
+     "cue": "Start with ten"
+    },
+    {
+     "from": "nw",
+     "to": "n1",
+     "cue": "point it at ten",
+     "tone": "good"
+    },
+    {
+     "from": "hd",
+     "to": "nw",
+     "cue": "move head to the new node",
+     "tone": "good"
+    }
+   ],
+   "changes": [
+    {
+     "id": "act",
+     "cue": "make the new node",
+     "text": "1. make the new node"
+    },
+    {
+     "id": "act",
+     "cue": "point it at ten",
+     "text": "2. new.next = head  (old first)"
+    },
+    {
+     "id": "a0",
+     "cue": "move head to the new node",
+     "fade": true
+    },
+    {
+     "id": "act",
+     "cue": "move head to the new node",
+     "text": "3. head = new node",
+     "tone": "good"
+    },
+    {
+     "id": "act",
+     "cue": "Order matters",
+     "text": "wrong order: head moved first, 10 20 30 lost",
+     "tone": "bad"
+    }
+   ],
+   "say": "Start with ten, twenty, thirty. Head points at ten. Insert five at the head. First, make the new node. Second, point it at ten, the old first. Third, move head to the new node. Order matters. If you move head first, you lose the rest of the list, because nothing points at ten anymore. Insert at the head costs O of one."
+  },
+  {
+   "type": "diagram",
+   "head": "Delete 20 from the middle",
+   "items": [
+    {
+     "id": "hd",
+     "x": 140,
+     "y": 400,
+     "w": 200,
+     "h": 110,
+     "text": "head",
+     "size": 44,
+     "tone": "warn",
+     "cue": "Now delete twenty"
+    },
+    {
+     "id": "n1",
+     "x": 480,
+     "y": 400,
+     "w": 220,
+     "h": 110,
+     "text": "10",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Now delete twenty"
+    },
+    {
+     "id": "n2",
+     "x": 800,
+     "y": 400,
+     "w": 220,
+     "h": 110,
+     "text": "20",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Now delete twenty"
+    },
+    {
+     "id": "n3",
+     "x": 1120,
+     "y": 400,
+     "w": 220,
+     "h": 110,
+     "text": "30",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Now delete twenty"
+    },
+    {
+     "id": "nul",
+     "x": 1440,
+     "y": 400,
+     "w": 220,
+     "h": 110,
+     "text": "null",
+     "size": 44,
+     "tone": "dim",
+     "cue": "Now delete twenty"
+    },
+    {
+     "id": "act",
+     "x": 480,
+     "y": 700,
+     "w": 1180,
+     "h": 110,
+     "text": "",
+     "size": 34,
+     "tone": "blue",
+     "cue": "Now delete twenty",
+     "label": "what happens"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "hd",
+     "to": "n1",
+     "cue": "Now delete twenty"
+    },
+    {
+     "from": "n1",
+     "to": "n2",
+     "cue": "Now delete twenty"
+    },
+    {
+     "from": "n2",
+     "to": "n3",
+     "cue": "Now delete twenty"
+    },
+    {
+     "from": "n3",
+     "to": "nul",
+     "cue": "Now delete twenty"
+    },
+    {
+     "from": "n1",
+     "to": "n3",
+     "cue": "point ten past it",
+     "tone": "good",
+     "bend": -260
+    }
+   ],
+   "changes": [
+    {
+     "id": "n1",
+     "cue": "Walk to the node before it",
+     "tone": "info"
+    },
+    {
+     "id": "act",
+     "cue": "Walk to the node before it",
+     "text": "p = the node before 20"
+    },
+    {
+     "id": "n2",
+     "cue": "remember the doomed node",
+     "tone": "warn"
+    },
+    {
+     "id": "act",
+     "cue": "remember the doomed node",
+     "text": "dead = p.next  (20)"
+    },
+    {
+     "id": "a1",
+     "cue": "point ten past it",
+     "fade": true
+    },
+    {
+     "id": "a2",
+     "cue": "point ten past it",
+     "fade": true
+    },
+    {
+     "id": "act",
+     "cue": "point ten past it",
+     "text": "p.next = dead.next  (30)",
+     "tone": "good"
+    },
+    {
+     "id": "n2",
+     "cue": "delete it",
+     "kill": true
+    },
+    {
+     "id": "act",
+     "cue": "delete it",
+     "text": "delete dead: free the memory"
+    }
+   ],
+   "say": "Now delete twenty. Walk to the node before it, ten. Call that p. Step one: remember the doomed node, twenty. Step two: point ten past it, straight at thirty. Twenty is now cut out of the chain. Step three: delete it, or the memory leaks. Finding the previous node costs O of n, but the unlinking itself is O of one."
+  },
+  {
+   "type": "compare",
+   "head": "List versus array",
+   "heads": [
+    "Array (vector)",
+    "Linked list"
+   ],
+   "rows": [
+    [
+     "O(1): jump straight there",
+     "O(n): follow every pointer"
+    ],
+    [
+     "O(n): shift everything",
+     "O(1): two pointer changes"
+    ],
+    [
+     "O(n): shift the tail",
+     "O(1)"
+    ],
+    [
+     "One block: cache friendly",
+     "Scattered nodes: cache unfriendly"
+    ],
+    [
+     "None",
+     "One pointer (8 bytes)"
+    ]
+   ],
+   "cues": [
+    "reading item five",
+    "Inserting at the front",
+    "next to a node",
+    "one block of memory",
+    "each carries"
+   ],
+   "say": "Compare with an array. Reading item five is instant in an array, but a list must walk. Inserting at the front: an array shifts everything, a list changes two pointers. Insert or delete next to a node you already hold: constant time for a list. But arrays sit in one block of memory, so the cache loves them, while list nodes are scattered, and each carries a pointer. In practice, vector wins most of the time.",
+   "rowHeads": [
+    "Get item number five",
+    "Insert at the front",
+    "Insert or delete next to a node you hold",
+    "Memory layout",
+    "Extra memory per item"
+   ]
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why not always use a list?",
+     "No index access, poor cache behavior, extra memory. A vector is usually faster."
+    ],
+    [
+     "Singly or doubly linked?",
+     "Doubly has a prev pointer too, so you can unlink a node without finding its predecessor."
+    ],
+    [
+     "Does C plus plus have one?",
+     "Yes. std::list is doubly linked, std::forward_list is singly linked."
+    ],
+    [
+     "Common mistake",
+     "Moving head before saving the old first node, or forgetting the empty list."
+    ]
+   ],
+   "cues": [
+    "Why not always",
+    "Singly or doubly",
+    "have one",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Why not always use a list? No index access, and poor cache behavior. Singly or doubly linked? Doubly has a prev pointer, so unlinking is easy. Does C plus plus have one? Yes, s t d colon colon list is doubly linked. Classics: Delete Node in a Linked List, Remove Nth Node From End. The common mistake: moving head before saving the old first node."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A node holds a value and a pointer to the next node.",
+    "Insert or delete is O(1) once you hold the node: just re-point, in the right order.",
+    "Reaching item k is O(n), so a vector usually wins."
+   ],
+   "cues": [
+    "A node holds",
+    "Insert or delete",
+    "Reaching item"
+   ],
+   "say": "A node holds a value and a pointer to the next node. Insert or delete is constant time once you hold the node: just re-point, in the right order. Reaching item k is O of n, so a vector usually wins."
+  }
+ ]
+}

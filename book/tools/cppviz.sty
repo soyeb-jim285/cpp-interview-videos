@@ -1,0 +1,83 @@
+% cppviz — simple TikZ vocabulary for C++ memory diagrams. Units: cm. Origin bottom-left.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cppviz}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.misc}
+\RequirePackage{xcolor}
+\definecolor{vzstack}{HTML}{2563EB}  \definecolor{vzstackbg}{HTML}{EAF1FF}
+\definecolor{vzheap}{HTML}{D97706}   \definecolor{vzheapbg}{HTML}{FFF4E0}
+\definecolor{vzok}{HTML}{16A34A}     \definecolor{vzokbg}{HTML}{E9F8EE}
+\definecolor{vzbad}{HTML}{DC2626}    \definecolor{vzbadbg}{HTML}{FDECEC}
+\definecolor{vzdata}{HTML}{7C3AED}   \definecolor{vzdatabg}{HTML}{F3EEFF}
+\definecolor{vzplain}{HTML}{475569}  \definecolor{vzplainbg}{HTML}{F5F7FA}
+\definecolor{vzmute}{HTML}{64748B}
+
+\tikzset{
+  vz/.style={font=\sffamily\small, >={Stealth[length=2.6mm]}},
+  vzcell/.style={draw=vz#1, fill=vz#1bg, line width=0.9pt, rounded corners=2pt,
+     minimum height=0.85cm, minimum width=1.9cm, inner sep=3pt, font=\ttfamily\small},
+  vzlabel/.style={font=\sffamily\scriptsize, text=vzmute, anchor=south west, inner sep=1pt},
+  vzregion/.style={draw=vz#1, dashed, line width=0.7pt, rounded corners=6pt, fill=vz#1bg!40},
+  vzregiontitle/.style={font=\sffamily\bfseries\footnotesize, text=vz#1, anchor=south west, inner sep=2pt},
+  vzptr/.style={->, line width=1pt, draw=vz#1},
+  vznote/.style={font=\sffamily\scriptsize, text=vz#1, align=left},
+  vzstep/.style={draw=vz#1, fill=vz#1bg, line width=0.9pt, rounded corners=4pt, align=center,
+     minimum height=1.1cm, text width=2.6cm, font=\sffamily\small},
+}
+
+% \begin{memdiagram} ... \end{memdiagram}   — centered figure
+\newenvironment{memdiagram}{\par\medskip\begin{center}\begin{tikzpicture}[vz]}{\end{tikzpicture}\end{center}\medskip}
+
+% \cell[tone]{id}{x,y}{label}{value}   tone: stack heap ok bad data plain (default plain)
+\newcommand{\cell}[5][plain]{%
+  \node[vzcell=#1] (#2) at (#3) {#5};
+  \if\relax\detokenize{#4}\relax\else\node[vzlabel] at (#2.north west) {#4};\fi}
+
+% \widecell[tone]{id}{x,y}{width cm}{label}{value}
+\newcommand{\widecell}[6][plain]{%
+  \node[vzcell=#1, minimum width=#4cm] (#2) at (#3) {#6};
+  \if\relax\detokenize{#5}\relax\else\node[vzlabel] at (#2.north west) {#5};\fi}
+
+% \region[tone]{id}{x,y}{w,h}{TITLE}   x,y = bottom-left corner. Draw regions FIRST.
+\newcommand{\region}[5][plain]{%
+  \begin{scope}[on background layer]
+  \path (#3) coordinate (#2-sw);
+  \draw[vzregion=#1] (#2-sw) rectangle ++(#4) coordinate (#2-ne);
+  \node[vzregiontitle=#1, xshift=1mm] at (#2-sw |- #2-ne) {#5};
+  \end{scope}}
+
+% \ptr[tone]{from}{to}  and  \ptrlabel[tone]{from}{to}{text}  (tone default stack)
+\newcommand{\ptr}[3][stack]{\draw[vzptr=#1] (#2) -- (#3);}
+\newcommand{\ptrbend}[4][stack]{\draw[vzptr=#1] (#2) to[bend #4] (#3);}
+\newcommand{\ptrlabel}[4][stack]{\draw[vzptr=#1] (#2) -- node[midway, above, sloped, font=\sffamily\scriptsize, text=vz#1] {#4} (#3);}
+
+% \freed{id}  — big red cross over a cell (memory given back)
+\newcommand{\freed}[1]{%
+  \draw[vzbad, line width=1.6pt] ($(#1.north west)+(0.1,-0.05)$) -- ($(#1.south east)+(-0.1,0.05)$)
+                                 ($(#1.south west)+(0.1,0.05)$) -- ($(#1.north east)+(-0.1,-0.05)$);}
+
+% \note[tone]{x,y}{text}
+\newcommand{\vznote}[3][plain]{\node[vznote=#1] at (#2) {#3};}
+
+% \arraycells[tone]{id}{x,y}{v1,v2,...}{label}   adjacent cells id-0, id-1, ... with index numbers under
+\newcommand{\arraycells}[5][plain]{%
+  \foreach \v [count=\i from 0] in {#4} {
+    \node[vzcell=#1, minimum width=1.1cm, rounded corners=0pt] (#2-\i) at ($(#3)+(\i*1.1,0)$) {\v};
+    \node[font=\sffamily\tiny, text=vzmute, below=1pt] at (#2-\i.south) {[\i]};
+  }
+  \if\relax\detokenize{#5}\relax\else\node[vzlabel] at (#2-0.north west) {#5};\fi}
+
+% \vcells[tone]{id}{x,y}{v1,v2,...}{label}   vertical stack of cells id-0 (top), id-1, ...
+\newcommand{\vcells}[5][plain]{%
+  \foreach \v [count=\i from 0] in {#4} {
+    \node[vzcell=#1, minimum width=3.4cm, rounded corners=0pt] (#2-\i) at ($(#3)+(0,-\i*0.85)$) {\v};
+  }
+  \if\relax\detokenize{#5}\relax\else\node[vzlabel] at (#2-0.north west) {#5};\fi}
+
+% \flowchain{Step A/sub a, Step B/sub b, ...}   left-to-right steps with arrows
+\newcommand{\flowchain}[1]{%
+  \foreach \t/\s [count=\i] in {#1} {
+    \node[vzstep=stack] (fc-\i) at (\i*3.3,0) {\textbf{\t}\\[-1pt]{\scriptsize\color{vzmute}\s}};
+  }
+  \foreach \t/\s [count=\i] in {#1} { \ifnum\i>1 \pgfmathtruncatemacro{\j}{\i-1}\draw[vzptr=stack] (fc-\j) -- (fc-\i); \fi }}
+\endinput

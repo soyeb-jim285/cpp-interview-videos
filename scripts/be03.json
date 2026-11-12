@@ -1,0 +1,80 @@
+{
+  "id": "be03", "num": 3, "series": "Backend", "short": "Database indexes",
+  "question": "How does a database index make lookups fast, and when do indexes hurt?",
+  "scenes": [
+    { "type": "title", "sub": "The index at the back of a book.",
+      "say": "Database indexes. Why is one lookup fast with an index and slow without, and why not index everything?" },
+
+    { "type": "diagram", "head": "Think of a library",
+      "items": [
+        { "id": "n", "x": 140, "y": 330, "w": 460, "h": 180, "label": "No index", "text": "walk every shelf", "size": 36, "tone": "bad", "cue": "Without a catalog" },
+        { "id": "n2", "x": 140, "y": 640, "w": 460, "h": 130, "text": "1,000,000 books", "size": 34, "cue": "a million books" },
+        { "id": "y", "x": 1100, "y": 330, "w": 460, "h": 180, "label": "With a catalog", "text": "look up, walk to shelf", "size": 34, "tone": "good", "cue": "With a catalog" },
+        { "id": "y2", "x": 1100, "y": 640, "w": 460, "h": 130, "text": "about 3 steps", "size": 38, "tone": "good", "cue": "a few steps" }
+      ],
+      "arrows": [
+        { "from": "n", "to": "n2", "cue": "a million books" },
+        { "from": "y", "to": "y2", "tone": "good", "cue": "a few steps" }
+      ],
+      "say": "Imagine a library. Without a catalog, to find one book you walk every shelf of a million books. With a catalog, you look the title up, then walk straight to the shelf, in a few steps. A database index is that catalog. Without it, the database reads every row. That is called a full table scan." },
+
+    { "type": "diagram", "head": "A B-tree finding user 50",
+      "items": [
+        { "id": "root", "x": 760, "y": 250, "w": 400, "h": 110, "label": "root", "text": "30 | 60", "size": 40, "tone": "blue", "cue": "At the root" },
+        { "id": "l1", "x": 260, "y": 490, "w": 360, "h": 110, "label": "under 30", "text": "10 | 20", "size": 36, "cue": "three children" },
+        { "id": "l2", "x": 780, "y": 490, "w": 360, "h": 110, "label": "30 to 60", "text": "40 | 50", "size": 36, "cue": "three children" },
+        { "id": "l3", "x": 1300, "y": 490, "w": 360, "h": 110, "label": "over 60", "text": "70 | 80", "size": 36, "cue": "three children" },
+        { "id": "row", "x": 760, "y": 750, "w": 400, "h": 110, "label": "table row", "text": "user 50", "size": 40, "tone": "good", "cue": "pointer to the row" }
+      ],
+      "arrows": [
+        { "from": "root", "to": "l2", "tone": "warn", "cue": "between thirty and sixty" },
+        { "from": "l2", "to": "row", "tone": "good", "cue": "pointer to the row" }
+      ],
+      "say": "The usual index is a B-tree. It keeps the keys sorted in a small tree. We look for user fifty. At the root, we see fifty is between thirty and sixty, so we take the middle of three children. There we find fifty, with a pointer to the row. Each step skips most of the data. A million rows need only about three or four steps." },
+
+    { "type": "code", "head": "Which queries use it?",
+      "panels": [{ "file": "query.sql", "size": 32, "code": "CREATE INDEX idx_users_email ON users(email);\n\nSELECT * FROM users WHERE email = 'a@b.com';\nSELECT * FROM users WHERE lower(email) = 'a@b.com';\nSELECT * FROM users WHERE name LIKE '%son';" }],
+      "steps": [
+        { "cue": "This line builds", "lines": [1] },
+        { "cue": "exact match", "lines": [3] },
+        { "cue": "wrap the column", "lines": [4] },
+        { "cue": "starts with a wildcard", "lines": [5] }
+      ],
+      "notes": [
+        { "cue": "exact match", "line": 3, "inside": true, "text": "uses index", "tone": "good" },
+        { "cue": "wrap the column", "line": 4, "inside": true, "text": "full scan", "tone": "bad" },
+        { "cue": "starts with a wildcard", "line": 5, "inside": true, "text": "full scan", "tone": "bad" }
+      ],
+      "say": "This line builds the index on email. An exact match on email uses it. But if you wrap the column in a function, like lower, the database cannot use the sorted order, so it scans. The same happens when a pattern starts with a wildcard, because the tree is sorted from the first letter." },
+
+    { "type": "diagram", "head": "When indexes hurt",
+      "items": [
+        { "id": "w", "x": 140, "y": 440, "w": 320, "h": 130, "text": "1 INSERT", "size": 42, "tone": "blue", "cue": "One insert" },
+        { "id": "t", "x": 760, "y": 260, "w": 360, "h": 110, "text": "table", "size": 38, "cue": "the table" },
+        { "id": "i1", "x": 760, "y": 470, "w": 360, "h": 110, "text": "index on email", "size": 34, "tone": "warn", "cue": "every index" },
+        { "id": "i2", "x": 760, "y": 680, "w": 360, "h": 110, "text": "index on name", "size": 34, "tone": "warn", "cue": "every index" },
+        { "id": "c", "x": 1380, "y": 440, "w": 400, "h": 130, "text": "3 writes", "sub": "not 1", "size": 42, "tone": "bad", "cue": "three writes" }
+      ],
+      "arrows": [
+        { "from": "w", "to": "t", "cue": "the table" },
+        { "from": "w", "to": "i1", "cue": "every index" },
+        { "from": "w", "to": "i2", "cue": "every index" }
+      ],
+      "say": "Indexes are not free. One insert must update the table and every index. Here that is three writes instead of one. Indexes also use disk and memory. So index the columns you filter, join, or sort on, not everything. An index on a column with only two values, like a yes or no flag, helps little." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["Why B-tree?", "Composite index?", "How do I check?", "Common mistake"],
+      "rows": [
+        ["Sorted, shallow, great for equality and ranges", "A hash index only does equality"],
+        ["Order matters: leftmost column first", "Index on a, b helps a, and a plus b"],
+        ["EXPLAIN shows index scan or seq scan", "Do not guess"],
+        ["Indexing every column", "Slows writes, wastes space"]
+      ],
+      "cues": ["a B-tree", "composite", "check", "mistake"],
+      "say": "Likely follow-ups. Why a B-tree? It is sorted and shallow, so it handles equality and ranges. A composite index covers several columns, and the leftmost column must come first. To check, run EXPLAIN, and do not guess. The common mistake is indexing every column, which slows writes and wastes space." },
+
+    { "type": "take", "lines": ["An index is a sorted tree: it turns a scan of a million rows into a few steps.", "It costs writes and space, so I index what I filter, join and sort on."],
+      "cues": ["An index is", "It costs"],
+      "say": "An index is a sorted tree. It turns a scan of a million rows into a few steps. It costs writes and space, so I index what I filter, join and sort on." }
+  ]
+}

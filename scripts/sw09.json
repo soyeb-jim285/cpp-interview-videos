@@ -1,0 +1,412 @@
+{
+ "id": "sw09",
+ "num": 9,
+ "series": "SWE",
+ "short": "Python gotchas",
+ "question": "What Python gotchas should you know?",
+ "caps": [
+  [
+   "perf counter",
+   "perf_counter"
+  ],
+  [
+   "functools wraps",
+   "functools.wraps"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Aliasing, mutable defaults, the G I L, generators, decorators.",
+   "say": "Python gotchas interviewers love. Five of them, each with a one-line explanation you can say out loud."
+  },
+  {
+   "type": "diagram",
+   "head": "1. A name is a sticky note, not a box",
+   "panels": [
+    {
+     "file": "alias.py",
+     "size": 34,
+     "code": "a = [1, 2]\nb = a\nc = a.copy()\nb.append(3)\n\nprint(a)   # [1, 2, 3]\nprint(c)   # [1, 2]"
+    }
+   ],
+   "area": {
+    "w": 760
+   },
+   "steps": [
+    {
+     "cue": "a sticky note",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "second sticky note",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Copy",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Append",
+     "lines": [
+      4
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "a",
+     "x": 1000,
+     "y": 280,
+     "w": 200,
+     "h": 90,
+     "text": "a",
+     "size": 40,
+     "tone": "ghost",
+     "cue": "a sticky note"
+    },
+    {
+     "id": "b",
+     "x": 1000,
+     "y": 430,
+     "w": 200,
+     "h": 90,
+     "text": "b",
+     "size": 40,
+     "tone": "ghost",
+     "cue": "second sticky note"
+    },
+    {
+     "id": "c",
+     "x": 1000,
+     "y": 700,
+     "w": 200,
+     "h": 90,
+     "text": "c",
+     "size": 40,
+     "tone": "ghost",
+     "cue": "Copy"
+    },
+    {
+     "id": "l1",
+     "x": 1440,
+     "y": 340,
+     "w": 340,
+     "h": 110,
+     "text": "[1, 2]",
+     "size": 40,
+     "tone": "blue",
+     "cue": "a sticky note"
+    },
+    {
+     "id": "l2",
+     "x": 1440,
+     "y": 690,
+     "w": 340,
+     "h": 110,
+     "text": "[1, 2]",
+     "size": 40,
+     "tone": "good",
+     "cue": "Copy"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "a",
+     "to": "l1",
+     "cue": "a sticky note"
+    },
+    {
+     "from": "b",
+     "to": "l1",
+     "cue": "second sticky note"
+    },
+    {
+     "from": "c",
+     "to": "l2",
+     "cue": "Copy"
+    }
+   ],
+   "changes": [
+    {
+     "id": "l1",
+     "text": "[1, 2, 3]",
+     "cue": "Append"
+    },
+    {
+     "id": "l1",
+     "tone": "warn",
+     "cue": "Append"
+    }
+   ],
+   "say": "In Python, a variable is a sticky note stuck on an object. A is a sticky note on the list. B is a second sticky note on the same list, not a new list. Copy makes a real second list. Append through b, and a sees three. C is unchanged."
+  },
+  {
+   "type": "code",
+   "head": "2. The mutable default argument",
+   "panels": [
+    {
+     "file": "app.py",
+     "size": 36,
+     "code": "def add(x, bucket=[]):\n    bucket.append(x)\n    return bucket\n\nprint(add(1))\nprint(add(2))"
+    }
+   ],
+   "output": {
+    "cmd": "python app.py",
+    "tone": "bad",
+    "cue": "second call",
+    "text": "[1]\n[1, 2]"
+   },
+   "steps": [
+    {
+     "cue": "built once",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "second call",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "say": "Same idea, hidden in a default. The default list is built once, when the function is defined. Every call shares it. The second call sees the first call's item. The fix: default to None, and make a new list inside."
+  },
+  {
+   "type": "diagram",
+   "head": "3. The G I L: one microphone",
+   "items": [
+    {
+     "id": "t1",
+     "x": 150,
+     "y": 260,
+     "w": 300,
+     "h": 110,
+     "text": "Thread 1",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Two threads"
+    },
+    {
+     "id": "t2",
+     "x": 150,
+     "y": 460,
+     "w": 300,
+     "h": 110,
+     "text": "Thread 2",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Two threads"
+    },
+    {
+     "id": "gil",
+     "x": 780,
+     "y": 340,
+     "w": 340,
+     "h": 150,
+     "text": "G I L",
+     "sub": "one microphone",
+     "size": 48,
+     "tone": "warn",
+     "cue": "one microphone"
+    },
+    {
+     "id": "bc",
+     "x": 1420,
+     "y": 340,
+     "w": 340,
+     "h": 150,
+     "text": "Run Python",
+     "sub": "one thread at once",
+     "size": 36,
+     "tone": "bad",
+     "cue": "speak at a time"
+    },
+    {
+     "id": "io",
+     "x": 150,
+     "y": 720,
+     "w": 760,
+     "h": 130,
+     "text": "I O bound: threads help",
+     "sub": "lock released while waiting",
+     "size": 34,
+     "tone": "good",
+     "cue": "network"
+    },
+    {
+     "id": "cpu",
+     "x": 1000,
+     "y": 720,
+     "w": 760,
+     "h": 130,
+     "text": "C P U bound: use processes",
+     "sub": "each has its own G I L",
+     "size": 34,
+     "tone": "warn",
+     "cue": "separate processes"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "t1",
+     "to": "gil",
+     "cue": "Two threads"
+    },
+    {
+     "from": "t2",
+     "to": "gil",
+     "cue": "Two threads"
+    },
+    {
+     "from": "gil",
+     "to": "bc",
+     "cue": "speak at a time"
+    }
+   ],
+   "say": "Two threads share one microphone, the G I L, a lock in standard C Python. Only one can speak at a time. So C P U heavy work gains nothing from threads. Threads still help while waiting on the network, since the lock is released. For C P U work, use separate processes."
+  },
+  {
+   "type": "code",
+   "head": "4. Generators are lazy",
+   "panels": [
+    {
+     "file": "gen.py",
+     "size": 36,
+     "code": "def squares(n):\n    for i in range(n):\n        yield i * i      # pause here\n\ng = squares(3)\nprint(next(g))\nprint(next(g))\ntotal = sum(squares(10**6))"
+    }
+   ],
+   "output": {
+    "cmd": "python gen.py",
+    "tone": "good",
+    "cue": "second next",
+    "text": "0\n1"
+   },
+   "steps": [
+    {
+     "cue": "Yield pauses",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "first next",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "second next",
+     "lines": [
+      7
+     ]
+    },
+    {
+     "cue": "million numbers",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "say": "Yield pauses the function and hands back one value. Next resumes it. The first next gives zero. The second next gives one. Nothing is computed early, so summing a million squares never holds a million numbers in memory."
+  },
+  {
+   "type": "code",
+   "head": "5. Decorators wrap functions",
+   "panels": [
+    {
+     "file": "deco.py",
+     "size": 32,
+     "code": "import functools, time\n\ndef timed(fn):\n    @functools.wraps(fn)\n    def wrapper(*args, **kwargs):\n        t = time.perf_counter()\n        try:\n            return fn(*args, **kwargs)\n        finally:\n            print(fn.__name__, time.perf_counter() - t)\n    return wrapper\n\n@timed\ndef work(): ..."
+    }
+   ],
+   "steps": [
+    {
+     "cue": "takes a function",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "wrapper runs",
+     "lines": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ]
+    },
+    {
+     "cue": "Writing at timed",
+     "lines": [
+      13,
+      14
+     ]
+    },
+    {
+     "cue": "keeps the original name",
+     "lines": [
+      4
+     ]
+    }
+   ],
+   "say": "A decorator is a function that takes a function and returns a new one. The wrapper runs extra code around the call. Writing at timed above work means work equals timed of work. And functools wraps keeps the original name, which people forget."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: one-liners",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Mutable default?",
+     "Evaluated once at definition. Default to None."
+    ],
+    [
+     "Does the G I L kill threads?",
+     "Not for I O. For C P U use processes."
+    ],
+    [
+     "List versus generator?",
+     "A list stores everything; a generator makes values on demand."
+    ],
+    [
+     "Common mistake",
+     "Thinking assignment copies."
+    ]
+   ],
+   "cues": [
+    "Mutable default",
+    "kill threads",
+    "generator",
+    "common mistake"
+   ],
+   "say": "Quick one-liners. Mutable default? Evaluated once, so default to None. Does the G I L kill threads? Not for I O, and for C P U use processes. List versus generator? A generator makes values on demand. And the common mistake: thinking assignment copies."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Names share objects; assignment never copies.",
+    "Defaults are evaluated once. The G I L means processes for C P U work.",
+    "Generators are lazy; decorators wrap functions."
+   ],
+   "cues": [
+    "Names share",
+    "Defaults",
+    "Generators"
+   ],
+   "say": "Names share objects, and assignment never copies. Defaults are evaluated once. The G I L means processes for C P U work. Generators are lazy, and decorators wrap functions."
+  }
+ ]
+}

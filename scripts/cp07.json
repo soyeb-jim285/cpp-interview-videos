@@ -1,0 +1,361 @@
+{
+ "id": "cp07",
+ "num": 7,
+ "series": "DSA",
+ "short": "Monotonic stack",
+ "question": "What is a stack, and how does a monotonic stack find the next greater element?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Keep a pile of unanswered questions. A bigger arrival answers many at once.",
+   "say": "A stack is the simplest structure, yet it solves a whole class of next bigger problems in linear time."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a stack of plates",
+   "items": [
+    {
+     "label": "Stack",
+     "text": "last in, first out",
+     "sub": "you only touch the top plate",
+     "cue": "only touch the top"
+    },
+    {
+     "label": "Waiting people",
+     "text": "each wants someone taller",
+     "sub": "standing to their right",
+     "cue": "someone taller"
+    },
+    {
+     "label": "Tall newcomer",
+     "text": "answers every shorter person",
+     "sub": "on top of the stack",
+     "cue": "tall newcomer"
+    }
+   ],
+   "say": "A stack is like a pile of plates. You only touch the top one. Now picture people in a line, each waiting to see someone taller to their right. The waiting people pile up on a stack. When a tall newcomer arrives, they answer every shorter person on top."
+  },
+  {
+   "type": "diagram",
+   "head": "Next greater element of [2, 1, 2, 4, 3]",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "vector<int> nextGreater(vector<int>& a) {\n    int n = a.size();\n    vector<int> res(n, -1);\n    stack<int> st;      // indices, values decrease\n    for (int i = 0; i < n; i++) {\n        while (!st.empty() && a[st.top()] < a[i]) {\n            res[st.top()] = a[i];\n            st.pop();\n        }\n        st.push(i);\n    }\n    return res;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Walk left to right",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "pop one, answer two",
+     "lines": [
+      6,
+      7,
+      8
+     ]
+    },
+    {
+     "cue": "Push two",
+     "lines": [
+      10
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "in0",
+     "x": 1020,
+     "y": 260,
+     "w": 120,
+     "h": 110,
+     "text": "2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array two",
+     "label": "input"
+    },
+    {
+     "id": "in1",
+     "x": 1160,
+     "y": 260,
+     "w": 120,
+     "h": 110,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array two"
+    },
+    {
+     "id": "in2",
+     "x": 1300,
+     "y": 260,
+     "w": 120,
+     "h": 110,
+     "text": "2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array two"
+    },
+    {
+     "id": "in3",
+     "x": 1440,
+     "y": 260,
+     "w": 120,
+     "h": 110,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array two"
+    },
+    {
+     "id": "in4",
+     "x": 1580,
+     "y": 260,
+     "w": 120,
+     "h": 110,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array two"
+    },
+    {
+     "id": "s0",
+     "x": 1020,
+     "y": 520,
+     "w": 120,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "tone": "warn",
+     "cue": "stack of waiting",
+     "label": "stack, bottom to top"
+    },
+    {
+     "id": "s1",
+     "x": 1160,
+     "y": 520,
+     "w": 120,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "tone": "warn",
+     "cue": "stack of waiting"
+    },
+    {
+     "id": "s2",
+     "x": 1300,
+     "y": 520,
+     "w": 120,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "tone": "warn",
+     "cue": "stack of waiting"
+    },
+    {
+     "id": "r0",
+     "x": 1020,
+     "y": 760,
+     "w": 120,
+     "h": 110,
+     "text": "?",
+     "size": 40,
+     "tone": "good",
+     "cue": "next bigger",
+     "label": "answer"
+    },
+    {
+     "id": "r1",
+     "x": 1160,
+     "y": 760,
+     "w": 120,
+     "h": 110,
+     "text": "?",
+     "size": 40,
+     "tone": "good",
+     "cue": "next bigger"
+    },
+    {
+     "id": "r2",
+     "x": 1300,
+     "y": 760,
+     "w": 120,
+     "h": 110,
+     "text": "?",
+     "size": 40,
+     "tone": "good",
+     "cue": "next bigger"
+    },
+    {
+     "id": "r3",
+     "x": 1440,
+     "y": 760,
+     "w": 120,
+     "h": 110,
+     "text": "?",
+     "size": 40,
+     "tone": "good",
+     "cue": "next bigger"
+    },
+    {
+     "id": "r4",
+     "x": 1580,
+     "y": 760,
+     "w": 120,
+     "h": 110,
+     "text": "?",
+     "size": 40,
+     "tone": "good",
+     "cue": "next bigger"
+    }
+   ],
+   "changes": [
+    {
+     "id": "s0",
+     "text": "2",
+     "cue": "Two arrives. Push it"
+    },
+    {
+     "id": "s1",
+     "text": "1",
+     "cue": "One arrives"
+    },
+    {
+     "id": "r1",
+     "text": "2",
+     "cue": "pop one, answer two"
+    },
+    {
+     "id": "s1",
+     "text": "2",
+     "cue": "Push two"
+    },
+    {
+     "id": "s1",
+     "text": "",
+     "cue": "It beats the two"
+    },
+    {
+     "id": "r2",
+     "text": "4",
+     "cue": "Both answers are four"
+    },
+    {
+     "id": "r0",
+     "text": "4",
+     "cue": "Both answers are four"
+    },
+    {
+     "id": "s0",
+     "text": "4",
+     "cue": "Push four"
+    },
+    {
+     "id": "s1",
+     "text": "3",
+     "cue": "Three arrives"
+    },
+    {
+     "id": "r3",
+     "text": "-1",
+     "cue": "minus one"
+    },
+    {
+     "id": "r4",
+     "text": "-1",
+     "cue": "minus one"
+    }
+   ],
+   "say": "Array two, one, two, four, three. For each, find the next bigger number to its right. Walk left to right with a stack of waiting positions. Two arrives. Push it. One arrives. Smaller, so it waits too. Now two arrives. It beats one, so pop one, answer two. Push two. Four arrives. It beats the two, and the other two. Both answers are four. Push four. Three arrives. Push it. Anyone left has no bigger number, so minus one."
+  },
+  {
+   "type": "code",
+   "head": "The same stack checks brackets",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "bool valid(const string& s) {\n    stack<char> st;\n    for (char c : s) {\n        if (c == '(' || c == '[' || c == '{') st.push(c);\n        else {\n            if (st.empty()) return false;\n            char o = st.top(); st.pop();\n            if ((c == ')' && o != '(') || (c == ']' && o != '[')\n                || (c == '}' && o != '{')) return false;\n        }\n    }\n    return st.empty();\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Push every opener",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "On a closer",
+     "lines": [
+      6,
+      7,
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "the stack must be empty",
+     "lines": [
+      12
+     ]
+    }
+   ],
+   "say": "The same stack checks brackets. The last one opened must be the first one closed, like nested boxes. Push every opener. On a closer, the top must be its partner, otherwise false. At the end, the stack must be empty. Also try Daily Temperatures, Largest Rectangle in Histogram, and Trapping Rain Water."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why O of n with a while inside a for?",
+     "Each index is pushed once and popped once."
+    ],
+    [
+     "Next smaller, or previous greater?",
+     "Flip the comparison, or scan from the right."
+    ],
+    [
+     "Stack of values or indices?",
+     "Indices. You can read the value, and compute distances."
+    ],
+    [
+     "Common mistake",
+     "Forgetting leftovers: they have no answer."
+    ]
+   ],
+   "cues": [
+    "Why O of n",
+    "Next smaller",
+    "Stack of values",
+    "Common mistake"
+   ],
+   "say": "Why O of n with a while inside a for? Each index is pushed once and popped once. Next smaller, or previous greater? Flip the comparison, or scan from the right. Stack of values or indices? Indices. Common mistake: forgetting leftovers, which have no answer."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A stack is last in, first out.",
+    "Monotonic stack: pop everything the new element beats, and answer them.",
+    "Each index is pushed and popped once: O(n)."
+   ],
+   "cues": [
+    "A stack",
+    "Monotonic stack",
+    "Each index"
+   ],
+   "say": "A stack is last in, first out. A monotonic stack pops everything the new element beats, and answers them. Each index is pushed and popped once, so it's O of n."
+  }
+ ]
+}

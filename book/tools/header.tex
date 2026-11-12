@@ -1,0 +1,44 @@
+\usepackage{fontspec}
+\setmainfont{Noto Serif}[Scale=0.95]
+\setsansfont{Noto Sans}
+\setmonofont{Adwaita Mono}[Scale=0.86]
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\definecolor{acc}{HTML}{C2410C}
+\definecolor{ansbg}{HTML}{EEF6FF}\definecolor{ansfr}{HTML}{2563EB}
+\definecolor{tipbg}{HTML}{EFFAEF}\definecolor{tipfr}{HTML}{15803D}
+\definecolor{warnbg}{HTML}{FFF4EC}\definecolor{warnfr}{HTML}{C2410C}
+\newtcolorbox{answerbox}{enhanced,breakable,colback=ansbg,colframe=ansfr,boxrule=0pt,leftrule=0pt,arc=4pt,
+  left=10pt,right=10pt,top=8pt,bottom=8pt,before skip=14pt,after skip=14pt,
+  title={\sffamily\bfseries\small INTERVIEW ANSWER},coltitle=white,colbacktitle=ansfr}
+\newtcolorbox{tipbox}{enhanced,breakable,colback=tipbg,colframe=tipfr,boxrule=0pt,arc=4pt,
+  left=10pt,right=10pt,before skip=10pt,after skip=10pt,fontupper=\small,
+  title={\sffamily\bfseries\small TIP},coltitle=white,colbacktitle=tipfr}
+\newtcolorbox{warningbox}{enhanced,breakable,colback=warnbg,colframe=warnfr,boxrule=0pt,arc=4pt,
+  left=10pt,right=10pt,before skip=10pt,after skip=10pt,fontupper=\small,
+  title={\sffamily\bfseries\small WATCH OUT},coltitle=white,colbacktitle=warnfr}
+% code blocks: light grey panel, wrap long lines
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+\let\oldShaded\Shaded\let\endoldShaded\endShaded
+\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced,breakable,colback=black!3,colframe=black!12,boxrule=0.4pt,arc=3pt,left=6pt,right=6pt,top=4pt,bottom=4pt]\small}{\end{tcolorbox}}
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\sffamily\bfseries\Huge}{}{0pt}{\color{acc}}
+\titleformat{\section}{\sffamily\bfseries\Large}{}{0pt}{}
+\titleformat{\subsection}{\sffamily\bfseries\large}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+\setlength{\parskip}{6pt}\setlength{\parindent}{0pt}
+\usepackage{etoolbox}\AtBeginEnvironment{quote}{\small}
+\makeatletter
+\renewcommand{\maketitle}{\begin{titlepage}\raggedright\sffamily
+  \vspace*{5cm}{\color{acc}\rule{3cm}{4pt}}\par\vspace{18pt}
+  {\fontsize{52}{56}\selectfont\bfseries \@title\par}\vspace{16pt}
+  {\Large \@subtitle\par}\vfill
+  {\large 100 questions · 12 chapters · written for complete beginners\par}
+\end{titlepage}}
+\providecommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\makeatother
+\usepackage{cppviz}
+\newtcolorbox{outputbox}{enhanced,breakable,colback=black!85,colframe=black!85,arc=3pt,
+  left=8pt,right=8pt,top=3pt,bottom=3pt,fontupper=\small,
+  overlay={\node[anchor=north east,font=\sffamily\tiny\color{white!60}] at ([xshift=-4pt,yshift=-3pt]frame.north east) {OUTPUT};}}

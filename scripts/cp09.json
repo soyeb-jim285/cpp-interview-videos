@@ -1,0 +1,376 @@
+{
+ "id": "cp09",
+ "num": 9,
+ "series": "DSA",
+ "short": "BFS and DFS",
+ "question": "How do BFS and DFS work on graphs and grids?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "BFS spreads in rings. DFS dives deep, then backs up.",
+   "say": "Breadth first and depth first search visit every cell of a grid or graph. They differ only in what order they visit."
+  },
+  {
+   "type": "flow",
+   "head": "Two ways to explore",
+   "items": [
+    {
+     "label": "BFS: ripples in a pond",
+     "text": "nearest cells first",
+     "sub": "uses a queue (first in, first out)",
+     "cue": "ripples"
+    },
+    {
+     "label": "DFS: a maze",
+     "text": "follow one tunnel to its end",
+     "sub": "uses a stack, or recursion",
+     "cue": "tunnel"
+    },
+    {
+     "label": "Use BFS for",
+     "text": "fewest steps",
+     "sub": "unweighted shortest path",
+     "cue": "fewest steps"
+    },
+    {
+     "label": "Use DFS for",
+     "text": "connected areas, cycles",
+     "sub": "does it exist? how many?",
+     "cue": "how many"
+    }
+   ],
+   "say": "Two ways to explore. Breadth first search is like ripples in a pond: it reaches the nearest cells first, using a queue. Depth first search is like a maze: follow one tunnel to its end, then back up. Use BFS for fewest steps. Use DFS to ask how many areas, or whether something exists."
+  },
+  {
+   "type": "diagram",
+   "head": "BFS on a grid: fewest steps from top left to bottom right",
+   "items": [
+    {
+     "id": "g0",
+     "x": 590,
+     "y": 290,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid",
+     "label": "start"
+    },
+    {
+     "id": "g1",
+     "x": 780,
+     "y": 290,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g2",
+     "x": 970,
+     "y": 290,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g3",
+     "x": 1160,
+     "y": 290,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g4",
+     "x": 590,
+     "y": 440,
+     "w": 170,
+     "h": 120,
+     "text": "#",
+     "size": 52,
+     "tone": "bad",
+     "cue": "A grid"
+    },
+    {
+     "id": "g5",
+     "x": 780,
+     "y": 440,
+     "w": 170,
+     "h": 120,
+     "text": "#",
+     "size": 52,
+     "tone": "bad",
+     "cue": "A grid"
+    },
+    {
+     "id": "g6",
+     "x": 970,
+     "y": 440,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g7",
+     "x": 1160,
+     "y": 440,
+     "w": 170,
+     "h": 120,
+     "text": "#",
+     "size": 52,
+     "tone": "bad",
+     "cue": "A grid"
+    },
+    {
+     "id": "g8",
+     "x": 590,
+     "y": 590,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g9",
+     "x": 780,
+     "y": 590,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g10",
+     "x": 970,
+     "y": 590,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    },
+    {
+     "id": "g11",
+     "x": 1160,
+     "y": 590,
+     "w": 170,
+     "h": 120,
+     "text": ".",
+     "size": 52,
+     "tone": "blue",
+     "cue": "A grid"
+    }
+   ],
+   "changes": [
+    {
+     "id": "g0",
+     "text": "0",
+     "cue": "Layer zero"
+    },
+    {
+     "id": "g1",
+     "text": "1",
+     "cue": "Layer one"
+    },
+    {
+     "id": "g2",
+     "text": "2",
+     "cue": "Layer two"
+    },
+    {
+     "id": "g3",
+     "text": "3",
+     "cue": "Layer three"
+    },
+    {
+     "id": "g6",
+     "text": "3",
+     "cue": "Layer three"
+    },
+    {
+     "id": "g8",
+     "text": "6",
+     "cue": "Layer six"
+    },
+    {
+     "id": "g9",
+     "text": "5",
+     "cue": "Layer five"
+    },
+    {
+     "id": "g10",
+     "text": "4",
+     "cue": "Layer four"
+    },
+    {
+     "id": "g11",
+     "text": "5",
+     "cue": "Layer five"
+    },
+    {
+     "id": "g11",
+     "tone": "good",
+     "cue": "reaches the exit"
+    },
+    {
+     "id": "g0",
+     "tone": "good",
+     "cue": "Layer zero"
+    }
+   ],
+   "say": "A grid. Dots are floor, hash is wall. Start top left, exit bottom right. Fewest steps? Breadth first search spreads in rings. Layer zero is the start. Layer one is its neighbor. Layer two. Layer three has two cells. The wall blocks the way down, so only one route continues. Layer four. Layer five reaches the exit, so the answer is five. Layer six fills the corner, but we're done."
+  },
+  {
+   "type": "code",
+   "head": "BFS code: a queue and a distance table",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "int bfs(vector<string>& g) {\n    int R = g.size(), C = g[0].size();\n    vector<vector<int>> d(R, vector<int>(C, -1));\n    queue<pair<int,int>> q; q.push({0, 0}); d[0][0] = 0;\n    int dr[] = {1, -1, 0, 0}, dc[] = {0, 0, 1, -1};\n    while (!q.empty()) {\n        auto [r, c] = q.front(); q.pop();\n        for (int k = 0; k < 4; k++) {\n            int y = r + dr[k], x = c + dc[k];\n            if (y < 0 || x < 0 || y >= R || x >= C) continue;\n            if (g[y][x] == '#' || d[y][x] >= 0) continue;\n            d[y][x] = d[r][c] + 1; q.push({y, x});\n        }\n    }\n    return d[R - 1][C - 1];\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "queue holds",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "minus one",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Pop a cell",
+     "lines": [
+      7
+     ]
+    },
+    {
+     "cue": "four neighbors",
+     "lines": [
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "Skip",
+     "lines": [
+      10,
+      11
+     ]
+    },
+    {
+     "cue": "one more",
+     "lines": [
+      12
+     ]
+    }
+   ],
+   "say": "The code. A queue holds cells waiting to be visited, first in first out. The distance table starts at minus one, which also means not visited. Pop a cell. Try its four neighbors. Skip cells outside, walls, and visited ones. Otherwise set the distance one more and queue it. Each cell enters once, so it's O of rows times columns."
+  },
+  {
+   "type": "code",
+   "head": "DFS code: count islands by sinking them",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "int R, C;\nvoid dfs(vector<string>& g, int r, int c) {\n    if (r < 0 || c < 0 || r >= R || c >= C || g[r][c] != '1') return;\n    g[r][c] = '0';                      // mark visited\n    dfs(g, r + 1, c); dfs(g, r - 1, c);\n    dfs(g, r, c + 1); dfs(g, r, c - 1);\n}\nint islands(vector<string>& g) {\n    R = g.size(), C = g[0].size();\n    int n = 0;\n    for (int r = 0; r < R; r++)\n        for (int c = 0; c < C; c++)\n            if (g[r][c] == '1') n++, dfs(g, r, c);\n    return n;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Scan the grid",
+     "lines": [
+      11,
+      12,
+      13
+     ]
+    },
+    {
+     "cue": "sinks the whole island",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "four directions",
+     "lines": [
+      5,
+      6
+     ]
+    }
+   ],
+   "say": "Depth first search goes as deep as possible, then backs up. Count islands of ones. Scan the grid. At each unvisited one, count an island, and call dfs. It sinks the whole island by turning ones to zeros, recursing in four directions. O of cells. Warning: a million cells can overflow the recursion stack. Use BFS or an explicit stack."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "BFS or DFS for shortest path?",
+     "BFS if unweighted. Weighted needs Dijkstra."
+    ],
+    [
+     "Complexity?",
+     "O of V plus E. On a grid, O of rows times columns."
+    ],
+    [
+     "Deep recursion crashes?",
+     "Use an explicit stack, or BFS."
+    ],
+    [
+     "Common mistake",
+     "Marking visited when popping, not when pushing."
+    ]
+   ],
+   "cues": [
+    "BFS or DFS",
+    "Complexity",
+    "Deep recursion",
+    "Common mistake"
+   ],
+   "say": "BFS or DFS for shortest path? BFS if unweighted. Complexity? O of V plus E. Deep recursion crashes? Use an explicit stack, or BFS. Common mistake: marking visited when popping, not when pushing, so cells enter the queue many times."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "BFS uses a queue and finds fewest steps.",
+    "DFS uses a stack or recursion, and finds areas and cycles.",
+    "Both are O(V + E). Mark visited when you push."
+   ],
+   "cues": [
+    "BFS uses",
+    "DFS uses",
+    "Both are"
+   ],
+   "say": "BFS uses a queue and finds the fewest steps. DFS uses a stack or recursion, and finds areas and cycles. Both are O of V plus E. Mark a cell visited when you push it."
+  }
+ ]
+}

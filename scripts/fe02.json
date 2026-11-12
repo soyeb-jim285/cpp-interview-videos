@@ -1,0 +1,291 @@
+{
+  "id": "fe02",
+  "num": 2,
+  "series": "Frontend",
+  "short": "The event loop",
+  "question": "Explain the JavaScript event loop. Microtasks vs macrotasks?",
+  "caps": [
+    [
+      "set timeout",
+      "setTimeout"
+    ],
+    [
+      "java script",
+      "JavaScript"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "One thread, one call stack, two queues.",
+      "say": "The event loop. JavaScript runs on a single thread, yet it handles timers, clicks, and network calls without freezing. Here is how, and the output order question you will almost certainly get."
+    },
+    {
+      "type": "diagram",
+      "head": "Think of one cashier",
+      "items": [
+        {
+          "id": "cash",
+          "x": 700,
+          "y": 250,
+          "w": 520,
+          "h": 140,
+          "label": "Cashier",
+          "text": "one at a time",
+          "size": 36,
+          "tone": "blue",
+          "cue": "one cashier"
+        },
+        {
+          "id": "vip",
+          "x": 220,
+          "y": 620,
+          "w": 520,
+          "h": 140,
+          "label": "Priority lane",
+          "text": "microtasks",
+          "size": 36,
+          "tone": "good",
+          "cue": "priority lane"
+        },
+        {
+          "id": "reg",
+          "x": 1180,
+          "y": 620,
+          "w": 520,
+          "h": 140,
+          "label": "Normal line",
+          "text": "tasks",
+          "size": 36,
+          "tone": "warn",
+          "cue": "normal line"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "vip",
+          "to": "cash",
+          "cue": "serves the priority lane first"
+        },
+        {
+          "from": "reg",
+          "to": "cash",
+          "cue": "only when the priority"
+        }
+      ],
+      "say": "Think of a shop with one cashier. That is JavaScript: it can only serve one customer at a time. There is a priority lane, the microtasks, and a normal line, the tasks. The cashier always serves the priority lane first, until it is empty. Only when the priority lane is empty does the next person in the normal line get served."
+    },
+    {
+      "type": "code",
+      "head": "Predict the output",
+      "panels": [
+        {
+          "file": "order.js",
+          "size": 36,
+          "code": "console.log('start');\n\nsetTimeout(() => console.log('timeout'), 0);\n\nPromise.resolve().then(() => console.log('promise'));\n\nconsole.log('end');"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "start runs",
+          "lines": [
+            1
+          ]
+        },
+        {
+          "cue": "set timeout",
+          "lines": [
+            3
+          ]
+        },
+        {
+          "cue": "promise callback",
+          "lines": [
+            5
+          ]
+        },
+        {
+          "cue": "end runs",
+          "lines": [
+            7
+          ]
+        }
+      ],
+      "output": {
+        "cmd": "node order.js",
+        "cue": "Real output",
+        "text": "start\nend\npromise\ntimeout"
+      },
+      "say": "Pause and guess. The first log, start runs, immediately. The set timeout callback is handed to the browser to wait, even with zero delay. The promise callback is queued as a microtask. Then end runs. Real output: start, end, promise, timeout. Why does promise beat timeout?"
+    },
+    {
+      "type": "diagram",
+      "head": "The loop, step by step",
+      "items": [
+        {
+          "id": "stack",
+          "x": 160,
+          "y": 300,
+          "w": 420,
+          "h": 140,
+          "label": "Call stack",
+          "text": "main script",
+          "size": 34,
+          "tone": "blue",
+          "cue": "call stack"
+        },
+        {
+          "id": "micro",
+          "x": 760,
+          "y": 300,
+          "w": 420,
+          "h": 140,
+          "label": "Microtask queue",
+          "text": "promise cb",
+          "size": 34,
+          "tone": "good",
+          "cue": "microtask queue"
+        },
+        {
+          "id": "macro",
+          "x": 1360,
+          "y": 300,
+          "w": 400,
+          "h": 140,
+          "label": "Task queue",
+          "text": "timeout cb",
+          "size": 34,
+          "tone": "warn",
+          "cue": "task queue"
+        },
+        {
+          "id": "loop",
+          "x": 660,
+          "y": 620,
+          "w": 600,
+          "h": 150,
+          "text": "Event loop",
+          "sub": "stack empty? drain micro, then one task",
+          "size": 40,
+          "cue": "event loop"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "micro",
+          "to": "loop",
+          "cue": "drains every microtask"
+        },
+        {
+          "from": "macro",
+          "to": "loop",
+          "cue": "takes one task"
+        }
+      ],
+      "changes": [
+        {
+          "id": "stack",
+          "text": "empty",
+          "cue": "script finishes"
+        },
+        {
+          "id": "micro",
+          "text": "empty",
+          "cue": "drains every microtask"
+        },
+        {
+          "id": "macro",
+          "text": "empty",
+          "cue": "takes one task"
+        }
+      ],
+      "say": "Three parts. The call stack runs your code. Promise callbacks wait in the microtask queue. Timers, clicks, and network events wait in the task queue. When the script finishes and the stack is empty, the event loop drains every microtask first, even new ones added along the way. Only then it takes one task, runs it, and drains microtasks again."
+    },
+    {
+      "type": "code",
+      "head": "await is a microtask too",
+      "panels": [
+        {
+          "file": "await.js",
+          "size": 34,
+          "code": "async function load() {\n  console.log('load start');\n  await null;\n  console.log('load after await');\n}\nconsole.log('A');\nload();\nconsole.log('B');\nsetTimeout(() => console.log('timer'), 0);\nPromise.resolve().then(() => console.log('then'));\nconsole.log('C');"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "runs synchronously",
+          "lines": [
+            1,
+            2
+          ]
+        },
+        {
+          "cue": "At the await",
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "cue": "microtasks run",
+          "lines": [
+            10
+          ]
+        }
+      ],
+      "output": {
+        "cmd": "node await.js",
+        "cue": "That prints",
+        "text": "A\nload start\nB\nC\nload after await\nthen\ntimer"
+      },
+      "say": "Async functions are the same story. Everything before the first await runs synchronously. At the await, the rest of the function becomes a microtask and the caller continues. After C, the microtasks run in the order they were queued, load after await, then then. The timer comes last. That prints A, load start, B, C, load after await, then, timer."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rows": [
+        [
+          "Is JavaScript async?",
+          "Single threaded. The browser does the waiting, the loop runs callbacks."
+        ],
+        [
+          "Microtask examples?",
+          "Promise then, await, queueMicrotask."
+        ],
+        [
+          "Task examples?",
+          "setTimeout, click events, network callbacks."
+        ],
+        [
+          "Common mistake",
+          "Saying setTimeout zero runs immediately. It runs after microtasks."
+        ]
+      ],
+      "cues": [
+        "async",
+        "Microtask",
+        "Task",
+        "mistake"
+      ],
+      "say": "Likely follow-ups. Is JavaScript async? It is single threaded. The browser does the waiting and the loop runs the callbacks. Microtask examples? Promise then, await, queue microtask. Task examples? Set timeout, clicks, network callbacks. The common mistake: saying set timeout zero runs immediately. It runs after the microtasks."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "One thread. Sync code first, then all microtasks, then one task.",
+        "Promises and await are microtasks. Timers and events are tasks.",
+        "A long loop blocks everything, and endless microtasks starve rendering."
+      ],
+      "cues": [
+        "One thread",
+        "Promises and await",
+        "long running loop"
+      ],
+      "say": "One thread. Run the synchronous code, then all microtasks, then one task from the queue. Promises and await are microtasks. Timers and events are tasks. And the follow-up: a long running loop blocks everything, and endless microtasks can starve rendering."
+    }
+  ]
+}

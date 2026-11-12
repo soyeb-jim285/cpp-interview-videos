@@ -1,0 +1,399 @@
+{
+ "id": "cp14",
+ "num": 14,
+ "series": "DSA",
+ "short": "Greedy and exchange argument",
+ "question": "What is a greedy algorithm, and how do you know a greedy choice is correct? Use interval scheduling.",
+ "caps": [],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Pick the best-looking option now, and never look back. When is that safe?",
+   "say": "A greedy algorithm makes the locally best choice at every step and never undoes it. It's fast and short, but only correct if you can prove it. Interval scheduling is the classic example."
+  },
+  {
+   "type": "diagram",
+   "head": "One meeting room, many requests",
+   "items": [
+    {
+     "id": "big",
+     "x": 200,
+     "y": 250,
+     "w": 1400,
+     "h": 70,
+     "text": "0-10",
+     "size": 32,
+     "tone": "blue",
+     "cue": "tempting rule"
+    },
+    {
+     "id": "a",
+     "x": 340,
+     "y": 400,
+     "w": 280,
+     "h": 70,
+     "text": "1-3",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Pick as many"
+    },
+    {
+     "id": "b",
+     "x": 760,
+     "y": 550,
+     "w": 280,
+     "h": 70,
+     "text": "4-6",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Pick as many"
+    },
+    {
+     "id": "c",
+     "x": 1180,
+     "y": 700,
+     "w": 280,
+     "h": 70,
+     "text": "7-9",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Pick as many"
+    }
+   ],
+   "changes": [
+    {
+     "id": "big",
+     "tone": "good",
+     "cue": "starts first"
+    },
+    {
+     "id": "a",
+     "tone": "bad",
+     "cue": "blocks everything"
+    },
+    {
+     "id": "b",
+     "tone": "bad",
+     "cue": "blocks everything"
+    },
+    {
+     "id": "c",
+     "tone": "bad",
+     "cue": "blocks everything"
+    },
+    {
+     "id": "big",
+     "tone": "bad",
+     "cue": "ends first"
+    },
+    {
+     "id": "a",
+     "tone": "good",
+     "cue": "One to three"
+    },
+    {
+     "id": "b",
+     "tone": "good",
+     "cue": "then four to six"
+    },
+    {
+     "id": "c",
+     "tone": "good",
+     "cue": "then seven to nine"
+    }
+   ],
+   "say": "You run one meeting room, and requests pour in. Pick as many non-overlapping meetings as you can. A tempting rule: take whichever starts first. The zero to ten meeting starts first, and it blocks everything else, so you get one. Better rule: take whichever ends first. One to three, then four to six, then seven to nine. Three meetings. Finishing early leaves the most room for the rest."
+  },
+  {
+   "type": "diagram",
+   "head": "Sort by end time, then sweep",
+   "items": [
+    {
+     "id": "m0",
+     "x": 340,
+     "y": 230,
+     "w": 420,
+     "h": 70,
+     "text": "1-4",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m1",
+     "x": 620,
+     "y": 315,
+     "w": 280,
+     "h": 70,
+     "text": "3-5",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m2",
+     "x": 200,
+     "y": 400,
+     "w": 840,
+     "h": 70,
+     "text": "0-6",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m3",
+     "x": 900,
+     "y": 485,
+     "w": 280,
+     "h": 70,
+     "text": "5-7",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m4",
+     "x": 620,
+     "y": 570,
+     "w": 840,
+     "h": 70,
+     "text": "3-9",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m5",
+     "x": 900,
+     "y": 655,
+     "w": 560,
+     "h": 70,
+     "text": "5-9",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m6",
+     "x": 1040,
+     "y": 740,
+     "w": 560,
+     "h": 70,
+     "text": "6-10",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    },
+    {
+     "id": "m7",
+     "x": 1320,
+     "y": 825,
+     "w": 420,
+     "h": 70,
+     "text": "8-11",
+     "size": 32,
+     "tone": "blue",
+     "cue": "Sort by end time"
+    }
+   ],
+   "changes": [
+    {
+     "id": "m0",
+     "tone": "good",
+     "cue": "One to four"
+    },
+    {
+     "id": "m1",
+     "tone": "bad",
+     "cue": "Three to five"
+    },
+    {
+     "id": "m2",
+     "tone": "bad",
+     "cue": "Zero to six"
+    },
+    {
+     "id": "m3",
+     "tone": "good",
+     "cue": "Five to seven"
+    },
+    {
+     "id": "m4",
+     "tone": "bad",
+     "cue": "Three to nine"
+    },
+    {
+     "id": "m5",
+     "tone": "bad",
+     "cue": "five to nine"
+    },
+    {
+     "id": "m6",
+     "tone": "bad",
+     "cue": "six to ten"
+    },
+    {
+     "id": "m7",
+     "tone": "good",
+     "cue": "Eight to eleven"
+    }
+   ],
+   "say": "Now the full recipe. Sort by end time. Keep one variable: when the last chosen meeting ends. One to four: take it, last becomes four. Three to five starts before four: skip. Zero to six: skip. Five to seven starts after four: take it, last is seven. Three to nine, five to nine, and six to ten all start before seven: skip. Eight to eleven: take. Three meetings, and sorting was the only real cost."
+  },
+  {
+   "type": "diagram",
+   "head": "Why it's safe: the exchange argument",
+   "items": [
+    {
+     "id": "x",
+     "x": 480,
+     "y": 300,
+     "w": 700,
+     "h": 70,
+     "text": "2-7",
+     "size": 32,
+     "tone": "blue",
+     "cue": "perfect plan",
+     "label": "optimal plan"
+    },
+    {
+     "id": "y",
+     "x": 1320,
+     "y": 300,
+     "w": 420,
+     "h": 70,
+     "text": "8-11",
+     "size": 32,
+     "tone": "blue",
+     "cue": "perfect plan"
+    },
+    {
+     "id": "g",
+     "x": 340,
+     "y": 560,
+     "w": 420,
+     "h": 70,
+     "text": "1-4",
+     "size": 32,
+     "tone": "warn",
+     "cue": "ends earliest",
+     "label": "greedy pick"
+    },
+    {
+     "id": "g2",
+     "x": 340,
+     "y": 790,
+     "w": 420,
+     "h": 70,
+     "text": "1-4",
+     "size": 32,
+     "tone": "good",
+     "cue": "swap",
+     "label": "swapped plan"
+    },
+    {
+     "id": "y2",
+     "x": 1320,
+     "y": 790,
+     "w": 420,
+     "h": 70,
+     "text": "8-11",
+     "size": 32,
+     "tone": "good",
+     "cue": "swap"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "g",
+     "to": "g2",
+     "tone": "good",
+     "cue": "swap"
+    }
+   ],
+   "say": "Why is this safe? Suppose a perfect plan starts with meeting X, and the greedy pick G is the one that ends earliest. G ends no later than X, so swap X out and G in. G still can't collide with the next meeting, Y. Same count, so G was a safe first pick. Repeat for the rest. That's the exchange argument: swapping the greedy choice into an optimal answer never hurts."
+  },
+  {
+   "type": "code",
+   "head": "The code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int maxMeetings(vector<pair<int, int>> a) {\n    sort(a.begin(), a.end(), [](auto& x, auto& y) {\n        return x.second < y.second;      // earliest end first\n    });\n    int cnt = 0, last = INT_MIN;\n    for (auto& [s, e] : a)\n        if (s >= last) { cnt++; last = e; }   // fits? take it\n    return cnt;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Sort by the second",
+     "lines": [
+      2,
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "Count and last",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "start is at least",
+     "lines": [
+      6,
+      7
+     ]
+    }
+   ],
+   "say": "Sort by the second value of each pair, the end time. Count and last start empty. For each meeting, if its start is at least last, it fits. Take it and move last to its end. Touching meetings, like one ending at four and another starting at four, are allowed. Sorting costs O of n log n, the loop is linear. Classics: Non-overlapping Intervals, Minimum Arrows to Burst Balloons, Jump Game."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "How do you prove greedy works?",
+     "Exchange argument: swap the greedy choice into any optimal solution."
+    ],
+    [
+     "What if greedy fails?",
+     "Use D P. Greedy by value ratio fails on 0/1 knapsack."
+    ],
+    [
+     "Why sort by end, not start or length?",
+     "Each of those has a counterexample; end time leaves most room."
+    ],
+    [
+     "Common mistake",
+     "Trusting a greedy rule without testing a counterexample."
+    ]
+   ],
+   "cues": [
+    "How do you prove",
+    "What if it fails",
+    "not start or length",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. How do you prove greedy works? The exchange argument. What if it fails? Switch to D P, like knapsack. Why end time, not start or length? Each of those has a counterexample. The common mistake: trusting a greedy rule without hunting for a counterexample on small inputs."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Greedy: take the locally best choice and never undo it.",
+    "Interval scheduling: sort by end time, take whatever fits.",
+    "Justify it with an exchange argument."
+   ],
+   "cues": [
+    "Greedy",
+    "Interval scheduling",
+    "exchange argument"
+   ],
+   "say": "Greedy takes the locally best choice and never undoes it. For interval scheduling, sort by end time and take whatever fits. Justify it with an exchange argument."
+  }
+ ]
+}

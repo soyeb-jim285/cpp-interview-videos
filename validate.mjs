@@ -9,8 +9,8 @@ const SPOKEN_BAN = [/C\+\+/, /std::/, /->/, /::/, /[{}<>;`]/, /\bnullptr\b(?! t)
 for (const f of process.argv.slice(2)) {
   let s;
   try { s = JSON.parse(fs.readFileSync(f, "utf8")); } catch (e) { err(f, `bad JSON: ${e.message}`); continue; }
-  const exp = f.match(/q(\d+)\.json$/);
-  if (!exp || s.id !== `q${exp[1]}` || s.num !== +exp[1]) err(f, "id/num must match filename (id 'q16', num 16)");
+  const exp = f.match(/([a-z]+)(\d+)\.json$/);
+  if (!exp || s.id !== exp[1] + exp[2] || s.num !== +exp[2]) err(f, "id/num must match filename (id 'q16', num 16; or 'be03', num 3)");
   for (const k of ["short", "question", "scenes"]) if (!s[k]) err(f, `missing ${k}`);
   if (s.scenes?.[0]?.type !== "title") err(f, "first scene must be title");
   if (s.scenes?.at(-1)?.type !== "take") err(f, "last scene must be take");

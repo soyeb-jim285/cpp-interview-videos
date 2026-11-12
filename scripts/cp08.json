@@ -1,0 +1,294 @@
+{
+ "id": "cp08",
+ "num": 8,
+ "series": "DSA",
+ "short": "Heaps",
+ "question": "What is a heap, and how do you find the top k elements?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "A heap always hands you the smallest, or the biggest, in one step.",
+   "say": "A heap is the right tool whenever you keep asking for the smallest or biggest item while things keep changing."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a podium",
+   "items": [
+    {
+     "label": "Podium",
+     "text": "holds the top 3",
+     "sub": "only three spots",
+     "cue": "podium"
+    },
+    {
+     "label": "Newcomer",
+     "text": "faster than the slowest?",
+     "sub": "compare with one person",
+     "cue": "slowest"
+    },
+    {
+     "label": "Heap",
+     "text": "tells you the slowest instantly",
+     "sub": "push and pop: log n",
+     "cue": "A heap"
+    }
+   ],
+   "say": "Think of a podium with three spots. A newcomer only needs to beat the slowest person on it. A heap is a structure that always shows you that slowest person instantly. Look at the top: O of 1. Add or remove: O of log n."
+  },
+  {
+   "type": "diagram",
+   "head": "Third largest in the stream 5, 2, 8, 1, 9, 3",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "// min-heap: smallest on top\nint kthLargest(vector<int>& a, int k) {\n    priority_queue<int, vector<int>, greater<>> h;\n    for (int x : a) {\n        h.push(x);\n        if ((int)h.size() > k) h.pop();\n    }\n    return h.top();\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Five joins",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "The podium is full",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "The top is five",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "inp",
+     "x": 1020,
+     "y": 270,
+     "w": 300,
+     "h": 120,
+     "label": "next number",
+     "text": "5",
+     "size": 52,
+     "tone": "blue",
+     "cue": "Stream of numbers"
+    },
+    {
+     "id": "h0",
+     "x": 1020,
+     "y": 520,
+     "w": 230,
+     "h": 120,
+     "text": "",
+     "size": 48,
+     "tone": "warn",
+     "cue": "podium",
+     "label": "podium, smallest on top"
+    },
+    {
+     "id": "h1",
+     "x": 1275,
+     "y": 520,
+     "w": 230,
+     "h": 120,
+     "text": "",
+     "size": 48,
+     "tone": "warn",
+     "cue": "podium"
+    },
+    {
+     "id": "h2",
+     "x": 1530,
+     "y": 520,
+     "w": 230,
+     "h": 120,
+     "text": "",
+     "size": 48,
+     "tone": "warn",
+     "cue": "podium"
+    },
+    {
+     "id": "v",
+     "x": 1020,
+     "y": 770,
+     "w": 760,
+     "h": 110,
+     "label": "verdict",
+     "text": "",
+     "size": 34,
+     "cue": "Five joins"
+    }
+   ],
+   "changes": [
+    {
+     "id": "h0",
+     "text": "5",
+     "cue": "Five joins"
+    },
+    {
+     "id": "inp",
+     "text": "2",
+     "cue": "Two joins"
+    },
+    {
+     "id": "h0",
+     "text": "2",
+     "cue": "Two joins"
+    },
+    {
+     "id": "h1",
+     "text": "5",
+     "cue": "Two joins"
+    },
+    {
+     "id": "inp",
+     "text": "8",
+     "cue": "Eight joins"
+    },
+    {
+     "id": "h2",
+     "text": "8",
+     "cue": "Eight joins"
+    },
+    {
+     "id": "inp",
+     "text": "1",
+     "cue": "Now one"
+    },
+    {
+     "id": "v",
+     "text": "1 beats 2? No: bounced",
+     "cue": "Not better than the two"
+    },
+    {
+     "id": "inp",
+     "text": "9",
+     "cue": "Nine arrives"
+    },
+    {
+     "id": "v",
+     "text": "9 beats 2? Yes: pop 2, push 9",
+     "cue": "It beats the two"
+    },
+    {
+     "id": "h0",
+     "text": "5",
+     "cue": "The two is out"
+    },
+    {
+     "id": "h1",
+     "text": "8",
+     "cue": "The two is out"
+    },
+    {
+     "id": "h2",
+     "text": "9",
+     "cue": "The two is out"
+    },
+    {
+     "id": "inp",
+     "text": "3",
+     "cue": "Three arrives"
+    },
+    {
+     "id": "v",
+     "text": "3 beats 5? No: bounced",
+     "cue": "It can't beat five"
+    },
+    {
+     "id": "h0",
+     "tone": "good",
+     "cue": "The top is five"
+    }
+   ],
+   "say": "Stream of numbers five, two, eight, one, nine, three. Keep the three biggest. Five joins the podium. Two joins. Eight joins. The podium is full, smallest on top is two. Now one arrives. Not better than the two, so it bounces. Nine arrives. It beats the two. The two is out. Podium is five, eight, nine. Three arrives. It can't beat five, so it bounces. The top is five, the third largest."
+  },
+  {
+   "type": "code",
+   "head": "Second use: merge k sorted lists",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "struct Node { int val; Node* next; };\nNode* mergeK(vector<Node*>& lists) {\n    auto cmp = [](Node* a, Node* b) { return a->val > b->val; };\n    priority_queue<Node*, vector<Node*>, decltype(cmp)> h(cmp);\n    for (Node* l : lists) if (l) h.push(l);\n    Node dummy{0, nullptr}, *tail = &dummy;\n    while (!h.empty()) {\n        Node* n = h.top(); h.pop();\n        tail->next = n; tail = n;\n        if (n->next) h.push(n->next);\n    }\n    return dummy.next;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Put every front",
+     "lines": [
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "Pop the smallest",
+     "lines": [
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "push its next node",
+     "lines": [
+      10
+     ]
+    }
+   ],
+   "say": "Second use: merge k sorted lists. Only the front of each list matters. Put every front in a min heap by value. Pop the smallest, append it to the answer, and push its next node. With N nodes and k lists, each step costs log k, so O of N log k. The follow up: merging k sorted files that don't fit in memory. Same idea."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Heap operation costs?",
+     "Push and pop O of log n, top O of 1, build from array O of n."
+    ],
+    [
+     "Why a min-heap for the k largest?",
+     "Its top is the weakest keeper. One compare decides."
+    ],
+    [
+     "Why not just sort?",
+     "O of n log n. A heap is O of n log k, and works on streams."
+    ],
+    [
+     "Common mistake",
+     "priority_queue is a max-heap by default."
+    ]
+   ],
+   "cues": [
+    "Heap operation",
+    "Why a min heap",
+    "Why not just sort",
+    "Common mistake"
+   ],
+   "say": "Heap operation costs? Push and pop are O of log n, top is O of 1. Why a min heap for the k largest? Its top is the weakest keeper. Why not just sort? A heap is O of n log k, and works on streams. Common mistake: the C plus plus priority queue is a max heap by default."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A heap gives the min (or max) in O(1); push/pop cost O(log n).",
+    "Top k largest: keep a min-heap of size k.",
+    "Merging k sorted lists: heap of fronts, O(N log k)."
+   ],
+   "cues": [
+    "A heap",
+    "top k",
+    "To merge"
+   ],
+   "say": "A heap gives the smallest or biggest in O of 1, and push and pop cost O of log n. For the top k largest, keep a min heap of size k. To merge k sorted lists, keep a heap of fronts."
+  }
+ ]
+}

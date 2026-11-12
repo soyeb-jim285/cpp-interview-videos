@@ -1,0 +1,55 @@
+{
+  "id": "fe07", "num": 7, "series": "Frontend", "short": "React performance",
+  "question": "How do you optimize React performance? memo, useMemo, useCallback, virtualization?",
+  "caps": [["use memo", "useMemo"], ["use callback", "useCallback"], ["react dot memo", "React.memo"]],
+  "scenes": [
+    { "type": "title", "sub": "Skip work that would give the same answer.",
+      "say": "React performance. The honest interview answer is: measure first, then skip work that would produce the same result. Four tools do that." },
+
+    { "type": "flow", "head": "Think of a teacher", "y": 400, "h": 250,
+      "items": [
+        { "label": "one student", "text": "Changes answer", "sub": "1 of 30 papers", "tone": "warn", "cue": "one student" },
+        { "label": "bad teacher", "text": "Re-grades all 30", "sub": "wasted effort", "tone": "bad", "cue": "bad teacher" },
+        { "label": "good teacher", "text": "Re-grades 1", "sub": "skips unchanged", "tone": "good", "cue": "good teacher" }
+      ],
+      "say": "Think of a teacher with thirty papers. One student changes an answer. A bad teacher re-grades all thirty. A good teacher checks which paper changed, and re-grades only that one. By default React is the bad teacher: when a parent renders, every child renders too." },
+
+    { "type": "diagram", "head": "memo needs stable props",
+      "panels": [{ "file": "App.tsx", "size": 32, "code": "const Rows = React.memo(function Rows(\n  { items, onPick }: Props) {\n  /* 5,000 rows */\n});\n\nfunction App() {\n  const [q, setQ] = useState('');\n  const onPick = useCallback(\n    (id: number) => select(id), []);\n  return <Rows items={items}\n    onPick={onPick} />;\n}" }],
+      "steps": [
+        { "cue": "wraps the list", "lines": [1, 2, 3, 4] },
+        { "cue": "key you type", "lines": [7] },
+        { "cue": "use callback", "lines": [8, 9] }
+      ],
+      "items": [
+        { "id": "app", "x": 1150, "y": 260, "w": 520, "h": 120, "label": "App", "text": "q = 'ab'", "size": 36, "tone": "blue", "cue": "key you type" },
+        { "id": "rows", "x": 1150, "y": 560, "w": 520, "h": 130, "label": "Rows, 5,000", "text": "skipped", "sub": "props did not change", "size": 36, "tone": "good", "cue": "shallow" }
+      ],
+      "arrows": [{ "from": "app", "to": "rows", "cue": "same props" }],
+      "changes": [{ "id": "app", "text": "q = 'abc'", "cue": "key you type" }, { "id": "rows", "tone": "warn", "cue": "new function" }],
+      "say": "React dot memo wraps the list. Now, on each key you type, App re-renders, but React compares the props shallowly. Same props, so the list is skipped. The catch: a function written inline is a new function every render, so memo sees a change and re-renders anyway. Use callback keeps the same function between renders." },
+
+    { "type": "code", "head": "useMemo and virtualization",
+      "panels": [{ "file": "Search.tsx", "size": 34, "code": "const visible = useMemo(\n  () => items.filter(i => i.name.includes(q)),\n  [items, q]\n);\n\n// 10,000 rows in the DOM = slow\n// virtualize: render only ~20 visible\n// libraries: react-window, TanStack Virtual" }],
+      "steps": [
+        { "cue": "use memo caches", "lines": [1, 2, 3, 4] },
+        { "cue": "ten thousand", "lines": [6, 7, 8] }
+      ],
+      "say": "Use memo caches a computed value between renders, and recomputes only when the listed inputs change. Good for expensive filters and sorts. For huge lists the real fix is virtualization. Ten thousand rows in the D O M is slow, no matter how well you memoize. Render only the twenty or so that are visible, and swap them as the user scrolls." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["Should I memo everything?", "No. Comparing props costs too. Profile first."],
+        ["useMemo vs memo?", "useMemo caches a value. memo skips a component render."],
+        ["Other quick wins?", "Split state down, lazy load routes, stable keys."],
+        ["Common mistake", "useCallback on a child that is not memoized. It does nothing."]
+      ],
+      "cues": ["memo everything", "use memo versus", "quick wins", "mistake"],
+      "say": "Likely follow-ups. Should I memo everything? No, comparing props costs too. Profile first with the React profiler. Use memo versus memo? Use memo caches a value, memo skips a component render. Other quick wins? Move state down, lazy load routes, stable keys. The common mistake: use callback on a child that is not memoized. It does nothing." },
+
+    { "type": "take", "lines": ["Measure first with the profiler.", "memo skips renders, useMemo caches values, useCallback keeps function identity.", "For huge lists, virtualize."],
+      "cues": ["Measure", "memo skips", "huge lists"],
+      "say": "Measure first with the profiler. Then memo skips renders, use memo caches values, and use callback keeps function identity stable. For huge lists, virtualize." }
+  ]
+}

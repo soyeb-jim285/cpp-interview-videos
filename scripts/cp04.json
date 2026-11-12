@@ -1,0 +1,683 @@
+{
+ "id": "cp04",
+ "num": 4,
+ "series": "DSA",
+ "short": "Sliding window",
+ "question": "How does a sliding window work, and when do you use it?",
+ "caps": [
+  [
+   "O of n times k",
+   "O(n\u00b7k)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Add what enters. Subtract what leaves. Never recount.",
+   "say": "Here is a trap in timed coding tests. Find the best sum of three numbers in a row. Most people recount every window from scratch. You can do it with one add and one subtract per step. That's the sliding window."
+  },
+  {
+   "type": "diagram",
+   "head": "The slow way: recount every window",
+   "items": [
+    {
+     "id": "c0",
+     "x": 330,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "c1",
+     "x": 520,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "1",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "c2",
+     "x": 710,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "5",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "c3",
+     "x": 900,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "1",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "c4",
+     "x": 1090,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "3",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "c5",
+     "x": 1280,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue",
+     "cue": "Here is our array"
+    },
+    {
+     "id": "win",
+     "region": true,
+     "x": 310,
+     "y": 330,
+     "w": 590,
+     "h": 230,
+     "label": "WINDOW",
+     "tone": "warn",
+     "cue": "Take the first three"
+    },
+    {
+     "id": "sum",
+     "x": 770,
+     "y": 690,
+     "w": 380,
+     "h": 150,
+     "label": "window sum",
+     "text": "8",
+     "size": 64,
+     "tone": "warn",
+     "cue": "that's eight"
+    }
+   ],
+   "changes": [
+    {
+     "id": "c0",
+     "glow": true,
+     "tone": "info",
+     "cue": "Add them up"
+    },
+    {
+     "id": "c1",
+     "glow": true,
+     "tone": "info",
+     "cue": "Add them up"
+    },
+    {
+     "id": "c2",
+     "glow": true,
+     "tone": "info",
+     "cue": "Add them up"
+    },
+    {
+     "id": "win",
+     "move": [
+      500,
+      330
+     ],
+     "cue": "shift one step"
+    },
+    {
+     "id": "sum",
+     "text": "7",
+     "cue": "seven"
+    },
+    {
+     "id": "c1",
+     "glow": true,
+     "tone": "bad",
+     "cue": "You already added them"
+    },
+    {
+     "id": "c2",
+     "glow": true,
+     "tone": "bad",
+     "cue": "You already added them"
+    },
+    {
+     "id": "c1",
+     "tone": "bad",
+     "cue": "You already added them"
+    },
+    {
+     "id": "c2",
+     "tone": "bad",
+     "cue": "You already added them"
+    }
+   ],
+   "say": "Here is our array: two, one, five, one, three, two. Take the first three. Add them up: that's eight. Now shift one step and add three numbers again: seven. But look at the one and the five. You already added them. With a window of a thousand, you redo nine hundred and ninety nine additions at every step."
+  },
+  {
+   "type": "diagram",
+   "head": "The trick: slide, don't recount",
+   "items": [
+    {
+     "id": "c0",
+     "x": 330,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c1",
+     "x": 520,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "1",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c2",
+     "x": 710,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "5",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c3",
+     "x": 900,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "1",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c4",
+     "x": 1090,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "3",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c5",
+     "x": 1280,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "win",
+     "region": true,
+     "x": 310,
+     "y": 330,
+     "w": 590,
+     "h": 230,
+     "label": "WINDOW",
+     "tone": "warn"
+    },
+    {
+     "id": "sum",
+     "x": 560,
+     "y": 690,
+     "w": 380,
+     "h": 150,
+     "label": "window sum",
+     "text": "8",
+     "size": 64,
+     "tone": "warn"
+    },
+    {
+     "id": "best",
+     "x": 1000,
+     "y": 690,
+     "w": 380,
+     "h": 150,
+     "label": "best so far",
+     "text": "8",
+     "size": 64,
+     "tone": "good"
+    }
+   ],
+   "changes": [
+    {
+     "id": "win",
+     "move": [
+      500,
+      330
+     ],
+     "cue": "Now slide right"
+    },
+    {
+     "id": "c0",
+     "glow": true,
+     "tone": "bad",
+     "cue": "falls out"
+    },
+    {
+     "id": "c0",
+     "tone": "dim",
+     "cue": "falls out"
+    },
+    {
+     "id": "c3",
+     "glow": true,
+     "tone": "good",
+     "cue": "comes in"
+    },
+    {
+     "id": "sum",
+     "text": "7",
+     "cue": "is seven"
+    },
+    {
+     "id": "win",
+     "move": [
+      690,
+      330
+     ],
+     "cue": "Slide again"
+    },
+    {
+     "id": "c1",
+     "tone": "dim",
+     "cue": "One out"
+    },
+    {
+     "id": "c4",
+     "glow": true,
+     "tone": "good",
+     "cue": "three in"
+    },
+    {
+     "id": "sum",
+     "text": "9",
+     "cue": "nine"
+    },
+    {
+     "id": "best",
+     "text": "9",
+     "cue": "new best"
+    },
+    {
+     "id": "win",
+     "move": [
+      880,
+      330
+     ],
+     "cue": "Slide once more"
+    },
+    {
+     "id": "c2",
+     "tone": "dim",
+     "cue": "five out"
+    },
+    {
+     "id": "c5",
+     "glow": true,
+     "tone": "good",
+     "cue": "two in"
+    },
+    {
+     "id": "sum",
+     "text": "6",
+     "cue": "six"
+    }
+   ],
+   "say": "Start with the first window, sum eight, and remember it as the best. Now slide right. The two falls out, so subtract two. The new one comes in, so add one. Eight minus two plus one is seven. Slide again. One out, three in: nine. That's a new best. Slide once more. Five out, two in: six. Each step costs two operations, however big the window is."
+  },
+  {
+   "type": "code",
+   "head": "The same idea in code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int maxSum(const vector<int>& a, int k) {\n    int cur = 0, best = INT_MIN;\n    for (int i = 0; i < (int)a.size(); i++) {\n        cur += a[i];                  // new one enters\n        if (i >= k) cur -= a[i - k];  // old one leaves\n        if (i >= k - 1) best = max(best, cur);\n    }\n    return best;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "adds the element",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "subtracts the one",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "records the best",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "line": 3,
+     "inside": true,
+     "text": "one pass: O(n)",
+     "tone": "good",
+     "cue": "One pass"
+    }
+   ],
+   "say": "Here it is in code. Each loop adds the element entering on the right. Once the window is full, it subtracts the one leaving on the left. Then it records the best. One pass, so O of n time and O of one extra space, instead of O of n times k for recounting."
+  },
+  {
+   "type": "diagram",
+   "head": "Harder: shortest run with sum at least 7",
+   "items": [
+    {
+     "id": "c0",
+     "x": 330,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c1",
+     "x": 520,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "3",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c2",
+     "x": 710,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "1",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c3",
+     "x": 900,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "2",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c4",
+     "x": 1090,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "4",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "c5",
+     "x": 1280,
+     "y": 360,
+     "w": 170,
+     "h": 170,
+     "text": "3",
+     "size": 64,
+     "tone": "blue"
+    },
+    {
+     "id": "L",
+     "x": 350,
+     "y": 570,
+     "w": 130,
+     "h": 64,
+     "text": "L",
+     "size": 40,
+     "tone": "warn"
+    },
+    {
+     "id": "R",
+     "x": 350,
+     "y": 570,
+     "w": 130,
+     "h": 64,
+     "text": "R",
+     "size": 40,
+     "tone": "good"
+    },
+    {
+     "id": "sum",
+     "x": 560,
+     "y": 720,
+     "w": 380,
+     "h": 150,
+     "label": "sum",
+     "text": "2",
+     "size": 64,
+     "tone": "warn"
+    },
+    {
+     "id": "best",
+     "x": 1000,
+     "y": 720,
+     "w": 380,
+     "h": 150,
+     "label": "shortest",
+     "text": "-",
+     "size": 64,
+     "tone": "good"
+    }
+   ],
+   "changes": [
+    {
+     "id": "R",
+     "move": [
+      920,
+      570
+     ],
+     "cue": "Grow the right end"
+    },
+    {
+     "id": "sum",
+     "text": "8",
+     "cue": "Sum eight"
+    },
+    {
+     "id": "best",
+     "text": "4",
+     "cue": "length four"
+    },
+    {
+     "id": "L",
+     "move": [
+      540,
+      570
+     ],
+     "cue": "Drop the two"
+    },
+    {
+     "id": "c0",
+     "tone": "dim",
+     "cue": "Drop the two"
+    },
+    {
+     "id": "sum",
+     "text": "6",
+     "tone": "bad",
+     "cue": "falls to six"
+    },
+    {
+     "id": "R",
+     "move": [
+      1300,
+      570
+     ],
+     "cue": "Keep doing this"
+    },
+    {
+     "id": "L",
+     "move": [
+      1110,
+      570
+     ],
+     "cue": "Keep doing this"
+    },
+    {
+     "id": "c1",
+     "tone": "dim",
+     "cue": "Keep doing this"
+    },
+    {
+     "id": "c2",
+     "tone": "dim",
+     "cue": "Keep doing this"
+    },
+    {
+     "id": "c3",
+     "tone": "dim",
+     "cue": "Keep doing this"
+    },
+    {
+     "id": "sum",
+     "text": "7",
+     "tone": "good",
+     "cue": "four plus three"
+    },
+    {
+     "id": "c4",
+     "glow": true,
+     "tone": "good",
+     "cue": "four plus three"
+    },
+    {
+     "id": "c5",
+     "glow": true,
+     "tone": "good",
+     "cue": "four plus three"
+    },
+    {
+     "id": "best",
+     "text": "2",
+     "cue": "length two"
+    }
+   ],
+   "say": "Now a harder version. Find the shortest run with a sum of at least seven. This window has two ends that move on their own. Grow the right end until the sum reaches seven. Sum eight, length four. Then shrink from the left while the sum still holds. Drop the two, and it falls to six. Too small, so grow again. Keep doing this, and the shortest you find is four plus three, length two. Both ends only move forward, so it's still O of n."
+  },
+  {
+   "type": "flow",
+   "head": "How to spot it in a test",
+   "items": [
+    {
+     "label": "signal 1",
+     "text": "contiguous",
+     "sub": "subarray or substring",
+     "cue": "contiguous"
+    },
+    {
+     "label": "signal 2",
+     "text": "longest / shortest / max",
+     "sub": "one best range",
+     "cue": "longest, shortest"
+    },
+    {
+     "label": "signal 3",
+     "text": "cheap update",
+     "sub": "when one enters or leaves",
+     "cue": "update the answer"
+    }
+   ],
+   "say": "How do you spot it in a test? Three signals. The question is about a contiguous subarray or substring. It wants the longest, shortest, or best one. And you can update the answer cheaply when one element enters or leaves. Classic problems: longest substring without repeating characters, minimum size subarray sum, and maximum sum of size k."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rowHeads": [
+    "Complexity",
+    "Edge case",
+    "Variants",
+    "Mistake"
+   ],
+   "rows": [
+    [
+     "Why is it O(n)?",
+     "Each element enters once and leaves once"
+    ],
+    [
+     "What about negative numbers?",
+     "Shrinking is unsafe: use prefix sums + a deque"
+    ],
+    [
+     "Fixed or variable window?",
+     "Fixed slides by one; variable grows right, shrinks left"
+    ],
+    [
+     "Common mistake",
+     "Recounting the whole window every step"
+    ]
+   ],
+   "cues": [
+    "Why is it",
+    "negative numbers",
+    "Fixed or variable",
+    "common mistake"
+   ],
+   "say": "Expect these follow-ups. Why is it O of n? Each element enters once and leaves once. What about negative numbers? Then shrinking is not safe, so switch to prefix sums with a deque. Fixed or variable window? Fixed slides by one, variable grows right and shrinks left. And the common mistake: recounting the whole window every step."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Sliding window: add what enters, subtract what leaves.",
+    "Each element moves in and out once, so O(n) instead of O(n\u00b7k).",
+    "Use it for contiguous ranges asking for longest, shortest or best."
+   ],
+   "cues": [
+    "So say this",
+    "in and out once",
+    "Use it"
+   ],
+   "say": "So say this. A sliding window keeps a running answer for a contiguous range. Add what enters, subtract what leaves. Each element moves in and out once, so it's O of n instead of O of n times k. Use it whenever a contiguous range asks for the longest, shortest, or best."
+  }
+ ]
+}

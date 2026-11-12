@@ -1,0 +1,56 @@
+{
+  "id": "be05", "num": 5, "series": "Backend", "short": "SQL vs NoSQL",
+  "question": "S Q L versus NoSQL: how do you choose?",
+  "caps": [["No S Q L", "NoSQL"], ["jsonb", "JSONB"]],
+  "scenes": [
+    { "type": "title", "sub": "Spreadsheets with rules, or boxes you can stuff anything into.",
+      "say": "S Q L versus No S Q L. This is not a fight with a winner. It is a choice, and you should be able to explain how you make it." },
+
+    { "type": "diagram", "head": "Think of two ways to store orders",
+      "items": [
+        { "id": "s", "x": 140, "y": 330, "w": 700, "h": 170, "label": "S Q L: linked spreadsheets", "text": "orders  +  items", "size": 40, "tone": "blue", "cue": "linked spreadsheets" },
+        { "id": "s2", "x": 140, "y": 640, "w": 700, "h": 130, "text": "strict columns, joins", "size": 34, "cue": "strict columns" },
+        { "id": "d", "x": 1060, "y": 330, "w": 700, "h": 170, "label": "No S Q L: a folder per order", "text": "one document", "size": 40, "tone": "warn", "cue": "folder per order" },
+        { "id": "d2", "x": 1060, "y": 640, "w": 700, "h": 130, "text": "flexible shape, one lookup", "size": 34, "cue": "flexible" }
+      ],
+      "say": "Imagine two ways to store orders. S Q L is like linked spreadsheets: an orders sheet and an items sheet, with strict columns, joined by id. No S Q L, in the document style, is a folder per order, with everything about it inside, and a flexible shape." },
+
+    { "type": "code", "head": "Same order, two shapes",
+      "panels": [
+        { "file": "order.sql", "size": 30, "code": "SELECT o.id, i.sku, i.qty\nFROM orders o\nJOIN order_items i\n  ON i.order_id = o.id\nWHERE o.id = 7;\n\n-- two tables, joined" },
+        { "file": "order.js", "size": 30, "code": "db.orders.findOne({ id: 7 })\n\n// {\n//   id: 7, userId: 3,\n//   items: [\n//     {sku: 'A1', qty: 2},\n//     {sku: 'B9', qty: 1}\n//   ]\n// } one read" }
+      ],
+      "steps": [
+        { "cue": "In S Q L", "panel": 0, "lines": [1, 2, 3, 4, 5] },
+        { "cue": "document store", "panel": 1, "lines": [1, 3, 4, 5, 6, 7, 8, 9] }
+      ],
+      "say": "In S Q L, you join two tables to rebuild order seven. In a document store, order seven is stored whole, items nested inside, and you read it with one lookup. The document is faster for that one access pattern. But asking which products sold best across all orders is easy in S Q L, and awkward in documents." },
+
+    { "type": "compare", "head": "How to choose",
+      "heads": ["S Q L (Postgres)", "NoSQL (Mongo, Dynamo)"], "rowHeads": ["Data shape", "Relationships", "Transactions", "Scaling", "Schema"],
+      "rows": [
+        ["Tables, fixed columns", "Documents, keys, flexible"],
+        ["Joins are natural", "Duplicate or look up in code"],
+        ["Strong, multi-row", "Often per item, varies"],
+        ["Vertical first, then replicas", "Built to spread across nodes"],
+        ["Enforced by the database", "Enforced by your code"]
+      ],
+      "cues": ["data shape", "relationships", "transactions", "scaling", "schema"],
+      "say": "Look at five things. The data shape: tables versus documents. Relationships: joins are natural in S Q L. Transactions: strong across rows in S Q L. Scaling: S Q L scales up first, then with replicas, while many No S Q L stores spread across nodes from the start. And schema: enforced by the database, or by your code." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["Your default?", "When NoSQL?", "Can Postgres do J S O N?", "Common mistake"],
+      "rows": [
+        ["Postgres", "Relational, mature, handles most apps"],
+        ["Huge scale, simple key access, changing shape", "Think logs, carts, sessions"],
+        ["Yes, with the JSONB type", "Semi-structured fields beside tables"],
+        ["Picking NoSQL because it is trendy", "Pick from access patterns"]
+      ],
+      "cues": ["default", "When No", "Can Postgres", "mistake"],
+      "say": "Likely follow-ups. Your default? Postgres. When No S Q L? Huge scale, simple key access, or a shape that keeps changing. Can Postgres store J S O N? Yes, with the jsonb type. The common mistake is picking No S Q L because it is trendy, instead of from access patterns." },
+
+    { "type": "take", "lines": ["I start with Postgres: joins, transactions, strict schema.", "I move to NoSQL when scale or access patterns demand it, and I say why."],
+      "cues": ["I start", "I move"],
+      "say": "I start with Postgres: joins, transactions, a strict schema. I move to No S Q L when scale or access patterns demand it, and I say why." }
+  ]
+}

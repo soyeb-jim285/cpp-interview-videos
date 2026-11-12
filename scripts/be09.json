@@ -1,0 +1,352 @@
+{
+  "id": "be09",
+  "num": 9,
+  "series": "Backend",
+  "short": "Rate limiting: token bucket",
+  "question": "How would you implement rate limiting? Explain the token bucket.",
+  "caps": [
+    [
+      "four twenty nine",
+      "429"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "A bucket of tokens that refills at a steady rate.",
+      "say": "Rate limiting. It protects your service from abuse and from one noisy client. The classic answer is a token bucket."
+    },
+    {
+      "type": "flow",
+      "head": "Think of an arcade coin jar",
+      "items": [
+        {
+          "label": "Jar",
+          "text": "3 coins",
+          "sub": "holds at most 3",
+          "tone": "warn",
+          "cue": "jar"
+        },
+        {
+          "label": "Play",
+          "text": "costs 1 coin",
+          "sub": "jar empty? wait",
+          "cue": "Each game"
+        },
+        {
+          "label": "Refill",
+          "text": "+1 per second",
+          "sub": "never above 3",
+          "tone": "good",
+          "cue": "Every second"
+        }
+      ],
+      "say": "Picture an arcade coin jar. The jar holds at most three coins. Each game costs one coin. If the jar is empty, you wait. Every second, one coin drops back in, but never above three. That's the whole idea of a token bucket."
+    },
+    {
+      "type": "diagram",
+      "head": "Capacity three, refill one token per second",
+      "items": [
+        {
+          "id": "cl",
+          "x": 140,
+          "y": 420,
+          "w": 300,
+          "h": 130,
+          "label": "Client",
+          "text": "request",
+          "size": 36,
+          "tone": "blue",
+          "cue": "A client sends"
+        },
+        {
+          "id": "bk",
+          "x": 760,
+          "y": 400,
+          "w": 400,
+          "h": 170,
+          "label": "Bucket (capacity 3)",
+          "text": "3 tokens",
+          "size": 48,
+          "tone": "warn",
+          "cue": "The bucket starts full"
+        },
+        {
+          "id": "ok",
+          "x": 1420,
+          "y": 260,
+          "w": 340,
+          "h": 130,
+          "text": "200 OK",
+          "size": 40,
+          "tone": "good",
+          "cue": "passes through"
+        },
+        {
+          "id": "no",
+          "x": 1420,
+          "y": 640,
+          "w": 340,
+          "h": 130,
+          "text": "429",
+          "sub": "Too Many Requests",
+          "size": 40,
+          "tone": "bad",
+          "cue": "gets rejected"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "cl",
+          "to": "bk",
+          "cue": "A client sends"
+        },
+        {
+          "from": "bk",
+          "to": "ok",
+          "tone": "good",
+          "cue": "passes through"
+        },
+        {
+          "from": "bk",
+          "to": "no",
+          "tone": "bad",
+          "cue": "gets rejected"
+        }
+      ],
+      "changes": [
+        {
+          "id": "bk",
+          "text": "2 tokens",
+          "cue": "takes one token"
+        },
+        {
+          "id": "bk",
+          "text": "0 tokens",
+          "cue": "Two more requests"
+        },
+        {
+          "id": "bk",
+          "tone": "bad",
+          "cue": "bucket is empty"
+        },
+        {
+          "id": "bk",
+          "text": "1 token",
+          "cue": "refills"
+        },
+        {
+          "id": "bk",
+          "tone": "good",
+          "cue": "refills"
+        }
+      ],
+      "say": "A client sends requests. The bucket starts full, with three tokens. Each request takes one token and passes through. Two more requests in a burst, and the bucket is empty. The next request gets rejected with four twenty nine. But the bucket refills one token every second, so a moment later, one more request can pass."
+    },
+    {
+      "type": "code",
+      "head": "The whole algorithm, no timer needed",
+      "panels": [
+        {
+          "file": "bucket.py",
+          "size": 32,
+          "code": "import time\n\nclass TokenBucket:\n    def __init__(self, rate, cap):\n        self.rate, self.cap = rate, cap\n        self.tokens, self.last = cap, time.monotonic()\n\n    def allow(self):\n        now = time.monotonic()\n        gained = (now - self.last) * self.rate\n        self.tokens = min(self.cap, self.tokens + gained)\n        self.last = now\n        if self.tokens >= 1:\n            self.tokens -= 1\n            return True\n        return False"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "Two numbers",
+          "lines": [
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "cue": "On every request",
+          "lines": [
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "cue": "If at least one",
+          "lines": [
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "cue": "Otherwise",
+          "lines": [
+            16
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "never above capacity",
+          "line": 11,
+          "inside": true,
+          "text": "cap the refill",
+          "tone": "info"
+        }
+      ],
+      "say": "Two numbers define it: the refill rate and the capacity. There is no background timer. On every request, we compute how many tokens were earned since the last call, and add them, never above capacity. If at least one token is there, spend it and allow. Otherwise, reject. It's constant time and constant memory per client."
+    },
+    {
+      "type": "diagram",
+      "head": "Follow-up: many servers",
+      "items": [
+        {
+          "id": "s1",
+          "x": 140,
+          "y": 260,
+          "w": 300,
+          "h": 120,
+          "text": "App server 1",
+          "size": 32,
+          "tone": "blue",
+          "cue": "many app servers"
+        },
+        {
+          "id": "s2",
+          "x": 140,
+          "y": 640,
+          "w": 300,
+          "h": 120,
+          "text": "App server 2",
+          "size": 32,
+          "tone": "blue",
+          "cue": "many app servers"
+        },
+        {
+          "id": "rd",
+          "x": 760,
+          "y": 420,
+          "w": 420,
+          "h": 180,
+          "label": "Redis",
+          "text": "user42: 3",
+          "sub": "atomic Lua script",
+          "size": 40,
+          "tone": "warn",
+          "cue": "shared store"
+        },
+        {
+          "id": "ky",
+          "x": 1380,
+          "y": 440,
+          "w": 380,
+          "h": 140,
+          "text": "key per user",
+          "sub": "or per A P I key, or I P",
+          "size": 32,
+          "tone": "ghost",
+          "cue": "key per user"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "s1",
+          "to": "rd",
+          "cue": "many app servers"
+        },
+        {
+          "from": "s2",
+          "to": "rd",
+          "cue": "many app servers"
+        },
+        {
+          "from": "rd",
+          "to": "ky",
+          "cue": "key per user"
+        }
+      ],
+      "say": "The follow-up: what if you have many app servers? Keeping the bucket in local memory means each server counts separately. So keep it in a shared store like Redis, with a key per user. The read, refill and decrement must be one atomic step, usually a small Lua script. Otherwise two servers race and both spend the same token."
+    },
+    {
+      "type": "compare",
+      "head": "Other algorithms",
+      "heads": [
+        "Idea",
+        "Catch"
+      ],
+      "rowHeads": [
+        "Fixed window",
+        "Sliding window",
+        "Token bucket"
+      ],
+      "rows": [
+        [
+          "Count requests per minute",
+          "Double burst at the window edge"
+        ],
+        [
+          "Count over the last sixty seconds",
+          "More memory, more work"
+        ],
+        [
+          "Spend tokens, refill steadily",
+          "Allows bursts up to capacity"
+        ]
+      ],
+      "cues": [
+        "Fixed window",
+        "Sliding window",
+        "Token bucket allows"
+      ],
+      "say": "Fixed window counts requests per minute, but a client can send a full quota at the end of one minute and again at the start of the next. Sliding window fixes that, with more memory. Token bucket allows short bursts, then enforces the average rate. Good API responses also include a Retry After header."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "Likely follow-up",
+        "One-line answer"
+      ],
+      "rows": [
+        [
+          "Many servers?",
+          "Shared Redis with an atomic Lua script, key per user"
+        ],
+        [
+          "Burst vs steady?",
+          "Capacity allows bursts, refill rate sets the average"
+        ],
+        [
+          "What status code?",
+          "429 Too Many Requests, plus Retry-After header"
+        ],
+        [
+          "Common mistake",
+          "Counting in local memory, or non-atomic read then write"
+        ]
+      ],
+      "cues": [
+        "Many servers",
+        "Burst versus",
+        "Which status",
+        "common mistake"
+      ],
+      "say": "Likely follow-ups. Many servers? Shared Redis with an atomic script. Burst versus steady? Capacity allows bursts, refill rate sets the average. Which status code? Four twenty nine. The common mistake: counting in local memory on each server, or doing a non atomic read then write, which lets a race through."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Token bucket: tokens refill at a fixed rate, each request spends one.",
+        "Compute refill lazily from timestamps, so no timer is needed.",
+        "Across servers: shared Redis, atomic script, return 429 with Retry-After."
+      ],
+      "cues": [
+        "A token bucket",
+        "Compute the refill",
+        "Across many servers"
+      ],
+      "say": "A token bucket refills at a fixed rate, and each request spends one token, so bursts are allowed but the average is capped. Compute the refill lazily from timestamps. Across many servers, use shared Redis with an atomic script, and answer with four twenty nine and a Retry After header."
+    }
+  ]
+}

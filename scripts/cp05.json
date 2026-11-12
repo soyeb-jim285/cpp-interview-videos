@@ -1,0 +1,449 @@
+{
+ "id": "cp05",
+ "num": 5,
+ "series": "DSA",
+ "short": "Prefix sums",
+ "question": "What are prefix sums and difference arrays?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Pay once to precompute. Answer every range question in one step.",
+   "say": "Prefix sums answer range sum questions instantly. Difference arrays are the same idea run backwards, for range updates."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a car odometer",
+   "items": [
+    {
+     "label": "Start of trip",
+     "text": "30 km",
+     "sub": "odometer reading",
+     "cue": "thirty"
+    },
+    {
+     "label": "End of trip",
+     "text": "80 km",
+     "sub": "odometer reading",
+     "cue": "eighty"
+    },
+    {
+     "label": "Trip length",
+     "text": "80 - 30 = 50",
+     "sub": "one subtraction",
+     "cue": "one subtraction"
+    }
+   ],
+   "say": "Think of a car odometer. At the start of a trip it shows thirty. At the end, eighty. The trip was eighty minus thirty, fifty kilometers. One subtraction, and you never re-drive the road. A prefix sum array is an odometer for your array."
+  },
+  {
+   "type": "diagram",
+   "head": "Array [3, 1, 4, 1, 5]: sum of index 1 to 3",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "vector<long long> p(n + 1, 0);\nfor (int i = 0; i < n; i++)\n    p[i + 1] = p[i] + a[i];\n\n// sum of a[l..r], inclusive\nlong long q = p[r + 1] - p[l];"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "running total",
+     "lines": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "Look up the total",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "ar0",
+     "x": 1020,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array three",
+     "label": "array a"
+    },
+    {
+     "id": "ar1",
+     "x": 1150,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array three"
+    },
+    {
+     "id": "ar2",
+     "x": 1280,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array three"
+    },
+    {
+     "id": "ar3",
+     "x": 1410,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array three"
+    },
+    {
+     "id": "ar4",
+     "x": 1540,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array three"
+    },
+    {
+     "id": "p0",
+     "x": 1020,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "",
+     "cue": "Start with zero",
+     "label": "running total p"
+    },
+    {
+     "id": "p1",
+     "x": 1150,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "3",
+     "size": 40,
+     "tone": "",
+     "cue": "Add three"
+    },
+    {
+     "id": "p2",
+     "x": 1280,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 40,
+     "tone": "",
+     "cue": "Add one: four"
+    },
+    {
+     "id": "p3",
+     "x": 1410,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "8",
+     "size": 40,
+     "tone": "",
+     "cue": "Add four"
+    },
+    {
+     "id": "p4",
+     "x": 1540,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "9",
+     "size": 40,
+     "tone": "",
+     "cue": "Add one: nine"
+    },
+    {
+     "id": "p5",
+     "x": 1670,
+     "y": 520,
+     "w": 110,
+     "h": 110,
+     "text": "14",
+     "size": 40,
+     "tone": "",
+     "cue": "Add five"
+    },
+    {
+     "id": "res",
+     "x": 1020,
+     "y": 740,
+     "w": 760,
+     "h": 120,
+     "label": "sum of index 1 to 3",
+     "text": "?",
+     "size": 44,
+     "tone": "warn",
+     "cue": "Now a query"
+    }
+   ],
+   "changes": [
+    {
+     "id": "p4",
+     "tone": "warn",
+     "cue": "Look up the total"
+    },
+    {
+     "id": "p1",
+     "tone": "warn",
+     "cue": "Subtract the total"
+    },
+    {
+     "id": "res",
+     "text": "9 - 3 = 6",
+     "cue": "Nine minus three"
+    },
+    {
+     "id": "res",
+     "tone": "good",
+     "cue": "Check"
+    }
+   ],
+   "say": "Array three, one, four, one, five. Build a running total. Start with zero. Add three: three. Add one: four. Add four: eight. Add one: nine. Add five: fourteen. Now a query: sum of index one to three. Look up the total at four, nine. Subtract the total at one, three. Nine minus three is six. Check: one plus four plus one is six. Any query is one subtraction."
+  },
+  {
+   "type": "diagram",
+   "head": "Difference array: many range updates, one answer",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "for (auto [l, r, v] : ops) {\n    d[l] += v;        // start adding here\n    d[r + 1] -= v;    // stop adding here\n}\nfor (int i = 1; i < n; i++)\n    d[i] += d[i - 1];  // running total"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "mark only the ends",
+     "lines": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "take the running total",
+     "lines": [
+      5,
+      6
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "d0",
+     "x": 1020,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two",
+     "label": "marks d"
+    },
+    {
+     "id": "d1",
+     "x": 1150,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two"
+    },
+    {
+     "id": "d2",
+     "x": 1280,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two"
+    },
+    {
+     "id": "d3",
+     "x": 1410,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two"
+    },
+    {
+     "id": "d4",
+     "x": 1540,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two"
+    },
+    {
+     "id": "d5",
+     "x": 1670,
+     "y": 290,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Add two"
+    },
+    {
+     "id": "r0",
+     "x": 1020,
+     "y": 560,
+     "w": 110,
+     "h": 110,
+     "text": "0",
+     "size": 40,
+     "tone": "good",
+     "cue": "take the running total",
+     "label": "after running total"
+    },
+    {
+     "id": "r1",
+     "x": 1150,
+     "y": 560,
+     "w": 110,
+     "h": 110,
+     "text": "2",
+     "size": 40,
+     "tone": "good",
+     "cue": "take the running total"
+    },
+    {
+     "id": "r2",
+     "x": 1280,
+     "y": 560,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 40,
+     "tone": "good",
+     "cue": "take the running total"
+    },
+    {
+     "id": "r3",
+     "x": 1410,
+     "y": 560,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 40,
+     "tone": "good",
+     "cue": "take the running total"
+    },
+    {
+     "id": "r4",
+     "x": 1540,
+     "y": 560,
+     "w": 110,
+     "h": 110,
+     "text": "3",
+     "size": 40,
+     "tone": "good",
+     "cue": "take the running total"
+    }
+   ],
+   "changes": [
+    {
+     "id": "d1",
+     "text": "2",
+     "cue": "plus two at index one"
+    },
+    {
+     "id": "d4",
+     "text": "-2",
+     "cue": "minus two at index four"
+    },
+    {
+     "id": "d2",
+     "text": "3",
+     "cue": "plus three at index two"
+    },
+    {
+     "id": "d5",
+     "text": "-3",
+     "cue": "minus three at index five"
+    }
+   ],
+   "say": "Different problem: many range updates, one final answer. Add two to indexes one to three. Instead of touching three cells, mark only the ends: plus two at index one, minus two at index four. Add three to indexes two to four: plus three at index two, minus three at index five. Now take the running total. Zero, two, five, five, three. Each update costs two steps, however long the range."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Updates between queries?",
+     "Prefix sums are static. Use a Fenwick tree."
+    ],
+    [
+     "Subarray sum equals k?",
+     "Prefix sum plus a hash map of sums seen. O of n."
+    ],
+    [
+     "Why n plus one entries?",
+     "p zero is the empty prefix, so index l zero works."
+    ],
+    [
+     "Common mistake",
+     "Off by one, and int overflow. Use long long."
+    ]
+   ],
+   "cues": [
+    "Updates between",
+    "Subarray sum",
+    "Why n plus one",
+    "Common mistake"
+   ],
+   "say": "Updates between queries? Prefix sums are static, so use a Fenwick tree. Subarray sum equals k? Prefix sums plus a hash map. Why n plus one entries? The first is the empty prefix, so a range starting at zero works. Common mistake: off by one, and overflow."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Prefix sums: p[i+1] = p[i] + a[i]. Range sum = p[r+1] - p[l].",
+    "Build in O(n), then every query is O(1).",
+    "Difference arrays do range updates the same way."
+   ],
+   "cues": [
+    "Prefix sums",
+    "Build",
+    "Difference arrays"
+   ],
+   "say": "Prefix sums: build a running total once, then any range sum is one subtraction. Build is O of n, each query is O of 1. Difference arrays do range updates the same way."
+  }
+ ]
+}

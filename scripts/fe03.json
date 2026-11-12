@@ -1,0 +1,306 @@
+{
+  "id": "fe03",
+  "num": 3,
+  "series": "Frontend",
+  "short": "Closures, scope, this",
+  "question": "What is a closure? How do scope and this work in JavaScript?",
+  "caps": [
+    [
+      "var",
+      "var"
+    ],
+    [
+      "let",
+      "let"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "A function remembers where it was born.",
+      "say": "Closures, scope, and this. Three topics, one idea underneath: scope is decided by where code is written, but this is decided by how a function is called."
+    },
+    {
+      "type": "diagram",
+      "head": "Think of a backpack",
+      "items": [
+        {
+          "id": "fn",
+          "x": 300,
+          "y": 400,
+          "w": 520,
+          "h": 150,
+          "label": "Inner function",
+          "text": "count plus one",
+          "size": 34,
+          "tone": "blue",
+          "cue": "function"
+        },
+        {
+          "id": "bp",
+          "x": 1100,
+          "y": 400,
+          "w": 520,
+          "h": 150,
+          "label": "Its backpack",
+          "text": "count is 0",
+          "size": 36,
+          "tone": "good",
+          "cue": "backpack"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "fn",
+          "to": "bp",
+          "cue": "carries"
+        }
+      ],
+      "changes": [
+        {
+          "id": "bp",
+          "text": "count is 1",
+          "cue": "every time"
+        }
+      ],
+      "say": "Think of a backpack. When a function is created, it packs the variables around it into a backpack. Wherever the function travels, it carries that backpack. Every time it runs, it uses what is in its own backpack. That backpack is a closure."
+    },
+    {
+      "type": "diagram",
+      "head": "A closure remembers its scope",
+      "panels": [
+        {
+          "file": "counter.js",
+          "size": 34,
+          "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\nconst a = makeCounter();\nconst b = makeCounter();\na(); a(); b();\n// a() is 1, then 2. b() is 1."
+        }
+      ],
+      "steps": [
+        {
+          "cue": "makeCounter runs",
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "cue": "Two calls",
+          "lines": [
+            5,
+            6
+          ]
+        },
+        {
+          "cue": "Calling a twice",
+          "lines": [
+            7
+          ]
+        }
+      ],
+      "items": [
+        {
+          "id": "ca",
+          "x": 1050,
+          "y": 300,
+          "w": 300,
+          "h": 130,
+          "label": "a's scope",
+          "text": "count 0",
+          "size": 40,
+          "tone": "blue",
+          "cue": "Two calls"
+        },
+        {
+          "id": "cb",
+          "x": 1450,
+          "y": 300,
+          "w": 300,
+          "h": 130,
+          "label": "b's scope",
+          "text": "count 0",
+          "size": 40,
+          "tone": "good",
+          "cue": "Two calls"
+        },
+        {
+          "id": "fa",
+          "x": 1050,
+          "y": 640,
+          "w": 300,
+          "h": 110,
+          "text": "function a",
+          "size": 34,
+          "tone": "ghost",
+          "cue": "Two calls"
+        },
+        {
+          "id": "fb",
+          "x": 1450,
+          "y": 640,
+          "w": 300,
+          "h": 110,
+          "text": "function b",
+          "size": 34,
+          "tone": "ghost",
+          "cue": "Two calls"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "fa",
+          "to": "ca",
+          "cue": "keeps its own"
+        },
+        {
+          "from": "fb",
+          "to": "cb",
+          "cue": "keeps its own"
+        }
+      ],
+      "changes": [
+        {
+          "id": "ca",
+          "text": "count 2",
+          "cue": "Calling a twice"
+        },
+        {
+          "id": "cb",
+          "text": "count 1",
+          "cue": "b is untouched"
+        }
+      ],
+      "say": "When makeCounter runs, it creates a variable count and returns a small function. Normally count would die when makeCounter returns. It doesn't, because the inner function keeps a reference to it. That is a closure: a function plus the variables it was defined with. Two calls make two separate scopes, and each function keeps its own. Calling a twice gives two. b is untouched."
+    },
+    {
+      "type": "code",
+      "head": "The classic loop trap",
+      "panels": [
+        {
+          "file": "loop.js",
+          "size": 34,
+          "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log('var', i), 0);\n}\n\nfor (let j = 0; j < 3; j++) {\n  setTimeout(() => console.log('let', j), 0);\n}"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "With var",
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "cue": "With let",
+          "lines": [
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "output": {
+        "cmd": "node loop.js",
+        "cue": "Output",
+        "text": "var 3\nvar 3\nvar 3\nlet 0\nlet 1\nlet 2"
+      },
+      "say": "The interview classic. With var, there is one i for the whole function. All three callbacks share it, and by the time the timers fire, the loop has finished and i is three. With let, every iteration gets its own fresh j, so each closure sees its own value. Output: three, three, three, then zero, one, two."
+    },
+    {
+      "type": "code",
+      "head": "this depends on the call",
+      "panels": [
+        {
+          "file": "this.js",
+          "size": 34,
+          "code": "class User {\n  name = 'Ada';\n  hi() { return this.name; }\n}\nconst u = new User();\nu.hi();            // 'Ada'\nconst f = u.hi;\nf();               // TypeError\nconst g = u.hi.bind(u);\ng();               // 'Ada'"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "dot call",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "cue": "detach the method",
+          "lines": [
+            7,
+            8
+          ]
+        },
+        {
+          "cue": "bind",
+          "lines": [
+            9,
+            10
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "TypeError",
+          "line": 8,
+          "inside": true,
+          "text": "this is undefined",
+          "tone": "bad"
+        }
+      ],
+      "say": "For this, look at the call site. In a dot call, u dot hi, this is the object before the dot. If you detach the method and call it bare, this is lost. In a class body, strict mode makes it undefined, so you get a TypeError. Fix it with bind, which locks this in. Arrow functions are different: they have no this of their own, and use the one from where they were written."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rows": [
+        [
+          "Why use a closure?",
+          "Private state, factories, callbacks, memoization."
+        ],
+        [
+          "Closure downside?",
+          "It keeps variables alive, so it can leak memory."
+        ],
+        [
+          "var vs let?",
+          "var is function scoped, let is block scoped."
+        ],
+        [
+          "Arrow vs normal this?",
+          "Arrow uses the outer this. Normal depends on the call."
+        ],
+        [
+          "Common mistake",
+          "Using var in a loop with async callbacks."
+        ]
+      ],
+      "cues": [
+        "closure",
+        "downside",
+        "var",
+        "Arrow",
+        "mistake"
+      ],
+      "say": "Likely follow-ups. Why use a closure? Private state, factories, callbacks, memoization. Downside? It keeps variables alive, so it can leak memory. Var versus let? Function scoped versus block scoped. Arrow versus normal this? Arrow uses the outer this, normal depends on the call. The common mistake: using var in a loop with async callbacks."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Closure: a function plus the variables from where it was defined.",
+        "var is function scoped, let is block scoped. That fixes the loop trap.",
+        "this is set by the call. Arrow functions inherit it. bind fixes it."
+      ],
+      "cues": [
+        "Closure",
+        "var is function",
+        "this is set"
+      ],
+      "say": "A closure is a function plus the variables from where it was defined. var is function scoped, let is block scoped, which fixes the loop trap. And this is set by how you call the function. Arrow functions inherit it, and bind fixes it."
+    }
+  ]
+}

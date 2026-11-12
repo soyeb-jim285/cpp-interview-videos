@@ -1,0 +1,61 @@
+{
+  "id": "fe06", "num": 6, "series": "Frontend", "short": "Hooks and stale closures",
+  "question": "How do useState and useEffect work? What is a stale closure?",
+  "caps": [["use state", "useState"], ["use effect", "useEffect"], ["set count", "setCount"]],
+  "scenes": [
+    { "type": "title", "sub": "Every render is a snapshot. Hooks keep state between snapshots.",
+      "say": "Hooks. Use state, use effect, and the famous stale closure bug. One idea explains all three." },
+
+    { "type": "flow", "head": "Think of photographs", "y": 400, "h": 250,
+      "items": [
+        { "label": "render 1", "text": "count 0", "sub": "photo of the screen", "cue": "first photo" },
+        { "label": "you click", "text": "set count", "sub": "ask for a new photo", "tone": "warn", "cue": "ask" },
+        { "label": "render 2", "text": "count 1", "sub": "a brand new photo", "tone": "good", "cue": "brand new" }
+      ],
+      "say": "Think of photographs. Each time a component renders, React takes a photo of your screen. In the first photo, count is zero. That number is frozen in the photo. When you click, you ask React for a new photo, and in the brand new one, count is one. You never change an old photo." },
+
+    { "type": "code", "head": "useState: the snapshot rule",
+      "panels": [{ "file": "App.tsx", "size": 34, "code": "const [count, setCount] = useState(0);\n\nfunction addThree() {\n  setCount(count + 1);   // 0 + 1\n  setCount(count + 1);   // 0 + 1\n  setCount(count + 1);   // 0 + 1\n}                        // result: 1\n\nsetCount(c => c + 1);    // updater: uses latest" }],
+      "steps": [
+        { "cue": "In this render", "lines": [1] },
+        { "cue": "All three calls", "lines": [4, 5, 6] },
+        { "cue": "updater", "lines": [9] }
+      ],
+      "notes": [{ "cue": "ends at one", "line": 7, "inside": true, "text": "not 3", "tone": "bad" }],
+      "say": "In this render, count is zero. Click add three. All three calls say zero plus one, so the screen ends at one, not three. Fix it by passing an updater function: set count of c becomes c plus one. React feeds it the latest value each time, so you get three. Use the updater whenever the new state depends on the old." },
+
+    { "type": "code", "head": "useEffect and its dependency array",
+      "panels": [{ "file": "Title.tsx", "size": 34, "code": "useEffect(() => {\n  document.title = `Count ${count}`;\n}, [count]);          // runs when count changes\n\nuseEffect(() => {\n  const id = setInterval(tick, 1000);\n  return () => clearInterval(id);   // cleanup\n}, []);               // runs once on mount" }],
+      "steps": [
+        { "cue": "Dependency array", "lines": [1, 2, 3] },
+        { "cue": "empty array", "lines": [5, 6, 7, 8] },
+        { "cue": "cleanup", "lines": [7] }
+      ],
+      "say": "Use effect runs code after the screen updates. The dependency array says when: only if one of these values changed since the last render. An empty array means once, after the first render. The function you return is the cleanup. React runs it before the next effect and when the component goes away, so timers and listeners do not leak." },
+
+    { "type": "code", "head": "The stale closure bug",
+      "panels": [{ "file": "Timer.tsx", "size": 34, "code": "useEffect(() => {\n  const id = setInterval(() => {\n    setCount(count + 1);   // count is 0 forever\n  }, 1000);\n  return () => clearInterval(id);\n}, []);                    // bug: count missing\n\n// fix: setCount(c => c + 1)" }],
+      "steps": [
+        { "cue": "first render", "lines": [1, 2, 3] },
+        { "cue": "empty array", "lines": [6] },
+        { "cue": "updater", "lines": [8] }
+      ],
+      "notes": [{ "cue": "sticks at one", "line": 3, "inside": true, "text": "always 0 + 1", "tone": "bad" }],
+      "say": "Now the bug. The effect runs once, in the first render, and the interval captured that photo where count is zero. Every second it sets zero plus one. The counter sticks at one. The empty array lied about the dependencies. Fix it with the updater, or list count in the array so the effect re-runs. The lint rule exhaustive deps catches this." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["Is setState synchronous?", "No. It schedules a render. The current variable stays the same."],
+        ["Rules of hooks?", "Top level only, never in loops or conditions."],
+        ["Effect with no array?", "Runs after every render."],
+        ["Common mistake", "Lying in the dependency array to stop re-runs."]
+      ],
+      "cues": ["synchronous", "Rules", "no array", "mistake"],
+      "say": "Likely follow-ups. Is set state synchronous? No, it schedules a render, and the current variable stays the same. Rules of hooks? Top level only, never in loops or conditions. Effect with no array? Runs after every render. The common mistake: lying in the dependency array to stop re-runs." },
+
+    { "type": "take", "lines": ["Each render is a snapshot. State values inside it never change.", "Use effect dependencies must list everything the effect reads.", "Use the updater form when new state depends on old state."],
+      "cues": ["Each render", "Use effect", "updater"],
+      "say": "Each render is a snapshot, and state values inside it never change. Use effect dependencies must list everything the effect reads. And use the updater form when new state depends on old state." }
+  ]
+}

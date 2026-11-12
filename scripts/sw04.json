@@ -1,0 +1,91 @@
+{
+  "id": "sw04", "num": 4, "series": "SWE", "short": "Design patterns that matter",
+  "question": "Which design patterns have you actually used? Explain strategy, factory, observer and dependency injection.",
+  "caps": [["f string", "f-string"]],
+  "scenes": [
+    { "type": "title", "sub": "Four patterns. Each one is just a named trick to avoid rewriting code.",
+      "say": "Design patterns. There are dozens, but four come up again and again: strategy, factory, observer, and dependency injection. A pattern is just a named, reusable solution." },
+
+    { "type": "diagram", "head": "Analogy: paying at a shop",
+      "items": [
+        { "id": "till", "x": 740, "y": 280, "w": 440, "h": 170, "text": "Till", "sub": "takes any payment method", "size": 52, "tone": "blue", "cue": "till" },
+        { "id": "p1", "x": 160, "y": 650, "w": 400, "h": 150, "text": "Card", "size": 44, "cue": "card" },
+        { "id": "p2", "x": 760, "y": 650, "w": 400, "h": 150, "text": "Cash", "size": 44, "cue": "cash" },
+        { "id": "p3", "x": 1360, "y": 650, "w": 400, "h": 150, "text": "Phone", "size": 44, "cue": "phone" }
+      ],
+      "arrows": [
+        { "from": "till", "to": "p1", "cue": "card" },
+        { "from": "till", "to": "p2", "cue": "cash" },
+        { "from": "till", "to": "p3", "cue": "phone" }
+      ],
+      "say": "Picture a shop till. You hand it a card, or cash, or your phone. The till does not care which. It just asks for the payment to be taken. You choose the method, the till stays the same. That is the idea behind the first two patterns." },
+
+    { "type": "code", "head": "Strategy: swap the behavior",
+      "panels": [{ "file": "app.py", "size": 34, "code": "def card(amount):\n    return f\"card paid {amount}\"\n\ndef paypal(amount):\n    return f\"paypal paid {amount}\"\n\ndef checkout(pay, amount):\n    return pay(amount)\n\nprint(checkout(card, 50))\nprint(checkout(paypal, 50))" }],
+      "steps": [
+        { "cue": "two strategies", "lines": [1, 2, 4, 5] },
+        { "cue": "function takes", "lines": [7, 8] },
+        { "cue": "same checkout", "lines": [10, 11] }
+      ],
+      "output": { "cmd": "python app.py", "tone": "good", "cue": "same checkout", "text": "card paid 50\npaypal paid 50" },
+      "say": "Strategy: put each way of doing something behind the same call shape. Here card and paypal are two strategies. The checkout function takes one as an argument and just calls it. Same checkout, different behavior, and no if chain. Adding a third method touches nothing existing." },
+
+    { "type": "code", "head": "Dependency injection: pass it in",
+      "panels": [{ "file": "app.py", "size": 30, "code": "class Checkout:\n    def __init__(self, mailer):   # passed in\n        self.mailer = mailer\n\n    def run(self, total):\n        self.mailer.send(\"receipt\")\n        return total\n\nclass FakeMailer:\n    def __init__(self):\n        self.sent = []\n    def send(self, msg):\n        self.sent.append(msg)" }],
+      "steps": [
+        { "cue": "takes its mailer", "lines": [1, 2, 3] },
+        { "cue": "never creates", "lines": [5, 6, 7] },
+        { "cue": "fake mailer", "lines": [9, 10, 11, 12, 13] }
+      ],
+      "notes": [
+        { "cue": "takes its mailer", "line": 2, "inside": true, "text": "injected", "tone": "good" },
+        { "cue": "fake mailer", "line": 9, "inside": true, "text": "used in tests", "tone": "blue" }
+      ],
+      "say": "Dependency injection means a class receives what it needs, instead of building it. Checkout takes its mailer in the constructor. It never creates a real one. In production you pass a real mailer. In a test you pass a fake mailer that just records messages, so no real email is sent." },
+
+    { "type": "code", "head": "Factory: one place that picks",
+      "panels": [{ "file": "app.py", "size": 34, "code": "def make_pay(kind):\n    table = {\"card\": card, \"paypal\": paypal}\n    return table[kind]\n\npay = make_pay(\"paypal\")\nprint(pay(50))" }],
+      "steps": [
+        { "cue": "factory is a function", "lines": [1, 2, 3] },
+        { "cue": "string from config", "lines": [5] },
+        { "cue": "rest of the code", "lines": [6] }
+      ],
+      "output": { "cmd": "python app.py", "tone": "good", "cue": "rest of the code", "text": "paypal paid 50" },
+      "say": "A factory is a function that decides which object to build. Give it a name like paypal, maybe a string from config, and it returns the right strategy. The rest of the code never needs to know which concrete one it got. All the choosing lives in one place." },
+
+    { "type": "diagram", "head": "Observer: publish, and subscribers react",
+      "panels": [{ "file": "app.py", "size": 28, "code": "class Order:\n    def __init__(self):\n        self.subs = []\n\n    def subscribe(self, fn):\n        self.subs.append(fn)\n\n    def place(self):\n        for fn in self.subs:\n            fn(self)" }],
+      "steps": [
+        { "cue": "subscribe", "lines": [5, 6] },
+        { "cue": "place", "lines": [8, 9, 10] }
+      ],
+      "items": [
+        { "id": "ord", "x": 1010, "y": 440, "w": 300, "h": 150, "text": "Order", "sub": "the subject", "size": 44, "tone": "blue", "cue": "subject" },
+        { "id": "e", "x": 1500, "y": 260, "w": 320, "h": 120, "text": "Email", "size": 40, "cue": "email" },
+        { "id": "a", "x": 1500, "y": 450, "w": 320, "h": 120, "text": "Analytics", "size": 40, "cue": "analytics" },
+        { "id": "inv", "x": 1500, "y": 640, "w": 320, "h": 120, "text": "Inventory", "size": 40, "cue": "inventory" }
+      ],
+      "arrows": [
+        { "from": "ord", "to": "e", "cue": "email" },
+        { "from": "ord", "to": "a", "cue": "analytics" },
+        { "from": "ord", "to": "inv", "cue": "inventory" }
+      ],
+      "say": "Observer: an object keeps a list of subscribers and tells them when something happens. An Order is the subject. Email, analytics and inventory subscribe. When the order is placed, it loops over the list and calls each one. The order never needs to know who is listening." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"], "rowHeads": ["Strategy", "Factory", "Observer", "Inject", "Mistake"],
+      "rows": [
+        ["Strategy vs if chain?", "Swap behavior without editing old code"],
+        ["Why a factory?", "Creation logic lives in one place"],
+        ["Observer risk?", "Hidden coupling, forgotten unsubscribes"],
+        ["Why inject?", "Easy to fake in tests"],
+        ["Common mistake", "Naming patterns with no real example"]
+      ],
+      "cues": ["strategy versus", "Why a factory", "observer risk", "Why inject", "The mistake"],
+      "say": "Likely follow-ups. Strategy versus an if chain: swap behavior without editing old code. Why a factory? Creation logic lives in one place. Observer risk: hidden coupling, and forgotten unsubscribes. Why inject? It is easy to fake in tests. The mistake is naming patterns with no real example. Always say where you used one." },
+
+    { "type": "take", "lines": ["Strategy swaps behavior, a factory picks it, injection hands it in.", "Observer lets many listeners react to one event.", "Always give a real example, like a fake mailer in tests."],
+      "cues": ["Strategy", "Observer", "Always give"],
+      "say": "Strategy swaps behavior. A factory picks it, and dependency injection hands it in. Observer lets many listeners react to one event. And always give a real example, like a fake mailer in tests." }
+  ]
+}

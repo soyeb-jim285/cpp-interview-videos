@@ -1,0 +1,14 @@
+---
+title: "C++ From Zero"
+subtitle: "Everything behind 100 C++ interview questions, explained from the beginning"
+documentclass: book
+classoption: [oneside, 11pt]
+geometry: [a4paper, margin=2.3cm]
+toc: true
+toc-depth: 1
+highlight-style: tango
+colorlinks: true
+linkcolor: "acc"
+urlcolor: "acc"
+top-level-division: chapter
+---

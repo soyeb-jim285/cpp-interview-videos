@@ -1,0 +1,429 @@
+{
+ "id": "cp06",
+ "num": 6,
+ "series": "DSA",
+ "short": "Binary search",
+ "question": "How does binary search work, and what is binary search on the answer?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Halve the search range with every question.",
+   "say": "Binary search is more than finding a value in a sorted array. It finds the first yes in any yes or no pattern that never flips back."
+  },
+  {
+   "type": "flow",
+   "head": "Think of guessing a number",
+   "items": [
+    {
+     "label": "Guess 50",
+     "text": "too low",
+     "sub": "so it's 51 to 100",
+     "cue": "guess fifty"
+    },
+    {
+     "label": "Guess 75",
+     "text": "too high",
+     "sub": "so it's 51 to 74",
+     "cue": "seventy five"
+    },
+    {
+     "label": "Every guess",
+     "text": "halves the range",
+     "sub": "100 numbers: 7 guesses",
+     "cue": "halves"
+    },
+    {
+     "label": "One billion",
+     "text": "only 30 guesses",
+     "sub": "log n",
+     "cue": "billion"
+    }
+   ],
+   "say": "Think of guessing a number from one to a hundred. Guess fifty. Too low, so it's fifty one to a hundred. Guess seventy five. Too high. Every guess halves the range, so a hundred numbers need seven guesses. One billion numbers need only thirty."
+  },
+  {
+   "type": "diagram",
+   "head": "First index with value at least 9",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "// first index i with a[i] >= x\nint lowerBound(vector<int>& a, int x) {\n    int lo = 0, hi = (int)a.size();\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (a[mid] < x) lo = mid + 1;\n        else hi = mid;\n    }\n    return lo;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Range is the whole",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Middle is index three",
+     "lines": [
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "Middle is index five",
+     "lines": [
+      5,
+      7
+     ]
+    },
+    {
+     "cue": "Answer index four",
+     "lines": [
+      9
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c0",
+     "x": 1020,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "1",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array",
+     "label": "sorted array, find 9"
+    },
+    {
+     "id": "c1",
+     "x": 1134,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "3",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c2",
+     "x": 1248,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "5",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c3",
+     "x": 1362,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "7",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c4",
+     "x": 1476,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "9",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c5",
+     "x": 1590,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "11",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c6",
+     "x": 1704,
+     "y": 300,
+     "w": 100,
+     "h": 100,
+     "text": "13",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "rng",
+     "x": 1020,
+     "y": 540,
+     "w": 760,
+     "h": 120,
+     "label": "range lo to hi",
+     "text": "lo 0, hi 7",
+     "size": 42,
+     "tone": "warn",
+     "cue": "Range is the whole"
+    },
+    {
+     "id": "mid",
+     "x": 1020,
+     "y": 770,
+     "w": 760,
+     "h": 110,
+     "label": "look at the middle",
+     "text": "",
+     "size": 36,
+     "cue": "Middle is index three"
+    }
+   ],
+   "changes": [
+    {
+     "id": "mid",
+     "text": "mid 3: 7 < 9, go right",
+     "cue": "Middle is index three"
+    },
+    {
+     "id": "rng",
+     "text": "lo 4, hi 7",
+     "cue": "Left side is gone"
+    },
+    {
+     "id": "c0",
+     "tone": "dim",
+     "cue": "Left side is gone"
+    },
+    {
+     "id": "c1",
+     "tone": "dim",
+     "cue": "Left side is gone"
+    },
+    {
+     "id": "c2",
+     "tone": "dim",
+     "cue": "Left side is gone"
+    },
+    {
+     "id": "c3",
+     "tone": "dim",
+     "cue": "Left side is gone"
+    },
+    {
+     "id": "mid",
+     "text": "mid 5: 11 >= 9, go left",
+     "cue": "Middle is index five"
+    },
+    {
+     "id": "rng",
+     "text": "lo 4, hi 5",
+     "cue": "Right side is gone"
+    },
+    {
+     "id": "c6",
+     "tone": "dim",
+     "cue": "Right side is gone"
+    },
+    {
+     "id": "mid",
+     "text": "mid 4: 9 >= 9, go left",
+     "cue": "Middle is index four"
+    },
+    {
+     "id": "rng",
+     "text": "lo 4, hi 4",
+     "cue": "so hi becomes four"
+    },
+    {
+     "id": "c5",
+     "tone": "dim",
+     "cue": "so hi becomes four"
+    },
+    {
+     "id": "c4",
+     "tone": "good",
+     "cue": "Answer index four"
+    }
+   ],
+   "say": "Sorted array, find the first value at least nine. The range is the whole array, zero to seven. Middle is index three, value seven. Seven is less than nine, so nine can't be at or before it. Left side is gone. Middle is index five, value eleven. Big enough, so the answer is here or earlier. Right side is gone. Middle is index four, value nine. Big enough too, so hi becomes four. Range is one cell. Answer index four."
+  },
+  {
+   "type": "diagram",
+   "head": "Binary search on the answer: smallest ship capacity",
+   "items": [
+    {
+     "id": "k0",
+     "x": 200,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "12",
+     "sub": "can't ship in 5 days",
+     "size": 56,
+     "tone": "bad",
+     "cue": "Capacity twelve"
+    },
+    {
+     "id": "k1",
+     "x": 460,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "13",
+     "sub": "can't ship in 5 days",
+     "size": 56,
+     "tone": "bad",
+     "cue": "Thirteen"
+    },
+    {
+     "id": "k2",
+     "x": 720,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "14",
+     "sub": "can't ship in 5 days",
+     "size": 56,
+     "tone": "bad",
+     "cue": "Fourteen"
+    },
+    {
+     "id": "k3",
+     "x": 980,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "15",
+     "sub": "can ship in 5 days",
+     "size": 56,
+     "tone": "good",
+     "cue": "Fifteen"
+    },
+    {
+     "id": "k4",
+     "x": 1240,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "16",
+     "sub": "can ship in 5 days",
+     "size": 56,
+     "tone": "good",
+     "cue": "Sixteen"
+    },
+    {
+     "id": "k5",
+     "x": 1500,
+     "y": 380,
+     "w": 230,
+     "h": 150,
+     "text": "17",
+     "sub": "can ship in 5 days",
+     "size": 56,
+     "tone": "good",
+     "cue": "Seventeen"
+    },
+    {
+     "id": "ans",
+     "x": 460,
+     "y": 680,
+     "w": 1000,
+     "h": 120,
+     "text": "no no no YES YES YES: binary search finds the first YES",
+     "size": 34,
+     "tone": "warn",
+     "cue": "A sorted pattern"
+    }
+   ],
+   "say": "Binary search also works with no array at all. Ten packages weighing one to ten. Ship them in five days. What is the smallest ship capacity? Ask a yes or no question: can this capacity do it? Capacity twelve: no. Thirteen: no. Fourteen: no. Fifteen: yes. Sixteen: yes. Seventeen: yes. A sorted pattern of no and yes. Binary search finds the first yes in log steps."
+  },
+  {
+   "type": "code",
+   "head": "The yes or no check, then the search",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "bool ok(vector<int>& w, int days, int cap) {\n    int d = 1, cur = 0;\n    for (int x : w) { if (cur + x > cap) d++, cur = 0; cur += x; }\n    return d <= days;\n}\nint solve(vector<int>& w, int days) {\n    int lo = 0, hi = 0;\n    for (int x : w) lo = max(lo, x), hi += x;\n    while (lo < hi) {\n        int mid = lo + (hi - lo) / 2;\n        if (ok(w, days, mid)) hi = mid; else lo = mid + 1;\n    }\n    return lo;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "yes or no check",
+     "lines": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "low is the heaviest",
+     "lines": [
+      7,
+      8
+     ]
+    },
+    {
+     "cue": "If yes",
+     "lines": [
+      11
+     ]
+    }
+   ],
+   "say": "The yes or no check walks the packages, starting a new day when the ship would overflow. That's O of n. Then the search: low is the heaviest package, high is the total. Check the middle. If yes, try smaller. If no, go bigger. About thirty checks, each O of n. For bigger sums use long long."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Which loop template?",
+     "lo less than hi, then hi equals mid or lo equals mid plus one."
+    ],
+    [
+     "Overflow?",
+     "mid equals lo plus half the gap, not lo plus hi over two."
+    ],
+    [
+     "When can I search the answer?",
+     "When the check is monotonic: once yes, always yes."
+    ],
+    [
+     "Common mistake",
+     "An off by one that loops forever, or an unsorted array."
+    ]
+   ],
+   "cues": [
+    "Which loop",
+    "Overflow",
+    "When can I",
+    "Common mistake"
+   ],
+   "say": "Which loop template? Lo less than hi, then hi equals mid, or lo equals mid plus one. Overflow? Compute mid as lo plus half the gap. When can I search the answer? When the check is monotonic. Common mistake: an off by one that loops forever. In C plus plus, lower bound does the first part for you."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Binary search halves the range: O(log n).",
+    "It finds the first yes in a sorted array, or in any monotonic yes/no check.",
+    "Write the check, then search for the first yes."
+   ],
+   "cues": [
+    "Binary search halves",
+    "It finds",
+    "Write the check"
+   ],
+   "say": "Binary search halves the range, so it's O of log n. It finds the first yes in a sorted array, or in any monotonic yes or no check. Write the check first, then search for the first yes."
+  }
+ ]
+}

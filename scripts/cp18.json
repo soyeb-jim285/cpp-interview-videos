@@ -1,0 +1,532 @@
+{
+ "id": "cp18",
+ "num": 18,
+ "series": "DSA",
+ "short": "Number theory for contests",
+ "question": "What number theory do you need for coding contests? Cover modular arithmetic, fast exponentiation, gcd and the sieve.",
+ "caps": [
+  [
+   "mod",
+   "mod"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Four small tools that appear in countless contest problems.",
+   "say": "Contest problems love number theory: answers modulo a big prime, huge powers, greatest common divisors, and lists of primes. Four small tools cover almost all of it."
+  },
+  {
+   "type": "diagram",
+   "head": "Modular arithmetic is clock arithmetic",
+   "items": [
+    {
+     "id": "a",
+     "x": 200,
+     "y": 500,
+     "w": 360,
+     "h": 130,
+     "label": "now",
+     "text": "10 o'clock",
+     "size": 38,
+     "tone": "blue",
+     "cue": "It's ten o'clock"
+    },
+    {
+     "id": "b",
+     "x": 700,
+     "y": 500,
+     "w": 360,
+     "h": 130,
+     "label": "add",
+     "text": "+ 5 hours",
+     "size": 38,
+     "tone": "blue",
+     "cue": "five hours"
+    },
+    {
+     "id": "c",
+     "x": 1200,
+     "y": 500,
+     "w": 460,
+     "h": 130,
+     "label": "10 + 5 = 15, mod 12",
+     "text": "3 o'clock",
+     "size": 38,
+     "tone": "good",
+     "cue": "three o'clock"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "a",
+     "to": "b",
+     "cue": "five hours"
+    },
+    {
+     "from": "b",
+     "to": "c",
+     "cue": "three o'clock"
+    }
+   ],
+   "say": "A clock wraps at twelve. It's ten o'clock. Add five hours and you get fifteen, which wraps to three o'clock. That wrap is called mod, the remainder after dividing. Contests ask for answers mod one billion seven. Why? The true answer is astronomically large, but the remainder always fits in a number."
+  },
+  {
+   "type": "code",
+   "head": "The rules, and gcd",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "const long long MOD = 1'000'000'007;\nlong long a = 5, b = 8;\n\nlong long sum  = (a + b) % MOD;               // mod after every step\nlong long prod = a * b % MOD;                 // both below MOD: fits\nlong long diff = ((a - b) % MOD + MOD) % MOD; // stays non-negative\n\nlong long g = gcd(a, b);                      // <numeric>, C++17\nlong long l = a / g * b;                      // divide first: no overflow"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "One billion seven",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "Add and multiply",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "Subtraction",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "gcd",
+     "lines": [
+      8
+     ]
+    },
+    {
+     "cue": "least common multiple",
+     "lines": [
+      9
+     ]
+    }
+   ],
+   "say": "The constant is one billion seven, a prime. Add and multiply: reduce mod after every operation, so numbers stay small. Subtraction is the trap: a negative remainder is possible in C plus plus, so add the modulus before the final mod. Never divide under a mod. For gcd, the greatest common divisor, use the library function, which is O of log n. The least common multiple is a over g, times b. Divide first so it can't overflow."
+  },
+  {
+   "type": "code",
+   "head": "Fast power: 3 to the 13th",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "long long power(long long b, long long e) {\n    long long r = 1; b %= MOD;\n    while (e > 0) {\n        if (e & 1) r = r * b % MOD;     // this bit of e is set\n        b = b * b % MOD;                // b, b^2, b^4, b^8...\n        e >>= 1;\n    }\n    return r;\n}\nlong long inv(long long a) { return power(a, MOD - 2); }"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Thirteen is",
+     "lines": []
+    },
+    {
+     "cue": "if the lowest bit",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "square",
+     "lines": [
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "Fermat",
+     "lines": [
+      10
+     ]
+    }
+   ],
+   "say": "Thirteen is one one zero one in binary, so three to the thirteen is three to the eight, times three to the four, times three to the one. Loop over the bits of e. If the lowest bit is set, multiply it into the result. Then square the base and shift. That's O of log e multiplications, not e. For division, Fermat says the inverse of a is a to the MOD minus two. Then divide means multiply by the inverse."
+  },
+  {
+   "type": "diagram",
+   "head": "Sieve of Eratosthenes, up to 19",
+   "items": [
+    {
+     "id": "p2",
+     "x": 200,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p3",
+     "x": 375,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p4",
+     "x": 550,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p5",
+     "x": 725,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p6",
+     "x": 900,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "6",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p7",
+     "x": 1075,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "7",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p8",
+     "x": 1250,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "8",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p9",
+     "x": 1425,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "9",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p10",
+     "x": 1600,
+     "y": 330,
+     "w": 150,
+     "h": 100,
+     "text": "10",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p11",
+     "x": 200,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "11",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p12",
+     "x": 375,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "12",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p13",
+     "x": 550,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "13",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p14",
+     "x": 725,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "14",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p15",
+     "x": 900,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "15",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p16",
+     "x": 1075,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "16",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p17",
+     "x": 1250,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "17",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p18",
+     "x": 1425,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "18",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    },
+    {
+     "id": "p19",
+     "x": 1600,
+     "y": 560,
+     "w": 150,
+     "h": 100,
+     "text": "19",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Write the numbers"
+    }
+   ],
+   "changes": [
+    {
+     "id": "p4",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p6",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p8",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p10",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p12",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p14",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p16",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p18",
+     "tone": "bad",
+     "cue": "every multiple of two"
+    },
+    {
+     "id": "p9",
+     "tone": "bad",
+     "cue": "multiples of three"
+    },
+    {
+     "id": "p15",
+     "tone": "bad",
+     "cue": "multiples of three"
+    },
+    {
+     "id": "p2",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p3",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p5",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p7",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p11",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p13",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p17",
+     "tone": "good",
+     "cue": "left standing"
+    },
+    {
+     "id": "p19",
+     "tone": "good",
+     "cue": "left standing"
+    }
+   ],
+   "say": "Write the numbers from two to nineteen. Start at two, and cross out every multiple of two. Next survivor is three: cross out multiples of three, starting at nine. Four is gone. Five squared is twenty five, past nineteen, so we can stop. Everything left standing is prime: two, three, five, seven, eleven, thirteen, seventeen, nineteen."
+  },
+  {
+   "type": "code",
+   "head": "Sieve in code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<bool> sieve(int n) {          // is[i] true if i is prime\n    vector<bool> is(n + 1, true);\n    is[0] = is[1] = false;\n    for (long long i = 2; i * i <= n; i++)\n        if (is[i])\n            for (long long j = i * i; j <= n; j += i)\n                is[j] = false;\n    return is;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Assume",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "stop when",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "start crossing at",
+     "lines": [
+      6,
+      7
+     ]
+    }
+   ],
+   "say": "Assume everything is prime, except zero and one. Stop when i squared passes n. For each surviving i, start crossing at i squared, since smaller multiples were already crossed by smaller primes. Time is O of n log log n, nearly linear. Handles ten million easily. To test one number alone, trial division up to its square root is enough."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why mod one billion seven?",
+     "It's prime, and products of two values below it fit in 64 bits."
+    ],
+    [
+     "When can you use Fermat inverse?",
+     "Only if the modulus is prime. Otherwise use extended Euclid."
+    ],
+    [
+     "Sieve time?",
+     "O of n log log n; one number tested in O of root n."
+    ],
+    [
+     "Common mistake",
+     "Overflow before the mod: a times b times c needs a mod after each times."
+    ]
+   ],
+   "cues": [
+    "Why mod",
+    "Fermat inverse",
+    "Sieve time",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Why mod one billion seven? It's prime, and two values below it multiply without overflowing sixty four bits. Fermat inverse? Only for a prime modulus. Sieve time? N log log n. Classics: Count Primes, Pow X N. The common mistake: overflowing before taking the mod. Reduce after every multiplication."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Reduce mod after every step; fix negatives by adding the modulus.",
+    "Fast power does O of log e multiplications.",
+    "A sieve finds all primes up to n in about n log log n."
+   ],
+   "cues": [
+    "Reduce mod",
+    "Fast power",
+    "sieve"
+   ],
+   "say": "Reduce mod after every step, and fix negatives by adding the modulus. Fast power uses log e multiplications. A sieve finds all primes up to n in about n log log n time."
+  }
+ ]
+}

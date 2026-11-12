@@ -1,0 +1,858 @@
+{
+ "id": "cp21",
+ "num": 21,
+ "series": "DSA",
+ "short": "Sorting I",
+ "question": "How does sorting work? Explain insertion sort and merge sort.",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Two ways to put a list in order: slide items into place, or split and merge.",
+   "say": "Sorting shows up in almost every interview. Let's learn two classic algorithms from scratch: insertion sort, which is simple but slow, and merge sort, which is fast and stable."
+  },
+  {
+   "type": "flow",
+   "head": "Sorting a hand of cards",
+   "items": [
+    {
+     "label": "Sorted so far",
+     "text": "2  5",
+     "sub": "cards in your left hand",
+     "cue": "left hand"
+    },
+    {
+     "label": "New card",
+     "text": "4",
+     "sub": "pick it up",
+     "cue": "pick up the next"
+    },
+    {
+     "label": "Slide it left",
+     "text": "past bigger cards",
+     "sub": "until the next one is smaller",
+     "cue": "slide it left"
+    },
+    {
+     "label": "Drop it in",
+     "text": "2  4  5",
+     "sub": "hand is sorted again",
+     "cue": "drop it in"
+    }
+   ],
+   "say": "You already know insertion sort. You hold some cards, already in order, in your left hand. Pick up the next card. Slide it left past every bigger card, then drop it in. Repeat for each card. That is the whole algorithm."
+  },
+  {
+   "type": "diagram",
+   "head": "Insertion sort on 5, 2, 4, 1",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "void insertionSort(vector<int>& a) {\n    for (int i = 1; i < (int)a.size(); i++) {\n        int key = a[i], j = i - 1;\n        while (j >= 0 && a[j] > key) {\n            a[j + 1] = a[j];     // slide\n            j--;\n        }\n        a[j + 1] = key;          // drop\n    }\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Pass one",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "so it slides right",
+     "lines": [
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "Drop the key into the gap",
+     "lines": [
+      8
+     ]
+    },
+    {
+     "cue": "Pass two",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "Five slides right",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "Pass three",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "all slide",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "lands at the front",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c0",
+     "x": 1020,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, two, four, one",
+     "label": "array"
+    },
+    {
+     "id": "c1",
+     "x": 1150,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, two, four, one"
+    },
+    {
+     "id": "c2",
+     "x": 1280,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, two, four, one"
+    },
+    {
+     "id": "c3",
+     "x": 1410,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, two, four, one"
+    },
+    {
+     "id": "key",
+     "x": 1020,
+     "y": 500,
+     "w": 340,
+     "h": 120,
+     "text": "-",
+     "size": 48,
+     "tone": "warn",
+     "cue": "Pass one",
+     "label": "key in hand"
+    },
+    {
+     "id": "act",
+     "x": 1020,
+     "y": 720,
+     "w": 760,
+     "h": 110,
+     "text": "",
+     "size": 34,
+     "tone": "blue",
+     "cue": "Pass one",
+     "label": "what happens"
+    }
+   ],
+   "changes": [
+    {
+     "id": "key",
+     "cue": "pick up the two",
+     "text": "2"
+    },
+    {
+     "id": "c1",
+     "cue": "pick up the two",
+     "tone": "warn"
+    },
+    {
+     "id": "c1",
+     "cue": "so it slides right",
+     "text": "5"
+    },
+    {
+     "id": "act",
+     "cue": "so it slides right",
+     "text": "5 > 2: slide 5 right"
+    },
+    {
+     "id": "c0",
+     "cue": "Drop the key into the gap",
+     "text": "2",
+     "tone": "good"
+    },
+    {
+     "id": "c1",
+     "cue": "Drop the key into the gap",
+     "tone": "good"
+    },
+    {
+     "id": "act",
+     "cue": "Drop the key into the gap",
+     "text": "drop 2 in the gap"
+    },
+    {
+     "id": "key",
+     "cue": "the key is four",
+     "text": "4"
+    },
+    {
+     "id": "c2",
+     "cue": "the key is four",
+     "tone": "warn"
+    },
+    {
+     "id": "c2",
+     "cue": "Five slides right",
+     "text": "5"
+    },
+    {
+     "id": "act",
+     "cue": "Five slides right",
+     "text": "5 > 4: slide 5 right"
+    },
+    {
+     "id": "act",
+     "cue": "two is smaller",
+     "text": "2 < 4: stop"
+    },
+    {
+     "id": "c1",
+     "cue": "Four lands in the gap",
+     "text": "4",
+     "tone": "good"
+    },
+    {
+     "id": "c2",
+     "cue": "Four lands in the gap",
+     "tone": "good"
+    },
+    {
+     "id": "act",
+     "cue": "Four lands in the gap",
+     "text": "drop 4 in the gap"
+    },
+    {
+     "id": "key",
+     "cue": "the key is one",
+     "text": "1"
+    },
+    {
+     "id": "c3",
+     "cue": "the key is one",
+     "tone": "warn"
+    },
+    {
+     "id": "c3",
+     "cue": "all slide",
+     "text": "5"
+    },
+    {
+     "id": "c2",
+     "cue": "all slide",
+     "text": "4"
+    },
+    {
+     "id": "c1",
+     "cue": "all slide",
+     "text": "2"
+    },
+    {
+     "id": "act",
+     "cue": "all slide",
+     "text": "5, 4, 2 slide right"
+    },
+    {
+     "id": "c0",
+     "cue": "lands at the front",
+     "text": "1",
+     "tone": "good"
+    },
+    {
+     "id": "c3",
+     "cue": "lands at the front",
+     "tone": "good"
+    },
+    {
+     "id": "act",
+     "cue": "lands at the front",
+     "text": "sorted: 1 2 4 5"
+    },
+    {
+     "id": "act",
+     "cue": "worst case",
+     "text": "reversed: about n²/2 moves",
+     "tone": "bad"
+    }
+   ],
+   "say": "Take five, two, four, one. Pass one: pick up the two. Call it the key. The five is bigger, so it slides right. Drop the key into the gap: two, five. Pass two: the key is four. Five slides right, but two is smaller, so stop. Four lands in the gap. Pass three: the key is one. Five, four, and two all slide, and one lands at the front. Sorted. In the worst case, a reversed array, every key slides past everything before it. That is about n squared over two moves, so O of n squared."
+  },
+  {
+   "type": "diagram",
+   "head": "Merge sort, step 1: split",
+   "items": [
+    {
+     "id": "t",
+     "x": 200,
+     "y": 250,
+     "w": 1520,
+     "h": 90,
+     "text": "6  2  8  4  3  7  1  5",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take eight numbers",
+     "label": "whole array"
+    },
+    {
+     "id": "h0",
+     "x": 200,
+     "y": 410,
+     "w": 740,
+     "h": 90,
+     "text": "6  2  8  4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut the array in half",
+     "label": "cut in half"
+    },
+    {
+     "id": "h1",
+     "x": 980,
+     "y": 410,
+     "w": 740,
+     "h": 90,
+     "text": "3  7  1  5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut the array in half"
+    },
+    {
+     "id": "p0",
+     "x": 200,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "6  2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut each half again",
+     "label": "cut again"
+    },
+    {
+     "id": "p1",
+     "x": 580,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "8  4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut each half again"
+    },
+    {
+     "id": "p2",
+     "x": 980,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "3  7",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut each half again"
+    },
+    {
+     "id": "p3",
+     "x": 1360,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "1  5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Cut each half again"
+    },
+    {
+     "id": "s0",
+     "x": 200,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "6",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells",
+     "label": "single cells"
+    },
+    {
+     "id": "s1",
+     "x": 390,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s2",
+     "x": 580,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "8",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s3",
+     "x": 770,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s4",
+     "x": 960,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s5",
+     "x": 1150,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "7",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s6",
+     "x": 1340,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "s7",
+     "x": 1530,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "down to single cells"
+    },
+    {
+     "id": "cap",
+     "x": 200,
+     "y": 860,
+     "w": 1520,
+     "h": 60,
+     "text": "",
+     "size": 32,
+     "tone": "warn",
+     "cue": "Take eight numbers"
+    }
+   ],
+   "changes": [
+    {
+     "id": "cap",
+     "cue": "single cell is already sorted",
+     "text": "one cell is already sorted",
+     "tone": "good"
+    },
+    {
+     "id": "cap",
+     "cue": "three cuts",
+     "text": "3 cuts = log2 of 8 levels"
+    }
+   ],
+   "say": "Merge sort uses divide and conquer. Take eight numbers. Cut the array in half: two arrays of four. Cut each half again: four pairs. Cut again, down to single cells. A single cell is already sorted, so cutting stops there. That took three cuts: log base two of eight. The real work happens on the way back up."
+  },
+  {
+   "type": "diagram",
+   "head": "Merge sort, step 2: merge back up",
+   "items": [
+    {
+     "id": "t",
+     "x": 200,
+     "y": 250,
+     "w": 1520,
+     "h": 90,
+     "text": "?",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now merge back up",
+     "label": "merge all"
+    },
+    {
+     "id": "h0",
+     "x": 200,
+     "y": 410,
+     "w": 740,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up",
+     "label": "merge halves"
+    },
+    {
+     "id": "h1",
+     "x": 980,
+     "y": 410,
+     "w": 740,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "p0",
+     "x": 200,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up",
+     "label": "merge pairs"
+    },
+    {
+     "id": "p1",
+     "x": 580,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "p2",
+     "x": 980,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "p3",
+     "x": 1360,
+     "y": 570,
+     "w": 360,
+     "h": 90,
+     "text": "?",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s0",
+     "x": 200,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "6",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up",
+     "label": "single cells"
+    },
+    {
+     "id": "s1",
+     "x": 390,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "2",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s2",
+     "x": 580,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "8",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s3",
+     "x": 770,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s4",
+     "x": 960,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s5",
+     "x": 1150,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "7",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s6",
+     "x": 1340,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "s7",
+     "x": 1530,
+     "y": 730,
+     "w": 170,
+     "h": 90,
+     "text": "5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Now merge back up"
+    },
+    {
+     "id": "cap",
+     "x": 200,
+     "y": 860,
+     "w": 1520,
+     "h": 60,
+     "text": "",
+     "size": 32,
+     "tone": "warn",
+     "cue": "Now merge back up"
+    }
+   ],
+   "changes": [
+    {
+     "id": "cap",
+     "cue": "Six and two",
+     "text": "6 vs 2: the smaller front goes first"
+    },
+    {
+     "id": "p0",
+     "cue": "Six and two",
+     "text": "2  6",
+     "tone": "good"
+    },
+    {
+     "id": "p1",
+     "cue": "Same for the other pairs",
+     "text": "4  8",
+     "tone": "good"
+    },
+    {
+     "id": "p2",
+     "cue": "Same for the other pairs",
+     "text": "3  7",
+     "tone": "good"
+    },
+    {
+     "id": "p3",
+     "cue": "Same for the other pairs",
+     "text": "1  5",
+     "tone": "good"
+    },
+    {
+     "id": "h0",
+     "cue": "gives two, four",
+     "text": "2  4  6  8",
+     "tone": "good"
+    },
+    {
+     "id": "h1",
+     "cue": "The other half",
+     "text": "1  3  5  7",
+     "tone": "good"
+    },
+    {
+     "id": "t",
+     "cue": "Last merge",
+     "text": "1  2  3  4  5  6  7  8",
+     "tone": "good"
+    },
+    {
+     "id": "cap",
+     "cue": "three levels",
+     "text": "3 levels x n work each = n log n",
+     "tone": "good"
+    }
+   ],
+   "say": "Now merge back up. To merge two sorted pieces, compare their fronts and take the smaller. Six and two: two goes first, giving two, six. Same for the other pairs: four eight, three seven, one five. Now merge pairs into halves: two six with four eight gives two, four, six, eight. The other half gives one, three, five, seven. Last merge: one through eight. Every level touches all eight numbers, and there are three levels, so O of n log n."
+  },
+  {
+   "type": "code",
+   "head": "Merge sort in C plus plus",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "void mergeSort(vector<int>& a, int l, int r) {  // sorts [l, r)\n    if (r - l < 2) return;\n    int m = (l + r) / 2;\n    mergeSort(a, l, m);\n    mergeSort(a, m, r);\n    vector<int> t;\n    int i = l, j = m;\n    while (i < m || j < r) {\n        if (j == r || (i < m && a[i] <= a[j]))\n            t.push_back(a[i++]);\n        else t.push_back(a[j++]);\n    }\n    copy(t.begin(), t.end(), a.begin() + l);\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Sort the left half",
+     "lines": [
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "walks both halves",
+     "lines": [
+      7,
+      8
+     ]
+    },
+    {
+     "cue": "less-or-equal",
+     "lines": [
+      9
+     ]
+    },
+    {
+     "cue": "temp vector",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "less-or-equal",
+     "line": 9,
+     "inside": true,
+     "text": "<= keeps it stable",
+     "tone": "good"
+    },
+    {
+     "cue": "extra memory",
+     "line": 6,
+     "inside": true,
+     "text": "O(n) extra memory",
+     "tone": "warn"
+    }
+   ],
+   "say": "Here is the code. Sort the left half, sort the right half, then merge. The merge walks both halves with i and j, always taking the smaller front into a temp vector. Notice the less-or-equal: when two values tie, the left one wins. That makes merge sort stable, so equal items keep their order. The price is O of n extra memory."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why is merge sort O of n log n?",
+     "Log n levels of halving, and each level merges n items."
+    ],
+    [
+     "What does stable mean?",
+     "Equal items keep their original order. Merge sort and insertion sort are stable."
+    ],
+    [
+     "When is insertion sort the right pick?",
+     "Tiny or nearly sorted arrays. Already sorted, it is O of n."
+    ],
+    [
+     "Common mistake",
+     "Writing less than instead of less or equal in the merge. That breaks stability."
+    ]
+   ],
+   "cues": [
+    "Why is merge",
+    "What does stable",
+    "insertion sort right",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Why is merge sort n log n? Log n levels, each merging n items. What does stable mean? Equal items keep their order. When is insertion sort right? Tiny or nearly sorted input, where it runs in O of n. Classics: Sort List, Merge Sorted Array, Insertion Sort List. The common mistake: using less than instead of less or equal in the merge."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Insertion sort slides each item into place: O(n²), great when tiny or nearly sorted.",
+    "Merge sort splits in half, sorts, merges: O(n log n), stable, O(n) memory.",
+    "Merge with less-or-equal to stay stable."
+   ],
+   "cues": [
+    "Insertion sort",
+    "Merge sort splits",
+    "Merge with"
+   ],
+   "say": "Insertion sort slides each item into place. Quadratic, but great for tiny or nearly sorted data. Merge sort splits in half, sorts each half, and merges. O of n log n, stable, with O of n extra memory. Merge with less-or-equal to stay stable."
+  }
+ ]
+}

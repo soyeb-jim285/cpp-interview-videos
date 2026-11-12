@@ -1,0 +1,70 @@
+{
+  "id": "be07", "num": 7, "series": "Backend", "short": "Caching",
+  "question": "How does caching work? Cache-aside, TTL, invalidation, Redis.",
+  "caps": [["set e x", "SETEX"]],
+  "scenes": [
+    { "type": "title", "sub": "Keep the answer close, so you stop asking the slow place.",
+      "say": "Caching. Why add one, how does the most common pattern work, and why is invalidation famously hard?" },
+
+    { "type": "diagram", "head": "Think of a sticky note",
+      "items": [
+        { "id": "me", "x": 140, "y": 400, "w": 340, "h": 150, "text": "You", "size": 44, "tone": "blue", "cue": "You need" },
+        { "id": "note", "x": 760, "y": 280, "w": 400, "h": 150, "label": "Sticky note", "text": "5 seconds", "size": 40, "tone": "good", "cue": "sticky note" },
+        { "id": "lib", "x": 1380, "y": 560, "w": 400, "h": 150, "label": "Library across town", "text": "5 minutes", "size": 38, "tone": "bad", "cue": "library" }
+      ],
+      "arrows": [
+        { "from": "me", "to": "note", "tone": "good", "cue": "sticky note" },
+        { "from": "me", "to": "lib", "tone": "bad", "cue": "library" }
+      ],
+      "say": "You need a phone number often. You could drive to the library across town every time, five minutes. Or you write it on a sticky note, five seconds. A cache is the sticky note. Redis is a popular one, an in memory store, answering in under a millisecond. The database is the library, taking several milliseconds." },
+
+    { "type": "diagram", "head": "Cache-aside: check, miss, fill",
+      "items": [
+        { "id": "app", "x": 140, "y": 440, "w": 320, "h": 150, "text": "App", "size": 44, "cue": "The app" },
+        { "id": "rd", "x": 760, "y": 250, "w": 380, "h": 150, "label": "Redis", "text": "empty", "size": 40, "tone": "warn", "cue": "Redis" },
+        { "id": "db", "x": 1420, "y": 440, "w": 340, "h": 150, "label": "Database", "text": "user 7", "size": 40, "cue": "database" }
+      ],
+      "arrows": [
+        { "from": "app", "to": "rd", "bend": 40, "cue": "asks Redis" },
+        { "from": "app", "to": "db", "bend": 60, "cue": "On a miss" },
+        { "from": "db", "to": "rd", "bend": 40, "tone": "good", "cue": "saves a copy" }
+      ],
+      "changes": [ { "id": "rd", "text": "user 7", "tone": "good", "cue": "saves a copy" } ],
+      "say": "The app asks Redis first. Redis is empty, so that is a miss. On a miss, the app reads the database. Then it saves a copy in Redis. The next request for user seven finds it there: a hit, and the database is never touched. This is called cache-aside, because the app manages the cache itself." },
+
+    { "type": "code", "head": "Cache-aside in code",
+      "panels": [{ "file": "app.py", "size": 32, "code": "def get_user(uid):\n    key = f\"user:{uid}\"\n    hit = redis.get(key)\n    if hit:\n        return json.loads(hit)\n    user = db.fetch_user(uid)\n    redis.setex(key, 300, json.dumps(user))\n    return user" }],
+      "steps": [
+        { "cue": "builds a key", "lines": [2] },
+        { "cue": "On a hit", "lines": [3, 4, 5] },
+        { "cue": "On a miss", "lines": [6] },
+        { "cue": "three hundred seconds", "lines": [7] }
+      ],
+      "notes": [ { "cue": "three hundred seconds", "line": 7, "inside": true, "text": "T T L 5 minutes", "tone": "warn" } ],
+      "say": "The code builds a key like user colon seven. On a hit, it returns the cached value. On a miss, it loads from the database, then stores it with set e x for three hundred seconds. That expiry is the T T L, time to live. After five minutes, Redis forgets it on its own." },
+
+    { "type": "code", "head": "The hard part: invalidation",
+      "panels": [{ "file": "app.py", "size": 34, "code": "def update_user(uid, data):\n    db.update_user(uid, data)\n    redis.delete(f\"user:{uid}\")" }],
+      "steps": [
+        { "cue": "writes to the database", "lines": [2] },
+        { "cue": "deletes the cached copy", "lines": [3] }
+      ],
+      "notes": [ { "cue": "deletes the cached copy", "line": 3, "inside": true, "text": "next read refills", "tone": "good" } ],
+      "say": "When the user changes their name, the cache still holds the old one. So the code writes to the database, then deletes the cached copy. The next read misses, and refills it with fresh data. If you skip this, the T T L is your safety net: users see stale data for at most five minutes." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["What is a stampede?", "What if Redis dies?", "What do you cache?", "Common mistake"],
+      "rows": [
+        ["A hot key expires, many requests hit the database", "Lock one refill, or add random T T L"],
+        ["Fall back to the database, it must survive", "Cache speeds up, never required"],
+        ["Read-heavy, slow, rarely changing data", "Not data that must be exact"],
+        ["No T T L and no invalidation", "Stale data forever"]
+      ],
+      "cues": ["stampede", "Redis dies", "Cache read heavy", "mistake"],
+      "say": "Likely follow-ups. A stampede: a hot key expires and many requests hit the database at once. Let one request refill it, or add a random jitter to the T T L. If Redis dies, fall back to the database. A cache should speed things up, never be required. Cache read heavy, slow, rarely changing data. The common mistake is no T T L and no invalidation." },
+
+    { "type": "take", "lines": ["Cache-aside: check the cache, on a miss read the database and fill it.", "Set a T T L, and delete the key when the data changes."],
+      "cues": ["Cache-aside", "Set a"],
+      "say": "Cache-aside: check the cache, on a miss read the database and fill the cache. Set a T T L, and delete the key when the data changes." }
+  ]
+}

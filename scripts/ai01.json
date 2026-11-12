@@ -1,0 +1,372 @@
+{
+ "id": "ai01",
+ "num": 1,
+ "series": "AI Eval",
+ "short": "How an LLM works",
+ "question": "How does a large language model work, just enough to evaluate one?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Tokens in, probabilities out, one token at a time.",
+   "say": "How an L L M works, just enough to evaluate one. You don't need the math. You need the right mental model."
+  },
+  {
+   "type": "flow",
+   "head": "Think of your phone keyboard",
+   "items": [
+    {
+     "label": "you type",
+     "text": "See you",
+     "size": 34,
+     "tone": "blue",
+     "cue": "You type"
+    },
+    {
+     "label": "suggestion 1",
+     "text": "tomorrow",
+     "size": 34,
+     "cue": "tomorrow"
+    },
+    {
+     "label": "suggestion 2",
+     "text": "soon",
+     "size": 34,
+     "cue": "soon"
+    },
+    {
+     "label": "suggestion 3",
+     "text": "later",
+     "size": 34,
+     "cue": "later"
+    }
+   ],
+   "say": "Start with something you already use. On your phone keyboard, you type, see you, and it suggests tomorrow, soon, or later. It is guessing the next word from patterns. A large language model, or L L M, is that same autocomplete, trained on a huge amount of text and run again and again, one piece at a time."
+  },
+  {
+   "type": "flow",
+   "head": "The loop behind every answer",
+   "items": [
+    {
+     "text": "Your text",
+     "sub": "capital of France",
+     "size": 30,
+     "cue": "never sees words"
+    },
+    {
+     "text": "Tokens",
+     "sub": "small pieces",
+     "size": 30,
+     "cue": "chopped into tokens"
+    },
+    {
+     "text": "Model",
+     "sub": "reads the tokens",
+     "size": 30,
+     "tone": "blue",
+     "cue": "reads those tokens"
+    },
+    {
+     "text": "Probabilities",
+     "sub": "for every next token",
+     "size": 28,
+     "tone": "warn",
+     "cue": "a probability"
+    },
+    {
+     "text": "One token",
+     "sub": "appended, repeat",
+     "size": 30,
+     "tone": "good",
+     "cue": "one token is picked"
+    }
+   ],
+   "say": "A model never sees words. Your text is chopped into tokens, small pieces of words. The model reads those tokens and gives a probability to every possible next token. Then one token is picked, added to the text, and the whole loop repeats until the answer is done."
+  },
+  {
+   "type": "diagram",
+   "head": "Next-token prediction",
+   "panels": [
+    {
+     "file": "prompt.txt",
+     "code": "Prompt so far:\n\"The capital of France is\"\n\nThe model scores every token\nin its vocabulary. We turn the\nscores into probabilities and\npick one."
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Say the prompt",
+     "lines": [
+      1,
+      2
+     ]
+    },
+    {
+     "cue": "gives every token a score",
+     "lines": [
+      4,
+      5,
+      6,
+      7
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "paris",
+     "x": 1100,
+     "y": 230,
+     "w": 460,
+     "h": 110,
+     "text": "Paris",
+     "sub": "92 percent",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Paris gets"
+    },
+    {
+     "id": "the",
+     "x": 1100,
+     "y": 370,
+     "w": 460,
+     "h": 110,
+     "text": "the",
+     "sub": "3 percent",
+     "size": 36,
+     "cue": "A few others"
+    },
+    {
+     "id": "loc",
+     "x": 1100,
+     "y": 510,
+     "w": 460,
+     "h": 110,
+     "text": "located",
+     "sub": "2 percent",
+     "size": 36,
+     "cue": "A few others"
+    },
+    {
+     "id": "lyon",
+     "x": 1100,
+     "y": 650,
+     "w": 460,
+     "h": 110,
+     "text": "Lyon",
+     "sub": "1 percent",
+     "size": 36,
+     "cue": "A few others"
+    },
+    {
+     "id": "rest",
+     "x": 1100,
+     "y": 790,
+     "w": 460,
+     "h": 110,
+     "text": "thousands more",
+     "sub": "2 percent together",
+     "size": 32,
+     "tone": "ghost",
+     "cue": "long tail"
+    }
+   ],
+   "changes": [
+    {
+     "id": "paris",
+     "tone": "good",
+     "cue": "greedy"
+    }
+   ],
+   "say": "Say the prompt is, the capital of France is. The model gives every token a score, and the scores become probabilities. Paris gets ninety two percent. A few others share a little. These numbers are illustrative, but the shape is real: a few likely tokens, then a long tail. Always taking the top one is called greedy decoding."
+  },
+  {
+   "type": "diagram",
+   "head": "Temperature reshapes the odds",
+   "items": [
+    {
+     "id": "l1",
+     "x": 200,
+     "y": 300,
+     "w": 320,
+     "h": 110,
+     "label": "Low temperature",
+     "text": "Paris",
+     "sub": "97 percent",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Low temperature"
+    },
+    {
+     "id": "l2",
+     "x": 560,
+     "y": 300,
+     "w": 320,
+     "h": 110,
+     "text": "the",
+     "sub": "2 percent",
+     "size": 34,
+     "cue": "Low temperature"
+    },
+    {
+     "id": "l3",
+     "x": 920,
+     "y": 300,
+     "w": 320,
+     "h": 110,
+     "text": "Lyon",
+     "sub": "1 percent",
+     "size": 34,
+     "cue": "Low temperature"
+    },
+    {
+     "id": "lo",
+     "x": 1340,
+     "y": 300,
+     "w": 440,
+     "h": 110,
+     "text": "Steady, repeatable",
+     "size": 34,
+     "tone": "good",
+     "cue": "Answers are steady"
+    },
+    {
+     "id": "h1",
+     "x": 200,
+     "y": 650,
+     "w": 320,
+     "h": 110,
+     "label": "High temperature",
+     "text": "Paris",
+     "sub": "60 percent",
+     "size": 38,
+     "tone": "blue",
+     "cue": "High temperature"
+    },
+    {
+     "id": "h2",
+     "x": 560,
+     "y": 650,
+     "w": 320,
+     "h": 110,
+     "text": "the",
+     "sub": "25 percent",
+     "size": 34,
+     "cue": "High temperature"
+    },
+    {
+     "id": "h3",
+     "x": 920,
+     "y": 650,
+     "w": 320,
+     "h": 110,
+     "text": "Lyon",
+     "sub": "15 percent",
+     "size": 34,
+     "cue": "High temperature"
+    },
+    {
+     "id": "ho",
+     "x": 1340,
+     "y": 650,
+     "w": 440,
+     "h": 110,
+     "text": "Varied, riskier",
+     "size": 34,
+     "tone": "warn",
+     "cue": "Answers get varied"
+    }
+   ],
+   "say": "Temperature controls how that list is used. Low temperature sharpens it, so the top token wins almost every time. Answers are steady. High temperature flattens it, so unlikely tokens get picked more often. Answers get varied, and riskier. At temperature zero, you get nearly the same answer every run."
+  },
+  {
+   "type": "code",
+   "head": "Why evaluators sample more than once",
+   "panels": [
+    {
+     "file": "runs.txt",
+     "size": 38,
+     "code": "Prompt: What is 17 times 6?\n\nrun 1: 102   correct\nrun 2: 102   correct\nrun 3: 112   wrong\nrun 4: 102   correct\nrun 5: 96    wrong"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "One run is one sample",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "three out of five",
+     "lines": [
+      3,
+      4,
+      5,
+      6,
+      7
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "three out of five",
+     "line": 5,
+     "inside": true,
+     "text": "3 of 5 pass",
+     "tone": "warn"
+    }
+   ],
+   "say": "Here is why this matters when you grade. One run is one sample. The model may be right once and wrong the next time. So run the same prompt several times and judge the pattern. Three out of five is a very different story from five out of five. If asked why the same prompt gives different answers, the answer is sampling."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "Follow-up",
+    "One-line answer"
+   ],
+   "rowHeads": [
+    "Why different answers?",
+    "Temperature zero?",
+    "What is a token?",
+    "Common mistake"
+   ],
+   "rows": [
+    [
+     "Why does the same prompt vary?",
+     "It samples from probabilities"
+    ],
+    [
+     "Is temperature zero fully fixed?",
+     "Nearly, not guaranteed"
+    ],
+    [
+     "What is a token?",
+     "A word piece, about four letters"
+    ],
+    [
+     "Calling the model a database of facts",
+     "It predicts text, it does not look facts up"
+    ]
+   ],
+   "cues": [
+    "Why does the same",
+    "Is temperature",
+    "What is a token",
+    "The common mistake"
+   ],
+   "say": "Likely follow-ups. Why does the same prompt vary? It samples from probabilities. Is temperature zero fully fixed? Nearly, but not guaranteed. What is a token? A word piece, roughly four letters of English. The common mistake is calling the model a database of facts. It predicts text, it does not look facts up."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "An L L M predicts one token at a time from a probability list.",
+    "Temperature flattens or sharpens that list.",
+    "Output is a sample, so judge patterns over several runs."
+   ],
+   "cues": [
+    "An L L M predicts",
+    "Temperature",
+    "Output is a sample"
+   ],
+   "say": "An L L M predicts the next token from a list of probabilities, one token at a time. Temperature sharpens or flattens that list. And because output is a sample, judge patterns over several runs, not one lucky answer."
+  }
+ ]
+}

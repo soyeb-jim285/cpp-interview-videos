@@ -1,0 +1,248 @@
+{
+ "id": "cp15",
+ "num": 15,
+ "series": "DSA",
+ "short": "Backtracking",
+ "question": "Explain backtracking using subsets and permutations. How does pruning help?",
+ "caps": [],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Try a choice, explore everything after it, undo it, try the next.",
+   "say": "Backtracking is how you generate every subset, permutation, or combination. The pattern is always the same three moves, and it's easy to remember with a pizza."
+  },
+  {
+   "type": "diagram",
+   "head": "Pizza with two toppings",
+   "items": [
+    {
+     "id": "pz",
+     "x": 200,
+     "y": 520,
+     "w": 480,
+     "h": 130,
+     "label": "pizza now",
+     "text": "plain",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Start with a plain pizza"
+    },
+    {
+     "id": "sv",
+     "x": 780,
+     "y": 520,
+     "w": 940,
+     "h": 130,
+     "label": "written down",
+     "text": "plain",
+     "size": 34,
+     "tone": "good",
+     "cue": "Start with a plain pizza"
+    }
+   ],
+   "changes": [
+    {
+     "id": "pz",
+     "text": "olive",
+     "cue": "Add olive"
+    },
+    {
+     "id": "sv",
+     "text": "plain | olive",
+     "cue": "Add olive"
+    },
+    {
+     "id": "pz",
+     "text": "olive+onion",
+     "cue": "Add onion on top"
+    },
+    {
+     "id": "sv",
+     "text": "plain | olive | olive+onion",
+     "cue": "Add onion on top"
+    },
+    {
+     "id": "pz",
+     "text": "olive",
+     "cue": "take the onion off"
+    },
+    {
+     "id": "pz",
+     "text": "plain",
+     "cue": "take the olive off"
+    },
+    {
+     "id": "pz",
+     "text": "onion",
+     "cue": "Try onion alone"
+    },
+    {
+     "id": "sv",
+     "text": "plain | olive | olive+onion | onion",
+     "tone": "warn",
+     "cue": "Try onion alone"
+    }
+   ],
+   "say": "Build a pizza from two toppings, olive and onion. Start with a plain pizza. Write it down. Add olive: write it down. Add onion on top: write it down. Now the key move. Next, take the onion off. Then take the olive off too. Try onion alone: write it down. Four pizzas, every possible subset. Backtracking is: choose, explore everything after it, then undo."
+  },
+  {
+   "type": "code",
+   "head": "Subsets in code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<vector<int>> res;\nvector<int> cur;\nvoid go(vector<int>& a, int i) {\n    res.push_back(cur);                  // write down this pizza\n    for (int j = i; j < (int)a.size(); j++) {\n        cur.push_back(a[j]);             // choose\n        go(a, j + 1);                    // explore later toppings only\n        cur.pop_back();                  // undo\n    }\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "cur is",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Every call",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "choose",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "explore",
+     "lines": [
+      7
+     ]
+    },
+    {
+     "cue": "undo",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "say": "Cur is the pizza we're building. Every call writes the current pizza into res. Then loop over the toppings from position i onward. First choose: push a topping. Then explore: recurse with j plus one, so we only look at later toppings and never repeat a subset. Finally undo: pop it off, restoring cur exactly as before. For n items that's two to the n subsets, so O of n times two to the n."
+  },
+  {
+   "type": "code",
+   "head": "Permutations: order matters",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "void perm(vector<int>& a, vector<int>& cur, vector<bool>& used,\n          vector<vector<int>>& res) {\n    if (cur.size() == a.size()) { res.push_back(cur); return; }\n    for (int i = 0; i < (int)a.size(); i++) {\n        if (used[i]) continue;           // prune: already in the path\n        used[i] = true; cur.push_back(a[i]);\n        perm(a, cur, used, res);\n        cur.pop_back(); used[i] = false;\n    }\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "complete",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "used array",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "mark it used",
+     "lines": [
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "undo both",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "say": "For permutations, order matters, so every call may pick any item, not just later ones. We need a used array to avoid picking the same item twice. When the path is complete, save it. Otherwise try each unused item: mark it used, push it, recurse. Then undo both. For one, two, three that gives six permutations. In general, n factorial times n."
+  },
+  {
+   "type": "code",
+   "head": "Pruning: stop dead branches early",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "// a is sorted; numbers may be reused\nvoid comb(vector<int>& a, int i, int left, vector<int>& cur,\n          vector<vector<int>>& out) {\n    if (left == 0) { out.push_back(cur); return; }\n    for (int j = i; j < (int)a.size(); j++) {\n        if (a[j] > left) break;          // prune: sorted, so stop\n        cur.push_back(a[j]);\n        comb(a, j, left - a[j], cur, out);\n        cur.pop_back();\n    }\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Target seven",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "bigger than what's left",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "Passing j",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "say": "Pruning means abandoning a branch the moment it cannot work. Target seven from two, three, six, seven, reusing numbers. If a candidate is bigger than what's left, break, because the list is sorted and everything after it is bigger too. Passing j, not j plus one, allows reuse. Answers: two two three, and seven. Without the break, we'd explore thousands of hopeless paths on larger inputs. Classics: Subsets, Permutations, Combination Sum, N Queens."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Complexity?",
+     "Subsets O of n times two to the n. Permutations O of n times n factorial."
+    ],
+    [
+     "How do you skip duplicates?",
+     "Sort first, then skip a[j] equal to a[j-1] at the same level."
+    ],
+    [
+     "Backtracking vs D P?",
+     "If subproblems overlap, memoize; otherwise enumerate with pruning."
+    ],
+    [
+     "Common mistake",
+     "Forgetting the undo step, so cur leaks into other branches."
+    ]
+   ],
+   "cues": [
+    "Complexity",
+    "Duplicates",
+    "Backtracking versus",
+    "common mistake"
+   ],
+   "say": "Follow-ups. Complexity: exponential, so n times two to the n for subsets, n times n factorial for permutations. Duplicates? Sort, then skip equal neighbours at the same level. Backtracking versus D P? Memoize when subproblems overlap. The common mistake: forgetting the undo, so one branch leaks into another."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Backtracking: choose, explore, undo.",
+    "Prune any branch that cannot lead to an answer.",
+    "Cost is exponential, so always say the limit on n."
+   ],
+   "cues": [
+    "choose",
+    "Prune",
+    "exponential"
+   ],
+   "say": "Backtracking is choose, explore, undo. Prune any branch that cannot lead to an answer. The cost is exponential, so always mention how small n has to be."
+  }
+ ]
+}

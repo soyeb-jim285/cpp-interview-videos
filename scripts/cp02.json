@@ -1,0 +1,305 @@
+{
+ "id": "cp02",
+ "num": 2,
+ "series": "DSA",
+ "short": "Hash maps",
+ "question": "How do hash maps solve two-sum and frequency counting?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Remember what you have seen, find it again in one step.",
+   "say": "Hash maps turn a search through the whole array into one lookup. That one trick solves two sum, and a whole family of counting problems."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a coat check",
+   "items": [
+    {
+     "label": "You hand in a coat",
+     "text": "get ticket 7",
+     "sub": "the key",
+     "cue": "hand in a coat"
+    },
+    {
+     "label": "Later",
+     "text": "show ticket 7",
+     "sub": "no searching the rack",
+     "cue": "show the ticket"
+    },
+    {
+     "label": "Hash map",
+     "text": "key → value",
+     "sub": "lookup in about 1 step",
+     "cue": "hash map"
+    }
+   ],
+   "say": "Think of a coat check. You hand in a coat and get a ticket. Later you show the ticket, and they fetch the coat at once. They never search the whole rack. A hash map works the same: a key leads straight to its value, in about one step on average."
+  },
+  {
+   "type": "diagram",
+   "head": "Two sum: array 4, 1, 6, 5 and target 11",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "vector<int> twoSum(vector<int>& a, int t) {\n    unordered_map<int,int> idx;  // value -> index\n    for (int i = 0; i < (int)a.size(); i++) {\n        auto it = idx.find(t - a[i]);\n        if (it != idx.end()) return {it->second, i};\n        idx[a[i]] = i;\n    }\n    return {};\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "what partner",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "store four",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "Six is in the map",
+     "lines": [
+      5
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "ar0",
+     "x": 1020,
+     "y": 270,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array four",
+     "label": "array"
+    },
+    {
+     "id": "ar1",
+     "x": 1150,
+     "y": 270,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array four"
+    },
+    {
+     "id": "ar2",
+     "x": 1280,
+     "y": 270,
+     "w": 110,
+     "h": 110,
+     "text": "6",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array four"
+    },
+    {
+     "id": "ar3",
+     "x": 1410,
+     "y": 270,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Array four"
+    },
+    {
+     "id": "need",
+     "x": 1020,
+     "y": 480,
+     "w": 760,
+     "h": 110,
+     "label": "partner I need = 11 - current",
+     "text": "?",
+     "size": 40,
+     "tone": "warn",
+     "cue": "what partner"
+    },
+    {
+     "id": "m0",
+     "x": 1020,
+     "y": 720,
+     "w": 230,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "cue": "store four",
+     "label": "map: value → index"
+    },
+    {
+     "id": "m1",
+     "x": 1270,
+     "y": 720,
+     "w": 230,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "cue": "store four"
+    },
+    {
+     "id": "m2",
+     "x": 1520,
+     "y": 720,
+     "w": 230,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "cue": "store four"
+    }
+   ],
+   "changes": [
+    {
+     "id": "ar0",
+     "tone": "warn",
+     "cue": "First, four"
+    },
+    {
+     "id": "need",
+     "text": "7",
+     "cue": "I need seven"
+    },
+    {
+     "id": "m0",
+     "text": "4 → 0",
+     "cue": "store four"
+    },
+    {
+     "id": "ar1",
+     "tone": "warn",
+     "cue": "Next, one"
+    },
+    {
+     "id": "need",
+     "text": "10",
+     "cue": "I need ten"
+    },
+    {
+     "id": "m1",
+     "text": "1 → 1",
+     "cue": "store one"
+    },
+    {
+     "id": "ar2",
+     "tone": "warn",
+     "cue": "Next, six"
+    },
+    {
+     "id": "need",
+     "text": "5",
+     "cue": "I need five"
+    },
+    {
+     "id": "m2",
+     "text": "6 → 2",
+     "cue": "store six"
+    },
+    {
+     "id": "ar3",
+     "tone": "good",
+     "cue": "Last, five"
+    },
+    {
+     "id": "need",
+     "text": "6",
+     "cue": "I need six"
+    },
+    {
+     "id": "need",
+     "tone": "good",
+     "cue": "Six is in the map"
+    }
+   ],
+   "say": "Array four, one, six, five. Target eleven. For each number, ask: what partner do I need? First, four. I need seven. Not in the map, so store four at index zero. Next, one. I need ten. Not there, store one. Next, six. I need five. Not there, store six. Last, five. I need six. Six is in the map at index two. Done: indices two and three."
+  },
+  {
+   "type": "code",
+   "head": "Second use: counting how often each value appears",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "int mostFrequent(vector<int>& a) {\n    unordered_map<int,int> cnt;\n    for (int x : a) cnt[x]++;      // count each value\n    int best = 0, mode = a[0];\n    for (auto& [v, c] : cnt)\n        if (c > best) best = c, mode = v;\n    return mode;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "cnt of x",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "scan the map",
+     "lines": [
+      5,
+      6
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "creates a zero",
+     "line": 3,
+     "inside": true,
+     "text": "missing key starts at 0"
+    }
+   ],
+   "say": "Second use: counting. A map from value to how many times you saw it. The line cnt of x plus plus creates a zero if the key is missing, then adds one. Then scan the map for the biggest count. Same trick solves Group Anagrams, Top K Frequent Elements, and Subarray Sum Equals K, where the key is a prefix sum. All O of n on average."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why is lookup O of 1?",
+     "Hash the key to a bucket and jump there. Average case."
+    ],
+    [
+     "Worst case?",
+     "O of n if everything collides. Contests use custom hashes."
+    ],
+    [
+     "Map versus unordered map?",
+     "Map is a sorted tree, O of log n. Unordered is a hash."
+    ],
+    [
+     "Common mistake",
+     "Inserting first, so a number pairs with itself."
+    ]
+   ],
+   "cues": [
+    "Why is lookup",
+    "Worst case",
+    "Map versus",
+    "Common mistake"
+   ],
+   "say": "Why is lookup O of 1? You hash the key and jump to a bucket. Worst case? O of n if everything collides, so contests use custom hashes. Map versus unordered map? Map is a sorted tree, unordered is a hash. Common mistake: inserting first, so a number pairs with itself."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A hash map finds a key in about one step.",
+    "Two sum: look up target minus current, then store current.",
+    "Counting: map value to count, O of n."
+   ],
+   "cues": [
+    "A hash map",
+    "Two sum",
+    "Counting"
+   ],
+   "say": "A hash map finds a key in about one step. For two sum, look up target minus the current number, then store the current one. For counting, map each value to its count. All O of n."
+  }
+ ]
+}

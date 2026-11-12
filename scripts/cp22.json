@@ -1,0 +1,845 @@
+{
+ "id": "cp22",
+ "num": 22,
+ "series": "DSA",
+ "short": "Sorting II",
+ "question": "How does quicksort work, what does std::sort really do, and when do you use a comparator or counting sort?",
+ "caps": [
+  [
+   "stable sort",
+   "stable_sort"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Pick a pivot, split around it, repeat. Plus the tools C plus plus gives you.",
+   "say": "Quicksort is the sorting algorithm interviewers ask about most. We'll see how it partitions, what s t d colon colon sort really does, and a trick that beats comparing."
+  },
+  {
+   "type": "flow",
+   "head": "Lining people up by height",
+   "items": [
+    {
+     "label": "Pick a boss",
+     "text": "the pivot",
+     "sub": "say, the last person",
+     "cue": "Pick one person"
+    },
+    {
+     "label": "Shorter go left",
+     "text": "left side",
+     "sub": "everyone shorter",
+     "cue": "shorter than the boss"
+    },
+    {
+     "label": "Taller go right",
+     "text": "right side",
+     "sub": "everyone taller",
+     "cue": "taller go to the right"
+    },
+    {
+     "label": "Boss is final",
+     "text": "correct spot",
+     "sub": "never moves again",
+     "cue": "never moves again"
+    },
+    {
+     "label": "Repeat",
+     "text": "each side",
+     "sub": "smaller crowds",
+     "cue": "Repeat"
+    }
+   ],
+   "say": "Imagine lining up a crowd by height. Pick one person as the boss, the pivot. Everyone shorter than the boss goes to the left, everyone taller go to the right. Now the boss stands in the right spot and never moves again. Repeat on each side, with smaller crowds."
+  },
+  {
+   "type": "diagram",
+   "head": "Partition [5, 8, 2, 9, 1, 4]",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int partition(vector<int>& a, int lo, int hi) {\n    int pivot = a[hi], i = lo;\n    for (int j = lo; j < hi; j++)\n        if (a[j] < pivot) swap(a[i++], a[j]);\n    swap(a[i], a[hi]);\n    return i;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "The pivot is the last item",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Variable i",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Scan with j",
+     "lines": [
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "Two is smaller",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "One is smaller",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "Finally, swap the pivot",
+     "lines": [
+      5,
+      6
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c0",
+     "x": 1020,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight",
+     "label": "array"
+    },
+    {
+     "id": "c1",
+     "x": 1150,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "8",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight"
+    },
+    {
+     "id": "c2",
+     "x": 1280,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight"
+    },
+    {
+     "id": "c3",
+     "x": 1410,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "9",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight"
+    },
+    {
+     "id": "c4",
+     "x": 1540,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight"
+    },
+    {
+     "id": "c5",
+     "x": 1670,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take five, eight"
+    },
+    {
+     "id": "pv",
+     "x": 1020,
+     "y": 500,
+     "w": 340,
+     "h": 110,
+     "text": "4",
+     "size": 48,
+     "tone": "warn",
+     "cue": "The pivot is the last item",
+     "label": "pivot"
+    },
+    {
+     "id": "ii",
+     "x": 1400,
+     "y": 500,
+     "w": 380,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "info",
+     "cue": "Variable i",
+     "label": "i: next small slot"
+    },
+    {
+     "id": "act",
+     "x": 1020,
+     "y": 720,
+     "w": 760,
+     "h": 110,
+     "text": "",
+     "size": 34,
+     "tone": "blue",
+     "cue": "Scan with j",
+     "label": "what happens"
+    }
+   ],
+   "changes": [
+    {
+     "id": "c5",
+     "cue": "The pivot is the last item",
+     "tone": "warn"
+    },
+    {
+     "id": "act",
+     "cue": "Five is not smaller",
+     "text": "5 < 4 ? no"
+    },
+    {
+     "id": "act",
+     "cue": "Eight, no",
+     "text": "8 < 4 ? no"
+    },
+    {
+     "id": "act",
+     "cue": "Two is smaller",
+     "text": "2 < 4 : swap into slot 0"
+    },
+    {
+     "id": "c2",
+     "cue": "Two is smaller",
+     "tone": "info"
+    },
+    {
+     "id": "c0",
+     "cue": "swap it into slot i",
+     "text": "2",
+     "tone": "good"
+    },
+    {
+     "id": "c2",
+     "cue": "swap it into slot i",
+     "text": "5"
+    },
+    {
+     "id": "ii",
+     "cue": "moves to one",
+     "text": "1"
+    },
+    {
+     "id": "act",
+     "cue": "Nine, no",
+     "text": "9 < 4 ? no"
+    },
+    {
+     "id": "act",
+     "cue": "One is smaller",
+     "text": "1 < 4 : swap into slot 1"
+    },
+    {
+     "id": "c1",
+     "cue": "swap it into slot one",
+     "text": "1",
+     "tone": "good"
+    },
+    {
+     "id": "c4",
+     "cue": "swap it into slot one",
+     "text": "8"
+    },
+    {
+     "id": "ii",
+     "cue": "moves to two",
+     "text": "2"
+    },
+    {
+     "id": "c2",
+     "cue": "Finally, swap the pivot",
+     "text": "4",
+     "tone": "good"
+    },
+    {
+     "id": "c5",
+     "cue": "Finally, swap the pivot",
+     "text": "5",
+     "tone": "info"
+    },
+    {
+     "id": "act",
+     "cue": "Finally, swap the pivot",
+     "text": "4 is in its final place",
+     "tone": "good"
+    }
+   ],
+   "say": "Partition rearranges the array around a pivot. Take five, eight, two, nine, one, four. The pivot is the last item: four. Variable i marks where the next small value goes. Scan with j. Five is not smaller than four. Eight, no. Two is smaller, so swap it into slot i. And i moves to one. Nine, no. One is smaller: swap it into slot one, and i moves to two. Finally, swap the pivot into slot i. Four is now in its final place, small ones left, big ones right."
+  },
+  {
+   "type": "diagram",
+   "head": "Then recurse on both sides",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "void quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Four is placed",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Sort the left side",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "Sort the right side",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "The array is sorted",
+     "lines": [
+      2
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c0",
+     "x": 1020,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now recurse",
+     "label": "array"
+    },
+    {
+     "id": "c1",
+     "x": 1150,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now recurse"
+    },
+    {
+     "id": "c2",
+     "x": 1280,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 44,
+     "tone": "good",
+     "cue": "Now recurse"
+    },
+    {
+     "id": "c3",
+     "x": 1410,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "9",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now recurse"
+    },
+    {
+     "id": "c4",
+     "x": 1540,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "8",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now recurse"
+    },
+    {
+     "id": "c5",
+     "x": 1670,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "5",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Now recurse"
+    },
+    {
+     "id": "act",
+     "x": 1020,
+     "y": 520,
+     "w": 760,
+     "h": 110,
+     "text": "",
+     "size": 34,
+     "tone": "blue",
+     "cue": "Now recurse",
+     "label": "result"
+    }
+   ],
+   "changes": [
+    {
+     "id": "act",
+     "cue": "Four is placed",
+     "text": "4 is fixed: left 2 1, right 9 8 5"
+    },
+    {
+     "id": "c0",
+     "cue": "Sort the left side",
+     "tone": "info"
+    },
+    {
+     "id": "c1",
+     "cue": "Sort the left side",
+     "tone": "info"
+    },
+    {
+     "id": "c0",
+     "cue": "one and two",
+     "text": "1",
+     "tone": "good"
+    },
+    {
+     "id": "c1",
+     "cue": "one and two",
+     "text": "2",
+     "tone": "good"
+    },
+    {
+     "id": "c3",
+     "cue": "Sort the right side",
+     "tone": "info"
+    },
+    {
+     "id": "c4",
+     "cue": "Sort the right side",
+     "tone": "info"
+    },
+    {
+     "id": "c5",
+     "cue": "Sort the right side",
+     "tone": "info"
+    },
+    {
+     "id": "c3",
+     "cue": "five, eight, nine",
+     "text": "5",
+     "tone": "good"
+    },
+    {
+     "id": "c4",
+     "cue": "five, eight, nine",
+     "text": "8",
+     "tone": "good"
+    },
+    {
+     "id": "c5",
+     "cue": "five, eight, nine",
+     "text": "9",
+     "tone": "good"
+    },
+    {
+     "id": "act",
+     "cue": "The array is sorted",
+     "text": "sorted: 1 2 4 5 8 9",
+     "tone": "good"
+    }
+   ],
+   "say": "Now recurse. Four is placed. Sort the left side, two and one, with the same trick: one and two. Sort the right side, nine, eight, five, the same way: five, eight, nine. No merging needed, because every pivot is already in its final place. The array is sorted: one, two, four, five, eight, nine."
+  },
+  {
+   "type": "flow",
+   "head": "Speed, and what std::sort does",
+   "items": [
+    {
+     "label": "Average",
+     "text": "O(n log n)",
+     "sub": "pivots split evenly",
+     "cue": "fast on average"
+    },
+    {
+     "label": "Worst case",
+     "text": "O(n²)",
+     "sub": "bad pivot every time",
+     "cue": "degrades"
+    },
+    {
+     "label": "The fix",
+     "text": "introsort",
+     "sub": "what std::sort uses",
+     "cue": "introsort"
+    },
+    {
+     "label": "Inside it",
+     "text": "quick + heap + insertion",
+     "sub": "not stable",
+     "cue": "switches to heap sort"
+    }
+   ],
+   "say": "Quicksort is fast on average, O of n log n, when pivots split evenly. Always picking the last item of an already sorted array degrades it to O of n squared. Real libraries fix this. S t d colon colon sort is an introsort: quicksort with a good pivot, that switches to heap sort if recursion gets too deep, and uses insertion sort on tiny ranges. So it is O of n log n in the worst case, but not stable."
+  },
+  {
+   "type": "code",
+   "head": "Comparators and stable sort",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\n\n// highest score first; ties keep input order\nstable_sort(v.begin(), v.end(), [](const auto& x, const auto& y) {\n    return x.second > y.second;\n});\n\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "comparator",
+     "lines": [
+      5,
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "Use stable sort",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "Bob stays ahead",
+     "lines": [
+      9,
+      10
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "strict",
+     "line": 6,
+     "inside": true,
+     "text": "strict: > not >=",
+     "tone": "warn"
+    }
+   ],
+   "output": {
+    "cmd": "./sol",
+    "cue": "Bob stays ahead",
+    "text": "bob 90\ncat 90\namy 85",
+    "tone": "good"
+   },
+   "say": "For a custom order, write a comparator: a function that says whether x must come before y. Here, higher score first. It must be strict: greater than, never greater or equal. Otherwise equal items break the sort rules, which is undefined behavior and can crash s t d colon colon sort. Use stable sort when ties must keep input order. Bob stays ahead of Cat."
+  },
+  {
+   "type": "diagram",
+   "head": "Counting sort: values 0 to 4",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<int> countSort(vector<int>& a, int maxV) {\n    vector<int> cnt(maxV + 1, 0);\n    for (int x : a) cnt[x]++;\n    vector<int> out;\n    for (int v = 0; v <= maxV; v++)\n        out.insert(out.end(), cnt[v], v);\n    return out;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Make a counter",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Walk the input",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "write each value out",
+     "lines": [
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "O of n plus k",
+     "lines": [
+      7
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "i0",
+     "x": 1020,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four",
+     "label": "input"
+    },
+    {
+     "id": "i1",
+     "x": 1120,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "i2",
+     "x": 1220,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "i3",
+     "x": 1320,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "i4",
+     "x": 1420,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "i5",
+     "x": 1520,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "0",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "i6",
+     "x": 1620,
+     "y": 280,
+     "w": 90,
+     "h": 90,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "between zero and four"
+    },
+    {
+     "id": "k0",
+     "x": 1020,
+     "y": 500,
+     "w": 140,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make a counter",
+     "label": "cnt[0]"
+    },
+    {
+     "id": "k1",
+     "x": 1180,
+     "y": 500,
+     "w": 140,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make a counter",
+     "label": "cnt[1]"
+    },
+    {
+     "id": "k2",
+     "x": 1340,
+     "y": 500,
+     "w": 140,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make a counter",
+     "label": "cnt[2]"
+    },
+    {
+     "id": "k3",
+     "x": 1500,
+     "y": 500,
+     "w": 140,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make a counter",
+     "label": "cnt[3]"
+    },
+    {
+     "id": "k4",
+     "x": 1660,
+     "y": 500,
+     "w": 140,
+     "h": 110,
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make a counter",
+     "label": "cnt[4]"
+    },
+    {
+     "id": "out",
+     "x": 1020,
+     "y": 720,
+     "w": 760,
+     "h": 110,
+     "text": "",
+     "size": 40,
+     "tone": "good",
+     "cue": "write each value out",
+     "label": "output"
+    }
+   ],
+   "changes": [
+    {
+     "id": "k0",
+     "cue": "The counters read",
+     "text": "1",
+     "tone": "warn"
+    },
+    {
+     "id": "k1",
+     "cue": "The counters read",
+     "text": "2",
+     "tone": "warn"
+    },
+    {
+     "id": "k2",
+     "cue": "The counters read",
+     "text": "0",
+     "tone": "warn"
+    },
+    {
+     "id": "k3",
+     "cue": "The counters read",
+     "text": "3",
+     "tone": "warn"
+    },
+    {
+     "id": "k4",
+     "cue": "The counters read",
+     "text": "1",
+     "tone": "warn"
+    },
+    {
+     "id": "out",
+     "cue": "The output is",
+     "text": "0  1  1  3  3  3  4"
+    }
+   ],
+   "say": "When the values are small, you can skip comparing entirely. Say the numbers are between zero and four. Make a counter for each value. Walk the input and add one to the counter of each number. The counters read: one, two, zero, three, one. Now write each value out as many times as its count. The output is zero, one, one, three, three, three, four. That is O of n plus k, where k is the value range."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Is std::sort stable?",
+     "No. Use stable sort when equal items must keep their order."
+    ],
+    [
+     "Quicksort worst case?",
+     "O of n squared with bad pivots. Random pivot or introsort avoids it."
+    ],
+    [
+     "Quicksort or merge sort?",
+     "Quicksort is in place and cache friendly. Merge sort is stable but needs extra memory."
+    ],
+    [
+     "When counting sort?",
+     "Small integer range k, like ages or letters. O of n plus k."
+    ],
+    [
+     "Common mistake",
+     "A comparator with greater or equal. That is undefined behavior."
+    ]
+   ],
+   "cues": [
+    "sort stable",
+    "Quicksort worst",
+    "Quicksort or merge",
+    "When counting",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Is sort stable? No, use stable sort. Quicksort worst case? Quadratic with bad pivots. Introsort avoids it. Quicksort or merge sort? Quicksort is in place. Merge sort is stable. When counting sort? A small range of integers. Classics: Kth Largest Element, Sort Colors. The common mistake: a comparator with greater or equal."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Quicksort: partition around a pivot, recurse. O(n log n) average.",
+    "std::sort is introsort: O(n log n) worst case, not stable. stable_sort keeps ties.",
+    "Comparators must be strict. Small integer range: counting sort, O(n + k)."
+   ],
+   "cues": [
+    "Quicksort",
+    "introsort",
+    "Comparators"
+   ],
+   "say": "Quicksort partitions around a pivot and recurses, O of n log n on average. S t d sort is introsort: n log n worst case, not stable. Stable sort keeps ties. Comparators must be strict. And for a small range of integers, counting sort is O of n plus k."
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "fe09", "num": 9, "series": "Frontend", "short": "TypeScript essentials",
+  "question": "TypeScript: types vs interfaces, generics, narrowing, and utility types?",
+  "caps": [["type script", "TypeScript"]],
+  "scenes": [
+    { "type": "title", "sub": "Types are checked before the code runs, then erased.",
+      "say": "TypeScript. Four topics come up again and again: type versus interface, generics, narrowing, and utility types." },
+
+    { "type": "flow", "head": "Think of a shipping label", "y": 400, "h": 250,
+      "items": [
+        { "label": "label says", "text": "Fragile, 2 kg", "sub": "the type", "cue": "label" },
+        { "label": "checked at", "text": "Warehouse", "sub": "compile time", "tone": "warn", "cue": "warehouse" },
+        { "label": "delivered", "text": "Plain box", "sub": "types erased", "tone": "good", "cue": "delivered box" }
+      ],
+      "say": "Think of a shipping label. The label describes the parcel: fragile, two kilos. The warehouse checks parcels against labels before they leave. That is the compile step. But the delivered box has no label on it. Types are erased, so nothing is checked at runtime. Data from an A P I can still be wrong." },
+
+    { "type": "code", "head": "type vs interface",
+      "panels": [{ "file": "types.ts", "size": 34, "code": "interface User { id: number; name: string }\ninterface Admin extends User { level: number }\n\ntype Id = number | string;          // union\ntype Pair = [number, number];       // tuple\ntype Mod = User & { level: number };\n\ninterface User { email?: string }   // merges" }],
+      "steps": [
+        { "cue": "interface describes", "lines": [1, 2] },
+        { "cue": "type can name", "lines": [4, 5, 6] },
+        { "cue": "declaration merging", "lines": [8] }
+      ],
+      "say": "For object shapes they are almost the same. An interface describes an object and can extend another. A type can name anything: a union, a tuple, an intersection. Only interfaces support declaration merging, where a second declaration adds fields. Rule of thumb: interface for public object shapes, type for unions and everything else. Be consistent." },
+
+    { "type": "code", "head": "Generics: types as parameters",
+      "panels": [{ "file": "generic.ts", "size": 34, "code": "function first<T>(xs: T[]): T | undefined {\n  return xs[0];\n}\n\nfirst([1, 2, 3]);      // number | undefined\nfirst(['a', 'b']);     // string | undefined\n\nfunction pick<T, K extends keyof T>(o: T, k: K): T[K] {\n  return o[k];\n}" }],
+      "steps": [
+        { "cue": "T is a placeholder", "lines": [1, 2, 3] },
+        { "cue": "numbers", "lines": [5] },
+        { "cue": "constraint", "lines": [8, 9, 10] }
+      ],
+      "say": "A generic is a function with a type placeholder. T is a placeholder filled in at each call. Pass numbers, and T is number, so the result is number or undefined. Pass strings, T is string. One function, fully typed, no copy and paste. You can add a constraint: K extends keyof T means the key must really exist on the object." },
+
+    { "type": "code", "head": "Narrowing and utility types",
+      "panels": [{ "file": "narrow.ts", "size": 33, "code": "type Shape =\n  | { kind: 'circle'; r: number }\n  | { kind: 'square'; side: number };\n\nfunction area(s: Shape) {\n  if (s.kind === 'circle') return s.r ** 2 * 3.14;\n  return s.side ** 2;\n}\n\ntype Draft = Partial<User>;      // all optional\ntype Card = Pick<User, 'name'>;  // keep some\ntype NoId = Omit<User, 'id'>;    // drop some" }],
+      "steps": [
+        { "cue": "kind field", "lines": [1, 2, 3] },
+        { "cue": "check the kind", "lines": [6, 7] },
+        { "cue": "Partial", "lines": [10, 11, 12] }
+      ],
+      "say": "Narrowing means the compiler tracks what a value can be. Give each shape a kind field. Inside the if, after you check the kind, T S knows it is a circle and lets you read r. After the return, it knows it is a square. Utility types reshape types for you: Partial makes every field optional, Pick keeps some fields, Omit drops some." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["any vs unknown?", "unknown forces a check before use. any turns checking off."],
+        ["Are types checked at runtime?", "No. Erased. Validate external data, for example with zod."],
+        ["What is a discriminated union?", "Union with a shared literal field to narrow on."],
+        ["Common mistake", "Using as to silence errors instead of narrowing."]
+      ],
+      "cues": ["any versus", "checked at runtime", "discriminated", "mistake"],
+      "say": "Likely follow-ups. Any versus unknown? Unknown forces a check before use, any turns checking off. Are types checked at runtime? No, they are erased, so validate external data. What is a discriminated union? A union with a shared literal field to narrow on. The common mistake: using as to silence errors instead of narrowing." },
+
+    { "type": "take", "lines": ["Types are compile-time only. Validate data at the boundary.", "interface for object shapes, type for unions. Generics keep code reusable and typed.", "Narrow with checks. Avoid any and as."],
+      "cues": ["compile time", "interface for", "Narrow"],
+      "say": "Types exist only at compile time, so validate data at the boundary. Interface for object shapes, type for unions, and generics keep code reusable and typed. Narrow with checks, and avoid any and as." }
+  ]
+}

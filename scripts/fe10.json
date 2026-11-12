@@ -1,0 +1,67 @@
+{
+  "id": "fe10", "num": 10, "series": "Frontend", "short": "CSS layout and specificity",
+  "question": "Explain the CSS box model, flexbox vs grid, and specificity.",
+  "caps": [["box sizing", "box-sizing"]],
+  "scenes": [
+    { "type": "title", "sub": "Every element is a box. Layout is how boxes are arranged.",
+      "say": "C S S layout. Three questions: how big is a box, how do I arrange boxes, and why did my style lose?" },
+
+    { "type": "flow", "head": "Think of a gift box", "y": 400, "h": 260,
+      "items": [
+        { "label": "the gift", "text": "Content", "sub": "200 px wide", "cue": "gift" },
+        { "label": "bubble wrap", "text": "Padding", "sub": "20 px each side", "tone": "warn", "cue": "bubble wrap" },
+        { "label": "the box wall", "text": "Border", "sub": "5 px each side", "tone": "blue", "cue": "wall" },
+        { "label": "gap to next box", "text": "Margin", "sub": "outside, 10 px", "tone": "ghost", "cue": "gap" }
+      ],
+      "say": "Think of a gift box. The gift is the content, two hundred pixels wide. Around it is bubble wrap, the padding, twenty pixels each side. Then the box wall, the border, five pixels. And outside the box is the gap to the next box, the margin. Margin is outside the box, so it is not part of its size." },
+
+    { "type": "code", "head": "How wide is that box really?",
+      "panels": [{ "file": "box.css", "size": 34, "code": ".card {\n  width: 200px;\n  padding: 20px;\n  border: 5px solid;\n}\n/* content-box: 200 + 40 + 10 = 250px */\n\n* { box-sizing: border-box; }\n/* border-box: total stays 200px */" }],
+      "steps": [
+        { "cue": "By default", "lines": [1, 2, 3, 4, 5, 6] },
+        { "cue": "border box", "lines": [8, 9] }
+      ],
+      "say": "By default, width means the content only. So this card is two hundred, plus forty of padding, plus ten of border: two hundred fifty pixels on screen. That surprises people. Set box sizing to border box, and width includes padding and border. The card stays two hundred. Most projects set this for everything." },
+
+    { "type": "diagram", "head": "Flexbox is a row. Grid is a table.",
+      "panels": [{ "file": "layout.css", "size": 34, "code": ".nav {\n  display: flex;\n  justify-content: space-between;\n}\n\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}" }],
+      "steps": [
+        { "cue": "Flexbox lays out", "lines": [1, 2, 3, 4] },
+        { "cue": "Grid", "lines": [6, 7, 8, 9, 10] }
+      ],
+      "items": [
+        { "id": "f1", "x": 1020, "y": 260, "w": 220, "h": 110, "label": "flex: one axis", "text": "Logo", "size": 34, "tone": "blue", "cue": "Flexbox lays out" },
+        { "id": "f2", "x": 1580, "y": 260, "w": 220, "h": 110, "text": "Menu", "size": 34, "tone": "blue", "cue": "Flexbox lays out" },
+        { "id": "g1", "x": 1020, "y": 600, "w": 220, "h": 110, "label": "grid: rows + columns", "text": "1", "size": 34, "tone": "good", "cue": "Grid" },
+        { "id": "g2", "x": 1300, "y": 600, "w": 220, "h": 110, "text": "2", "size": 34, "tone": "good", "cue": "Grid" },
+        { "id": "g3", "x": 1580, "y": 600, "w": 220, "h": 110, "text": "3", "size": 34, "tone": "good", "cue": "Grid" },
+        { "id": "g4", "x": 1020, "y": 760, "w": 220, "h": 110, "text": "4", "size": 34, "tone": "good", "cue": "second row" }
+      ],
+      "say": "Flexbox lays out items along one axis, a row or a column. Perfect for a nav bar: logo on the left, menu on the right. Grid controls rows and columns together. Three equal columns, with a sixteen pixel gap, and items wrap onto a second row. Rule of thumb: content decides the layout, use flex. Layout decides the content, use grid." },
+
+    { "type": "diagram", "head": "Specificity: who wins?",
+      "items": [
+        { "id": "s1", "x": 200, "y": 260, "w": 560, "h": 120, "label": "p", "text": "0, 0, 1", "size": 40, "tone": "ghost", "cue": "element" },
+        { "id": "s2", "x": 200, "y": 470, "w": 560, "h": 120, "label": ".card", "text": "0, 1, 0", "size": 40, "tone": "blue", "cue": "class" },
+        { "id": "s3", "x": 200, "y": 680, "w": 560, "h": 120, "label": "#hero", "text": "1, 0, 0", "size": 40, "tone": "good", "cue": "id" },
+        { "id": "s4", "x": 1060, "y": 470, "w": 660, "h": 160, "text": "Highest tuple wins", "sub": "tie: the later rule wins", "size": 40, "tone": "warn", "cue": "tie" }
+      ],
+      "arrows": [{ "from": "s3", "to": "s4", "cue": "highest" }],
+      "say": "Specificity decides which rule wins when several match. Count three things. An element selector like p scores zero, zero, one. A class scores zero, one, zero. An id scores one, zero, zero. The highest tuple wins, compared left to right. On a tie, the later rule wins. Inline styles beat all of these, and important beats inline." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["Center a div?", "Flex: display flex, justify and align center."],
+        ["margin vs padding?", "Padding is inside the border. Margin is outside."],
+        ["Fix a stubborn style?", "Lower the selector specificity. Avoid important."],
+        ["Common mistake", "Forgetting box-sizing, so widths overflow."]
+      ],
+      "cues": ["Center", "margin versus", "stubborn", "mistake"],
+      "say": "Likely follow-ups. Center a div? Display flex, then justify and align center. Margin versus padding? Padding is inside the border, margin is outside. A stubborn style? Lower the selector specificity, and avoid important. The common mistake: forgetting box sizing, so widths overflow their parents." },
+
+    { "type": "take", "lines": ["Box: content, padding, border, margin. Use border-box.", "Flex for one dimension, grid for two.", "Specificity: ids beat classes beat elements. Ties go to the later rule."],
+      "cues": ["Box", "Flex for", "Specificity"],
+      "say": "A box is content, padding, border, and margin, so use border box. Flex for one dimension, grid for two. And specificity: ids beat classes, which beat elements, and ties go to the later rule." }
+  ]
+}

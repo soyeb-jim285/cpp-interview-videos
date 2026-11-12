@@ -1,0 +1,82 @@
+{
+  "id": "sw06", "num": 6, "series": "SWE", "short": "Hunting a subtle bug",
+  "question": "Tell me how you track down a bug that only happens sometimes, or that appeared recently.",
+  "scenes": [
+    { "type": "title", "sub": "Don't guess. Reproduce, shrink, then narrow it down by halves.",
+      "say": "Hunting a subtle bug. This question tests your method, not your luck. A calm, repeatable process beats staring at code and guessing." },
+
+    { "type": "flow", "head": "Analogy: a detective, not a gambler",
+      "items": [
+        { "label": "1", "text": "Reproduce", "sub": "make it fail on demand", "cue": "Reproduce" },
+        { "label": "2", "text": "Minimize", "sub": "shrink the failing input", "cue": "Minimize" },
+        { "label": "3", "text": "Bisect", "sub": "halve the history", "cue": "Bisect" },
+        { "label": "4", "text": "Fix + test", "sub": "lock it in", "cue": "lock" }
+      ],
+      "say": "A detective does not accuse at random. First, reproduce: make the bug fail on demand, every time. Second, minimize: shrink the failing input until almost nothing is left. Third, bisect: halve the search space again and again. Fourth, fix it, and add a test to lock it in." },
+
+    { "type": "code", "head": "Minimize: halve the input until it is tiny",
+      "panels": [{ "file": "notes.py", "size": 32, "code": "rows = load(\"big.csv\")   # 10000 rows: fails\nrows = rows[:5000]     # still fails\nrows = rows[:40]       # still fails\nrows = rows[:3]        # passes\nrows = rows[:4]        # fails!\n# row 4 is the culprit" }],
+      "steps": [
+        { "cue": "ten thousand rows", "lines": [1] },
+        { "cue": "half", "lines": [2, 3] },
+        { "cue": "three rows pass", "lines": [4] },
+        { "cue": "four rows fail", "lines": [5, 6] }
+      ],
+      "notes": [
+        { "cue": "ten thousand rows", "line": 1, "inside": true, "text": "start", "tone": "bad" },
+        { "cue": "four rows fail", "line": 5, "inside": true, "text": "row 4 is bad", "tone": "warn" }
+      ],
+      "say": "Say a job fails on a file with ten thousand rows. Keep cutting. Half still fails. Forty rows still fails. Three rows pass, four rows fail. So row four is the culprit. Now you have a tiny repro that you can debug in minutes, and later turn into a regression test." },
+
+    { "type": "diagram", "head": "Bisect: eight commits, only three tests",
+      "items": [
+        { "id": "c1", "x": 130, "y": 330, "w": 180, "h": 130, "text": "c1", "sub": "good", "size": 44, "tone": "good", "cue": "Eight commits ago" },
+        { "id": "c2", "x": 340, "y": 330, "w": 180, "h": 130, "text": "c2", "size": 44, "tone": "ghost", "cue": "Eight commits ago" },
+        { "id": "c3", "x": 550, "y": 330, "w": 180, "h": 130, "text": "c3", "size": 44, "tone": "ghost", "cue": "Eight commits ago" },
+        { "id": "c4", "x": 760, "y": 330, "w": 180, "h": 130, "text": "c4", "size": 44, "tone": "ghost", "cue": "middle commit" },
+        { "id": "c5", "x": 970, "y": 330, "w": 180, "h": 130, "text": "c5", "size": 44, "tone": "ghost", "cue": "Eight commits ago" },
+        { "id": "c6", "x": 1180, "y": 330, "w": 180, "h": 130, "text": "c6", "size": 44, "tone": "ghost", "cue": "Eight commits ago" },
+        { "id": "c7", "x": 1390, "y": 330, "w": 180, "h": 130, "text": "c7", "size": 44, "tone": "ghost", "cue": "Eight commits ago" },
+        { "id": "c8", "x": 1600, "y": 330, "w": 180, "h": 130, "text": "c8", "sub": "bad", "size": 44, "tone": "bad", "cue": "Eight commits ago" },
+        { "id": "log", "x": 460, "y": 640, "w": 1000, "h": 150, "text": "Start: c1 good, c8 bad", "size": 40, "tone": "blue", "cue": "Eight commits ago" }
+      ],
+      "changes": [
+        { "id": "log", "text": "Test c4: good", "cue": "middle commit" },
+        { "id": "c4", "tone": "good", "cue": "middle commit" },
+        { "id": "c2", "tone": "good", "cue": "middle commit" },
+        { "id": "c3", "tone": "good", "cue": "middle commit" },
+        { "id": "log", "text": "Test c6: bad", "cue": "Next test" },
+        { "id": "c6", "tone": "bad", "cue": "Next test" },
+        { "id": "c7", "tone": "bad", "cue": "Next test" },
+        { "id": "log", "text": "Test c5: bad, so c5 broke it", "cue": "last step" },
+        { "id": "c5", "tone": "warn", "cue": "last step" }
+      ],
+      "say": "Now the bug appeared recently. Eight commits ago it worked, now it is broken. Test the middle commit. It passes, so the bug is later. Next test c6. It fails, so the bug is c5 or c6. In the last step, test c5. It fails, so c5 introduced the bug. Three tests for eight commits. A thousand commits need only ten." },
+
+    { "type": "code", "head": "Let git do the halving",
+      "panels": [{ "file": "run.sh", "size": 30, "code": "git bisect start\ngit bisect bad            # HEAD is broken\ngit bisect good v1.2      # this tag worked\n# git checks out the middle commit\n./test.sh\ngit bisect good           # or: git bisect bad\n\n# or fully automatic:\ngit bisect run ./test.sh\ngit bisect reset" }],
+      "steps": [
+        { "cue": "start", "lines": [1, 2, 3] },
+        { "cue": "middle", "lines": [4, 5, 6] },
+        { "cue": "bisect run", "lines": [8, 9] },
+        { "cue": "reset", "lines": [10] }
+      ],
+      "say": "In git, start a bisect, mark the current commit bad, and mark an old tag good. Git checks out the middle commit. You run your test, then say good or bad, and git jumps again. Or use bisect run with a script that exits zero for good, and git finds the commit alone. Reset when you are done." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"], "rowHeads": ["No repro", "Bisect needs", "Not code", "After fix", "Mistake"],
+      "rows": [
+        ["Can't reproduce it?", "Add logging, capture the real input"],
+        ["What does bisect need?", "A good commit and an automatic test"],
+        ["Bug is not a commit?", "Check config, data, dependencies"],
+        ["After the fix?", "Add a regression test"],
+        ["Common mistake", "Changing code before reproducing"]
+      ],
+      "cues": ["can't reproduce", "bisect need", "not a commit", "After the fix", "The mistake"],
+      "say": "Likely follow-ups. You can't reproduce it? Add logging and capture the real input. What does bisect need? A known good commit and an automatic test. Bug is not a commit? Check config, data and dependencies. After the fix, add a regression test. The mistake is changing code before you can reproduce the bug." },
+
+    { "type": "take", "lines": ["First I reproduce the bug on demand, then shrink the input.", "If it is a regression, I git bisect to find the first bad commit.", "Then I fix it and add a regression test."],
+      "cues": ["First I reproduce", "regression", "Then I fix"],
+      "say": "First I reproduce the bug on demand, then shrink the input. If it is a regression, I use git bisect to find the first bad commit. Then I fix it and add a regression test." }
+  ]
+}

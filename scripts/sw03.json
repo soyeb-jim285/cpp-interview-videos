@@ -1,0 +1,72 @@
+{
+  "id": "sw03", "num": 3, "series": "SWE", "short": "OOP and SOLID",
+  "question": "Explain object-oriented design and the SOLID principles. Show me with an example.",
+  "scenes": [
+    { "type": "title", "sub": "Design code so new features are added, not edited in.",
+      "say": "Object oriented design and SOLID. Five letters that sound abstract. We will make them concrete with one small refactoring." },
+
+    { "type": "diagram", "head": "Analogy: a wall socket",
+      "items": [
+        { "id": "sock", "x": 740, "y": 400, "w": 440, "h": 190, "text": "Socket", "sub": "the agreed interface", "size": 52, "tone": "blue", "cue": "wall socket" },
+        { "id": "d1", "x": 160, "y": 700, "w": 400, "h": 150, "text": "Lamp", "size": 44, "cue": "lamp" },
+        { "id": "d2", "x": 760, "y": 700, "w": 400, "h": 150, "text": "Laptop", "size": 44, "cue": "laptop" },
+        { "id": "d3", "x": 1360, "y": 700, "w": 400, "h": 150, "text": "New kettle", "size": 44, "tone": "good", "cue": "kettle" }
+      ],
+      "arrows": [
+        { "from": "d1", "to": "sock", "cue": "lamp" },
+        { "from": "d2", "to": "sock", "cue": "laptop" },
+        { "from": "d3", "to": "sock", "tone": "good", "cue": "kettle" }
+      ],
+      "say": "Think of a wall socket. A lamp plugs in. A laptop plugs in. Tomorrow you buy a kettle, and it plugs in too. Nobody rewires the wall. The socket is an interface, and anything that fits it works. Good object oriented design gives your code sockets like that." },
+
+    { "type": "code", "head": "The smell: an if chain that keeps growing",
+      "panels": [{ "file": "app.py", "size": 36, "code": "def price(kind, total):\n    if kind == \"student\":\n        return total * 0.8\n    elif kind == \"vip\":\n        return total * 0.7\n    return total\n\nprint(price(\"vip\", 100))" }],
+      "steps": [
+        { "cue": "checks the customer kind", "lines": [2, 3, 4, 5] },
+        { "cue": "new customer type", "lines": [2, 4] },
+        { "cue": "vip", "lines": [8] }
+      ],
+      "notes": [
+        { "cue": "new customer type", "line": 4, "inside": true, "text": "edit here again", "tone": "bad" },
+        { "cue": "prints seventy", "line": 8, "inside": true, "text": "70.0", "tone": "good" }
+      ],
+      "say": "This price function checks the customer kind with an if chain. It works, and prints seventy for a vip. But every new customer type means editing this function again, and risking the old ones. That is the smell. The function must change for every new rule." },
+
+    { "type": "code", "head": "The refactor: one class per rule",
+      "panels": [{ "file": "app.py", "size": 30, "code": "class Discount:\n    def apply(self, total):\n        return total\n\nclass Student(Discount):\n    def apply(self, total):\n        return total * 0.8\n\nclass Vip(Discount):\n    def apply(self, total):\n        return total * 0.7\n\nprint(Vip().apply(100))" }],
+      "steps": [
+        { "cue": "base class", "lines": [1, 2, 3] },
+        { "cue": "Student", "lines": [5, 6, 7] },
+        { "cue": "Vip", "lines": [9, 10, 11] },
+        { "cue": "new rule", "lines": [13] }
+      ],
+      "output": { "cmd": "python app.py", "tone": "good", "cue": "new rule", "text": "70.0" },
+      "say": "Now each rule is its own class. The base class defines the shared promise, apply. Student and Vip each keep one rule. Same output, seventy. A new rule is a new class. Nothing existing is edited. That is the open closed idea: open to extension, closed to modification." },
+
+    { "type": "diagram", "head": "SOLID: five habits, one line each",
+      "items": [
+        { "id": "s", "x": 110, "y": 400, "w": 310, "h": 250, "text": "S", "sub": "Single responsibility", "size": 72, "tone": "blue", "cue": "Single responsibility" },
+        { "id": "o", "x": 460, "y": 400, "w": 310, "h": 250, "text": "O", "sub": "Open / closed", "size": 72, "tone": "blue", "cue": "Open closed" },
+        { "id": "l", "x": 810, "y": 400, "w": 310, "h": 250, "text": "L", "sub": "Liskov substitution", "size": 72, "tone": "blue", "cue": "Liskov" },
+        { "id": "i", "x": 1160, "y": 400, "w": 310, "h": 250, "text": "I", "sub": "Interface segregation", "size": 72, "tone": "blue", "cue": "Interface segregation" },
+        { "id": "d", "x": 1510, "y": 400, "w": 310, "h": 250, "text": "D", "sub": "Dependency inversion", "size": 72, "tone": "blue", "cue": "Dependency inversion" }
+      ],
+      "say": "Single responsibility: a class has one reason to change. Open closed: extend by adding code, not editing. Liskov: a subclass must work anywhere its parent works. Interface segregation: small focused interfaces, not one giant one. Dependency inversion: depend on abstractions, like the socket, not on concrete details." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"], "rowHeads": ["Inherit?", "Liskov", "Always?", "Pillars", "Mistake"],
+      "rows": [
+        ["Inheritance or composition?", "Prefer composition, inherit for true is-a"],
+        ["Liskov in one line?", "Subclass works wherever parent does"],
+        ["Is SOLID always right?", "No, wait for a second case first"],
+        ["Four pillars of OOP?", "Encapsulation, abstraction, inheritance, polymorphism"],
+        ["Common mistake", "Reciting SOLID with no example"]
+      ],
+      "cues": ["inheritance or composition", "Liskov in one line", "always right", "four pillars", "The mistake"],
+      "say": "Likely follow-ups. Inheritance or composition? Prefer composition, and inherit only for a true is a relationship. Liskov in one line: a subclass must work wherever its parent does. Is SOLID always right? No. Wait for a second case before abstracting. The four pillars: encapsulation, abstraction, inheritance, polymorphism. The mistake is reciting SOLID with no example." },
+
+    { "type": "take", "lines": ["Object oriented design means code depends on small interfaces, not details.", "SOLID: one job per class, extend don't edit, subclasses keep promises.", "Example: replace an if chain with one class per rule."],
+      "cues": ["Object oriented", "SOLID", "For example"],
+      "say": "Object oriented design means code depends on small interfaces, not details. SOLID is one job per class, extend instead of edit, and subclasses that keep their promises. For example, replace a growing if chain with one class per rule." }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+ "id": "sw08",
+ "num": 8,
+ "series": "SWE",
+ "short": "Performance optimization",
+ "question": "How do you approach optimizing slow code?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Measure first. Fix the biggest cost. Measure again.",
+   "say": "Performance optimization. The wrong answer is guessing. The right answer starts with a measurement."
+  },
+  {
+   "type": "diagram",
+   "head": "Think of a slow commute",
+   "items": [
+    {
+     "id": "w",
+     "x": 150,
+     "y": 400,
+     "w": 380,
+     "h": 200,
+     "text": "Walk",
+     "sub": "5 minutes",
+     "size": 40,
+     "tone": "blue",
+     "cue": "walk"
+    },
+    {
+     "id": "t",
+     "x": 600,
+     "y": 400,
+     "w": 380,
+     "h": 200,
+     "text": "Traffic",
+     "sub": "50 minutes",
+     "size": 40,
+     "tone": "bad",
+     "cue": "traffic"
+    },
+    {
+     "id": "p",
+     "x": 1050,
+     "y": 400,
+     "w": 380,
+     "h": 200,
+     "text": "Parking",
+     "sub": "2 minutes",
+     "size": 40,
+     "tone": "blue",
+     "cue": "parking"
+    },
+    {
+     "id": "x",
+     "x": 1480,
+     "y": 400,
+     "w": 300,
+     "h": 200,
+     "text": "Buy faster car?",
+     "sub": "saves seconds",
+     "size": 32,
+     "tone": "ghost",
+     "cue": "faster car"
+    }
+   ],
+   "say": "Your commute is slow. You time each part. Walking, five minutes. Traffic, fifty minutes. Parking, two. Buying a faster car won't help. You fix the biggest part. Code is the same: a profiler is the stopwatch that shows which part eats the time."
+  },
+  {
+   "type": "code",
+   "head": "A profile of a slow script",
+   "panels": [
+    {
+     "file": "app.py",
+     "size": 36,
+     "code": "def main():\n    data = load()          # read and parse\n    if has_dup(data):      # suspect\n        print(\"duplicates\")"
+    }
+   ],
+   "output": {
+    "cmd": "python -m cProfile -s cumtime app.py",
+    "tone": "warn",
+    "cue": "report",
+    "text": "has_dup    4.2 s\nload       0.1 s\nprint      0.0 s"
+   },
+   "say": "Run the profiler, for example c Profile, sorted by time. These numbers are an illustration. The report says has dup takes four seconds, load a tenth, print nothing. So has dup is the only place worth touching."
+  },
+  {
+   "type": "code",
+   "head": "Algorithm beats constant factors",
+   "panels": [
+    {
+     "file": "dup.py",
+     "size": 34,
+     "code": "# before: O(n^2)\ndef has_dup(xs):\n    for i, x in enumerate(xs):\n        if x in xs[:i]:      # copy + scan\n            return True\n    return False\n\n# after: O(n) on average\ndef has_dup(xs):\n    seen = set()\n    for x in xs:\n        if x in seen:        # O(1) average\n            return True\n        seen.add(x)\n    return False"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "copies a slice",
+     "lines": [
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "set of seen",
+     "lines": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+     ]
+    }
+   ],
+   "say": "The cause: for each element it copies a slice and scans it. That is O of n squared. With a hundred thousand items, that is about five billion steps. A set of seen values makes each check O of one on average, so about a hundred thousand steps. Same answer, thousands of times faster."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: follow-ups",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Where do you start?",
+     "Measure with a profiler on realistic input."
+    ],
+    [
+     "Loop tweaks or algorithm?",
+     "Algorithm first. Tweaks give maybe two times."
+    ],
+    [
+     "After that?",
+     "I O: fewer database calls, caching, batching."
+    ],
+    [
+     "Common mistake",
+     "Optimizing by guess, or a part that is two percent of runtime."
+    ]
+   ],
+   "cues": [
+    "Where do you start",
+    "Loop tweaks",
+    "After that",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. Where do you start? Measure with a profiler on realistic input. Loop tweaks or algorithm? Algorithm first. After that? I O: fewer database calls, caching, batching. The common mistake: optimizing by guess, or tuning a part that is two percent of the runtime."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "I measure first and never guess the bottleneck.",
+    "I fix the biggest cost; algorithms beat constant factors.",
+    "Then I measure again and keep the code readable."
+   ],
+   "cues": [
+    "I measure first",
+    "I fix",
+    "Then I measure"
+   ],
+   "say": "I measure first and never guess the bottleneck. I fix the biggest cost, since algorithms beat constant factors. Then I measure again and keep the code readable."
+  }
+ ]
+}

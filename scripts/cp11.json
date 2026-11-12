@@ -1,0 +1,525 @@
+{
+ "id": "cp11",
+ "num": 11,
+ "series": "DSA",
+ "short": "Union-Find",
+ "question": "Explain Union-Find (disjoint set union). What do path compression and union by size do?",
+ "caps": [
+  [
+   "unite",
+   "unite"
+  ],
+  [
+   "iota",
+   "iota"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Which group is this in? Merge two groups. Both in almost constant time.",
+   "say": "Union Find, also called disjoint set union. It's the data structure for tracking groups that merge over time. Let's watch it work, then write it."
+  },
+  {
+   "type": "diagram",
+   "head": "Think of a club fair",
+   "items": [
+    {
+     "id": "ana",
+     "x": 200,
+     "y": 520,
+     "w": 300,
+     "h": 130,
+     "label": "Ana",
+     "text": "president",
+     "size": 38,
+     "tone": "good",
+     "cue": "club president"
+    },
+    {
+     "id": "ben",
+     "x": 700,
+     "y": 520,
+     "w": 300,
+     "h": 130,
+     "label": "Ben",
+     "text": "follows Ana",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Ben follows Ana"
+    },
+    {
+     "id": "cy",
+     "x": 1200,
+     "y": 520,
+     "w": 300,
+     "h": 130,
+     "label": "Cy",
+     "text": "follows Ben",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Cy follows Ben"
+    },
+    {
+     "id": "dev",
+     "x": 1200,
+     "y": 780,
+     "w": 300,
+     "h": 110,
+     "text": "Dev: own boss",
+     "size": 34,
+     "tone": "warn",
+     "cue": "Dev"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "ben",
+     "to": "ana",
+     "cue": "Ben follows Ana"
+    },
+    {
+     "from": "cy",
+     "to": "ben",
+     "cue": "Cy follows Ben"
+    }
+   ],
+   "changes": [
+    {
+     "id": "ana",
+     "tone": "info",
+     "cue": "same president"
+    }
+   ],
+   "say": "Picture a club fair. Every student wears a badge naming who they follow. Ben follows Ana. Cy follows Ben. Ana follows nobody, so she's the club president. Dev follows nobody either, so he's his own club. Are Cy and Ana in the same club? Follow the badges up to the end. Same president, same club. Merging two clubs just means one president starts following the other. That's Union Find."
+  },
+  {
+   "type": "diagram",
+   "head": "Parents and groups",
+   "items": [
+    {
+     "id": "n0",
+     "x": 150,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 0",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "n1",
+     "x": 440,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 1",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "n2",
+     "x": 730,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 2",
+     "text": "2",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "n3",
+     "x": 1020,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 3",
+     "text": "3",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "n4",
+     "x": 1310,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 4",
+     "text": "4",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "n5",
+     "x": 1600,
+     "y": 500,
+     "w": 220,
+     "h": 130,
+     "label": "node 5",
+     "text": "5",
+     "size": 48,
+     "tone": "blue",
+     "cue": "its own parent"
+    },
+    {
+     "id": "g",
+     "x": 760,
+     "y": 780,
+     "w": 300,
+     "h": 110,
+     "label": "groups",
+     "text": "6",
+     "size": 44,
+     "tone": "warn",
+     "cue": "six groups"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "n1",
+     "to": "n0",
+     "tone": "good",
+     "cue": "point one at zero"
+    },
+    {
+     "from": "n3",
+     "to": "n2",
+     "tone": "good",
+     "cue": "point three at two"
+    },
+    {
+     "from": "n2",
+     "to": "n0",
+     "tone": "good",
+     "bend": 200,
+     "cue": "hang one root"
+    }
+   ],
+   "changes": [
+    {
+     "id": "n1",
+     "text": "0",
+     "cue": "point one at zero"
+    },
+    {
+     "id": "g",
+     "text": "5",
+     "cue": "Groups drop to five"
+    },
+    {
+     "id": "n3",
+     "text": "2",
+     "cue": "point three at two"
+    },
+    {
+     "id": "g",
+     "text": "4",
+     "cue": "Four groups"
+    },
+    {
+     "id": "n2",
+     "text": "0",
+     "cue": "hang one root"
+    },
+    {
+     "id": "g",
+     "text": "3",
+     "cue": "Three groups left"
+    }
+   ],
+   "say": "Use it whenever pairs get joined over time: friendships, network links, graph edges arriving one by one. Every element stores a parent. At the start each is its own parent, so six elements make six groups. Union zero and one: point one at zero. Groups drop to five. Union two and three: point three at two. Four groups. Now union one and three. Find the two roots and hang one root under the other. Three groups left."
+  },
+  {
+   "type": "diagram",
+   "head": "Path compression",
+   "items": [
+    {
+     "id": "n0",
+     "x": 200,
+     "y": 480,
+     "w": 240,
+     "h": 130,
+     "label": "node 0",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "a chain can form"
+    },
+    {
+     "id": "n1",
+     "x": 620,
+     "y": 480,
+     "w": 240,
+     "h": 130,
+     "label": "node 1",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "a chain can form"
+    },
+    {
+     "id": "n2",
+     "x": 1040,
+     "y": 480,
+     "w": 240,
+     "h": 130,
+     "label": "node 2",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "a chain can form"
+    },
+    {
+     "id": "n3",
+     "x": 1460,
+     "y": 480,
+     "w": 240,
+     "h": 130,
+     "label": "node 3",
+     "text": "2",
+     "size": 48,
+     "tone": "blue",
+     "cue": "a chain can form"
+    },
+    {
+     "id": "c",
+     "x": 760,
+     "y": 760,
+     "w": 400,
+     "h": 110,
+     "label": "find three costs",
+     "text": "3 hops",
+     "size": 40,
+     "tone": "warn",
+     "cue": "three hops"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "n1",
+     "to": "n0",
+     "cue": "One points to zero"
+    },
+    {
+     "from": "n2",
+     "to": "n1",
+     "cue": "two points to one"
+    },
+    {
+     "from": "n3",
+     "to": "n2",
+     "cue": "three points to two"
+    },
+    {
+     "from": "n2",
+     "to": "n0",
+     "tone": "good",
+     "bend": 140,
+     "cue": "both point at zero"
+    },
+    {
+     "from": "n3",
+     "to": "n0",
+     "tone": "good",
+     "bend": 260,
+     "cue": "both point at zero"
+    }
+   ],
+   "changes": [
+    {
+     "id": "a1",
+     "fade": true,
+     "cue": "both point at zero"
+    },
+    {
+     "id": "a2",
+     "fade": true,
+     "cue": "both point at zero"
+    },
+    {
+     "id": "n2",
+     "text": "0",
+     "cue": "both point at zero"
+    },
+    {
+     "id": "n3",
+     "text": "0",
+     "cue": "both point at zero"
+    },
+    {
+     "id": "c",
+     "text": "1 hop",
+     "tone": "good",
+     "cue": "a single hop"
+    }
+   ],
+   "say": "Without care, a chain can form. One points to zero, two points to one, three points to two. Finding the root of three takes three hops. That's the slow case. Path compression fixes it. While walking up, repoint every node straight at the root. After one find of three, two and three both point at zero. The next find takes a single hop. Same answers, much flatter tree."
+  },
+  {
+   "type": "code",
+   "head": "The whole structure",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "struct DSU {\n    vector<int> p, sz;\n    DSU(int n) : p(n), sz(n, 1) { iota(p.begin(), p.end(), 0); }\n    int find(int x) {\n        return p[x] == x ? x : p[x] = find(p[x]);\n    }\n    bool unite(int a, int b) {\n        a = find(a); b = find(b);\n        if (a == b) return false;\n        if (sz[a] < sz[b]) swap(a, b);\n        p[b] = a; sz[a] += sz[b];\n        return true;\n    }\n};"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "The constructor",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "Find is recursive",
+     "lines": [
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "That single assignment",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "Unite finds both roots",
+     "lines": [
+      7,
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "hang the smaller tree",
+     "lines": [
+      10,
+      11,
+      12
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "That single assignment",
+     "line": 5,
+     "inside": true,
+     "text": "path compression",
+     "tone": "good"
+    },
+    {
+     "cue": "hang the smaller tree",
+     "line": 11,
+     "inside": true,
+     "text": "smaller under bigger",
+     "tone": "info"
+    }
+   ],
+   "say": "Here it is in C plus plus. The constructor makes every element its own parent, using iota, and every size one. Find is recursive. If x is its own parent, it's the root. Otherwise find the root of its parent, and store the answer back into p of x. That single assignment is path compression. Unite finds both roots. Same root means already joined, so return false. Otherwise hang the smaller tree under the bigger one. That's union by size."
+  },
+  {
+   "type": "code",
+   "head": "Counting components, spotting cycles",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int main() {\n    int n = 5;\n    vector<array<int, 2>> edges = {{0, 1}, {1, 2}, {3, 4}, {2, 0}};\n    DSU d(n);\n    int comps = n;\n    for (auto [a, b] : edges)\n        if (d.unite(a, b)) comps--;   // false: edge closes a cycle\n    cout << comps << \"\\n\";\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Five nodes",
+     "lines": [
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "first three edges",
+     "lines": [
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "fourth edge",
+     "lines": [
+      7
+     ]
+    },
+    {
+     "cue": "Components left",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "output": {
+    "cmd": "./sol",
+    "text": "2",
+    "cue": "Components left",
+    "tone": "good"
+   },
+   "say": "Count components. Five nodes, four edges. The first three edges each merge two groups, so the count drops each time. The fourth edge, two to zero, joins nodes already connected, so unite returns false. That's cycle detection. Two components left. With both tricks, each operation costs inverse Ackermann of n, under five for any real input. Call it constant. Classics: Number of Provinces, Redundant Connection, Accounts Merge, and Kruskal's algorithm. Follow-up: can it delete edges? Not directly. Go offline, or use rollback."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "How fast is it?",
+     "Inverse Ackermann of n, so nearly O(1) per operation."
+    ],
+    [
+     "Can you split a group?",
+     "No. Process offline, or use a rollback version."
+    ],
+    [
+     "Why not BFS each time?",
+     "Edges arrive online; Union-Find answers instantly."
+    ],
+    [
+     "Common mistake",
+     "Comparing parents, not roots. Always call find first."
+    ]
+   ],
+   "cues": [
+    "How fast",
+    "split a group",
+    "Why not B F S",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. How fast is it? Nearly constant per operation. Can you split a group? No. Go offline or use rollback. Why not B F S each time? Because edges arrive online, and Union Find answers instantly. The common mistake: comparing parents instead of roots. Always call find first."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Each element points to a parent; the root names the group.",
+    "Find the root, unite two roots.",
+    "With compression and size: nearly constant time."
+   ],
+   "cues": [
+    "points to a parent",
+    "find the root",
+    "nearly constant"
+   ],
+   "say": "Each element points to a parent, and the root names the group. Find the root, and unite two roots. With path compression and union by size, each operation is nearly constant time."
+  }
+ ]
+}

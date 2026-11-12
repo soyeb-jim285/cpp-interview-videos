@@ -1,0 +1,350 @@
+{
+  "id": "be12",
+  "num": 12,
+  "series": "Backend",
+  "short": "CAP and eventual consistency",
+  "question": "Explain the CAP theorem and eventual consistency.",
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "When the network splits, pick: always answer, or always be right.",
+      "say": "The CAP theorem. It's usually explained badly. The trick is to watch two replicas when the network between them breaks."
+    },
+    {
+      "type": "diagram",
+      "head": "Think of two bank branches",
+      "items": [
+        {
+          "id": "ba",
+          "x": 200,
+          "y": 380,
+          "w": 420,
+          "h": 170,
+          "label": "Branch A",
+          "text": "balance 100",
+          "size": 40,
+          "tone": "blue",
+          "cue": "Branch A"
+        },
+        {
+          "id": "bb",
+          "x": 1300,
+          "y": 380,
+          "w": 420,
+          "h": 170,
+          "label": "Branch B",
+          "text": "balance 100",
+          "size": 40,
+          "tone": "blue",
+          "cue": "Branch B"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ba",
+          "to": "bb",
+          "label": "phone line",
+          "tone": "bad",
+          "cue": "phone line"
+        }
+      ],
+      "changes": [
+        {
+          "id": "ba",
+          "text": "balance 60",
+          "cue": "withdraws forty"
+        }
+      ],
+      "say": "Two bank branches share one account, balance one hundred. The phone line between them goes down. A customer withdraws forty at branch A. Branch B can't know. If someone asks B for the balance, B must either guess one hundred, or say sorry, come back later. That dilemma is the CAP theorem."
+    },
+    {
+      "type": "diagram",
+      "head": "Two replicas, healthy network",
+      "items": [
+        {
+          "id": "ra",
+          "x": 200,
+          "y": 380,
+          "w": 400,
+          "h": 170,
+          "label": "Replica A",
+          "text": "x = 1",
+          "size": 48,
+          "tone": "blue",
+          "cue": "Replica A"
+        },
+        {
+          "id": "rb",
+          "x": 1320,
+          "y": 380,
+          "w": 400,
+          "h": 170,
+          "label": "Replica B",
+          "text": "x = 1",
+          "size": 48,
+          "tone": "blue",
+          "cue": "Replica B"
+        },
+        {
+          "id": "cl",
+          "x": 200,
+          "y": 720,
+          "w": 300,
+          "h": 120,
+          "text": "Writer",
+          "size": 34,
+          "tone": "ghost",
+          "cue": "A client writes"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ra",
+          "to": "rb",
+          "label": "replication",
+          "tone": "good",
+          "cue": "copies"
+        },
+        {
+          "from": "cl",
+          "to": "ra",
+          "cue": "A client writes"
+        }
+      ],
+      "changes": [
+        {
+          "id": "ra",
+          "text": "x = 2",
+          "cue": "x equals two"
+        },
+        {
+          "id": "rb",
+          "text": "x = 2",
+          "cue": "copies it"
+        }
+      ],
+      "say": "Replica A and replica B each hold a copy of x, which is one. A client writes x equals two to A. A copies it to B, and everyone agrees. While the network works, you can have everything. The theorem is about what happens when it doesn't."
+    },
+    {
+      "type": "diagram",
+      "head": "A partition: the link breaks",
+      "items": [
+        {
+          "id": "ra",
+          "x": 200,
+          "y": 330,
+          "w": 400,
+          "h": 170,
+          "label": "Replica A",
+          "text": "x = 1",
+          "size": 48,
+          "tone": "blue",
+          "cue": "Replica A"
+        },
+        {
+          "id": "rb",
+          "x": 1320,
+          "y": 330,
+          "w": 400,
+          "h": 170,
+          "label": "Replica B",
+          "text": "x = 1",
+          "size": 48,
+          "tone": "blue",
+          "cue": "Replica B"
+        },
+        {
+          "id": "wr",
+          "x": 200,
+          "y": 700,
+          "w": 300,
+          "h": 120,
+          "text": "write x = 2",
+          "size": 34,
+          "tone": "warn",
+          "cue": "A write arrives"
+        },
+        {
+          "id": "rd",
+          "x": 1320,
+          "y": 700,
+          "w": 300,
+          "h": 120,
+          "text": "read x",
+          "size": 34,
+          "tone": "warn",
+          "cue": "a read arrives"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ra",
+          "to": "rb",
+          "label": "partition",
+          "tone": "bad",
+          "cue": "The link breaks"
+        },
+        {
+          "from": "wr",
+          "to": "ra",
+          "cue": "A write arrives"
+        },
+        {
+          "from": "rd",
+          "to": "rb",
+          "cue": "a read arrives"
+        }
+      ],
+      "changes": [
+        {
+          "id": "a0",
+          "tone": "bad",
+          "cue": "The link breaks"
+        },
+        {
+          "id": "ra",
+          "text": "x = 2",
+          "cue": "accepts it"
+        },
+        {
+          "id": "rb",
+          "tone": "warn",
+          "cue": "What should B do"
+        }
+      ],
+      "say": "Replica A and replica B hold x, which is one. The link breaks. This is a partition, and it will happen eventually. A write arrives at A, setting x to two. A accepts it, but cannot tell B. Now a read arrives at B. What should B do? It does not know about the write. It has exactly two choices."
+    },
+    {
+      "type": "compare",
+      "head": "B has two choices",
+      "heads": [
+        "Answer: stay available (A P)",
+        "Refuse: stay consistent (C P)"
+      ],
+      "rowHeads": [
+        "B says",
+        "Result",
+        "Example systems"
+      ],
+      "rows": [
+        [
+          "x is one, my best knowledge",
+          "Error, or wait, until healed"
+        ],
+        [
+          "Stale read, but the service is up",
+          "Never stale, but some requests fail"
+        ],
+        [
+          "Cassandra, Dynamo style stores",
+          "Zookeeper, etcd, bank ledgers"
+        ]
+      ],
+      "cues": [
+        "Choice one",
+        "But the answer",
+        "Cassandra"
+      ],
+      "say": "Choice one: B answers with x equals one. The service stays available, but the answer is stale. Choice two: B refuses, or waits, until the link heals. The data stays consistent, but some requests fail. That's the theorem. During a partition, you cannot have both. Systems like Cassandra lean toward availability. Zookeeper and etcd lean toward consistency."
+    },
+    {
+      "type": "diagram",
+      "head": "Eventual consistency: the partition heals",
+      "items": [
+        {
+          "id": "ra",
+          "x": 200,
+          "y": 380,
+          "w": 400,
+          "h": 170,
+          "label": "Replica A",
+          "text": "x = 2",
+          "size": 48,
+          "tone": "good",
+          "cue": "Replica A"
+        },
+        {
+          "id": "rb",
+          "x": 1320,
+          "y": 380,
+          "w": 400,
+          "h": 170,
+          "label": "Replica B",
+          "text": "x = 1",
+          "size": 48,
+          "tone": "warn",
+          "cue": "Replica B"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ra",
+          "to": "rb",
+          "label": "sync",
+          "tone": "good",
+          "cue": "link comes back"
+        }
+      ],
+      "changes": [
+        {
+          "id": "rb",
+          "text": "x = 2",
+          "cue": "catches up"
+        },
+        {
+          "id": "rb",
+          "tone": "good",
+          "cue": "catches up"
+        }
+      ],
+      "say": "Availability-first systems offer eventual consistency. Replica A says two, while replica B still says one for a while. Then the link comes back, B catches up, and both say two. If no new writes arrive, all replicas eventually agree. When two sides wrote different values, you need a rule to merge them, like last write wins, or version vectors. Eventual consistency is fine for likes and feeds, but wrong for account balances."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "Likely follow-up",
+        "One-line answer"
+      ],
+      "rows": [
+        [
+          "Is CAP about 3 choices?",
+          "No. Partitions happen, so choose C or A during one"
+        ],
+        [
+          "Is eventual consistency bad?",
+          "No, fine for likes and feeds"
+        ],
+        [
+          "Conflicting writes?",
+          "Merge with last write wins or version vectors"
+        ],
+        [
+          "Common mistake",
+          "Saying pick any two, ignoring that partitions are not optional"
+        ]
+      ],
+      "cues": [
+        "pick any two of three",
+        "eventual consistency bad",
+        "Conflicting",
+        "common mistake"
+      ],
+      "say": "Likely follow-ups. Is it pick any two of three? No. Partitions happen, so you choose consistency or availability during one. Is eventual consistency bad? No, fine for likes and feeds. Conflicting writes? Merge with last write wins or version vectors. The common mistake: saying pick any two, as if partitions were optional."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Partitions happen, so the real choice is: during one, stay available or stay consistent.",
+        "C P refuses some requests to avoid stale data. A P answers, maybe stale, and converges later.",
+        "Pick by the data: money needs consistency, likes and feeds can be eventual."
+      ],
+      "cues": [
+        "Partitions happen",
+        "C P systems refuse",
+        "Pick by the data"
+      ],
+      "say": "Partitions happen, so the real choice is this: during one, stay available or stay consistent. C P systems refuse some requests to avoid stale data. A P systems answer, maybe stale, and converge later. Pick by the data: money needs consistency, likes and feeds can be eventual."
+    }
+  ]
+}

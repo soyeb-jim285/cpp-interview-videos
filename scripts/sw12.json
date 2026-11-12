@@ -1,0 +1,229 @@
+{
+ "id": "sw12",
+ "num": 12,
+ "series": "SWE",
+ "short": "STAR: tell me about a hard bug",
+ "question": "Tell me about a hard bug you fixed.",
+ "caps": [
+  [
+   "Q T|QT",
+   "Qt"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Situation, Task, Action, Result. Pick your own real story; these are examples.",
+   "say": "Tell me about a hard bug. Use the S T A R method. The stories here are made-up examples. In your interview, use a real one of your own."
+  },
+  {
+   "type": "diagram",
+   "head": "Tell it like a story to a friend",
+   "items": [
+    {
+     "id": "s",
+     "x": 120,
+     "y": 360,
+     "w": 390,
+     "h": 300,
+     "label": "Situation",
+     "text": "Frozen UI",
+     "sub": "A file manager froze on folders with 50,000 files",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Situation"
+    },
+    {
+     "id": "t",
+     "x": 550,
+     "y": 360,
+     "w": 390,
+     "h": 300,
+     "label": "Task",
+     "text": "My job",
+     "sub": "Own the fix: open a folder in under a second",
+     "size": 40,
+     "tone": "warn",
+     "cue": "Task"
+    },
+    {
+     "id": "a",
+     "x": 980,
+     "y": 360,
+     "w": 390,
+     "h": 300,
+     "label": "Action",
+     "text": "What I did",
+     "sub": "Profiled it, found a re-sort on every insert, batched",
+     "size": 40,
+     "tone": "good",
+     "cue": "Action"
+    },
+    {
+     "id": "r",
+     "x": 1410,
+     "y": 360,
+     "w": 390,
+     "h": 300,
+     "label": "Result",
+     "text": "Outcome",
+     "sub": "From seconds to under one second, plus a test",
+     "size": 40,
+     "tone": "good",
+     "cue": "Result"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "s",
+     "to": "t",
+     "cue": "Task"
+    },
+    {
+     "from": "t",
+     "to": "a",
+     "cue": "Action"
+    },
+    {
+     "from": "a",
+     "to": "r",
+     "cue": "Result"
+    }
+   ],
+   "say": "Tell it like a story to a friend. Situation: where are we? A desktop file manager froze on folders with fifty thousand files. Task: what was my job? Own the fix, under a second. Action: what did I do? Profiled, found a re-sort on every insert, batched it. Result: seconds down to under one, plus a test."
+  },
+  {
+   "type": "code",
+   "head": "The action: name the real cause",
+   "panels": [
+    {
+     "file": "model_sketch.cpp",
+     "size": 34,
+     "code": "// before: sort after every insert\nfor (const auto& f : entries) {\n    model.append(f);\n    model.sortByName();\n}\n\n// after: add all, sort once\nfor (const auto& f : entries)\n    model.append(f);\nmodel.sortByName();"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Before",
+     "lines": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "After",
+     "lines": [
+      7,
+      8,
+      9,
+      10
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "fifty thousand sorts",
+     "line": 4,
+     "inside": true,
+     "text": "n sorts: slow",
+     "tone": "bad"
+    },
+    {
+     "cue": "sort once",
+     "line": 10,
+     "inside": true,
+     "text": "one sort",
+     "tone": "good"
+    }
+   ],
+   "say": "Keep the technical part short and specific. Before: every insert triggered a sort, so fifty thousand inserts meant fifty thousand sorts. After: add everything, then sort once. This is a sketch, in the style of a Q T app in C plus plus. Naming the real cause is what impresses, not just saying it was slow."
+  },
+  {
+   "type": "flow",
+   "head": "Example two: a flaky score in a web app",
+   "items": [
+    {
+     "text": "Symptom",
+     "sub": "score wrong, only sometimes",
+     "tone": "bad",
+     "cue": "Symptom"
+    },
+    {
+     "text": "Reproduce",
+     "sub": "send requests in parallel",
+     "tone": "warn",
+     "cue": "reproduced"
+    },
+    {
+     "text": "Root cause",
+     "sub": "read, add, write lost an update",
+     "tone": "blue",
+     "cue": "Root cause"
+    },
+    {
+     "text": "Fix",
+     "sub": "one atomic update",
+     "tone": "good",
+     "cue": "fix"
+    },
+    {
+     "text": "Prevent",
+     "sub": "concurrency test",
+     "tone": "good",
+     "cue": "prevent"
+    }
+   ],
+   "say": "Second example. Symptom: a web app showed a wrong score, only sometimes. I reproduced it by sending requests in parallel. Root cause: two requests read the same score, each added points, and one write overwrote the other. The fix was one atomic update in the database. And to prevent it, a concurrency test."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: follow-ups",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "What would you do differently?",
+     "Add monitoring earlier, so I'd catch it sooner."
+    ],
+    [
+     "How did you know it was fixed?",
+     "A before and after measurement, plus a test."
+    ],
+    [
+     "Was it a team effort?",
+     "Say what you did, by name: I profiled, I wrote the fix."
+    ],
+    [
+     "Common mistake",
+     "Long background, saying we, and no result."
+    ]
+   ],
+   "cues": [
+    "differently",
+    "know it was fixed",
+    "team effort",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. What would you do differently? Name one real improvement. How did you know it was fixed? A measurement, plus a test. Was it a team effort? Say what you did, by name. The common mistake: a long background, saying we, and no result."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Situation, task, action, result, in order, about ninety seconds.",
+    "I name the real root cause and use I, not we.",
+    "I end with a number and one lesson."
+   ],
+   "cues": [
+    "Situation, task",
+    "root cause",
+    "number"
+   ],
+   "say": "Situation, task, action, result, in order, about ninety seconds. I name the real root cause and say I, not we. I end with a number and one lesson."
+  }
+ ]
+}

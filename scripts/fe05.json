@@ -1,0 +1,60 @@
+{
+  "id": "fe05", "num": 5, "series": "Frontend", "short": "React reconciliation and keys",
+  "question": "How does React decide what to update? Why do keys matter?",
+  "caps": [["use state", "useState"]],
+  "scenes": [
+    { "type": "title", "sub": "Compare the old tree with the new one, touch only what changed.",
+      "say": "React rendering and keys. Every time state changes, React runs your component again. Here is how it avoids rebuilding the whole page, and why a bad key causes real bugs." },
+
+    { "type": "flow", "head": "Think of a seating chart", "y": 400, "h": 250,
+      "items": [
+        { "label": "old render", "text": "Seating chart", "sub": "Ann, Bo, Cy", "cue": "last night" },
+        { "label": "new render", "text": "New chart", "sub": "Dee, Ann, Bo, Cy", "tone": "warn", "cue": "tonight" },
+        { "label": "React diffs", "text": "Only Dee sits", "sub": "the rest stay put", "tone": "good", "cue": "only seats Dee" }
+      ],
+      "say": "Think of a seating chart. Last night it was Ann, Bo, and Cy. Tonight Dee joins at the front. A bad host would clear the room and reseat everyone. A good host recognizes people by name tag and only seats Dee. React is the good host. It recognizes items by their key, which is the name tag." },
+
+    { "type": "diagram", "head": "Same list, index keys vs id keys",
+      "panels": [{ "file": "List.tsx", "size": 34, "code": "{todos.map((t, i) => (\n  <Row key={i} todo={t} />   // bad\n))}\n\n{todos.map(t => (\n  <Row key={t.id} todo={t} /> // good\n))}" }],
+      "steps": [
+        { "cue": "key equals i", "lines": [1, 2, 3] },
+        { "cue": "key equals the id", "lines": [5, 6, 7] }
+      ],
+      "items": [
+        { "id": "r0", "x": 1050, "y": 300, "w": 340, "h": 120, "label": "key 0 before", "text": "Buy milk", "sub": "typed: 2 litres", "size": 34, "tone": "blue", "cue": "Buy milk" },
+        { "id": "r1", "x": 1450, "y": 300, "w": 340, "h": 120, "label": "key 1 before", "text": "Walk dog", "size": 34, "tone": "blue", "cue": "Buy milk" },
+        { "id": "n0", "x": 1050, "y": 640, "w": 340, "h": 130, "label": "key 0 after", "text": "Pay rent", "sub": "typed: 2 litres", "size": 34, "tone": "bad", "cue": "With key equals i" },
+        { "id": "n1", "x": 1450, "y": 640, "w": 340, "h": 130, "label": "key 1 after", "text": "Buy milk", "sub": "typed: empty", "size": 34, "tone": "bad", "cue": "With key equals i" }
+      ],
+      "arrows": [{ "from": "r0", "to": "n0", "cue": "With key equals i" }],
+      "changes": [
+        { "id": "n0", "tone": "good", "text": "Pay rent", "cue": "With key equals the id" },
+        { "id": "n1", "tone": "good", "text": "Buy milk", "cue": "With key equals the id" }
+      ],
+      "say": "A list of two todos: Buy milk, and Walk dog. You typed two litres into the first row. Now Pay rent is added at the top. With key equals i, the first row still has key zero, so React reuses it. Your typed text stays in the box, but now sits on Pay rent. Wrong row. With key equals the id, Buy milk keeps its identity, and its text goes with it." },
+
+    { "type": "code", "head": "The rules React follows",
+      "panels": [{ "file": "rules.tsx", "size": 34, "code": "// 1. different type: throw away the subtree\n<div><Form /></div>  ->  <span><Form /></span>\n\n// 2. same type: keep it, update props\n<Form name='a' />    ->  <Form name='b' />\n\n// 3. lists: match children by key\n<Row key='x' />" }],
+      "steps": [
+        { "cue": "element type changes", "lines": [1, 2] },
+        { "cue": "type is the same", "lines": [4, 5] },
+        { "cue": "lists", "lines": [7, 8] }
+      ],
+      "say": "Three rules. If the element type changes, from div to span, React throws the old subtree away, state included, and builds a new one. If the type is the same, React keeps the instance and its state and just updates props. For lists, it matches children by key. Keys must be stable and unique among siblings, like a database id, never a random number made during render." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["What is the virtual DOM?", "A cheap object tree React diffs, then patches the real DOM."],
+        ["Is index ever fine as key?", "Only for static lists that never reorder or insert."],
+        ["Why not Math.random as key?", "New key each render, so every row remounts."],
+        ["Common mistake", "Index keys on a list with inputs or state."]
+      ],
+      "cues": ["virtual", "index ever", "random", "mistake"],
+      "say": "Likely follow-ups. What is the virtual D O M? A cheap object tree that React diffs, then patches the real D O M. Is index ever fine as key? Only for static lists that never reorder. Why not random as key? A new key each render, so every row remounts. The common mistake: index keys on a list with inputs or state." },
+
+    { "type": "take", "lines": ["React re-runs the component, diffs old and new trees, and patches only what changed.", "Keys are identity for list items. Use stable ids.", "Index keys break state when the list reorders or inserts."],
+      "cues": ["React re-runs", "Keys are", "Index keys"],
+      "say": "React re-runs the component, diffs the old and new trees, and patches only what changed. Keys are the identity of list items, so use stable ids. Index keys break state when the list reorders or inserts." }
+  ]
+}

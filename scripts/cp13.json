@@ -1,0 +1,503 @@
+{
+ "id": "cp13",
+ "num": 13,
+ "series": "DSA",
+ "short": "Classic DP",
+ "question": "Explain the classic DP problems: 0/1 knapsack, longest increasing subsequence, and longest common subsequence.",
+ "caps": [
+  [
+   "I S",
+   "IS"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Three patterns that cover a huge share of D P questions.",
+   "say": "Knapsack, longest increasing subsequence, and longest common subsequence. If you can explain these three, most D P interview questions will feel familiar."
+  },
+  {
+   "type": "diagram",
+   "head": "Knapsack: a backpack that holds 4 kilos",
+   "items": [
+    {
+     "id": "i1",
+     "x": 150,
+     "y": 300,
+     "w": 400,
+     "h": 110,
+     "label": "item A",
+     "text": "1 kg, $15",
+     "size": 38,
+     "tone": "blue",
+     "cue": "item A"
+    },
+    {
+     "id": "i2",
+     "x": 150,
+     "y": 520,
+     "w": 400,
+     "h": 110,
+     "label": "item B",
+     "text": "3 kg, $20",
+     "size": 38,
+     "tone": "blue",
+     "cue": "item B"
+    },
+    {
+     "id": "i3",
+     "x": 150,
+     "y": 740,
+     "w": 400,
+     "h": 110,
+     "label": "item C",
+     "text": "4 kg, $30",
+     "size": 38,
+     "tone": "blue",
+     "cue": "item C"
+    },
+    {
+     "id": "bag",
+     "x": 1100,
+     "y": 520,
+     "w": 560,
+     "h": 150,
+     "label": "best you can carry",
+     "text": "?",
+     "size": 56,
+     "tone": "warn",
+     "cue": "best value"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "i1",
+     "to": "bag",
+     "cue": "A and B"
+    },
+    {
+     "from": "i2",
+     "to": "bag",
+     "cue": "A and B"
+    }
+   ],
+   "changes": [
+    {
+     "id": "bag",
+     "text": "$35",
+     "tone": "good",
+     "cue": "thirty five"
+    },
+    {
+     "id": "i3",
+     "tone": "bad",
+     "cue": "only thirty"
+    }
+   ],
+   "say": "Picture a backpack that holds four kilos. Three items: item A weighs one kilo, worth fifteen dollars. Item B, three kilos, twenty dollars. Item C, four kilos, thirty dollars. Each item is taken or left, never split. What is the best value? A and B together weigh four kilos and give thirty five. Item C alone gives only thirty. A greedy guess can fail here, so we use D P."
+  },
+  {
+   "type": "diagram",
+   "head": "Knapsack: one array, items one by one",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<int> dp(cap + 1, 0);\nfor (int i = 0; i < n; i++)\n    for (int c = cap; c >= w[i]; c--)\n        dp[c] = max(dp[c], dp[c - w[i]] + v[i]);\n// answer: dp[cap]"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "dp of c",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "First item",
+     "lines": [
+      2,
+      4
+     ]
+    },
+    {
+     "cue": "backwards",
+     "lines": [
+      3
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "d0",
+     "x": 1000,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[0]",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "start at zero"
+    },
+    {
+     "id": "d1",
+     "x": 1280,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[1]",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "start at zero"
+    },
+    {
+     "id": "d2",
+     "x": 1560,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[2]",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "start at zero"
+    },
+    {
+     "id": "d3",
+     "x": 1000,
+     "y": 580,
+     "w": 240,
+     "h": 120,
+     "label": "dp[3]",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "start at zero"
+    },
+    {
+     "id": "d4",
+     "x": 1280,
+     "y": 580,
+     "w": 240,
+     "h": 120,
+     "label": "dp[4]",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "start at zero"
+    }
+   ],
+   "changes": [
+    {
+     "id": "d1",
+     "text": "15",
+     "cue": "so all become fifteen"
+    },
+    {
+     "id": "d2",
+     "text": "15",
+     "cue": "so all become fifteen"
+    },
+    {
+     "id": "d3",
+     "text": "15",
+     "cue": "so all become fifteen"
+    },
+    {
+     "id": "d4",
+     "text": "15",
+     "cue": "so all become fifteen"
+    },
+    {
+     "id": "d3",
+     "text": "20",
+     "cue": "Capacity three becomes twenty"
+    },
+    {
+     "id": "d4",
+     "text": "35",
+     "tone": "good",
+     "cue": "thirty five"
+    },
+    {
+     "id": "d4",
+     "tone": "info",
+     "cue": "nothing changes"
+    }
+   ],
+   "say": "Let dp of c be the best value with capacity c. All start at zero. First item: one kilo, fifteen dollars. Every capacity from one up can hold it, so all become fifteen. Second item: three kilos, twenty dollars. Capacity three becomes twenty. Capacity four takes it plus the first item: thirty five. Third item, four kilos, thirty: capacity four gives only thirty, so nothing changes. The loop runs backwards, so each item is used once."
+  },
+  {
+   "type": "code",
+   "head": "Longest increasing subsequence",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int lis(vector<int>& a) {\n    vector<int> tails;   // tails[k]: smallest end of a run of length k+1\n    for (int x : a) {\n        auto it = lower_bound(tails.begin(), tails.end(), x);\n        if (it == tails.end()) tails.push_back(x);   // run gets longer\n        else *it = x;                                // smaller end is better\n    }\n    return tails.size();\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "tails",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "binary search",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "bigger than all",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "otherwise",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "length of tails",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "binary search",
+     "line": 4,
+     "inside": true,
+     "text": "O(log n)",
+     "tone": "info"
+    }
+   ],
+   "say": "Longest increasing subsequence. For ten, nine, two, five, three, seven, one hundred one, eighteen, the answer is four. Keep an array called tails. Each new number x finds its place with binary search. If x is bigger than all tails, append it: the run grew. Otherwise, overwrite the first tail that's not smaller, since a smaller end is easier to extend. The answer is the length of tails. Total: O of n log n. The simple table version is O of n squared."
+  },
+  {
+   "type": "diagram",
+   "head": "Longest common subsequence: A X B vs A B",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "for (int i = 1; i <= n; i++)\n  for (int j = 1; j <= m; j++)\n    dp[i][j] = s[i-1] == t[j-1]\n      ? dp[i-1][j-1] + 1\n      : max(dp[i-1][j], dp[i][j-1]);"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "border",
+     "lines": []
+    },
+    {
+     "cue": "diagonal plus one",
+     "lines": [
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "best of above or left",
+     "lines": [
+      3,
+      5
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c00",
+     "x": 1000,
+     "y": 250,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c01",
+     "x": 1260,
+     "y": 250,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c02",
+     "x": 1520,
+     "y": 250,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c10",
+     "x": 1000,
+     "y": 390,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c11",
+     "x": 1260,
+     "y": 390,
+     "w": 220,
+     "h": 100,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row A"
+    },
+    {
+     "id": "c12",
+     "x": 1520,
+     "y": 390,
+     "w": 220,
+     "h": 100,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row A"
+    },
+    {
+     "id": "c20",
+     "x": 1000,
+     "y": 530,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c21",
+     "x": 1260,
+     "y": 530,
+     "w": 220,
+     "h": 100,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row X"
+    },
+    {
+     "id": "c22",
+     "x": 1520,
+     "y": 530,
+     "w": 220,
+     "h": 100,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row X"
+    },
+    {
+     "id": "c30",
+     "x": 1000,
+     "y": 670,
+     "w": 220,
+     "h": 100,
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "border"
+    },
+    {
+     "id": "c31",
+     "x": 1260,
+     "y": 670,
+     "w": 220,
+     "h": 100,
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row B"
+    },
+    {
+     "id": "c32",
+     "x": 1520,
+     "y": 670,
+     "w": 220,
+     "h": 100,
+     "text": "2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Row B"
+    }
+   ],
+   "changes": [
+    {
+     "id": "c32",
+     "tone": "good",
+     "cue": "The answer is the corner"
+    }
+   ],
+   "say": "Last one. Compare the strings A X B and A B. Cell i j holds the answer for the first i letters of one and the first j of the other. The border is zero, since an empty string shares nothing. Row A: A matches A, so take diagonal plus one: one. Then it stays one. Row X: no match, take the best of above or left: one, one. Row B: A gives one, and B matches B, so diagonal plus one makes two. The answer is the corner: two."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Knapsack cost?",
+     "O of n times capacity. Pseudo-polynomial: capacity is a value, not a size."
+    ],
+    [
+     "LIS faster than n squared?",
+     "Yes: tails plus binary search gives n log n."
+    ],
+    [
+     "LCS with less memory?",
+     "Keep two rows, since each row needs only the previous one."
+    ],
+    [
+     "Common mistake",
+     "Looping capacity upward reuses an item. Go downward for zero one knapsack."
+    ]
+   ],
+   "cues": [
+    "Knapsack cost",
+    "L I S faster",
+    "L C S with less",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Knapsack cost: n times capacity, which is pseudo-polynomial. L I S faster than n squared? Yes, tails with binary search. L C S with less memory? Keep two rows. The common mistake: looping capacity upward, which reuses an item. Go downward for zero one knapsack."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Knapsack: dp over capacity; take or leave each item, loop capacity downward.",
+    "L I S: tails array with binary search, n log n.",
+    "L C S: grid; match means diagonal plus one, else best of above or left."
+   ],
+   "cues": [
+    "Knapsack",
+    "L I S",
+    "L C S"
+   ],
+   "say": "Knapsack: dp over capacity, take or leave each item, looping capacity downward. L I S: a tails array with binary search, in n log n. L C S: a grid where a match means diagonal plus one, otherwise the best of above or left."
+  }
+ ]
+}

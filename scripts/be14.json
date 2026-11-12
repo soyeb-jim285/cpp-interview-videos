@@ -1,0 +1,79 @@
+{
+  "id": "be14", "num": 14, "series": "Backend", "short": "System design: URL shortener",
+  "question": "Design a URL shortener like bit dot ly.",
+  "caps": [["bit dot ly", "bit.ly"]],
+  "scenes": [
+    { "type": "title", "sub": "The classic system design warm-up. Five steps, one clean answer.",
+      "say": "Design a U R L shortener. It's the classic system design question, so let's use a simple five step structure you can repeat out loud." },
+
+    { "type": "flow", "head": "Think of a coat check ticket",
+      "items": [
+        { "label": "You hand over", "text": "long U R L", "sub": "a huge coat", "tone": "blue", "cue": "hand over" },
+        { "label": "You get", "text": "short code", "sub": "ticket number 21", "tone": "warn", "cue": "ticket" },
+        { "label": "Later", "text": "code to U R L", "sub": "ticket gives coat back", "tone": "good", "cue": "Later" }
+      ],
+      "say": "Think of a coat check. You hand over a huge coat, and get back a small ticket. Later, you show the ticket and get the coat back. A shortener does exactly this: it stores a long U R L, gives back a short code, and later turns the code back into the U R L." },
+
+    { "type": "flow", "head": "Step 1: requirements and numbers",
+      "items": [
+        { "label": "Features", "text": "create + redirect", "sub": "maybe custom alias", "tone": "blue", "cue": "two features" },
+        { "label": "Writes", "text": "40 per second", "sub": "100 million per month", "tone": "warn", "cue": "forty" },
+        { "label": "Reads", "text": "4000 per second", "sub": "100 times more", "tone": "good", "cue": "four thousand" },
+        { "label": "Storage", "text": "3 terabytes", "sub": "5 years, 500 bytes each", "tone": "ghost", "cue": "three terabytes" }
+      ],
+      "say": "Start with requirements. Two features: create a short link, and redirect. Assume a hundred million new links a month. That's about forty writes a second. Reads are a hundred times more, about four thousand a second. Five years of data at five hundred bytes each is around three terabytes. So: read heavy, and small enough for one database to start." },
+
+    { "type": "code", "head": "Step 2: generate the short code",
+      "panels": [{ "file": "short.py", "size": 32, "code": "import string\nALPHABET = string.digits + string.ascii_letters\n# 62 characters: 0-9, a-z, A-Z\n\ndef encode(n):\n    s = \"\"\n    while n:\n        n, r = divmod(n, 62)\n        s = ALPHABET[r] + s\n    return s or \"0\"\n\n# encode(125) is \"21\"  (125 = 2*62 + 1)\n# 7 chars: 62**7 = 3.5 trillion codes" }],
+      "steps": [
+        { "cue": "base sixty two", "lines": [1, 2, 3] },
+        { "cue": "Take the row id", "lines": [5, 6, 7, 8, 9, 10] },
+        { "cue": "one twenty five", "lines": [12] },
+        { "cue": "seven characters", "lines": [13] }
+      ],
+      "say": "Use base sixty two: digits, lowercase and uppercase letters. Take the row id from the database, and convert it to base sixty two. The id one twenty five becomes two, one. Seven characters give three and a half trillion codes, far more than enough. The alternative is a random code, which needs a collision check. The counter approach never collides, but codes are guessable." },
+
+    { "type": "diagram", "head": "Steps 3 and 4: architecture and the read path",
+      "items": [
+        { "id": "cl", "x": 140, "y": 420, "w": 260, "h": 130, "text": "Browser", "size": 34, "tone": "blue", "cue": "browser" },
+        { "id": "sv", "x": 560, "y": 400, "w": 300, "h": 170, "label": "App servers", "text": "stateless", "size": 34, "tone": "good", "cue": "app servers" },
+        { "id": "ch", "x": 1080, "y": 260, "w": 320, "h": 130, "label": "Cache (Redis)", "text": "code to U R L", "size": 30, "tone": "warn", "cue": "cache first" },
+        { "id": "db", "x": 1080, "y": 640, "w": 320, "h": 150, "label": "Database", "text": "id, code, url", "sub": "unique index on code", "size": 30, "tone": "blue", "cue": "On a miss" }
+      ],
+      "arrows": [
+        { "from": "cl", "to": "sv", "label": "GET /21", "cue": "browser" },
+        { "from": "sv", "to": "ch", "cue": "cache first" },
+        { "from": "sv", "to": "db", "cue": "On a miss" }
+      ],
+      "changes": [
+        { "id": "cl", "text": "302 + URL", "cue": "redirect" }
+      ],
+      "say": "The browser asks the app servers for slash twenty one. The server checks the cache first. Most reads hit, because popular links repeat. On a miss, it reads the database, which has a unique index on the code. Then it replies with a redirect, status three oh two, to the long U R L. Three oh one is cached by browsers, which hides clicks from your analytics." },
+
+    { "type": "compare", "head": "Step 5: scaling and trade-offs",
+      "heads": ["Problem", "Answer"],
+      "rows": [
+        ["Reads dominate", "Cache plus read replicas"],
+        ["One database too big", "Shard by hash of the short code"],
+        ["Counter is a bottleneck", "Hand out id ranges to each server"],
+        ["Abuse and spam", "Rate limit, expire old links"]
+      ],
+      "cues": ["Reads dominate", "too big", "counter", "abuse"],
+      "say": "Now scaling. Reads dominate, so add the cache and read replicas. If one database gets too big, shard by a hash of the short code. If a single counter becomes a bottleneck, hand each server a range of ids. And protect against abuse with rate limiting, and expiry for old links." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Likely follow-up", "One-line answer"],
+      "rows": [
+        ["Same long U R L twice?", "Either store both, or look up first and reuse the code"],
+        ["Custom aliases?", "Check uniqueness with the unique index, reject on conflict"],
+        ["Link analytics?", "Log each click to a queue, count asynchronously"],
+        ["Common mistake", "Jumping to sharding before doing the numbers"]
+      ],
+      "cues": ["Same long", "Custom aliases", "analytics", "common mistake"],
+      "say": "Likely follow-ups. The same long U R L twice? Either store both, or look up first and reuse the code. Custom aliases? Rely on the unique index and reject conflicts. Analytics? Log each click to a queue and count asynchronously. The common mistake: jumping to sharding before doing the numbers." },
+
+    { "type": "take", "lines": ["Store code to U R L in a database, with a unique index on the code.", "Make the code by encoding a counter in base sixty two. Seven characters is plenty.", "Reads are a hundred times writes, so cache them, and answer with a three oh two redirect."],
+      "cues": ["I store the code", "Make the code", "Reads are"],
+      "say": "I store the code and the long U R L in a database, with a unique index on the code. I make the code by encoding a counter in base sixty two. Reads are a hundred times writes, so I cache them, and answer with a redirect." }
+  ]
+}

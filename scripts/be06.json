@@ -1,0 +1,57 @@
+{
+  "id": "be06", "num": 6, "series": "Backend", "short": "N+1 and EXPLAIN",
+  "question": "What is the N plus one query problem, and how do you read a query plan?",
+  "caps": [["N plus one", "N+1"], ["select related", "select_related"]],
+  "scenes": [
+    { "type": "title", "sub": "One query turns into a hundred and one.",
+      "say": "The N plus one query problem, and how to read a query plan with EXPLAIN." },
+
+    { "type": "diagram", "head": "Think of a shopping trip",
+      "items": [
+        { "id": "b", "x": 140, "y": 330, "w": 720, "h": 160, "label": "Bad trip", "text": "100 trips, 1 item each", "size": 38, "tone": "bad", "cue": "hundred separate trips" },
+        { "id": "g", "x": 1060, "y": 330, "w": 720, "h": 160, "label": "Good trip", "text": "1 trip, list of 100", "size": 38, "tone": "good", "cue": "one trip" }
+      ],
+      "arrows": [],
+      "say": "Imagine you need a hundred items from a shop. You could make a hundred separate trips, one item each. Or make one trip with a list. Each trip has a fixed cost. A database round trip is the same. Many tiny queries are slow even when each one is fast." },
+
+    { "type": "code", "head": "The bug",
+      "panels": [{ "file": "app.py", "size": 32, "code": "orders = db.query(\"SELECT * FROM orders LIMIT 100\")\nfor o in orders:\n    o.user = db.query_one(\n        \"SELECT * FROM users WHERE id = %s\", (o.user_id,))" }],
+      "steps": [
+        { "cue": "One query", "lines": [1] },
+        { "cue": "inside the loop", "lines": [2, 3, 4] }
+      ],
+      "notes": [
+        { "cue": "One query", "line": 1, "inside": true, "text": "1 query", "tone": "good" },
+        { "cue": "inside the loop", "line": 3, "inside": true, "text": "100 queries", "tone": "bad" }
+      ],
+      "say": "One query loads a hundred orders. Then, inside the loop, we fetch each order's user with its own query. That is one query for the list, plus N for the N rows. One hundred and one queries. At two milliseconds each, that is over two hundred milliseconds, just in round trips." },
+
+    { "type": "code", "head": "The fix",
+      "panels": [{ "file": "query.sql", "size": 34, "code": "SELECT o.*, u.name\nFROM orders o\nJOIN users u ON u.id = o.user_id\nLIMIT 100;\n\n-- or: two queries, not 101\nSELECT * FROM users\n  WHERE id IN (3, 7, 9, 12);" }],
+      "steps": [
+        { "cue": "A join", "lines": [1, 2, 3, 4] },
+        { "cue": "batch", "lines": [6, 7, 8] }
+      ],
+      "say": "A join gets orders and users in one query. Or batch: load the orders, collect the user ids, and fetch all those users with one in query. Two queries total. Most O R Ms have this built in, called eager loading, like select related in Django, or include in Rails." },
+
+    { "type": "code", "head": "Reading a query plan",
+      "panels": [{ "file": "query.sql", "size": 34, "code": "EXPLAIN ANALYZE\nSELECT * FROM orders WHERE user_id = 42;" }],
+      "output": { "cmd": "psql", "cue": "Seq Scan", "text": "Seq Scan on orders  (cost=0.00..1834.00 rows=5 width=40)\n  Filter: (user_id = 42)\nExecution Time: 12.4 ms" },
+      "say": "EXPLAIN ANALYZE runs the query and shows the plan. Seq Scan means it read the whole table to find five rows. That is the red flag. Fix it with an index on user id, and the plan becomes an Index Scan. Also compare the estimated rows with the actual rows. A big gap means stale statistics." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["How do you spot N plus one?", "Is a join always better?", "Seq scan always bad?", "Common mistake"],
+      "rows": [
+        ["Count queries per request in logs", "Hundreds of near identical queries"],
+        ["No: huge joins can duplicate data", "Batch with an in query then"],
+        ["No: for small tables it is fine", "Bad on big tables with a filter"],
+        ["Tuning without measuring", "Run EXPLAIN first"]
+      ],
+      "cues": ["How do you spot", "join always", "Seq scan always", "mistake"],
+      "say": "Likely follow-ups. How do you spot it? Count queries per request in the logs. Is a join always better? No, a huge join can duplicate data, so batch instead. Is a seq scan always bad? No, on a small table it is fine. The common mistake is tuning without measuring. Run EXPLAIN first." },
+
+    { "type": "take", "lines": ["N plus one is a query inside a loop. I fix it with a join or a batched in query.", "I read the plan with EXPLAIN, and look for sequential scans on big tables."],
+      "cues": ["N plus one is", "I read"],
+      "say": "N plus one is a query inside a loop. I fix it with a join or a batched in query. I read the plan with EXPLAIN, and look for sequential scans on big tables." }
+  ]
+}

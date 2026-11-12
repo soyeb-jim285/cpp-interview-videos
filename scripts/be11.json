@@ -1,0 +1,355 @@
+{
+  "id": "be11",
+  "num": 11,
+  "series": "Backend",
+  "short": "Scaling a service",
+  "question": "How would you scale a service that is getting too much traffic?",
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "Bigger machine, more machines, or split the data.",
+      "say": "Scaling a service. Interviewers want an order of operations, not a buzzword list. Find the bottleneck first, then pick the cheapest fix."
+    },
+    {
+      "type": "flow",
+      "head": "Think of a busy shop",
+      "items": [
+        {
+          "label": "Option 1",
+          "text": "Faster cashier",
+          "sub": "vertical",
+          "tone": "blue",
+          "cue": "faster cashier"
+        },
+        {
+          "label": "Option 2",
+          "text": "More checkouts",
+          "sub": "horizontal",
+          "tone": "good",
+          "cue": "more checkouts"
+        },
+        {
+          "label": "Catch",
+          "text": "Shared stock",
+          "sub": "the warehouse",
+          "tone": "warn",
+          "cue": "warehouse"
+        }
+      ],
+      "say": "Think of a shop with a long line. You can hire a faster cashier, or you can open more checkouts. A faster cashier has a limit. More checkouts keep growing, but they all share one warehouse, and that becomes the next bottleneck. That's scaling in one picture."
+    },
+    {
+      "type": "compare",
+      "head": "Vertical vs horizontal",
+      "heads": [
+        "Vertical (scale up)",
+        "Horizontal (scale out)"
+      ],
+      "rowHeads": [
+        "What",
+        "Good",
+        "Limit"
+      ],
+      "rows": [
+        [
+          "Bigger machine: more C P U and R A M",
+          "More machines behind a load balancer"
+        ],
+        [
+          "Simple, no code changes",
+          "No single point of failure, near linear growth"
+        ],
+        [
+          "Hardware ceiling, and one box can die",
+          "App must be stateless, more moving parts"
+        ]
+      ],
+      "cues": [
+        "Vertical scaling",
+        "Vertical is simple",
+        "The limits"
+      ],
+      "say": "Vertical scaling means a bigger machine. Vertical is simple and needs no code changes. Horizontal scaling means more machines behind a load balancer, with no single point of failure. The limits: vertical hits a hardware ceiling, and horizontal needs your app to be stateless. In practice, start vertical, then go horizontal."
+    },
+    {
+      "type": "diagram",
+      "head": "Stateless app servers behind a load balancer",
+      "items": [
+        {
+          "id": "lb",
+          "x": 140,
+          "y": 420,
+          "w": 300,
+          "h": 150,
+          "label": "Load balancer",
+          "text": "round robin",
+          "size": 32,
+          "tone": "blue",
+          "cue": "The load balancer"
+        },
+        {
+          "id": "p1",
+          "x": 700,
+          "y": 230,
+          "w": 300,
+          "h": 120,
+          "text": "App 1",
+          "size": 36,
+          "tone": "good",
+          "cue": "identical copies"
+        },
+        {
+          "id": "p2",
+          "x": 700,
+          "y": 440,
+          "w": 300,
+          "h": 120,
+          "text": "App 2",
+          "size": 36,
+          "tone": "good",
+          "cue": "identical copies"
+        },
+        {
+          "id": "p3",
+          "x": 700,
+          "y": 650,
+          "w": 300,
+          "h": 120,
+          "text": "App 3",
+          "size": 36,
+          "tone": "ghost",
+          "cue": "add a third"
+        },
+        {
+          "id": "st",
+          "x": 1380,
+          "y": 300,
+          "w": 380,
+          "h": 150,
+          "label": "Shared state",
+          "text": "Redis",
+          "sub": "sessions, cache",
+          "size": 38,
+          "tone": "warn",
+          "cue": "shared store"
+        },
+        {
+          "id": "db",
+          "x": 1380,
+          "y": 640,
+          "w": 380,
+          "h": 150,
+          "label": "Database",
+          "text": "Postgres",
+          "size": 38,
+          "tone": "blue",
+          "cue": "database"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "lb",
+          "to": "p1",
+          "cue": "identical copies"
+        },
+        {
+          "from": "lb",
+          "to": "p2",
+          "cue": "identical copies"
+        },
+        {
+          "from": "lb",
+          "to": "p3",
+          "cue": "add a third"
+        },
+        {
+          "from": "p1",
+          "to": "st",
+          "cue": "shared store"
+        },
+        {
+          "from": "p3",
+          "to": "db",
+          "cue": "database"
+        }
+      ],
+      "changes": [
+        {
+          "id": "p3",
+          "tone": "good",
+          "cue": "add a third"
+        },
+        {
+          "id": "p2",
+          "kill": true,
+          "cue": "One dies"
+        }
+      ],
+      "say": "The load balancer spreads requests across identical copies of the app. Add a third copy and capacity grows. One dies, and traffic simply goes to the others. This only works if the app is stateless: no user data in local memory or local files. Sessions and cache live in a shared store, and durable data lives in the database."
+    },
+    {
+      "type": "diagram",
+      "head": "The database is the real bottleneck",
+      "items": [
+        {
+          "id": "ap",
+          "x": 140,
+          "y": 420,
+          "w": 300,
+          "h": 140,
+          "text": "App servers",
+          "size": 34,
+          "tone": "blue",
+          "cue": "App servers"
+        },
+        {
+          "id": "pr",
+          "x": 760,
+          "y": 230,
+          "w": 400,
+          "h": 150,
+          "label": "Primary",
+          "text": "writes",
+          "size": 38,
+          "tone": "warn",
+          "cue": "primary"
+        },
+        {
+          "id": "r1",
+          "x": 760,
+          "y": 640,
+          "w": 400,
+          "h": 150,
+          "label": "Read replica",
+          "text": "reads",
+          "size": 38,
+          "tone": "good",
+          "cue": "replicas"
+        },
+        {
+          "id": "sh",
+          "x": 1400,
+          "y": 420,
+          "w": 360,
+          "h": 150,
+          "label": "Sharding",
+          "text": "by user id",
+          "sub": "users 1-1M | 1M-2M",
+          "size": 34,
+          "tone": "ghost",
+          "cue": "sharding"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ap",
+          "to": "pr",
+          "cue": "primary"
+        },
+        {
+          "from": "pr",
+          "to": "r1",
+          "label": "copies",
+          "cue": "copies"
+        },
+        {
+          "from": "ap",
+          "to": "r1",
+          "cue": "replicas"
+        },
+        {
+          "from": "pr",
+          "to": "sh",
+          "tone": "warn",
+          "cue": "sharding"
+        }
+      ],
+      "say": "App servers are easy to copy. The database is not. Writes go to one primary, which copies its data to read replicas. Send reads to replicas, but remember they can lag slightly. When even the primary can't keep up on writes or size, you shard: split rows across databases by a key, like user id. Sharding is powerful, but it makes joins and transactions across shards hard, so it comes last."
+    },
+    {
+      "type": "flow",
+      "head": "Order of attack",
+      "items": [
+        {
+          "label": "1",
+          "text": "Measure",
+          "sub": "find the bottleneck",
+          "cue": "First"
+        },
+        {
+          "label": "2",
+          "text": "Index, cache",
+          "sub": "cheap wins",
+          "cue": "Then"
+        },
+        {
+          "label": "3",
+          "text": "Scale out",
+          "sub": "stateless app",
+          "cue": "scale out"
+        },
+        {
+          "label": "4",
+          "text": "Replicas",
+          "sub": "split reads",
+          "cue": "replicas"
+        },
+        {
+          "label": "5",
+          "text": "Shard",
+          "sub": "last resort",
+          "tone": "warn",
+          "cue": "last"
+        }
+      ],
+      "say": "First, measure to find the bottleneck. Then take cheap wins: indexes and caching. Next, scale out the stateless app tier. Then add read replicas. Shard last, because it adds permanent complexity. Also mention queues for slow work, and a C D N for static files."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "Likely follow-up",
+        "One-line answer"
+      ],
+      "rows": [
+        [
+          "Why stateless?",
+          "Any server can serve any request, so copies are interchangeable"
+        ],
+        [
+          "Replica lag?",
+          "Reads may be slightly stale, read your own writes from primary"
+        ],
+        [
+          "Shard key?",
+          "High cardinality, even spread, like user id"
+        ],
+        [
+          "Common mistake",
+          "Sharding or adding servers before measuring"
+        ]
+      ],
+      "cues": [
+        "Why stateless",
+        "Replica lag",
+        "shard key",
+        "common mistake"
+      ],
+      "say": "Likely follow-ups. Why stateless? Any server can serve any request. Replica lag? Reads can be slightly stale, so read your own writes from the primary. How to pick a shard key? High variety and even spread, like user id. The common mistake: scaling or sharding before measuring the bottleneck."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Vertical is simple but capped. Horizontal needs stateless apps behind a load balancer.",
+        "Keep state out of the app: sessions in Redis, data in the database.",
+        "Database path: indexes and cache, then read replicas, then sharding last."
+      ],
+      "cues": [
+        "Vertical scaling is simple",
+        "Keep state",
+        "For the database"
+      ],
+      "say": "Vertical scaling is simple but capped. Horizontal needs stateless apps behind a load balancer. Keep state out of the app: sessions in Redis, data in the database. For the database, go indexes and cache first, then read replicas, and sharding last. And always measure before you scale."
+    }
+  ]
+}

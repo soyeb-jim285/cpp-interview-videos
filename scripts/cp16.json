@@ -1,0 +1,445 @@
+{
+ "id": "cp16",
+ "num": 16,
+ "series": "DSA",
+ "short": "Topological sort",
+ "question": "What is a topological sort, and how do you compute one? How do you detect a cycle?",
+ "caps": [],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Order tasks so every prerequisite comes first.",
+   "say": "Topological sort puts tasks in an order where every prerequisite comes before the task that needs it. It's the standard answer to any course-schedule question."
+  },
+  {
+   "type": "diagram",
+   "head": "Getting dressed",
+   "items": [
+    {
+     "id": "so",
+     "x": 200,
+     "y": 330,
+     "w": 220,
+     "h": 110,
+     "label": "start",
+     "text": "socks",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Socks go before shoes"
+    },
+    {
+     "id": "pa",
+     "x": 200,
+     "y": 650,
+     "w": 220,
+     "h": 110,
+     "label": "start",
+     "text": "pants",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Pants go before shoes"
+    },
+    {
+     "id": "sh",
+     "x": 800,
+     "y": 330,
+     "w": 220,
+     "h": 110,
+     "label": "needs both",
+     "text": "shoes",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Socks go before shoes"
+    },
+    {
+     "id": "be",
+     "x": 800,
+     "y": 650,
+     "w": 220,
+     "h": 110,
+     "label": "needs pants",
+     "text": "belt",
+     "size": 44,
+     "tone": "blue",
+     "cue": "and before the belt"
+    },
+    {
+     "id": "ord",
+     "x": 1300,
+     "y": 480,
+     "w": 460,
+     "h": 130,
+     "label": "one valid order",
+     "text": "socks, pants, shoes, belt",
+     "size": 30,
+     "tone": "good",
+     "cue": "One valid order"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "so",
+     "to": "sh",
+     "cue": "Socks go before shoes"
+    },
+    {
+     "from": "pa",
+     "to": "sh",
+     "cue": "Pants go before shoes"
+    },
+    {
+     "from": "pa",
+     "to": "be",
+     "cue": "and before the belt"
+    }
+   ],
+   "say": "Think about getting dressed. Socks go before shoes. Pants go before shoes, and before the belt. An arrow means must come first. Many orders work, but shoes can never come before socks. One valid order is socks, pants, shoes, belt. Finding such an order is a topological sort. It only exists if there are no loops."
+  },
+  {
+   "type": "diagram",
+   "head": "Kahn's algorithm: peel off what's ready",
+   "items": [
+    {
+     "id": "c0",
+     "x": 200,
+     "y": 480,
+     "w": 220,
+     "h": 110,
+     "label": "course 0",
+     "text": "0",
+     "size": 48,
+     "tone": "blue",
+     "cue": "number under each"
+    },
+    {
+     "id": "c1",
+     "x": 600,
+     "y": 300,
+     "w": 220,
+     "h": 110,
+     "label": "course 1",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "number under each"
+    },
+    {
+     "id": "c2",
+     "x": 600,
+     "y": 640,
+     "w": 220,
+     "h": 110,
+     "label": "course 2",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "number under each"
+    },
+    {
+     "id": "c3",
+     "x": 1000,
+     "y": 480,
+     "w": 220,
+     "h": 110,
+     "label": "course 3",
+     "text": "2",
+     "size": 48,
+     "tone": "blue",
+     "cue": "number under each"
+    },
+    {
+     "id": "c4",
+     "x": 1450,
+     "y": 480,
+     "w": 220,
+     "h": 110,
+     "label": "course 4",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "number under each"
+    },
+    {
+     "id": "ord",
+     "x": 1000,
+     "y": 800,
+     "w": 700,
+     "h": 100,
+     "label": "order so far",
+     "text": "",
+     "size": 38,
+     "tone": "good",
+     "cue": "Only courses with zero"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "c0",
+     "to": "c1",
+     "cue": "number under each"
+    },
+    {
+     "from": "c0",
+     "to": "c2",
+     "cue": "number under each"
+    },
+    {
+     "from": "c1",
+     "to": "c3",
+     "cue": "number under each"
+    },
+    {
+     "from": "c2",
+     "to": "c3",
+     "cue": "number under each"
+    },
+    {
+     "from": "c3",
+     "to": "c4",
+     "cue": "number under each"
+    }
+   ],
+   "changes": [
+    {
+     "id": "ord",
+     "text": "0",
+     "cue": "Take zero"
+    },
+    {
+     "id": "c1",
+     "text": "0",
+     "tone": "good",
+     "cue": "one and two drop"
+    },
+    {
+     "id": "c2",
+     "text": "0",
+     "tone": "good",
+     "cue": "one and two drop"
+    },
+    {
+     "id": "ord",
+     "text": "0 1",
+     "cue": "Take one"
+    },
+    {
+     "id": "c3",
+     "text": "1",
+     "cue": "Take one"
+    },
+    {
+     "id": "ord",
+     "text": "0 1 2",
+     "cue": "Take two"
+    },
+    {
+     "id": "c3",
+     "text": "0",
+     "tone": "good",
+     "cue": "Take two"
+    },
+    {
+     "id": "ord",
+     "text": "0 1 2 3",
+     "cue": "Take three"
+    },
+    {
+     "id": "c4",
+     "text": "0",
+     "tone": "good",
+     "cue": "Take three"
+    },
+    {
+     "id": "ord",
+     "text": "0 1 2 3 4",
+     "cue": "Take four"
+    }
+   ],
+   "say": "Five courses. The number under each is its indegree: how many prerequisites are still unfinished. Only courses with zero are ready. Take zero. Its two outgoing arrows disappear, so one and two drop to zero. Take one: course three drops to one. Take two: three drops to zero. Take three, then four becomes ready. Take four. The order is zero, one, two, three, four. Each node and edge is touched once."
+  },
+  {
+   "type": "code",
+   "head": "Kahn's algorithm in code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "vector<int> topo(int n, vector<vector<int>>& g) {\n    vector<int> indeg(n, 0), order;\n    for (int u = 0; u < n; u++)\n        for (int v : g[u]) indeg[v]++;\n    queue<int> q;\n    for (int u = 0; u < n; u++) if (!indeg[u]) q.push(u);\n    while (!q.empty()) {\n        int u = q.front(); q.pop();\n        order.push_back(u);\n        for (int v : g[u]) if (--indeg[v] == 0) q.push(v);\n    }\n    return order;   // size below n means a cycle\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "count how many",
+     "lines": [
+      2,
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "queue",
+     "lines": [
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "pop a course",
+     "lines": [
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "decrement",
+     "lines": [
+      10
+     ]
+    },
+    {
+     "cue": "shorter than n",
+     "lines": [
+      13
+     ]
+    }
+   ],
+   "say": "First, count how many arrows point into each node. Put every zero-indegree node in a queue. Then loop: pop a course and append it to the order. For each course that depends on it, decrement its count, and if that hits zero, push it. At the end, if the order is shorter than n, some nodes never became ready. That means a cycle. Time is O of V plus E."
+  },
+  {
+   "type": "diagram",
+   "head": "A cycle has no valid order",
+   "items": [
+    {
+     "id": "x0",
+     "x": 300,
+     "y": 450,
+     "w": 220,
+     "h": 110,
+     "label": "course 0",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "three courses"
+    },
+    {
+     "id": "x1",
+     "x": 850,
+     "y": 450,
+     "w": 220,
+     "h": 110,
+     "label": "course 1",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "three courses"
+    },
+    {
+     "id": "x2",
+     "x": 1400,
+     "y": 450,
+     "w": 220,
+     "h": 110,
+     "label": "course 2",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "three courses"
+    },
+    {
+     "id": "q",
+     "x": 760,
+     "y": 780,
+     "w": 400,
+     "h": 100,
+     "label": "ready queue",
+     "text": "empty",
+     "size": 40,
+     "tone": "bad",
+     "cue": "queue starts empty"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "x0",
+     "to": "x1",
+     "cue": "zero needs two"
+    },
+    {
+     "from": "x1",
+     "to": "x2",
+     "cue": "one needs zero"
+    },
+    {
+     "from": "x2",
+     "to": "x0",
+     "bend": 260,
+     "cue": "two needs one"
+    }
+   ],
+   "changes": [
+    {
+     "id": "x0",
+     "tone": "bad",
+     "cue": "stuck"
+    },
+    {
+     "id": "x1",
+     "tone": "bad",
+     "cue": "stuck"
+    },
+    {
+     "id": "x2",
+     "tone": "bad",
+     "cue": "stuck"
+    }
+   ],
+   "say": "Now three courses in a loop. Zero needs two, one needs zero, two needs one. Every course has one prerequisite, so no indegree is zero, and the queue starts empty. Nothing can start. The order stays empty, shorter than three, and we report a cycle. All three are stuck waiting on each other."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Complexity?",
+     "O of V plus E: each node and edge is processed once."
+    ],
+    [
+     "Smallest order alphabetically?",
+     "Use a min priority queue instead of a plain queue."
+    ],
+    [
+     "Another way to do it?",
+     "D F S: add a node after its children, then reverse the list."
+    ],
+    [
+     "Common mistake",
+     "Not checking order size against n, which misses cycles."
+    ]
+   ],
+   "cues": [
+    "Complexity",
+    "Lexicographically",
+    "Another way",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Complexity: V plus E. Lexicographically smallest order? Use a min heap instead of the queue. Another way? D F S postorder, reversed. Classics: Course Schedule, Course Schedule Two, Alien Dictionary. The common mistake: forgetting to compare the order size with n, which silently misses cycles."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Topological order: every prerequisite comes before its task.",
+    "Kahn: queue nodes with indegree zero, remove them, repeat.",
+    "Order shorter than n means a cycle. O of V plus E."
+   ],
+   "cues": [
+    "prerequisite",
+    "Kahn",
+    "shorter than n"
+   ],
+   "say": "A topological order puts every prerequisite before its task. Kahn's algorithm queues nodes with indegree zero, removes them, and repeats. If the order is shorter than n, there's a cycle. It runs in V plus E."
+  }
+ ]
+}

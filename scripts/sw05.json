@@ -1,0 +1,54 @@
+{
+  "id": "sw05", "num": 5, "series": "SWE", "short": "Testing",
+  "question": "What is the difference between unit, integration and end-to-end tests? How do you keep tests reliable?",
+  "scenes": [
+    { "type": "title", "sub": "Fast tests catch small bugs. Slow tests catch wiring bugs. You need both.",
+      "say": "Testing. Interviewers ask about the kinds of tests, and then about the thing everyone hates: flaky tests. Let's cover both." },
+
+    { "type": "diagram", "head": "Analogy: building a car",
+      "items": [
+        { "id": "e2e", "x": 710, "y": 250, "w": 500, "h": 150, "text": "End to end", "sub": "test drive the whole car", "size": 40, "tone": "bad", "cue": "test drive" },
+        { "id": "int", "x": 510, "y": 450, "w": 900, "h": 150, "text": "Integration", "sub": "engine and gearbox on a bench", "size": 40, "tone": "warn", "cue": "bench" },
+        { "id": "unit", "x": 310, "y": 650, "w": 1300, "h": 170, "text": "Unit", "sub": "check each bolt and part alone", "size": 40, "tone": "good", "cue": "each bolt" }
+      ],
+      "say": "Think of building a car. First check each bolt and part alone. That is a unit test: one function, milliseconds, no database. Next, put the engine and gearbox on a bench and see if they work together. That is integration. Last, test drive the whole car. That is end to end: slow and few. Aim for many unit tests, some integration, and a handful of end to end." },
+
+    { "type": "code", "head": "Make tests deterministic: inject time",
+      "panels": [{ "file": "test_app.py", "size": 32, "code": "# flaky: depends on the real clock\ndef is_expired(exp):\n    return time.time() >= exp\n\n# deterministic: time is passed in\ndef is_expired(exp, now):\n    return now >= exp\n\nassert is_expired(100, 100)\nassert not is_expired(100, 99)" }],
+      "steps": [
+        { "cue": "real clock", "lines": [1, 2, 3] },
+        { "cue": "input in", "lines": [5, 6, 7] },
+        { "cue": "exact boundary", "lines": [9, 10] }
+      ],
+      "notes": [
+        { "cue": "real clock", "line": 3, "inside": true, "text": "differs every run", "tone": "bad" },
+        { "cue": "exact boundary", "line": 9, "inside": true, "text": "same result always", "tone": "good" }
+      ],
+      "say": "A flaky test passes sometimes and fails sometimes. A common cause is hidden input, like the real clock, random numbers, or the network. Fix it by passing the input in. Now we can test the exact boundary: a hundred is expired, ninety nine is not. Same result, every run, on every machine." },
+
+    { "type": "code", "head": "Mocks: replace the slow, outside part",
+      "panels": [{ "file": "test_app.py", "size": 30, "code": "from unittest.mock import Mock\n\ndef checkout(mailer, total):\n    mailer.send(\"receipt\")\n    return total\n\ndef test_sends_receipt():\n    mailer = Mock()\n    assert checkout(mailer, 50) == 50\n    mailer.send.assert_called_once_with(\"receipt\")" }],
+      "steps": [
+        { "cue": "fake mailer", "lines": [8] },
+        { "cue": "returns fifty", "lines": [9] },
+        { "cue": "called once", "lines": [10] }
+      ],
+      "say": "A mock is a stand in for something slow or outside your control, like an email service. Here the test passes a fake mailer, so no email is sent. It checks the function returns fifty, and that send was called once with receipt. A fake is a simple working replacement. A mock also records the calls." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"], "rowHeads": ["Flaky", "Mock vs fake", "Coverage", "What to test", "Mistake"],
+      "rows": [
+        ["Why are tests flaky?", "Clock, randomness, network, shared state"],
+        ["Mock vs fake?", "Mock records calls, fake works simply"],
+        ["Is 100% coverage good?", "No, it only shows lines ran"],
+        ["What do you test?", "Behavior and edge cases, not internals"],
+        ["Common mistake", "Mocking so much the test proves nothing"]
+      ],
+      "cues": ["flaky", "mock versus fake", "hundred percent", "What do you test", "The mistake"],
+      "say": "Likely follow-ups. Why are tests flaky? Clock, randomness, network, and shared state. Mock versus fake: a mock records calls, a fake just works simply. Is a hundred percent coverage good? No, it only shows lines ran. What do you test? Behavior and edge cases, not internals. The mistake is mocking so much that the test proves nothing." },
+
+    { "type": "take", "lines": ["Unit tests are fast and many. Integration and end to end tests are slower and fewer.", "Keep tests deterministic: pass in time, randomness and I O.", "Test behavior and edge cases, not internals."],
+      "cues": ["Unit tests", "deterministic", "behavior"],
+      "say": "Unit tests are fast and many. Integration and end to end tests are slower and fewer. Keep tests deterministic by passing in time, randomness and I O. And test behavior and edge cases, not internals." }
+  ]
+}

@@ -1,0 +1,444 @@
+{
+ "id": "cp12",
+ "num": 12,
+ "series": "DSA",
+ "short": "DP from scratch",
+ "question": "How do you approach a dynamic programming problem? Walk through recursion, memoization, then a table.",
+ "caps": [
+  [
+   "ways of",
+   "ways"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Solve big problems from smaller copies of themselves, and never solve the same copy twice.",
+   "say": "Dynamic programming scares people, but it is just recursion with a memory. We'll build it from scratch in three steps: recursion, memo, table."
+  },
+  {
+   "type": "diagram",
+   "head": "Stairs: the smaller copies",
+   "items": [
+    {
+     "id": "s3",
+     "x": 300,
+     "y": 500,
+     "w": 320,
+     "h": 130,
+     "label": "step 3",
+     "text": "3 ways",
+     "size": 44,
+     "tone": "blue",
+     "cue": "three has three ways"
+    },
+    {
+     "id": "s4",
+     "x": 300,
+     "y": 760,
+     "w": 320,
+     "h": 110,
+     "label": "step 4",
+     "text": "5 ways",
+     "size": 44,
+     "tone": "blue",
+     "cue": "four has five"
+    },
+    {
+     "id": "s5",
+     "x": 1100,
+     "y": 600,
+     "w": 400,
+     "h": 150,
+     "label": "step 5",
+     "text": "?",
+     "size": 56,
+     "tone": "warn",
+     "cue": "How many ways to reach step five"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "s3",
+     "to": "s5",
+     "cue": "step three"
+    },
+    {
+     "from": "s4",
+     "to": "s5",
+     "cue": "step four"
+    }
+   ],
+   "changes": [
+    {
+     "id": "s5",
+     "text": "8",
+     "tone": "good",
+     "cue": "Then five has eight"
+    }
+   ],
+   "say": "You climb a staircase, taking one or two steps at a time. How many ways to reach step five? Your last move came from step three or step four. So ways to five equals ways to four plus ways to three. Say three has three ways, and four has five. Then five has eight. That's the whole idea: an answer built from smaller answers of the same problem."
+  },
+  {
+   "type": "diagram",
+   "head": "Plain recursion repeats itself",
+   "items": [
+    {
+     "id": "f5",
+     "x": 860,
+     "y": 230,
+     "w": 200,
+     "h": 100,
+     "text": "f(5)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "calls four and three"
+    },
+    {
+     "id": "f4",
+     "x": 500,
+     "y": 410,
+     "w": 200,
+     "h": 100,
+     "text": "f(4)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "calls four and three"
+    },
+    {
+     "id": "f3r",
+     "x": 1220,
+     "y": 410,
+     "w": 200,
+     "h": 100,
+     "text": "f(3)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "calls four and three"
+    },
+    {
+     "id": "f3l",
+     "x": 300,
+     "y": 590,
+     "w": 200,
+     "h": 100,
+     "text": "f(3)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Four calls three and two"
+    },
+    {
+     "id": "f2a",
+     "x": 700,
+     "y": 590,
+     "w": 200,
+     "h": 100,
+     "text": "f(2)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "Four calls three and two"
+    },
+    {
+     "id": "f2b",
+     "x": 1020,
+     "y": 590,
+     "w": 200,
+     "h": 100,
+     "text": "f(2)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "itself calls two and one"
+    },
+    {
+     "id": "f1",
+     "x": 1420,
+     "y": 590,
+     "w": 200,
+     "h": 100,
+     "text": "f(1)",
+     "size": 36,
+     "tone": "blue",
+     "cue": "itself calls two and one"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "f5",
+     "to": "f4",
+     "cue": "calls four and three"
+    },
+    {
+     "from": "f5",
+     "to": "f3r",
+     "cue": "calls four and three"
+    },
+    {
+     "from": "f4",
+     "to": "f3l",
+     "cue": "Four calls three and two"
+    },
+    {
+     "from": "f4",
+     "to": "f2a",
+     "cue": "Four calls three and two"
+    },
+    {
+     "from": "f3r",
+     "to": "f2b",
+     "cue": "itself calls two and one"
+    },
+    {
+     "from": "f3r",
+     "to": "f1",
+     "cue": "itself calls two and one"
+    }
+   ],
+   "changes": [
+    {
+     "id": "f3l",
+     "tone": "bad",
+     "cue": "computed twice"
+    },
+    {
+     "id": "f3r",
+     "tone": "bad",
+     "cue": "computed twice"
+    },
+    {
+     "id": "f2a",
+     "tone": "bad",
+     "cue": "and two as well"
+    },
+    {
+     "id": "f2b",
+     "tone": "bad",
+     "cue": "and two as well"
+    }
+   ],
+   "say": "Start with plain recursion. Ways of five calls four and three. Four calls three and two. Three itself calls two and one. Look: ways of three is computed twice, and two as well. For n equal fifty, the calls multiply to roughly two to the fiftieth. That is O of two to the n. All the extra work is the same questions asked again."
+  },
+  {
+   "type": "code",
+   "head": "Step two: memoization",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "long long memo[50];            // 0 means not computed yet\n\nlong long ways(int n) {\n    if (n <= 1) return 1;                  // base cases\n    if (memo[n]) return memo[n];           // already solved: reuse\n    return memo[n] = ways(n - 1) + ways(n - 2);\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "A memo array",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "base cases",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "Before computing",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "store the answer",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "say": "The fix is a memo: a notebook of answers. A memo array starts empty. The base cases are zero or one step: one way each. Before computing, check the notebook. If the answer is there, return it. Otherwise compute it and store the answer. Now each n is solved once. Time drops to O of n."
+  },
+  {
+   "type": "diagram",
+   "head": "Step three: a table, bottom up",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int n = 5;\nvector<long long> dp(n + 1);\ndp[0] = dp[1] = 1;\nfor (int i = 2; i <= n; i++)\n    dp[i] = dp[i - 1] + dp[i - 2];\ncout << dp[n];"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Make an array",
+     "lines": [
+      1,
+      2
+     ]
+    },
+    {
+     "cue": "base cases",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "fill left to right",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "Step five",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "dp0",
+     "x": 1000,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[0]",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "base cases"
+    },
+    {
+     "id": "dp1",
+     "x": 1280,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[1]",
+     "text": "1",
+     "size": 48,
+     "tone": "blue",
+     "cue": "base cases"
+    },
+    {
+     "id": "dp2",
+     "x": 1560,
+     "y": 300,
+     "w": 240,
+     "h": 120,
+     "label": "dp[2]",
+     "text": "?",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make an array"
+    },
+    {
+     "id": "dp3",
+     "x": 1000,
+     "y": 580,
+     "w": 240,
+     "h": 120,
+     "label": "dp[3]",
+     "text": "?",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make an array"
+    },
+    {
+     "id": "dp4",
+     "x": 1280,
+     "y": 580,
+     "w": 240,
+     "h": 120,
+     "label": "dp[4]",
+     "text": "?",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make an array"
+    },
+    {
+     "id": "dp5",
+     "x": 1560,
+     "y": 580,
+     "w": 240,
+     "h": 120,
+     "label": "dp[5]",
+     "text": "?",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Make an array"
+    }
+   ],
+   "changes": [
+    {
+     "id": "dp2",
+     "text": "2",
+     "tone": "good",
+     "cue": "Step two"
+    },
+    {
+     "id": "dp3",
+     "text": "3",
+     "tone": "good",
+     "cue": "Step three"
+    },
+    {
+     "id": "dp4",
+     "text": "5",
+     "tone": "good",
+     "cue": "Step four"
+    },
+    {
+     "id": "dp5",
+     "text": "8",
+     "tone": "good",
+     "cue": "Step five"
+    }
+   ],
+   "say": "Now the table version, bottom up. Make an array. The base cases: zero and one step each have one way. Then fill left to right. Step two is one plus one, two. Step three is two plus one, three. Step four is three plus two, five. Step five is five plus three, eight. No recursion, no repeats. Since we only look back two cells, two variables would do."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "How do you start a DP problem?",
+     "Define the state, write the transition, set base cases, pick the fill order."
+    ],
+    [
+     "Memo or table?",
+     "Memo is easier to write. Table avoids deep recursion and can save memory."
+    ],
+    [
+     "How do you know it's DP?",
+     "Overlapping subproblems, and asking for a count, best, or yes or no."
+    ],
+    [
+     "Common mistake",
+     "Coding before saying what dp of i means. Write that sentence first."
+    ]
+   ],
+   "cues": [
+    "How do you start",
+    "Memo or table",
+    "know it's D P",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. How do you start? Define the state, write the transition, set base cases, pick the order. Memo or table? Memo is easier to write, the table avoids deep recursion. How do you know it's D P? Overlapping subproblems, and a count or best answer. Classics: Climbing Stairs, House Robber, Coin Change. The common mistake: coding before saying what dp of i means."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "D P is recursion plus a notebook of answers.",
+    "Define what dp of i means, then its transition and base cases.",
+    "Memo goes top down, a table goes bottom up. Both are O of n here."
+   ],
+   "cues": [
+    "recursion plus a notebook",
+    "Define what",
+    "Memo goes top down"
+   ],
+   "say": "D P is recursion plus a notebook of answers. Define what dp of i means, then its transition and base cases. Memo goes top down, a table goes bottom up, and both take linear time here."
+  }
+ ]
+}

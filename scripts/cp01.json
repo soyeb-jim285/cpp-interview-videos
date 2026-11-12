@@ -1,0 +1,287 @@
+{
+ "id": "cp01",
+ "num": 1,
+ "series": "DSA",
+ "short": "Constraints to complexity",
+ "question": "Read the constraints: how big is n, and what complexity can you afford?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "The input size tells you which algorithm will pass.",
+   "say": "Before you write any code, read the limits. The size of the input tells you which algorithm will pass, and which will time out."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a time budget",
+   "items": [
+    {
+     "label": "Budget",
+     "text": "1 second",
+     "sub": "about 10^8 simple steps",
+     "cue": "time limit as a budget"
+    },
+    {
+     "label": "Price",
+     "text": "your algorithm",
+     "sub": "steps it needs for n",
+     "cue": "has a price"
+    },
+    {
+     "label": "Verdict",
+     "text": "price ≤ budget",
+     "sub": "else: time limit exceeded",
+     "cue": "time limit exceeded"
+    }
+   ],
+   "say": "Think of the time limit as a budget. The judge does roughly one hundred million simple steps per second. That is your wallet. Every algorithm has a price, counted in steps. If the price is more than the wallet, you get time limit exceeded."
+  },
+  {
+   "type": "diagram",
+   "head": "Worked example: n is 200,000",
+   "items": [
+    {
+     "id": "n",
+     "x": 160,
+     "y": 450,
+     "w": 300,
+     "h": 150,
+     "label": "input size",
+     "text": "n = 200,000",
+     "size": 38,
+     "tone": "blue",
+     "cue": "n equals two hundred thousand"
+    },
+    {
+     "id": "sq",
+     "x": 680,
+     "y": 250,
+     "w": 560,
+     "h": 130,
+     "label": "O(n²)",
+     "text": "40,000,000,000",
+     "size": 42,
+     "cue": "squared algorithm"
+    },
+    {
+     "id": "nl",
+     "x": 680,
+     "y": 450,
+     "w": 560,
+     "h": 130,
+     "label": "O(n log n)",
+     "text": "about 3,500,000",
+     "size": 42,
+     "cue": "n log n needs"
+    },
+    {
+     "id": "ln",
+     "x": 680,
+     "y": 650,
+     "w": 560,
+     "h": 130,
+     "label": "O(n)",
+     "text": "200,000",
+     "size": 42,
+     "cue": "just two hundred thousand"
+    },
+    {
+     "id": "bud",
+     "x": 1450,
+     "y": 450,
+     "w": 340,
+     "h": 150,
+     "label": "budget (1 sec)",
+     "text": "100,000,000",
+     "size": 38,
+     "tone": "warn",
+     "cue": "The budget is"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "n",
+     "to": "sq",
+     "cue": "squared algorithm"
+    },
+    {
+     "from": "n",
+     "to": "nl",
+     "cue": "n log n needs"
+    },
+    {
+     "from": "n",
+     "to": "ln",
+     "cue": "just two hundred thousand"
+    }
+   ],
+   "changes": [
+    {
+     "id": "sq",
+     "tone": "bad",
+     "cue": "Too slow"
+    },
+    {
+     "id": "nl",
+     "tone": "good",
+     "cue": "Easy"
+    },
+    {
+     "id": "ln",
+     "tone": "good",
+     "cue": "just two hundred thousand"
+    }
+   ],
+   "say": "Say the problem gives n equals two hundred thousand. The budget is one hundred million. An O of n squared algorithm needs forty billion steps. Four hundred times too many. Too slow. O of n log n needs about three and a half million. Easy. And O of n needs just two hundred thousand. So the limits tell us: we need n log n or better."
+  },
+  {
+   "type": "compare",
+   "head": "The cheat sheet: n up to, allowed complexity",
+   "heads": [
+    "n up to",
+    "Allowed"
+   ],
+   "rows": [
+    [
+     "about 10",
+     "n factorial: try every order"
+    ],
+    [
+     "about 20",
+     "2^n: try every subset"
+    ],
+    [
+     "about 500",
+     "n cubed"
+    ],
+    [
+     "about 5,000",
+     "n squared"
+    ],
+    [
+     "about 1,000,000",
+     "n log n, or n"
+    ],
+    [
+     "about 100,000,000",
+     "plain n, small constant"
+    ],
+    [
+     "up to 10^18",
+     "log n, or a formula"
+    ]
+   ],
+   "cues": [
+    "Around ten",
+    "Around twenty",
+    "Five hundred",
+    "Five thousand",
+    "A million",
+    "A hundred million",
+    "Ten to the eighteen"
+   ],
+   "say": "Here is the cheat sheet. Around ten, try every order. Around twenty, try every subset. Five hundred allows n cubed. Five thousand allows n squared. A million needs n log n or n. A hundred million needs plain n. Ten to the eighteen needs log n or a formula."
+  },
+  {
+   "type": "code",
+   "head": "Same problem, two prices: count pairs that add to zero",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "// O(n^2): about 4e10 steps for n = 2e5\nlong long slow(vector<int>& a) {\n    long long c = 0;\n    for (size_t i = 0; i < a.size(); i++)\n        for (size_t j = i + 1; j < a.size(); j++)\n            if (a[i] + a[j] == 0) c++;\n    return c;\n}\n// O(n): hash map of values seen so far\nlong long fast(vector<int>& a) {\n    unordered_map<int,int> seen;\n    long long c = 0;\n    for (int x : a) { c += seen[-x]; seen[x]++; }\n    return c;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "checks every pair",
+     "lines": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ]
+    },
+    {
+     "cue": "hash map",
+     "lines": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "Too slow",
+     "line": 6,
+     "inside": true,
+     "text": "n squared steps",
+     "tone": "bad"
+    },
+    {
+     "cue": "Same answer",
+     "line": 13,
+     "inside": true,
+     "text": "n steps",
+     "tone": "good"
+    }
+   ],
+   "say": "Same problem, count pairs that add to zero, with n two hundred thousand. The slow version checks every pair. Too slow. The fast one remembers values in a hash map, and for each x asks how many minus x came before. Same answer, passes. The constraint chose the algorithm."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Time limit is two seconds?",
+     "The budget doubles, about two hundred million steps."
+    ],
+    [
+     "Does O of n log n always pass?",
+     "Not with a big constant, like many sorts or maps."
+    ],
+    [
+     "What about memory?",
+     "A million ints is four megabytes. Check the limit."
+    ],
+    [
+     "Common mistake",
+     "Coding brute force first, without reading the limits."
+    ]
+   ],
+   "cues": [
+    "Time limit",
+    "Does O of n log n",
+    "What about memory",
+    "Common mistake"
+   ],
+   "say": "Interviewers ask these. Time limit of two seconds? The budget doubles. Does O of n log n always pass? Not with a big constant. What about memory? A million ints is four megabytes. The common mistake: coding brute force first, without reading the limits."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Judges allow about 10^8 simple steps per second.",
+    "Read n, then pick the complexity that fits.",
+    "n = 2·10^5 means O(n log n) or better."
+   ],
+   "cues": [
+    "Judges allow",
+    "Read n",
+    "two hundred thousand means"
+   ],
+   "say": "Judges allow about a hundred million simple steps per second. So I read n first, and pick the complexity that fits. Two hundred thousand means n log n or better."
+  }
+ ]
+}

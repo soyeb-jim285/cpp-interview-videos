@@ -1,0 +1,64 @@
+{
+  "id": "fe12", "num": 12, "series": "Frontend", "short": "Web performance and security",
+  "question": "What are Core Web Vitals? Explain XSS, CSRF and CORS.",
+  "caps": [["inner H T M L", "innerHTML"], ["text content", "textContent"]],
+  "scenes": [
+    { "type": "title", "sub": "Fast pages keep users. Safe pages keep their data.",
+      "say": "Web performance and security. Four short ideas: Core Web Vitals, then three attacks and defenses that interviewers always ask: X S S, C S R F, and C O R S." },
+
+    { "type": "diagram", "head": "Think of a restaurant visit",
+      "items": [
+        { "id": "lcp", "x": 160, "y": 260, "w": 520, "h": 150, "label": "LCP: main dish arrives", "text": "under 2.5 s", "sub": "largest content paint", "size": 38, "tone": "good", "cue": "main dish" },
+        { "id": "inp", "x": 700, "y": 260, "w": 520, "h": 150, "label": "INP: waiter responds", "text": "under 200 ms", "sub": "interaction latency", "size": 38, "tone": "blue", "cue": "waiter" },
+        { "id": "cls", "x": 1240, "y": 260, "w": 520, "h": 150, "label": "CLS: table jumps", "text": "under 0.1", "sub": "layout shift score", "size": 38, "tone": "warn", "cue": "table" },
+        { "id": "fix", "x": 460, "y": 620, "w": 1000, "h": 170, "text": "Fixes: compress images, set width and height, split big scripts", "size": 32, "tone": "ghost", "cue": "To improve" }
+      ],
+      "arrows": [{ "from": "lcp", "to": "fix", "cue": "To improve" }],
+      "say": "Core Web Vitals are three numbers Google measures. Think of a restaurant. Largest contentful paint is when the main dish arrives: under two and a half seconds. Interaction to next paint is how fast the waiter responds when you wave: under two hundred milliseconds. Cumulative layout shift is the table jumping while you eat: under zero point one. To improve them, compress images, set image sizes, and split big scripts." },
+
+    { "type": "code", "head": "XSS: attacker script runs on your page",
+      "panels": [{ "file": "comment.ts", "size": 34, "code": "const c = '<img src=x onerror=steal()>';\n\n// bad: the browser parses it as HTML\nel.innerHTML = c;\n\n// good: it is just text\nel.textContent = c;\n\n// also: Content-Security-Policy header" }],
+      "steps": [
+        { "cue": "a comment", "lines": [1] },
+        { "cue": "inner H T M L", "lines": [3, 4] },
+        { "cue": "text content", "lines": [6, 7] },
+        { "cue": "Content Security Policy", "lines": [9] }
+      ],
+      "notes": [{ "cue": "inner H T M L", "line": 4, "inside": true, "text": "script runs as the user", "tone": "bad" }],
+      "say": "Cross site scripting. An attacker posts a comment that contains script. If you insert it with inner H T M L, the browser runs it, as your user, on your site. It can steal cookies or tokens. The fix: treat user input as text. Text content is safe, and React escapes by default. Add a Content Security Policy header as a second layer. Never store tokens where scripts can read them." },
+
+    { "type": "flow", "head": "CSRF: a forged request with your cookie", "y": 400, "h": 260,
+      "items": [
+        { "label": "1", "text": "You log in", "sub": "bank.com sets a cookie", "tone": "blue", "cue": "log in" },
+        { "label": "2", "text": "Visit evil.com", "sub": "hidden form posts to bank", "tone": "bad", "cue": "evil" },
+        { "label": "3", "text": "Browser attaches cookie", "sub": "bank sees you", "tone": "warn", "size": 30, "cue": "attaches" },
+        { "label": "4", "text": "Defense", "sub": "SameSite + CSRF token", "tone": "good", "cue": "defend" }
+      ],
+      "say": "Cross site request forgery. You log in to your bank, which sets a cookie. Then you visit evil dot com, which quietly submits a form to the bank. The browser attaches your cookie automatically, so the bank thinks it is you. To defend: set cookies to SameSite lax or strict, and require a C S R F token that the attacker cannot read." },
+
+    { "type": "diagram", "head": "CORS: who may read the response",
+      "items": [
+        { "id": "app", "x": 160, "y": 260, "w": 440, "h": 140, "label": "Browser on app.com", "text": "fetch api.com", "size": 34, "tone": "blue", "cue": "app dot com" },
+        { "id": "api", "x": 1280, "y": 260, "w": 440, "h": 140, "label": "Server api.com", "text": "Allow-Origin: app.com", "size": 28, "tone": "good", "cue": "access control" },
+        { "id": "ok", "x": 160, "y": 640, "w": 440, "h": 140, "text": "Allowed: JS reads it", "size": 32, "tone": "good", "cue": "matches" },
+        { "id": "no", "x": 1280, "y": 640, "w": 440, "h": 140, "text": "Missing header: blocked", "size": 32, "tone": "bad", "cue": "blocks" }
+      ],
+      "arrows": [{ "from": "app", "to": "api", "cue": "app dot com" }, { "from": "api", "to": "ok", "tone": "good", "cue": "matches" }, { "from": "api", "to": "no", "tone": "bad", "cue": "blocks" }],
+      "say": "C O R S. By default, a page on app dot com cannot read responses from api dot com. That is the same origin policy. The server opts in with the header access control allow origin. If it matches the page, the browser lets the script read the response. If not, the browser blocks it. Remember: C O R S is enforced by the browser, to protect users. It is not server authentication, and curl ignores it." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["XSS vs CSRF?", "XSS runs attacker script on your site. CSRF forges requests using your session."],
+        ["Why a preflight?", "Browser sends OPTIONS first for non-simple requests."],
+        ["Fix a CORS error?", "Server sends the right headers. Not a frontend fix."],
+        ["Common mistake", "Allow-Origin star with credentials, or trusting innerHTML."]
+      ],
+      "cues": ["versus", "preflight", "C O R S error", "mistake"],
+      "say": "Likely follow-ups. X S S versus C S R F? X S S runs attacker script on your site, C S R F forges requests using your session. Why a preflight? The browser sends an options request first for non simple requests. Fix a C O R S error? The server must send the right headers, it is not a front end fix. The common mistake: wildcard origins with credentials, or trusting inner H T M L." },
+
+    { "type": "take", "lines": ["Vitals: LCP under 2.5 seconds, INP under 200 ms, CLS under 0.1.", "XSS: escape output, no innerHTML, add CSP.", "CSRF: SameSite cookies and tokens. CORS: server headers, enforced by the browser."],
+      "cues": ["Vitals", "X S S", "C S R F"],
+      "say": "Core vitals: L C P under two and a half seconds, I N P under two hundred milliseconds, C L S under point one. X S S: escape output, avoid inner H T M L, add a policy. C S R F: same site cookies and tokens. And C O R S is set by server headers, but enforced by the browser." }
+  ]
+}

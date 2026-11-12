@@ -1,0 +1,422 @@
+{
+  "id": "sw01",
+  "num": 1,
+  "series": "SWE",
+  "short": "Big-O out loud",
+  "question": "What is the time complexity of this code? Walk me through how you analyse it.",
+  "caps": [
+    [
+      "O of n squared",
+      "O(n²)"
+    ],
+    [
+      "O of n log n",
+      "O(n log n)"
+    ],
+    [
+      "O of n",
+      "O(n)"
+    ],
+    [
+      "O of one",
+      "O(1)"
+    ],
+    [
+      "O of log n",
+      "O(log n)"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "Count how the work grows with the input. Say it out loud, step by step.",
+      "say": "Big O. Interviewers rarely want a memorized table. They want to hear you analyse code, out loud, in a calm and repeatable way. Let's do it on one real function."
+    },
+    {
+      "type": "diagram",
+      "head": "Analogy: finding a name in a phone book of one million pages",
+      "items": [
+        {
+          "id": "r1",
+          "x": 160,
+          "y": 400,
+          "w": 480,
+          "h": 230,
+          "text": "1,000,000",
+          "sub": "read every page: O(n)",
+          "size": 54,
+          "tone": "bad",
+          "cue": "Read every page"
+        },
+        {
+          "id": "r2",
+          "x": 720,
+          "y": 400,
+          "w": 480,
+          "h": 230,
+          "text": "20",
+          "sub": "open the middle, repeat: O(log n)",
+          "size": 54,
+          "tone": "good",
+          "cue": "open the middle"
+        },
+        {
+          "id": "r3",
+          "x": 1280,
+          "y": 400,
+          "w": 480,
+          "h": 230,
+          "text": "1",
+          "sub": "jump straight to it: O(1)",
+          "size": 54,
+          "tone": "good",
+          "cue": "jump straight"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "r1",
+          "to": "r2",
+          "cue": "open the middle"
+        },
+        {
+          "from": "r2",
+          "to": "r3",
+          "cue": "jump straight"
+        }
+      ],
+      "say": "Start with a phone book of one million pages. Read every page until you find the name, and worst case that is a million steps. Open the middle and discard half, again and again, and twenty steps are enough. Or jump straight to it with an index, one step. Big O just names how the step count grows as the book grows."
+    },
+    {
+      "type": "code",
+      "head": "Step 1: count the loops",
+      "panels": [
+        {
+          "file": "app.py",
+          "size": 36,
+          "code": "def has_dup(a):\n    n = len(a)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if a[i] == a[j]:\n                return True\n    return False"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "Let n be",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "cue": "outer loop",
+          "lines": [
+            3
+          ]
+        },
+        {
+          "cue": "inner loop",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "cue": "single comparison",
+          "lines": [
+            5
+          ]
+        },
+        {
+          "cue": "worst case",
+          "lines": [
+            7
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "outer loop",
+          "line": 3,
+          "inside": true,
+          "text": "n times",
+          "tone": "blue"
+        },
+        {
+          "cue": "inner loop",
+          "line": 4,
+          "inside": true,
+          "text": "up to n times",
+          "tone": "warn"
+        },
+        {
+          "cue": "O of n squared",
+          "line": 5,
+          "inside": true,
+          "text": "n squared total",
+          "tone": "bad"
+        }
+      ],
+      "say": "Name the input size first. Let n be the length of the list. The outer loop runs n times. For each one, the inner loop runs up to n times. The body is a single comparison, constant work. Worst case, no duplicates, we compare about n squared over two pairs. Drop the constant and you get O of n squared."
+    },
+    {
+      "type": "diagram",
+      "head": "Step 2: trade space for time",
+      "panels": [
+        {
+          "file": "app.py",
+          "size": 30,
+          "code": "def has_dup(a):\n    seen = set()\n    for x in a:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "hash set",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "cue": "one pass",
+          "lines": [
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "cue": "extra memory",
+          "lines": [
+            2,
+            6
+          ]
+        }
+      ],
+      "items": [
+        {
+          "id": "t1",
+          "x": 1040,
+          "y": 260,
+          "w": 330,
+          "h": 150,
+          "text": "O(n²)",
+          "sub": "nested loops",
+          "size": 48,
+          "tone": "bad",
+          "cue": "Before"
+        },
+        {
+          "id": "t2",
+          "x": 1440,
+          "y": 260,
+          "w": 330,
+          "h": 150,
+          "text": "O(n)",
+          "sub": "one pass",
+          "size": 48,
+          "tone": "good",
+          "cue": "one pass"
+        },
+        {
+          "id": "s1",
+          "x": 1040,
+          "y": 560,
+          "w": 330,
+          "h": 150,
+          "text": "O(1)",
+          "sub": "extra space",
+          "size": 48,
+          "tone": "good",
+          "cue": "Before"
+        },
+        {
+          "id": "s2",
+          "x": 1440,
+          "y": 560,
+          "w": 330,
+          "h": 150,
+          "text": "O(n)",
+          "sub": "extra space",
+          "size": 48,
+          "tone": "warn",
+          "cue": "extra memory"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "t1",
+          "to": "t2",
+          "cue": "one pass"
+        },
+        {
+          "from": "s1",
+          "to": "s2",
+          "cue": "extra memory"
+        }
+      ],
+      "say": "Before, we had O of n squared time and O of one extra space. Now use a hash set. Walk the list in one pass, and ask the set whether we have seen this value. A set lookup is O of one on average, so time drops to O of n. The price is extra memory, O of n for the set. Always state both time and space."
+    },
+    {
+      "type": "diagram",
+      "head": "How fast does each class blow up? n = 1,000",
+      "items": [
+        {
+          "id": "c1",
+          "x": 110,
+          "y": 430,
+          "w": 300,
+          "h": 190,
+          "text": "1",
+          "sub": "O(1)",
+          "size": 56,
+          "tone": "good",
+          "cue": "constant"
+        },
+        {
+          "id": "c2",
+          "x": 450,
+          "y": 430,
+          "w": 300,
+          "h": 190,
+          "text": "10",
+          "sub": "O(log n)",
+          "size": 56,
+          "tone": "good",
+          "cue": "logarithmic"
+        },
+        {
+          "id": "c3",
+          "x": 790,
+          "y": 430,
+          "w": 300,
+          "h": 190,
+          "text": "1,000",
+          "sub": "O(n)",
+          "size": 56,
+          "tone": "blue",
+          "cue": "Linear"
+        },
+        {
+          "id": "c4",
+          "x": 1130,
+          "y": 430,
+          "w": 300,
+          "h": 190,
+          "text": "10,000",
+          "sub": "O(n log n)",
+          "size": 56,
+          "tone": "blue",
+          "cue": "sorting"
+        },
+        {
+          "id": "c5",
+          "x": 1470,
+          "y": 430,
+          "w": 300,
+          "h": 190,
+          "text": "1,000,000",
+          "sub": "O(n²)",
+          "size": 48,
+          "tone": "bad",
+          "cue": "Quadratic"
+        }
+      ],
+      "say": "Here is roughly how many steps each class takes for a thousand items. Constant: one. Logarithmic, like binary search: about ten. Linear: a thousand. Linearithmic, which is sorting: about ten thousand. Quadratic: a million. That jump is why nested loops fail on big inputs."
+    },
+    {
+      "type": "code",
+      "head": "Hidden costs interviewers love",
+      "panels": [
+        {
+          "file": "app.py",
+          "size": 34,
+          "code": "for x in items:            # n times\n    if x in big_list:      # hidden O(m) scan\n        count += 1\n\nitems.sort()               # O(n log n)\nlst.insert(0, x)           # O(n): shifts all\nlst.append(x)              # amortized O(1)"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "Looks linear",
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "cue": "Sorting",
+          "lines": [
+            5
+          ]
+        },
+        {
+          "cue": "Insert at the front",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "cue": "Append",
+          "lines": [
+            7
+          ]
+        }
+      ],
+      "say": "Watch for hidden costs. This loop looks linear, but the in check on a list scans it, so the total is O of n times m. Fix it by turning the list into a set. Sorting costs O of n log n. Insert at the front of a list shifts everything, O of n. Append is amortized O of one. Amortized means averaged over many calls."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rowHeads": [
+        "Cases",
+        "Constants",
+        "Amortized",
+        "Improve",
+        "Mistake"
+      ],
+      "rows": [
+        [
+          "Best or worst case?",
+          "Worst by default, mention best"
+        ],
+        [
+          "Why drop constants?",
+          "They don't change how it scales"
+        ],
+        [
+          "What is amortized?",
+          "Average cost over many calls"
+        ],
+        [
+          "Can you do better?",
+          "Trade space for time, hash set"
+        ],
+        [
+          "Common mistake",
+          "Forgetting hidden costs and space"
+        ]
+      ],
+      "cues": [
+        "best or worst",
+        "drop constants",
+        "Amortized",
+        "do better",
+        "The mistake"
+      ],
+      "say": "Likely follow-ups. Best or worst case? Say worst by default, and mention best. Why drop constants? They don't change how the cost scales. Amortized? Average cost over many calls. Can you do better? Trade space for time, like a hash set. The mistake candidates make is forgetting hidden costs, and forgetting to mention space."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Name n. Count loops, multiply nested ones, add sequential ones.",
+        "Keep the biggest term, drop constants. State worst case, then space.",
+        "Look for hidden costs: sort, list scans, copies."
+      ],
+      "cues": [
+        "Name n",
+        "Keep the biggest",
+        "Look for hidden"
+      ],
+      "say": "Name n. Count loops, multiply nested ones, add sequential ones. Keep the biggest term and drop constants. State the worst case, then the space. And look for hidden costs, like sorting, list scans and copies."
+    }
+  ]
+}

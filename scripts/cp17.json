@@ -1,0 +1,471 @@
+{
+ "id": "cp17",
+ "num": 17,
+ "series": "DSA",
+ "short": "Bit manipulation",
+ "question": "What are the most useful bit manipulation tricks, and how do you loop over all subsets with a bitmask?",
+ "caps": [],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "A number is a row of light switches. Subsets and tricks follow from that.",
+   "say": "Bit manipulation looks like magic, but it's one idea: a number is a row of on and off switches. Let's see the three tricks interviewers expect."
+  },
+  {
+   "type": "diagram",
+   "head": "A subset is a row of switches",
+   "items": [
+    {
+     "id": "m",
+     "x": 150,
+     "y": 330,
+     "w": 450,
+     "h": 110,
+     "label": "mask",
+     "text": "5 = 101",
+     "size": 44,
+     "tone": "warn",
+     "cue": "Take the number five"
+    },
+    {
+     "id": "sw0",
+     "x": 700,
+     "y": 330,
+     "w": 200,
+     "h": 110,
+     "label": "switch 0",
+     "text": "on",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Switch zero"
+    },
+    {
+     "id": "sw1",
+     "x": 950,
+     "y": 330,
+     "w": 200,
+     "h": 110,
+     "label": "switch 1",
+     "text": "off",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Switch zero"
+    },
+    {
+     "id": "sw2",
+     "x": 1200,
+     "y": 330,
+     "w": 200,
+     "h": 110,
+     "label": "switch 2",
+     "text": "on",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Switch zero"
+    },
+    {
+     "id": "it0",
+     "x": 700,
+     "y": 620,
+     "w": 200,
+     "h": 110,
+     "label": "a[0]",
+     "text": "10",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Three items"
+    },
+    {
+     "id": "it1",
+     "x": 950,
+     "y": 620,
+     "w": 200,
+     "h": 110,
+     "label": "a[1]",
+     "text": "20",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Three items"
+    },
+    {
+     "id": "it2",
+     "x": 1200,
+     "y": 620,
+     "w": 200,
+     "h": 110,
+     "label": "a[2]",
+     "text": "30",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Three items"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "sw0",
+     "to": "it0",
+     "tone": "good",
+     "cue": "picks ten"
+    },
+    {
+     "from": "sw2",
+     "to": "it2",
+     "tone": "good",
+     "cue": "thirty"
+    }
+   ],
+   "changes": [
+    {
+     "id": "it0",
+     "tone": "good",
+     "cue": "picks ten"
+    },
+    {
+     "id": "it2",
+     "tone": "good",
+     "cue": "thirty"
+    }
+   ],
+   "say": "Three items: ten, twenty, thirty. Each item gets one switch, on to take it, off to skip it. Take the number five. In binary that's one zero one. Switch zero is on, switch one is off, switch two is on. So the mask five picks ten and thirty. Three switches give eight masks, zero to seven, and those are all eight subsets."
+  },
+  {
+   "type": "code",
+   "head": "Looping over every subset",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "int a[] = {10, 20, 30}, n = 3, cnt = 0;\nfor (int mask = 0; mask < (1 << n); mask++) {\n    int sum = 0;\n    for (int i = 0; i < n; i++)\n        if (mask >> i & 1) sum += a[i];   // is switch i on?\n    if (sum == 40) cnt++;\n}\ncout << cnt;"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "One shifted left",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Shift the mask",
+     "lines": [
+      5
+     ]
+    },
+    {
+     "cue": "sum is forty",
+     "lines": [
+      3,
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "prints one",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "output": {
+    "cmd": "./sol",
+    "text": "1",
+    "cue": "prints one",
+    "tone": "good"
+   },
+   "say": "One shifted left by n is two to the n, the number of masks. For each mask, test every switch. Shift the mask right by i, then and with one, to read bit i. If it's on, add that item. Here we count subsets whose sum is forty. Only ten plus thirty works, so it prints one. Cost is O of n times two to the n, fine up to about twenty items."
+  },
+  {
+   "type": "diagram",
+   "head": "The trick n and n minus 1",
+   "items": [
+    {
+     "id": "l1",
+     "x": 150,
+     "y": 300,
+     "w": 400,
+     "h": 100,
+     "text": "n = 12",
+     "size": 34,
+     "tone": "ghost",
+     "cue": "Take n equal twelve"
+    },
+    {
+     "id": "r10",
+     "x": 700,
+     "y": 300,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take n equal twelve"
+    },
+    {
+     "id": "r11",
+     "x": 940,
+     "y": 300,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take n equal twelve"
+    },
+    {
+     "id": "r12",
+     "x": 1180,
+     "y": 300,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take n equal twelve"
+    },
+    {
+     "id": "r13",
+     "x": 1420,
+     "y": 300,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Take n equal twelve"
+    },
+    {
+     "id": "l2",
+     "x": 150,
+     "y": 500,
+     "w": 400,
+     "h": 100,
+     "text": "n - 1 = 11",
+     "size": 34,
+     "tone": "ghost",
+     "cue": "subtract one"
+    },
+    {
+     "id": "r20",
+     "x": 700,
+     "y": 500,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "subtract one"
+    },
+    {
+     "id": "r21",
+     "x": 940,
+     "y": 500,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "subtract one"
+    },
+    {
+     "id": "r22",
+     "x": 1180,
+     "y": 500,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "subtract one"
+    },
+    {
+     "id": "r23",
+     "x": 1420,
+     "y": 500,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "subtract one"
+    },
+    {
+     "id": "l3",
+     "x": 150,
+     "y": 700,
+     "w": 400,
+     "h": 100,
+     "text": "n & (n - 1) = 8",
+     "size": 34,
+     "tone": "ghost",
+     "cue": "and them together"
+    },
+    {
+     "id": "r30",
+     "x": 700,
+     "y": 700,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "and them together"
+    },
+    {
+     "id": "r31",
+     "x": 940,
+     "y": 700,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "and them together"
+    },
+    {
+     "id": "r32",
+     "x": 1180,
+     "y": 700,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "and them together"
+    },
+    {
+     "id": "r33",
+     "x": 1420,
+     "y": 700,
+     "w": 200,
+     "h": 100,
+     "label": "",
+     "text": "0",
+     "size": 44,
+     "tone": "blue",
+     "cue": "and them together"
+    }
+   ],
+   "changes": [
+    {
+     "id": "r13",
+     "tone": "warn",
+     "cue": "lowest one"
+    },
+    {
+     "id": "r22",
+     "tone": "warn",
+     "cue": "lowest one"
+    },
+    {
+     "id": "r32",
+     "tone": "good",
+     "cue": "disappeared"
+    }
+   ],
+   "say": "Take n equal twelve, one one zero zero. Now subtract one: one zero one one. Subtracting flips the lowest one to zero, and everything below it to ones. And them together: one zero zero zero. The lowest one disappeared. So n and n minus one clears the lowest set bit. Repeat until zero and you've counted the bits."
+  },
+  {
+   "type": "code",
+   "head": "The toolkit",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "bool pow2(int n)  { return n > 0 && (n & (n - 1)) == 0; }\nint lowbit(int n) { return n & -n; }           // lowest set bit\nint bits(int n)   { return __builtin_popcount(n); }\nint single(vector<int>& v) {                   // others appear twice\n    int r = 0;\n    for (int x : v) r ^= x;                    // pairs cancel out\n    return r;\n}\nbool odd(int n)   { return n & 1; }            // last bit\nlong long big = 1LL << 40;                     // 1 << 40 overflows int"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "power of two",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "Lowbit",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "popcount",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Xor",
+     "lines": [
+      4,
+      5,
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "One L L",
+     "lines": [
+      10
+     ]
+    }
+   ],
+   "say": "A power of two has exactly one set bit, so n and n minus one is zero. Lowbit: n and minus n isolates the lowest set bit. Popcount counts the set bits. Xor is the star: x xor x is zero, so xoring a whole array cancels every pair, leaving the single number. And one trap: one shifted by forty overflows int. Write one L L."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Why parentheses around n and 1?",
+     "Comparison binds tighter than bitwise and, so write (n & 1) == 0."
+    ],
+    [
+     "How big can n be for bitmask D P?",
+     "About twenty to twenty-five: two to the n states."
+    ],
+    [
+     "Loop over submasks of m?",
+     "for s = m; s; s = (s - 1) & m, plus the empty set."
+    ],
+    [
+     "Common mistake",
+     "Shifting an int by thirty-two or more, or using one instead of one L L."
+    ]
+   ],
+   "cues": [
+    "parentheses",
+    "bitmask D P",
+    "submasks",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Why the parentheses? Comparison binds tighter than bitwise and. How big can n be for bitmask D P? Around twenty. Submasks of m: s equals m, then s equals s minus one, and m. The common mistake: shifting past the width of the type, like one shifted by forty on an int. Use one L L."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A mask is a subset: bit i on means item i is chosen.",
+    "n and n minus one clears the lowest set bit.",
+    "Xor cancels pairs. Use one L L for big shifts."
+   ],
+   "cues": [
+    "mask is a subset",
+    "clears the lowest",
+    "Xor cancels"
+   ],
+   "say": "A mask is a subset: bit i on means item i is chosen. N and n minus one clears the lowest set bit. Xor cancels pairs. And use one L L for big shifts."
+  }
+ ]
+}

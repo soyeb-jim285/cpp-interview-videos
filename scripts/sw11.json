@@ -1,0 +1,239 @@
+{
+ "id": "sw11",
+ "num": 11,
+ "series": "SWE",
+ "short": "Coding task with a verifier",
+ "question": "How would you design a coding task with a deterministic verifier?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Accept any correct solution. Reject anything that cheats.",
+   "say": "Designing a coding task with a verifier. A verifier is a program that checks someone's solution, and says pass or fail. Deterministic means the same answer every run."
+  },
+  {
+   "type": "diagram",
+   "head": "Think of a driving test",
+   "items": [
+    {
+     "id": "e",
+     "x": 150,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Fixed checklist",
+     "sub": "same rules for everyone",
+     "size": 34,
+     "tone": "blue",
+     "cue": "checklist"
+    },
+    {
+     "id": "s",
+     "x": 720,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Surprise route",
+     "sub": "can't be memorized",
+     "size": 34,
+     "tone": "warn",
+     "cue": "route is a surprise"
+    },
+    {
+     "id": "a",
+     "x": 1290,
+     "y": 400,
+     "w": 480,
+     "h": 220,
+     "text": "Any good driver passes",
+     "sub": "not one exact style",
+     "size": 34,
+     "tone": "good",
+     "cue": "any good driver"
+    }
+   ],
+   "say": "Think of a driving test. The examiner uses a fixed checklist, the same rules for everyone. The route is a surprise, so you can't memorize it. And any good driver passes, not only someone who drives exactly like the examiner. A coding verifier needs the same three traits."
+  },
+  {
+   "type": "code",
+   "head": "Example: top k words, ties alphabetical",
+   "panels": [
+    {
+     "file": "verify.py",
+     "size": 30,
+     "code": "from collections import Counter\nimport random\n\ndef reference(words, k):\n    c = Counter(words)\n    return sorted(c, key=lambda w: (-c[w], w))[:k]\n\ndef make_case(seed):\n    rng = random.Random(seed)\n    n = rng.randint(1, 50)\n    return [rng.choice(\"abcdef\") for _ in range(n)]\n\ndef passes(solve, seed, k=2):\n    words = make_case(seed)\n    return solve(list(words), k) == reference(words, k)"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "reference counts",
+     "lines": [
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "takes a seed",
+     "lines": [
+      8,
+      9,
+      10,
+      11
+     ]
+    },
+    {
+     "cue": "compares",
+     "lines": [
+      13,
+      14,
+      15
+     ]
+    }
+   ],
+   "say": "The task: return the k most frequent words, ties broken alphabetically. The reference counts, then sorts by count and then name. The generator takes a seed, so the same seed always makes the same input. The checker compares the candidate with the reference. The tie rule is in the spec, so exactly one answer is right."
+  },
+  {
+   "type": "diagram",
+   "head": "Catching hard-coding",
+   "panels": [
+    {
+     "file": "cheat.py",
+     "size": 34,
+     "code": "def solve(words, k):\n    if words == [\"a\", \"b\", \"a\"]:\n        return [\"a\"]\n    return []"
+    }
+   ],
+   "area": {
+    "w": 760
+   },
+   "steps": [
+    {
+     "cue": "hard-codes",
+     "lines": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "s1",
+     "x": 1000,
+     "y": 260,
+     "w": 740,
+     "h": 130,
+     "text": "Sample test: pass",
+     "size": 38,
+     "tone": "good",
+     "cue": "visible example"
+    },
+    {
+     "id": "s2",
+     "x": 1000,
+     "y": 480,
+     "w": 740,
+     "h": 130,
+     "text": "Hidden seeds: FAIL",
+     "size": 38,
+     "tone": "bad",
+     "cue": "hidden seeded"
+    },
+    {
+     "id": "s3",
+     "x": 1000,
+     "y": 700,
+     "w": 740,
+     "h": 130,
+     "text": "Large input: too slow",
+     "sub": "brute force times out",
+     "size": 38,
+     "tone": "warn",
+     "cue": "Large inputs"
+    }
+   ],
+   "say": "Now the cheater. This solution hard-codes the sample. It passes the visible example. But hidden seeded tests it has never seen fail. Large inputs with a time limit catch slow brute force. Edge cases, like empty input, go in on purpose."
+  },
+  {
+   "type": "code",
+   "head": "When many answers are correct",
+   "panels": [
+    {
+     "file": "check.py",
+     "size": 36,
+     "code": "def check_pair(nums, target, out):\n    i, j = out\n    return (i != j\n            and 0 <= i < len(nums)\n            and 0 <= j < len(nums)\n            and nums[i] + nums[j] == target)"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "validates",
+     "lines": [
+      1,
+      2
+     ]
+    },
+    {
+     "cue": "different indices",
+     "lines": [
+      3,
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "add up",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "say": "Some problems allow several correct answers, like two sum with many valid pairs. Then don't compare with the reference output. The checker validates: two different indices, both in range, and the values add up to the target. That accepts any correct solution."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: follow-ups",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "How do you know the reference is right?",
+     "Cross-check against a slow brute force on small random inputs."
+    ],
+    [
+     "Why seeds?",
+     "Reproducible failures; same tests every run."
+    ],
+    [
+     "Many valid answers?",
+     "Write a checker that validates, don't compare text."
+    ],
+    [
+     "Common mistake",
+     "Vague spec, or only testing the sample."
+    ]
+   ],
+   "cues": [
+    "reference is right",
+    "Why seeds",
+    "Many valid",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. How do you know the reference is right? Cross-check against a slow brute force on small random inputs. Why seeds? Reproducible failures. Many valid answers? Validate, don't compare text. The common mistake: a vague spec, or only testing the sample."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "A precise spec, a trusted reference, and seeded tests.",
+    "When many answers are correct, I validate instead of comparing text.",
+    "Hidden tests, edge cases and time limits stop hard-coding."
+   ],
+   "cues": [
+    "A precise",
+    "many answers",
+    "Hidden tests"
+   ],
+   "say": "A precise spec, a trusted reference, and seeded tests. When many answers are correct, I validate instead of comparing text. Hidden tests, edge cases and time limits stop hard-coding."
+  }
+ ]
+}

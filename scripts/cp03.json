@@ -1,0 +1,370 @@
+{
+ "id": "cp03",
+ "num": 3,
+ "series": "DSA",
+ "short": "Two pointers",
+ "question": "When and how do you use two pointers?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Sorted data plus a pair condition: squeeze from both ends.",
+   "say": "Two pointers is a trick for turning an O of n squared pair search into one pass. Here is when to reach for it, and why it is correct."
+  },
+  {
+   "type": "flow",
+   "head": "Think of choosing two gifts",
+   "items": [
+    {
+     "label": "Prices sorted",
+     "text": "1 3 4 6 8 11",
+     "sub": "budget exactly 10",
+     "cue": "sorted by price"
+    },
+    {
+     "label": "Two fingers",
+     "text": "cheapest + priciest",
+     "sub": "one at each end",
+     "cue": "two fingers"
+    },
+    {
+     "label": "Too high?",
+     "text": "right finger left",
+     "sub": "drop the priciest",
+     "cue": "too high"
+    },
+    {
+     "label": "Too low?",
+     "text": "left finger right",
+     "sub": "drop the cheapest",
+     "cue": "too low"
+    }
+   ],
+   "say": "Think of choosing two gifts from a list sorted by price, with a budget of exactly ten. Put two fingers on the list, one at each end. Total too high? Move the right finger left, to a cheaper item. Total too low? Move the left finger right."
+  },
+  {
+   "type": "diagram",
+   "head": "Sorted [1, 3, 4, 6, 8, 11], target 10",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "bool pairSum(vector<int>& a, int t) {\n    int l = 0, r = (int)a.size() - 1;\n    while (l < r) {\n        int s = a[l] + a[r];\n        if (s == t) return true;\n        if (s < t) l++; else r--;\n    }\n    return false;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Left finger",
+     "lines": [
+      2
+     ]
+    },
+    {
+     "cue": "Sum: twelve",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "Too big. The eleven",
+     "lines": [
+      6
+     ]
+    },
+    {
+     "cue": "Found",
+     "lines": [
+      5
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c0",
+     "x": 1020,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "1",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array",
+     "label": "sorted array, target 10"
+    },
+    {
+     "id": "c1",
+     "x": 1150,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "3",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c2",
+     "x": 1280,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "4",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c3",
+     "x": 1410,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "6",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c4",
+     "x": 1540,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "8",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "c5",
+     "x": 1670,
+     "y": 280,
+     "w": 110,
+     "h": 110,
+     "text": "11",
+     "size": 40,
+     "tone": "blue",
+     "cue": "Sorted array"
+    },
+    {
+     "id": "sum",
+     "x": 1020,
+     "y": 520,
+     "w": 760,
+     "h": 120,
+     "label": "current sum",
+     "text": "1 + 11 = 12",
+     "size": 44,
+     "tone": "warn",
+     "cue": "Sum: twelve"
+    },
+    {
+     "id": "act",
+     "x": 1020,
+     "y": 770,
+     "w": 760,
+     "h": 110,
+     "label": "what we do",
+     "text": "",
+     "size": 36,
+     "cue": "Sum: twelve"
+    }
+   ],
+   "changes": [
+    {
+     "id": "c0",
+     "tone": "warn",
+     "cue": "Left finger"
+    },
+    {
+     "id": "c5",
+     "tone": "warn",
+     "cue": "right finger on"
+    },
+    {
+     "id": "act",
+     "text": "12 > 10: drop the 11",
+     "cue": "Too big. The eleven"
+    },
+    {
+     "id": "c5",
+     "tone": "dim",
+     "cue": "Too big. The eleven"
+    },
+    {
+     "id": "sum",
+     "text": "1 + 8 = 9",
+     "cue": "One plus eight"
+    },
+    {
+     "id": "c4",
+     "tone": "warn",
+     "cue": "One plus eight"
+    },
+    {
+     "id": "act",
+     "text": "9 < 10: drop the 1",
+     "cue": "The one is useless"
+    },
+    {
+     "id": "c0",
+     "tone": "dim",
+     "cue": "The one is useless"
+    },
+    {
+     "id": "sum",
+     "text": "3 + 8 = 11",
+     "cue": "three plus eight"
+    },
+    {
+     "id": "c1",
+     "tone": "warn",
+     "cue": "three plus eight"
+    },
+    {
+     "id": "act",
+     "text": "11 > 10: drop the 8",
+     "cue": "drop the eight"
+    },
+    {
+     "id": "c4",
+     "tone": "dim",
+     "cue": "drop the eight"
+    },
+    {
+     "id": "sum",
+     "text": "3 + 6 = 9",
+     "cue": "Three plus six"
+    },
+    {
+     "id": "c3",
+     "tone": "warn",
+     "cue": "Three plus six"
+    },
+    {
+     "id": "act",
+     "text": "9 < 10: drop the 3",
+     "cue": "Drop the three"
+    },
+    {
+     "id": "c1",
+     "tone": "dim",
+     "cue": "Drop the three"
+    },
+    {
+     "id": "sum",
+     "text": "4 + 6 = 10",
+     "cue": "Four plus six"
+    },
+    {
+     "id": "c2",
+     "tone": "warn",
+     "cue": "Four plus six"
+    },
+    {
+     "id": "act",
+     "text": "found!",
+     "cue": "Found"
+    },
+    {
+     "id": "c2",
+     "tone": "good",
+     "cue": "Found"
+    },
+    {
+     "id": "c3",
+     "tone": "good",
+     "cue": "Found"
+    }
+   ],
+   "say": "Sorted array, target ten. Left finger on the one, right finger on the eleven. Sum: twelve. Too big. The eleven can never pair with anything bigger, so drop it. One plus eight is nine. Too small. The one is useless now. Next, three plus eight is eleven. Too big, drop the eight. Three plus six is nine. Drop the three. Four plus six is ten. Found."
+  },
+  {
+   "type": "code",
+   "head": "Second flavor: slow and fast pointer",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "// remove duplicates from sorted array, in place\nint dedupe(vector<int>& a) {\n    int w = 0;                 // next write position\n    for (int i = 0; i < (int)a.size(); i++)\n        if (w == 0 || a[i] != a[w - 1]) a[w++] = a[i];\n    return w;                  // new length\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Slow w",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "Fast i",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "copy it",
+     "lines": [
+      5
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "becomes one, two, three",
+     "line": 6,
+     "inside": true,
+     "text": "1 1 2 2 2 3 → 3",
+     "tone": "good"
+    }
+   ],
+   "say": "A second flavor: a slow pointer and a fast one. Slow w marks where the next kept value goes. Fast i scans. Each time i finds a new value, copy it to w and advance w. Array one, one, two, two, two, three becomes one, two, three, and returns three. Classic problems: Two Sum Two, Three Sum, Container With Most Water."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "When does it work?",
+     "Sorted data, or a pair rule where moving a pointer changes the sum predictably."
+    ],
+    [
+     "Unsorted input?",
+     "Sort first, O of n log n, or use a hash map."
+    ],
+    [
+     "Complexity?",
+     "O of n. Each pointer only moves one way. No extra memory."
+    ],
+    [
+     "Common mistake",
+     "Using l less than or equal r, so a number pairs with itself."
+    ]
+   ],
+   "cues": [
+    "When does it work",
+    "Unsorted input",
+    "Complexity",
+    "Common mistake"
+   ],
+   "say": "When does it work? Sorted data, where moving a pointer changes the sum predictably. Unsorted input? Sort first, or use a hash map. Complexity? O of n, with no extra memory. Common mistake: letting the pointers meet, so a number pairs with itself."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Sorted array and a pair condition: two pointers.",
+    "Too big, move the right one. Too small, move the left one.",
+    "One pass, O(n) time, O(1) memory."
+   ],
+   "cues": [
+    "Sorted array",
+    "Too big",
+    "One pass"
+   ],
+   "say": "Sorted array and a pair condition? Use two pointers. If the sum is too big, move the right pointer. Too small, move the left one. It's one pass, O of n time and constant memory."
+  }
+ ]
+}

@@ -1,0 +1,427 @@
+{
+ "id": "sw10",
+ "num": 10,
+ "series": "SWE",
+ "short": "Git: merge vs rebase",
+ "question": "What's the difference between git merge and git rebase, and how do you resolve conflicts?",
+ "caps": [
+  [
+   "dash dash force with lease",
+   "--force-with-lease"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Both combine work. One keeps history as it happened, the other rewrites it.",
+   "say": "Git merge versus rebase. Both bring your branch and main together. They differ in what the history looks like afterwards."
+  },
+  {
+   "type": "diagram",
+   "head": "Think of a shared recipe book",
+   "items": [
+    {
+     "id": "m1",
+     "x": 200,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "label": "main: the book",
+     "text": "M1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "Monday"
+    },
+    {
+     "id": "m2",
+     "x": 640,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "two new pages"
+    },
+    {
+     "id": "m3",
+     "x": 1080,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M3",
+     "size": 44,
+     "tone": "blue",
+     "cue": "two new pages"
+    },
+    {
+     "id": "f1",
+     "x": 640,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "label": "feature: your copy",
+     "text": "F1",
+     "size": 44,
+     "tone": "good",
+     "cue": "two pages of your own"
+    },
+    {
+     "id": "f2",
+     "x": 1080,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "text": "F2",
+     "size": 44,
+     "tone": "good",
+     "cue": "two pages of your own"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "m2",
+     "to": "m1",
+     "cue": "points back"
+    },
+    {
+     "from": "m3",
+     "to": "m2",
+     "cue": "points back"
+    },
+    {
+     "from": "f1",
+     "to": "m1",
+     "cue": "two pages of your own"
+    },
+    {
+     "from": "f2",
+     "to": "f1",
+     "cue": "two pages of your own"
+    }
+   ],
+   "say": "Think of a shared recipe book. On Monday you photocopy it, that's M one. Meanwhile others add two new pages to the book, M two and M three. You write two pages of your own, F one and F two. Each commit points back to its parent. Now your pages must go into the book."
+  },
+  {
+   "type": "diagram",
+   "head": "Merge: add one commit that joins both",
+   "items": [
+    {
+     "id": "m1",
+     "x": 200,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "label": "main",
+     "text": "M1",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "m2",
+     "x": 640,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M2",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "m3",
+     "x": 1080,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M3",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "f1",
+     "x": 640,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "label": "feature",
+     "text": "F1",
+     "size": 44,
+     "tone": "good"
+    },
+    {
+     "id": "f2",
+     "x": 1080,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "text": "F2",
+     "size": 44,
+     "tone": "good"
+    },
+    {
+     "id": "mg",
+     "x": 1480,
+     "y": 500,
+     "w": 300,
+     "h": 130,
+     "text": "Merge",
+     "sub": "two parents",
+     "size": 44,
+     "tone": "warn",
+     "cue": "one new commit"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "m2",
+     "to": "m1"
+    },
+    {
+     "from": "m3",
+     "to": "m2"
+    },
+    {
+     "from": "f1",
+     "to": "m1"
+    },
+    {
+     "from": "f2",
+     "to": "f1"
+    },
+    {
+     "from": "mg",
+     "to": "m3",
+     "cue": "two parents"
+    },
+    {
+     "from": "mg",
+     "to": "f2",
+     "cue": "two parents"
+    }
+   ],
+   "say": "Merge creates one new commit with two parents: the tip of main and the tip of your branch. Nothing old is touched. History shows the work really happened in parallel. The cost: extra merge commits, and a graph that can get tangled."
+  },
+  {
+   "type": "diagram",
+   "head": "Rebase: replay my commits on top",
+   "items": [
+    {
+     "id": "m1",
+     "x": 120,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "label": "main",
+     "text": "M1",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "m2",
+     "x": 480,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M2",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "m3",
+     "x": 840,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "M3",
+     "size": 44,
+     "tone": "blue"
+    },
+    {
+     "id": "g1",
+     "x": 1200,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "label": "feature",
+     "text": "F1'",
+     "sub": "new hash",
+     "size": 44,
+     "tone": "good",
+     "cue": "copies"
+    },
+    {
+     "id": "g2",
+     "x": 1560,
+     "y": 330,
+     "w": 260,
+     "h": 110,
+     "text": "F2'",
+     "sub": "new hash",
+     "size": 44,
+     "tone": "good",
+     "cue": "copies"
+    },
+    {
+     "id": "f1",
+     "x": 480,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "label": "old feature",
+     "text": "F1",
+     "size": 44,
+     "tone": "ghost"
+    },
+    {
+     "id": "f2",
+     "x": 840,
+     "y": 680,
+     "w": 260,
+     "h": 110,
+     "text": "F2",
+     "size": 44,
+     "tone": "ghost"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "m2",
+     "to": "m1"
+    },
+    {
+     "from": "m3",
+     "to": "m2"
+    },
+    {
+     "from": "f1",
+     "to": "m1",
+     "tone": "dim"
+    },
+    {
+     "from": "f2",
+     "to": "f1",
+     "tone": "dim"
+    },
+    {
+     "from": "g1",
+     "to": "m3",
+     "cue": "on top of M three"
+    },
+    {
+     "from": "g2",
+     "to": "g1",
+     "cue": "on top of M three"
+    }
+   ],
+   "changes": [
+    {
+     "id": "f1",
+     "fade": true,
+     "cue": "abandoned"
+    },
+    {
+     "id": "f2",
+     "fade": true,
+     "cue": "abandoned"
+    },
+    {
+     "id": "a2",
+     "fade": true,
+     "cue": "abandoned"
+    },
+    {
+     "id": "a3",
+     "fade": true,
+     "cue": "abandoned"
+    }
+   ],
+   "say": "Rebase replays your commits as copies on top of M three. The result is a straight line, easy to read. But F one and F two are new commits with new hashes, and the old ones are abandoned. You rewrote history. So the golden rule: never rebase commits other people already have."
+  },
+  {
+   "type": "code",
+   "head": "Resolving a conflict",
+   "panels": [
+    {
+     "file": "config.py",
+     "size": 36,
+     "code": "<<<<<<< HEAD\ntimeout = 30\n=======\ntimeout = 60\n>>>>>>> feature"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "top half",
+     "lines": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "cue": "bottom half",
+     "lines": [
+      3,
+      4,
+      5
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "delete the markers",
+     "line": 3,
+     "inside": true,
+     "text": "edit, delete markers",
+     "tone": "warn"
+    }
+   ],
+   "say": "A conflict means both sides changed the same line, so git asks you. The top half is one side, the bottom half is the other. Edit the file to the final result and delete the markers. Then git add the file and continue."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview: follow-ups",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Which do you use?",
+     "Rebase my own branch before a pull request; merge shared branches."
+    ],
+    [
+     "Rebase went badly?",
+     "git rebase dash dash abort puts you back."
+    ],
+    [
+     "Pushing after a rebase?",
+     "Force with lease, only on my own branch."
+    ],
+    [
+     "Common mistake",
+     "Rebasing a branch others already pulled."
+    ]
+   ],
+   "cues": [
+    "Which do you use",
+    "went badly",
+    "Pushing after",
+    "common mistake"
+   ],
+   "say": "Likely follow-ups. Which do you use? Rebase my own branch before a pull request, merge shared branches. Rebase went badly? Abort puts you back. Pushing after a rebase? Force with lease, only on my own branch. The common mistake: rebasing a branch other people already pulled."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Merge adds a commit with two parents and keeps true history.",
+    "Rebase replays my commits for a straight line, but rewrites hashes.",
+    "I never rebase shared branches."
+   ],
+   "cues": [
+    "Merge adds",
+    "Rebase replays",
+    "never rebase"
+   ],
+   "say": "Merge adds a commit with two parents and keeps the true history. Rebase replays my commits for a straight line, but rewrites hashes. So I never rebase shared branches."
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "fe11", "num": 11, "series": "Frontend", "short": "Accessibility basics",
+  "question": "What are the basics of web accessibility? Semantic HTML, labels, keyboard, ARIA?",
+  "caps": [["a r i a", "ARIA"]],
+  "scenes": [
+    { "type": "title", "sub": "Build for people who cannot see, hear, or use a mouse.",
+      "say": "Web accessibility. Roughly one in five people has some disability, so this is not a niche. The good news is that most of it comes free if you use the right H T M L." },
+
+    { "type": "diagram", "head": "Think of an audio guide",
+      "items": [
+        { "id": "page", "x": 160, "y": 300, "w": 440, "h": 150, "label": "Your page", "text": "div onclick", "size": 36, "tone": "bad", "cue": "div" },
+        { "id": "sr", "x": 740, "y": 300, "w": 440, "h": 150, "label": "Screen reader says", "text": "group", "size": 36, "tone": "bad", "cue": "group" },
+        { "id": "page2", "x": 160, "y": 640, "w": 440, "h": 150, "label": "Your page", "text": "button", "size": 36, "tone": "good", "cue": "real button" },
+        { "id": "sr2", "x": 740, "y": 640, "w": 440, "h": 150, "label": "Screen reader says", "text": "Save, button", "size": 36, "tone": "good", "cue": "Save, button" }
+      ],
+      "arrows": [{ "from": "page", "to": "sr", "tone": "bad", "cue": "group" }, { "from": "page2", "to": "sr2", "tone": "good", "cue": "Save, button" }],
+      "say": "Think of an audio guide describing your page. If you build a button as a div with a click handler, the guide just says group. No name, no role, and you cannot reach it with the keyboard. Use a real button, and the guide says: Save, button. Pressing enter and space works too. Same look, completely different experience." },
+
+    { "type": "code", "head": "Semantic HTML and labels",
+      "panels": [{ "file": "Form.tsx", "size": 34, "code": "// bad\n<div onClick={save}>Save</div>\n<input placeholder='Email' />\n\n// good\n<button onClick={save}>Save</button>\n<label htmlFor='email'>Email</label>\n<input id='email' type='email' />\n<img src='cat.jpg' alt='Orange cat asleep' />" }],
+      "steps": [
+        { "cue": "A div", "lines": [1, 2, 3] },
+        { "cue": "real button", "lines": [6] },
+        { "cue": "label", "lines": [7, 8] },
+        { "cue": "alt text", "lines": [9] }
+      ],
+      "notes": [{ "cue": "A div", "line": 2, "inside": true, "text": "no keyboard, no role", "tone": "bad" }],
+      "say": "A div is not focusable and has no role. A real button gives you focus, keyboard activation, and the right role for free. Inputs need a label, connected with html for and id. A placeholder disappears and is not a label. Images need alt text that says what the image means. Decorative images get an empty alt." },
+
+    { "type": "diagram", "head": "Keyboard and ARIA",
+      "panels": [{ "file": "Modal.tsx", "size": 33, "code": "<div role='dialog'\n     aria-modal='true'\n     aria-labelledby='t'>\n  <h2 id='t'>Delete file?</h2>\n  <button>Cancel</button>\n</div>\n\n<button aria-expanded={open}>\n  Menu\n</button>" }],
+      "steps": [
+        { "cue": "role dialog", "lines": [1, 2, 3, 4] },
+        { "cue": "aria expanded", "lines": [8, 9, 10] }
+      ],
+      "items": [
+        { "id": "t1", "x": 1020, "y": 260, "w": 230, "h": 110, "label": "Tab order", "text": "Link", "size": 34, "tone": "blue", "cue": "Tab key" },
+        { "id": "t2", "x": 1290, "y": 260, "w": 230, "h": 110, "text": "Input", "size": 34, "tone": "blue", "cue": "Tab key" },
+        { "id": "t3", "x": 1560, "y": 260, "w": 230, "h": 110, "text": "Button", "size": 34, "tone": "good", "cue": "Tab key" },
+        { "id": "ar", "x": 1020, "y": 600, "w": 770, "h": 170, "text": "First rule of ARIA", "sub": "use native HTML if you can", "size": 38, "tone": "warn", "cue": "first rule" }
+      ],
+      "arrows": [{ "from": "t1", "to": "t2", "cue": "Tab key" }, { "from": "t2", "to": "t3", "cue": "Tab key" }],
+      "say": "Try using your site with only the Tab key. Focus should move through every control in a sensible order, and you must always see where it is, so never remove the focus outline. Modals need to trap focus and close on escape. ARIA fills gaps native H T M L cannot: role dialog, or aria expanded on a menu button. But the first rule of ARIA is: do not use ARIA if a native element exists." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["They ask", "You say"],
+      "rows": [
+        ["How do you test a11y?", "Keyboard only, a screen reader, and axe or Lighthouse."],
+        ["Color contrast?", "WCAG AA: 4.5 to 1 for normal text."],
+        ["alt text?", "Describe purpose. Empty alt if decorative."],
+        ["Common mistake", "Clickable divs and outline none with no replacement."]
+      ],
+      "cues": ["test", "contrast", "alt text", "mistake"],
+      "say": "Likely follow-ups. How do you test accessibility? Keyboard only, a screen reader, and automated tools like axe or Lighthouse. Color contrast? W C A G double A asks for four point five to one for normal text. Alt text? Describe purpose, empty if decorative. The common mistake: clickable divs, and removing the focus outline with no replacement." },
+
+    { "type": "take", "lines": ["Semantic HTML first: button, label, headings, alt.", "Everything must work with the keyboard, with visible focus.", "ARIA only to fill gaps. Test with a screen reader."],
+      "cues": ["Semantic", "Everything must", "ARIA only"],
+      "say": "Semantic H T M L first: real buttons, labels, headings, and alt text. Everything must work with the keyboard, with visible focus. Use ARIA only to fill gaps, and test with a screen reader." }
+  ]
+}

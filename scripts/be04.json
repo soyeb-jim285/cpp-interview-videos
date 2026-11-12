@@ -1,0 +1,88 @@
+{
+  "id": "be04", "num": 4, "series": "Backend", "short": "Transactions & ACID",
+  "question": "What are transactions, ACID and isolation levels? Give a lost update example.",
+  "scenes": [
+    { "type": "title", "sub": "All or nothing, and no stepping on each other.",
+      "say": "Transactions. What do they promise, what does ACID mean, and what goes wrong without isolation?" },
+
+    { "type": "diagram", "head": "Think of a bank transfer",
+      "panels": [{ "file": "query.sql", "size": 32, "code": "BEGIN;\nUPDATE accounts SET balance = balance - 100\n  WHERE id = 1;\nUPDATE accounts SET balance = balance + 100\n  WHERE id = 2;\nCOMMIT;" }],
+      "steps": [
+        { "cue": "Begin", "lines": [1] },
+        { "cue": "takes a hundred", "lines": [2, 3] },
+        { "cue": "adds a hundred", "lines": [4, 5] },
+        { "cue": "Commit", "lines": [6] }
+      ],
+      "items": [
+        { "id": "a", "x": 1060, "y": 300, "w": 300, "h": 130, "label": "Alice", "text": "500", "size": 48, "tone": "blue", "cue": "Begin" },
+        { "id": "b", "x": 1460, "y": 300, "w": 300, "h": 130, "label": "Bob", "text": "200", "size": 48, "tone": "blue", "cue": "Begin" },
+        { "id": "s", "x": 1060, "y": 650, "w": 700, "h": 110, "text": "crash between the two updates?", "size": 34, "tone": "bad", "cue": "crashes between" }
+      ],
+      "changes": [
+        { "id": "a", "text": "400", "cue": "takes a hundred" },
+        { "id": "b", "text": "300", "cue": "adds a hundred" }
+      ],
+      "say": "Move a hundred dollars from Alice to Bob. Begin starts the transaction. One update takes a hundred from Alice. The next adds a hundred to Bob. Commit makes both permanent. If the server crashes between the two updates, the transaction rolls back, and nobody loses money. All or nothing." },
+
+    { "type": "flow", "head": "ACID in four words",
+      "items": [
+        { "text": "Atomic", "sub": "all or nothing", "cue": "Atomic" },
+        { "text": "Consistent", "sub": "rules still hold", "cue": "Consistent" },
+        { "text": "Isolated", "sub": "no peeking", "cue": "Isolated" },
+        { "text": "Durable", "sub": "survives a crash", "cue": "Durable" }
+      ],
+      "say": "ACID. Atomic: all or nothing, like the transfer. Consistent: rules such as balance not below zero still hold after the commit. Isolated: concurrent transactions do not see each other's half done work. Durable: once committed, it survives a crash, because it is in the log on disk." },
+
+    { "type": "diagram", "head": "Lost update: two people, one balance",
+      "panels": [{ "file": "app.py", "size": 32, "code": "bal = db.one(\"SELECT balance\n  FROM accounts WHERE id=1\")\nnew = bal + 50\ndb.run(\"UPDATE accounts SET balance=%s\n  WHERE id=1\", new)" }],
+      "items": [
+        { "id": "t1", "x": 1060, "y": 260, "w": 300, "h": 120, "text": "T1 adds 50", "size": 38, "tone": "blue", "cue": "Transaction one" },
+        { "id": "t2", "x": 1060, "y": 700, "w": 300, "h": 120, "text": "T2 adds 50", "size": 38, "tone": "warn", "cue": "Transaction two" },
+        { "id": "bal", "x": 1480, "y": 470, "w": 300, "h": 130, "label": "balance", "text": "100", "size": 48, "cue": "starts at one hundred" }
+      ],
+      "arrows": [
+        { "from": "t1", "to": "bal", "cue": "Transaction one" },
+        { "from": "t2", "to": "bal", "cue": "Transaction two" }
+      ],
+      "changes": [
+        { "id": "bal", "text": "150", "cue": "writes one fifty" },
+        { "id": "bal", "text": "150", "tone": "bad", "cue": "overwrites" }
+      ],
+      "say": "The balance starts at one hundred. Transaction one reads one hundred. Transaction two also reads one hundred, at the same moment. Each adds fifty in the app and writes one fifty. The second write overwrites the first. Two deposits, but the balance is one fifty, not two hundred. One update is lost." },
+
+    { "type": "code", "head": "Fixing it",
+      "panels": [{ "file": "query.sql", "size": 32, "code": "-- 1. let the database do the math\nUPDATE accounts SET balance = balance + 50\n  WHERE id = 1;\n\n-- 2. or lock the row while you work\nBEGIN;\nSELECT balance FROM accounts\n  WHERE id = 1 FOR UPDATE;\n-- compute, UPDATE, then\nCOMMIT;" }],
+      "steps": [
+        { "cue": "do the math", "lines": [2, 3] },
+        { "cue": "lock the row", "lines": [6, 7, 8] }
+      ],
+      "say": "Two fixes. First, let the database do the math in one statement. It applies each addition to the latest value. Second, use select for update to lock the row, so the second transaction waits for the first to commit. A third option is a higher isolation level." },
+
+    { "type": "compare", "head": "Isolation levels: what can go wrong",
+      "heads": ["Dirty read", "Non-repeatable read", "Phantom row"],
+      "rowHeads": ["Read uncommitted", "Read committed", "Repeatable read", "Serializable"],
+      "rows": [
+        ["Possible", "Possible", "Possible"],
+        ["Prevented", "Possible", "Possible"],
+        ["Prevented", "Prevented", "Possible"],
+        ["Prevented", "Prevented", "Prevented"]
+      ],
+      "cues": ["Read uncommitted", "Read committed", "Repeatable read", "Serializable"],
+      "say": "Isolation levels trade safety for speed, per the S Q L standard. Read uncommitted allows even dirty reads of unsaved data. Read committed stops those, and is the Postgres default. Repeatable read also stops a row changing between two reads, and is the My S Q L default. Serializable behaves as if transactions ran one at a time." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["What is a dirty read?", "Why not always serializable?", "What is a deadlock?", "Common mistake"],
+      "rows": [
+        ["Reading another transaction's unsaved data", "It could be rolled back"],
+        ["Slower, more aborts and retries", "Choose per workload"],
+        ["Two transactions wait for each other's locks", "The database aborts one, retry it"],
+        ["Read then write in app code", "Do it in one statement or lock"]
+      ],
+      "cues": ["dirty read", "serializable", "deadlock", "mistake"],
+      "say": "Likely follow-ups. A dirty read is reading another transaction's unsaved data. Why not always serializable? It is slower and causes more retries. A deadlock is two transactions waiting on each other, so the database aborts one and you retry. The common mistake is reading a value, then writing it back from app code." },
+
+    { "type": "take", "lines": ["A transaction is all or nothing, and A C I D says it stays correct, isolated and durable.", "Lost updates come from read then write. Fix with one statement, a row lock, or a higher isolation level."],
+      "cues": ["A transaction", "Lost updates"],
+      "say": "A transaction is all or nothing, and A C I D says it stays correct, isolated and durable. Lost updates come from reading then writing in app code. I fix them with one statement, a row lock, or a higher isolation level." }
+  ]
+}

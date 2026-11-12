@@ -1,0 +1,333 @@
+{
+ "id": "cp10",
+ "num": 10,
+ "series": "DSA",
+ "short": "Dijkstra",
+ "question": "How does Dijkstra's shortest path algorithm work?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Always settle the closest unsettled node. Then relax its roads.",
+   "say": "Dijkstra finds the cheapest route from one node to all others, when roads have different costs. Let's watch it run."
+  },
+  {
+   "type": "flow",
+   "head": "Think of a GPS",
+   "items": [
+    {
+     "label": "Settled",
+     "text": "final distance known",
+     "sub": "never changes again",
+     "cue": "settled"
+    },
+    {
+     "label": "Pick",
+     "text": "closest unsettled town",
+     "sub": "from a min-heap",
+     "cue": "closest"
+    },
+    {
+     "label": "Relax",
+     "text": "cheaper via this town?",
+     "sub": "if yes, update neighbor",
+     "cue": "relax"
+    }
+   ],
+   "say": "Think of a GPS. Towns whose best distance is final are called settled. Pick the closest unsettled town. Then relax its roads. Relaxing means asking: is the route to a neighbor cheaper through this town? If yes, update it."
+  },
+  {
+   "type": "diagram",
+   "head": "Five towns, roads with travel times",
+   "items": [
+    {
+     "id": "n0",
+     "x": 200,
+     "y": 480,
+     "w": 200,
+     "h": 120,
+     "label": "town 0 (start)",
+     "text": "∞",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Five towns"
+    },
+    {
+     "id": "n1",
+     "x": 760,
+     "y": 260,
+     "w": 200,
+     "h": 120,
+     "label": "town 1",
+     "text": "∞",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Five towns"
+    },
+    {
+     "id": "n2",
+     "x": 760,
+     "y": 700,
+     "w": 200,
+     "h": 120,
+     "label": "town 2",
+     "text": "∞",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Five towns"
+    },
+    {
+     "id": "n3",
+     "x": 1250,
+     "y": 480,
+     "w": 200,
+     "h": 120,
+     "label": "town 3",
+     "text": "∞",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Five towns"
+    },
+    {
+     "id": "n4",
+     "x": 1600,
+     "y": 480,
+     "w": 200,
+     "h": 120,
+     "label": "town 4",
+     "text": "∞",
+     "size": 48,
+     "tone": "blue",
+     "cue": "Five towns"
+    },
+    {
+     "id": "hp",
+     "x": 100,
+     "y": 770,
+     "w": 460,
+     "h": 110,
+     "label": "min-heap (distance, town)",
+     "text": "",
+     "size": 30,
+     "tone": "warn",
+     "cue": "Start at zero"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "n0",
+     "to": "n1",
+     "label": "4",
+     "cue": "roads with travel times"
+    },
+    {
+     "from": "n0",
+     "to": "n2",
+     "label": "1",
+     "cue": "roads with travel times"
+    },
+    {
+     "from": "n2",
+     "to": "n1",
+     "label": "2",
+     "cue": "roads with travel times"
+    },
+    {
+     "from": "n1",
+     "to": "n3",
+     "label": "1",
+     "cue": "roads with travel times"
+    },
+    {
+     "from": "n2",
+     "to": "n3",
+     "label": "5",
+     "cue": "roads with travel times"
+    },
+    {
+     "from": "n3",
+     "to": "n4",
+     "label": "3",
+     "cue": "roads with travel times"
+    }
+   ],
+   "changes": [
+    {
+     "id": "n0",
+     "text": "0",
+     "cue": "Distance zero"
+    },
+    {
+     "id": "n0",
+     "tone": "good",
+     "cue": "Distance zero"
+    },
+    {
+     "id": "hp",
+     "text": "(0,0)",
+     "cue": "Start at zero"
+    },
+    {
+     "id": "hp",
+     "text": "(1,2) (4,1)",
+     "cue": "Relax its roads"
+    },
+    {
+     "id": "n1",
+     "text": "4",
+     "cue": "town one costs four"
+    },
+    {
+     "id": "n2",
+     "text": "1",
+     "cue": "town two costs one"
+    },
+    {
+     "id": "n2",
+     "tone": "good",
+     "cue": "closest unsettled town is two"
+    },
+    {
+     "id": "n1",
+     "text": "3",
+     "cue": "town one costs three"
+    },
+    {
+     "id": "n3",
+     "text": "6",
+     "cue": "town three costs six"
+    },
+    {
+     "id": "hp",
+     "text": "(3,1) (4,1) (6,3)",
+     "cue": "town three costs six"
+    },
+    {
+     "id": "n1",
+     "tone": "good",
+     "cue": "Closest now is one"
+    },
+    {
+     "id": "n3",
+     "text": "4",
+     "cue": "Town three through one costs four"
+    },
+    {
+     "id": "hp",
+     "text": "(4,1) (4,3) (6,3)",
+     "cue": "Town three through one costs four"
+    },
+    {
+     "id": "n3",
+     "tone": "good",
+     "cue": "Closest is three"
+    },
+    {
+     "id": "n4",
+     "text": "7",
+     "cue": "Town four costs seven"
+    },
+    {
+     "id": "hp",
+     "text": "(6,3) (7,4)",
+     "cue": "Town four costs seven"
+    },
+    {
+     "id": "n4",
+     "tone": "good",
+     "cue": "Done"
+    }
+   ],
+   "say": "Five towns, roads with travel times. Start at zero. Distance zero is known, everything else is infinity. Relax its roads: town one costs four, town two costs one. The closest unsettled town is two. Relax: through two, town one costs three, better than four, and town three costs six. Closest now is one, at three. Town three through one costs four, better than six. Closest is three. Town four costs seven. Done."
+  },
+  {
+   "type": "code",
+   "head": "Dijkstra in C plus plus",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "size": 34,
+     "code": "using P = pair<long long, int>;\nvector<long long> dijkstra(int s, vector<vector<pair<int,int>>>& g) {\n    vector<long long> d(g.size(), LLONG_MAX);\n    priority_queue<P, vector<P>, greater<P>> pq;\n    d[s] = 0; pq.push({0, s});\n    while (!pq.empty()) {\n        auto [du, u] = pq.top(); pq.pop();\n        if (du > d[u]) continue;           // stale entry\n        for (auto [v, w] : g[u])\n            if (du + w < d[v]) {\n                d[v] = du + w;\n                pq.push({d[v], v});\n            }\n    }\n    return d;\n}"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Distances start",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "min heap holds",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "stale",
+     "lines": [
+      8
+     ]
+    },
+    {
+     "cue": "relax every road",
+     "lines": [
+      9,
+      10,
+      11,
+      12,
+      13
+     ]
+    }
+   ],
+   "say": "The code. Distances start at infinity, here the biggest long long. A min heap holds pairs of distance and town. Pop the closest. If its distance is bigger than what we already know, it's stale, so skip it. Otherwise relax every road. A better route updates the distance and pushes a new pair. Time is O of E log V."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Negative edge weights?",
+     "Dijkstra fails. Use Bellman Ford, O of V times E."
+    ],
+    [
+     "Unweighted graph?",
+     "Plain BFS. Weights zero or one: a deque."
+    ],
+    [
+     "Complexity?",
+     "O of E log V with a binary heap."
+    ],
+    [
+     "Common mistake",
+     "No stale check, or int overflow on sums."
+    ]
+   ],
+   "cues": [
+    "Negative edge",
+    "Unweighted graph",
+    "Complexity",
+    "Common mistake"
+   ],
+   "say": "Negative edge weights? Dijkstra fails, use Bellman Ford. Unweighted graph? Plain BFS. Complexity? O of E log V. Common mistake: skipping the stale check, or using int and overflowing on sums."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Dijkstra: always settle the closest unsettled node.",
+    "Relax its edges, using a min-heap: O(E log V).",
+    "Only works with non-negative weights."
+   ],
+   "cues": [
+    "Dijkstra",
+    "Relax",
+    "Only works"
+   ],
+   "say": "Dijkstra always settles the closest unsettled node, then relaxes its edges using a min heap. It runs in O of E log V, and only works with non-negative weights."
+  }
+ ]
+}

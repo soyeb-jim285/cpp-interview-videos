@@ -1,0 +1,68 @@
+{
+  "id": "be01", "num": 1, "series": "Backend", "short": "Request lifecycle",
+  "question": "What happens when a client calls your A P I?",
+  "scenes": [
+    { "type": "title", "sub": "From the browser to the database and back.",
+      "say": "What happens when a client calls your A P I? Interviewers love this one, because every answer shows how much of the stack you really understand." },
+
+    { "type": "flow", "head": "Think of a restaurant",
+      "items": [
+        { "text": "Diner", "sub": "the client", "cue": "The diner" },
+        { "text": "Host desk", "sub": "load balancer", "cue": "host desk" },
+        { "text": "Kitchen", "sub": "app server", "cue": "kitchen" },
+        { "text": "Pantry", "sub": "database", "tone": "warn", "cue": "pantry" }
+      ],
+      "say": "Picture a restaurant. The diner is the client, and orders something. The host desk sends the order to a free kitchen. That is the load balancer. The kitchen cooks. That is your app server. And when the kitchen needs ingredients, it goes to the pantry. That is the database." },
+
+    { "type": "flow", "head": "The real journey of one request",
+      "items": [
+        { "text": "D N S", "sub": "name to I P", "cue": "D N S turns" },
+        { "text": "T C P + T L S", "sub": "connect, encrypt", "cue": "opens a T C P" },
+        { "text": "Balancer", "sub": "picks a server", "cue": "load balancer picks" },
+        { "text": "App", "sub": "runs your code", "cue": "app server runs" },
+        { "text": "Database", "sub": "reads the row", "tone": "warn", "cue": "database" }
+      ],
+      "say": "Now the real steps. The client calls api dot example dot com. D N S turns that name into an I P address, like a phone book. Then the client opens a T C P connection and does a T L S handshake, so everything is encrypted. The load balancer picks one healthy server. The app server runs your handler. And the handler asks the database for the row." },
+
+    { "type": "diagram", "head": "Inside the app server",
+      "panels": [{ "file": "app.py", "size": 32, "code": "@app.get(\"/users/{uid}\")\ndef get_user(uid: int):\n    row = db.query_one(\n        \"SELECT id, name FROM users WHERE id=%s\",\n        (uid,))\n    if row is None:\n        raise HTTPException(404)\n    return row   # 200 and J S O N" }],
+      "steps": [
+        { "cue": "The router", "lines": [1, 2] },
+        { "cue": "One query", "lines": [3, 4, 5] },
+        { "cue": "No row", "lines": [6, 7] },
+        { "cue": "Otherwise", "lines": [8] }
+      ],
+      "items": [
+        { "id": "cl", "x": 1060, "y": 680, "w": 300, "h": 130, "text": "Client", "size": 40, "tone": "blue", "cue": "The router" },
+        { "id": "ap", "x": 1060, "y": 260, "w": 300, "h": 130, "text": "App", "size": 40, "cue": "The router" },
+        { "id": "db", "x": 1480, "y": 260, "w": 300, "h": 130, "text": "Database", "size": 40, "tone": "warn", "cue": "One query" }
+      ],
+      "arrows": [
+        { "from": "cl", "to": "ap", "bend": 40, "cue": "The router" },
+        { "from": "ap", "to": "db", "bend": 30, "cue": "One query" },
+        { "from": "db", "to": "ap", "bend": 30, "tone": "good", "cue": "No row" },
+        { "from": "ap", "to": "cl", "bend": 40, "tone": "good", "cue": "Otherwise" }
+      ],
+      "say": "The router matches the path and calls your function. One query goes to the database. No row means we return four oh four. Otherwise we turn the row into J S O N and send back two hundred." },
+
+    { "type": "code", "head": "See where the time goes",
+      "panels": [{ "file": "run.sh", "size": 32, "code": "# curl-fmt.txt\ndns:   %{time_namelookup}\ntcp:   %{time_connect}\ntls:   %{time_appconnect}\nfirst: %{time_starttransfer}\ntotal: %{time_total}\n\ncurl -s -o /dev/null -w @curl-fmt.txt https://api.example.com/users/7" }],
+      "output": { "cmd": "./run.sh", "cue": "Each number", "text": "dns:   0.012\ntcp:   0.031\ntls:   0.074\nfirst: 0.092\ntotal: 0.093" },
+      "say": "You can measure each stage with curl. Each number is cumulative, in seconds. Here D N S took twelve milliseconds, the connection and handshake most of the rest, and the app only a few more. That tells you whether to blame the network or the code." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["Why a load balancer?", "Why T L S?", "It is slow. Now what?", "Common mistake"],
+      "rows": [
+        ["Spread traffic, survive a dead server", "One server is a single point of failure"],
+        ["Encrypts traffic, proves the server's identity", "Handshake costs a round trip, so reuse connections"],
+        ["Time each hop, then fix the biggest", "Network, app or database"],
+        ["Skipping D N S and T L S", "Saying only: the server returns J S O N"]
+      ],
+      "cues": ["Why a load", "Why T L S", "slow", "mistake"],
+      "say": "Likely follow-ups. Why a load balancer? To spread traffic and survive a dead server. Why T L S? It encrypts traffic and proves who the server is. If it is slow, time each hop and fix the biggest. The common mistake is to skip D N S and T L S, and only say the server returns J S O N." },
+
+    { "type": "take", "lines": ["D N S, T C P and T L S, load balancer, app, database, and back.", "If it is slow, I time each hop first."],
+      "cues": ["D N S", "slow"],
+      "say": "D N S, then T C P and T L S, then the load balancer, the app, the database, and the response back. If it is slow, I time each hop first." }
+  ]
+}

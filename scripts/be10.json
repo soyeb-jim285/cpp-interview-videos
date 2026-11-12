@@ -1,0 +1,359 @@
+{
+  "id": "be10",
+  "num": 10,
+  "series": "Backend",
+  "short": "Queues and idempotent consumers",
+  "question": "Why use a message queue? What is at-least-once delivery and how do you handle duplicates?",
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "Do slow work later, and survive the retries.",
+      "say": "Message queues and background jobs. The interview trap here is duplicates. Let's see where they come from."
+    },
+    {
+      "type": "flow",
+      "head": "Think of a restaurant kitchen",
+      "items": [
+        {
+          "label": "Waiter",
+          "text": "takes order",
+          "sub": "answers fast",
+          "tone": "blue",
+          "cue": "waiter"
+        },
+        {
+          "label": "Ticket rail",
+          "text": "queue",
+          "sub": "tickets wait here",
+          "tone": "warn",
+          "cue": "pins"
+        },
+        {
+          "label": "Cooks",
+          "text": "workers",
+          "sub": "take one ticket",
+          "tone": "good",
+          "cue": "Cooks"
+        }
+      ],
+      "say": "Think of a restaurant. The waiter takes your order and pins a ticket on the rail, then goes back to the floor. Cooks take tickets one at a time. A rush of customers just makes the rail longer. The waiter never waits for the food. That rail is a message queue."
+    },
+    {
+      "type": "diagram",
+      "head": "Why a queue: respond fast, work later",
+      "items": [
+        {
+          "id": "ap",
+          "x": 140,
+          "y": 420,
+          "w": 300,
+          "h": 130,
+          "label": "A P I",
+          "text": "POST order",
+          "size": 34,
+          "tone": "blue",
+          "cue": "The A P I"
+        },
+        {
+          "id": "qu",
+          "x": 700,
+          "y": 400,
+          "w": 420,
+          "h": 170,
+          "label": "Queue",
+          "text": "3 jobs",
+          "sub": "durable buffer",
+          "size": 44,
+          "tone": "warn",
+          "cue": "puts a job"
+        },
+        {
+          "id": "wk",
+          "x": 1380,
+          "y": 260,
+          "w": 380,
+          "h": 130,
+          "label": "Worker",
+          "text": "send email",
+          "size": 34,
+          "tone": "good",
+          "cue": "A worker"
+        },
+        {
+          "id": "w2",
+          "x": 1380,
+          "y": 620,
+          "w": 380,
+          "h": 130,
+          "label": "Worker",
+          "text": "make invoice",
+          "size": 34,
+          "tone": "good",
+          "cue": "more workers"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "ap",
+          "to": "qu",
+          "cue": "puts a job"
+        },
+        {
+          "from": "qu",
+          "to": "wk",
+          "cue": "A worker"
+        },
+        {
+          "from": "qu",
+          "to": "w2",
+          "cue": "more workers"
+        }
+      ],
+      "changes": [
+        {
+          "id": "qu",
+          "text": "2 jobs",
+          "cue": "takes it"
+        },
+        {
+          "id": "qu",
+          "text": "0 jobs",
+          "cue": "backlog"
+        }
+      ],
+      "say": "The A P I accepts an order and puts a job on the queue, then answers immediately. A worker takes it and does the slow part, like sending email. If traffic spikes, the queue absorbs it. If workers are down, jobs wait. Add more workers to drain the backlog. The queue decouples fast requests from slow work."
+    },
+    {
+      "type": "diagram",
+      "head": "Where duplicates come from",
+      "items": [
+        {
+          "id": "q2",
+          "x": 140,
+          "y": 420,
+          "w": 340,
+          "h": 170,
+          "label": "Queue",
+          "text": "job 7",
+          "size": 44,
+          "tone": "warn",
+          "cue": "The queue hands"
+        },
+        {
+          "id": "w3",
+          "x": 760,
+          "y": 420,
+          "w": 340,
+          "h": 170,
+          "label": "Worker",
+          "text": "processing",
+          "size": 36,
+          "tone": "good",
+          "cue": "The queue hands"
+        },
+        {
+          "id": "db",
+          "x": 1380,
+          "y": 260,
+          "w": 340,
+          "h": 140,
+          "label": "Database",
+          "text": "order paid",
+          "size": 36,
+          "tone": "blue",
+          "cue": "writes to the database"
+        },
+        {
+          "id": "ak",
+          "x": 1380,
+          "y": 640,
+          "w": 340,
+          "h": 140,
+          "text": "ack",
+          "sub": "never sent",
+          "size": 40,
+          "tone": "bad",
+          "cue": "crashes before"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "q2",
+          "to": "w3",
+          "cue": "The queue hands"
+        },
+        {
+          "from": "w3",
+          "to": "db",
+          "cue": "writes to the database"
+        },
+        {
+          "from": "w3",
+          "to": "ak",
+          "tone": "bad",
+          "cue": "crashes before"
+        },
+        {
+          "from": "q2",
+          "to": "w3",
+          "bend": 90,
+          "tone": "warn",
+          "cue": "delivers job seven again"
+        }
+      ],
+      "changes": [
+        {
+          "id": "w3",
+          "tone": "bad",
+          "cue": "crashes before"
+        },
+        {
+          "id": "w3",
+          "text": "again!",
+          "cue": "delivers job seven again"
+        },
+        {
+          "id": "db",
+          "text": "paid twice?",
+          "cue": "paid twice"
+        },
+        {
+          "id": "db",
+          "tone": "bad",
+          "cue": "paid twice"
+        }
+      ],
+      "say": "The queue hands job seven to a worker. The worker writes to the database, then crashes before it can send the ack. The queue never saw the ack, so it assumes the job failed and delivers job seven again. That's at-least-once delivery: nothing is lost, but duplicates happen. Without care, the order is paid twice."
+    },
+    {
+      "type": "code",
+      "head": "The fix: make the consumer idempotent",
+      "panels": [
+        {
+          "file": "worker.py",
+          "size": 32,
+          "code": "# table: processed(id PRIMARY KEY)\n\ndef handle(msg):\n    with db.transaction():\n        n = db.execute(\n            \"INSERT INTO processed (id) VALUES (%s) \"\n            \"ON CONFLICT DO NOTHING\", msg.id)\n        if n == 1:              # first time only\n            mark_order_paid(msg.order_id)\n    msg.ack()                   # ack after commit"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "Every message carries",
+          "lines": [
+            1
+          ]
+        },
+        {
+          "cue": "insert that id",
+          "lines": [
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "cue": "If the insert",
+          "lines": [
+            8,
+            9
+          ]
+        },
+        {
+          "cue": "Only then",
+          "lines": [
+            10
+          ]
+        }
+      ],
+      "notes": [
+        {
+          "cue": "A duplicate",
+          "line": 8,
+          "inside": true,
+          "text": "dup: n is 0",
+          "tone": "warn"
+        }
+      ],
+      "say": "Every message carries a unique id. In the same transaction as the real work, insert that id into a processed table. If the insert did nothing, we've seen this message, so we skip the work. A duplicate becomes harmless. Only then do we ack, after the commit. For outside calls, like payments, pass the same id as an idempotency key."
+    },
+    {
+      "type": "compare",
+      "head": "Delivery guarantees",
+      "heads": [
+        "Risk",
+        "Use when"
+      ],
+      "rowHeads": [
+        "At most once",
+        "At least once",
+        "Exactly once"
+      ],
+      "rows": [
+        [
+          "Messages can be lost",
+          "Losing one is fine, like metrics"
+        ],
+        [
+          "Duplicates possible",
+          "The default. Pair with idempotency"
+        ],
+        [
+          "Hard across systems",
+          "Really at least once plus dedupe"
+        ]
+      ],
+      "cues": [
+        "At most once",
+        "At least once",
+        "Exactly once"
+      ],
+      "say": "At most once: ack first, work after. A crash loses the job. At least once: work first, ack after. A crash causes a duplicate. That's the default, and the safe choice. Exactly once across separate systems is not really possible. It's at least once, plus an idempotent consumer. Also mention retries with backoff, and a dead letter queue for poison messages."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "Likely follow-up",
+        "One-line answer"
+      ],
+      "rows": [
+        [
+          "Exactly once?",
+          "Not across systems. At least once plus idempotent consumer"
+        ],
+        [
+          "Ack before or after?",
+          "After the work, so a crash retries"
+        ],
+        [
+          "Bad message loops?",
+          "Retry with backoff, then dead letter queue"
+        ],
+        [
+          "Common mistake",
+          "Assuming no duplicates, so double charges"
+        ]
+      ],
+      "cues": [
+        "Exactly once",
+        "Ack before",
+        "keeps failing",
+        "common mistake"
+      ],
+      "say": "Likely follow-ups. Exactly once? Not across systems: it's at least once plus an idempotent consumer. Ack before or after? After the work. A message that keeps failing? Retry with backoff, then a dead letter queue. The common mistake: assuming there are no duplicates, which causes double charges."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Queues decouple fast requests from slow work and absorb spikes.",
+        "Ack after the work, so delivery is at least once and duplicates happen.",
+        "Make consumers idempotent: dedupe by message id, retry with backoff, dead letter queue."
+      ],
+      "cues": [
+        "Queues decouple",
+        "Acknowledge",
+        "So make consumers"
+      ],
+      "say": "Queues decouple fast requests from slow work, and absorb spikes. Acknowledge after the work is done, so delivery is at least once and duplicates will happen. So make consumers idempotent: dedupe by message id, retry with backoff, and send poison messages to a dead letter queue."
+    }
+  ]
+}

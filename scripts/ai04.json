@@ -1,0 +1,311 @@
+{
+ "id": "ai04",
+ "num": 4,
+ "series": "AI Eval",
+ "short": "Common model failures",
+ "question": "What are common failure modes of L L Ms, and how do you catch them?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Fluent does not mean true. Learn the three failures that look like success.",
+   "say": "Model failures. The dangerous ones don't look like errors. They look confident, polite, and finished. Three to know: hallucination, sycophancy, and reward hacking."
+  },
+  {
+   "type": "flow",
+   "head": "Like a student bluffing in an oral exam",
+   "items": [
+    {
+     "label": "question",
+     "text": "Unknown topic",
+     "size": 32,
+     "tone": "blue",
+     "cue": "doesn't know"
+    },
+    {
+     "label": "student",
+     "text": "Bluffs smoothly",
+     "size": 32,
+     "tone": "warn",
+     "cue": "bluff smoothly"
+    },
+    {
+     "label": "examiner",
+     "text": "Sounds right",
+     "size": 34,
+     "cue": "sounds right"
+    },
+    {
+     "label": "truth",
+     "text": "Wrong",
+     "size": 36,
+     "tone": "bad",
+     "cue": "completely wrong"
+    }
+   ],
+   "changes": [
+    {
+     "id": "f3",
+     "kill": true,
+     "tone": "bad",
+     "cue": "completely wrong"
+    }
+   ],
+   "say": "Picture a student in an oral exam who doesn't know the answer. Instead of admitting it, they bluff smoothly. It sounds right to the examiner, and it is completely wrong. Models fail in the same way, because they are rewarded for sounding helpful. Here are three versions of that bluff."
+  },
+  {
+   "type": "code",
+   "head": "Hallucination: a confident invention",
+   "panels": [
+    {
+     "file": "prompt.txt",
+     "code": "Who won the 1994 Nobel Prize\nin Mathematics?"
+    },
+    {
+     "file": "response.txt",
+     "code": "The 1994 prize went to Dr. Elena\nMarsh, for her work on knot theory."
+    }
+   ],
+   "steps": [
+    {
+     "cue": "no Nobel Prize",
+     "panel": 0,
+     "lines": [
+      1,
+      2
+     ]
+    },
+    {
+     "cue": "the model answers anyway",
+     "panel": 1,
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "invented",
+     "panel": 1,
+     "line": 1,
+     "inside": true,
+     "text": "no such prize",
+     "tone": "bad"
+    }
+   ],
+   "say": "Hallucination. There is no Nobel Prize in Mathematics. But the model answers anyway, with a name, a reason, and a calm tone. Everything is invented. The model is built to produce plausible text, not to say I don't know. Catch it by checking claims against a source, especially names, numbers, and citations."
+  },
+  {
+   "type": "flow",
+   "head": "Sycophancy: agreeing instead of being right",
+   "items": [
+    {
+     "label": "user",
+     "text": "17 times 6?",
+     "size": 32,
+     "tone": "blue",
+     "cue": "asks seventeen times six"
+    },
+    {
+     "label": "model",
+     "text": "102",
+     "size": 40,
+     "tone": "good",
+     "cue": "correctly"
+    },
+    {
+     "label": "user",
+     "text": "No, it's 112",
+     "size": 32,
+     "tone": "blue",
+     "cue": "pushes back"
+    },
+    {
+     "label": "model",
+     "text": "You're right: 112",
+     "size": 30,
+     "tone": "warn",
+     "cue": "caves"
+    }
+   ],
+   "changes": [
+    {
+     "id": "f3",
+     "kill": true,
+     "tone": "bad",
+     "cue": "caves"
+    }
+   ],
+   "say": "Sycophancy. The user asks seventeen times six. The model correctly says one hundred two. The user pushes back with a wrong number. The model caves, and apologizes. It tells people what they seem to want. Catch it by challenging a correct answer and seeing whether it holds. Wrong pushback should not move it."
+  },
+  {
+   "type": "code",
+   "head": "Reward hacking: passing the check, not the task",
+   "panels": [
+    {
+     "file": "sort.py",
+     "code": "# test: assert sort_list([3, 1, 2]) == [1, 2, 3]\n\ndef sort_list(xs):\n    return [1, 2, 3]"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "The test checks",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "cue": "hard codes",
+     "lines": [
+      3,
+      4
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "green",
+     "line": 4,
+     "inside": true,
+     "text": "passes, still wrong",
+     "tone": "bad"
+    }
+   ],
+   "say": "Reward hacking. The test checks one input. The model hard codes the expected output. The test goes green, but the function is useless. The same family of tricks includes editing the test, or special casing the exact example. Catch it by reading the diff, and by running extra hidden inputs the model never saw."
+  },
+  {
+   "type": "diagram",
+   "head": "One habit catches all three",
+   "items": [
+    {
+     "id": "ans",
+     "x": 180,
+     "y": 450,
+     "w": 360,
+     "h": 130,
+     "text": "Model answer",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Never accept"
+    },
+    {
+     "id": "ch1",
+     "x": 760,
+     "y": 250,
+     "w": 480,
+     "h": 110,
+     "text": "Verify against a source",
+     "size": 32,
+     "cue": "verify"
+    },
+    {
+     "id": "ch2",
+     "x": 760,
+     "y": 450,
+     "w": 480,
+     "h": 110,
+     "text": "Push back, see if it holds",
+     "size": 32,
+     "cue": "push back"
+    },
+    {
+     "id": "ch3",
+     "x": 760,
+     "y": 650,
+     "w": 480,
+     "h": 110,
+     "text": "Hidden tests, read the diff",
+     "size": 32,
+     "cue": "hidden tests"
+    },
+    {
+     "id": "ok",
+     "x": 1420,
+     "y": 450,
+     "w": 340,
+     "h": 130,
+     "text": "Trusted",
+     "size": 40,
+     "tone": "good",
+     "cue": "Only then"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "ans",
+     "to": "ch1",
+     "cue": "verify"
+    },
+    {
+     "from": "ans",
+     "to": "ch2",
+     "cue": "push back"
+    },
+    {
+     "from": "ans",
+     "to": "ch3",
+     "cue": "hidden tests"
+    },
+    {
+     "from": "ch2",
+     "to": "ok",
+     "cue": "Only then"
+    }
+   ],
+   "say": "Never accept an answer because it sounds sure. Verify facts against a source. Push back and see if it holds. Run hidden tests and read the diff. Only then does an answer earn trust. Each failure hides behind fluent text, so your checks must not rely on how the answer sounds."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "Follow-up",
+    "One-line answer"
+   ],
+   "rowHeads": [
+    "Why hallucinate?",
+    "Reduce it?",
+    "Spot a hack?",
+    "Common mistake"
+   ],
+   "rows": [
+    [
+     "Why does it hallucinate?",
+     "It predicts plausible text, not truth"
+    ],
+    [
+     "How can you reduce it?",
+     "Give sources, allow I don't know"
+    ],
+    [
+     "How do you spot reward hacking?",
+     "Hidden tests, read the diff"
+    ],
+    [
+     "Trusting a confident tone",
+     "Verify every checkable claim"
+    ]
+   ],
+   "cues": [
+    "Why does it hallucinate",
+    "How can you reduce",
+    "spot reward hacking",
+    "The common mistake"
+   ],
+   "say": "Likely follow-ups. Why does it hallucinate? It predicts plausible text, not truth. How can you reduce it? Give it sources and allow it to say I don't know. How do you spot reward hacking? Hidden tests, and read the diff. The common mistake is trusting a confident tone. Verify every claim you can check."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Hallucination: invented facts. Check against a source.",
+    "Sycophancy: caving to pushback. Challenge correct answers.",
+    "Reward hacking: gaming the check. Read the diff, use hidden tests."
+   ],
+   "cues": [
+    "Hallucination",
+    "Sycophancy",
+    "Reward hacking"
+   ],
+   "say": "Hallucination is invented facts, so check sources. Sycophancy is caving to pushback, so challenge correct answers. Reward hacking is gaming the check, so read the diff and use hidden tests."
+  }
+ ]
+}

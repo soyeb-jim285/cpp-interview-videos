@@ -1,0 +1,284 @@
+{
+  "id": "be15",
+  "num": 15,
+  "series": "Backend",
+  "short": "Debugging a slow endpoint",
+  "question": "An endpoint is slow in production. How do you debug it?",
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "Don't guess. Narrow it down with evidence.",
+      "say": "Debugging a slow endpoint in production. Interviewers want a method. Not a list of random guesses."
+    },
+    {
+      "type": "flow",
+      "head": "Think of a doctor",
+      "items": [
+        {
+          "label": "Vitals",
+          "text": "Metrics",
+          "sub": "is it sick, how badly",
+          "tone": "warn",
+          "cue": "vitals"
+        },
+        {
+          "label": "Patient history",
+          "text": "Logs",
+          "sub": "what happened",
+          "tone": "blue",
+          "cue": "history"
+        },
+        {
+          "label": "The scan",
+          "text": "Traces",
+          "sub": "where exactly",
+          "tone": "good",
+          "cue": "scan"
+        }
+      ],
+      "say": "A doctor checks vitals first, to see if the patient is sick and how badly. Then reads the history, to see what happened. Then orders a scan, to find exactly where the problem is. Production has the same three tools: metrics, logs, and traces."
+    },
+    {
+      "type": "diagram",
+      "head": "Step 1: metrics tell you it is slow",
+      "items": [
+        {
+          "id": "p5",
+          "x": 160,
+          "y": 360,
+          "w": 380,
+          "h": 170,
+          "label": "p50 latency",
+          "text": "120 ms",
+          "sub": "typical request",
+          "size": 48,
+          "tone": "good",
+          "cue": "median"
+        },
+        {
+          "id": "p9",
+          "x": 760,
+          "y": 360,
+          "w": 380,
+          "h": 170,
+          "label": "p99 latency",
+          "text": "3.1 s",
+          "sub": "slowest 1 in 100",
+          "size": 48,
+          "tone": "bad",
+          "cue": "ninety ninth"
+        },
+        {
+          "id": "er",
+          "x": 1360,
+          "y": 360,
+          "w": 380,
+          "h": 170,
+          "label": "Error rate",
+          "text": "0.2%",
+          "sub": "and traffic is normal",
+          "size": 48,
+          "tone": "ghost",
+          "cue": "error rate"
+        }
+      ],
+      "say": "Metrics are numbers over time. The median, called p fifty, is a hundred and twenty milliseconds. That's fine. The ninety ninth percentile is three seconds, so one request in a hundred is very slow. Averages hide this, so always look at percentiles. Check the error rate and traffic too. Then ask: when did it start, and what changed? A deploy, a data size, a new customer?"
+    },
+    {
+      "type": "diagram",
+      "head": "Step 2: a trace shows where the time goes",
+      "items": [
+        {
+          "id": "rq",
+          "x": 160,
+          "y": 240,
+          "w": 1560,
+          "h": 100,
+          "text": "GET /orders   3100 ms",
+          "size": 36,
+          "tone": "blue",
+          "cue": "One slow request"
+        },
+        {
+          "id": "au",
+          "x": 160,
+          "y": 400,
+          "w": 160,
+          "h": 90,
+          "text": "auth",
+          "sub": "20 ms",
+          "size": 28,
+          "tone": "good",
+          "cue": "Auth"
+        },
+        {
+          "id": "q1",
+          "x": 340,
+          "y": 400,
+          "w": 1200,
+          "h": 90,
+          "text": "database: 201 queries",
+          "sub": "2800 ms",
+          "size": 34,
+          "tone": "bad",
+          "cue": "database"
+        },
+        {
+          "id": "js",
+          "x": 1560,
+          "y": 400,
+          "w": 160,
+          "h": 90,
+          "text": "J S O N",
+          "sub": "280 ms",
+          "size": 26,
+          "tone": "good",
+          "cue": "serializing"
+        },
+        {
+          "id": "cs",
+          "x": 340,
+          "y": 620,
+          "w": 1200,
+          "h": 150,
+          "label": "Culprit",
+          "text": "1 query for orders + 1 per order",
+          "sub": "the N plus one pattern",
+          "size": 36,
+          "tone": "warn",
+          "cue": "pattern"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "q1",
+          "to": "cs",
+          "tone": "warn",
+          "cue": "pattern"
+        }
+      ],
+      "say": "A trace follows one slow request through every step, with timings. Here, three thousand one hundred milliseconds in total. Auth takes twenty. Serializing the J S O N takes a bit. But the database takes twenty eight hundred, across two hundred and one queries. One query for the orders, then one more per order. That's the N plus one pattern. The trace pointed straight at it."
+    },
+    {
+      "type": "flow",
+      "head": "The method, in order",
+      "items": [
+        {
+          "label": "1",
+          "text": "Confirm",
+          "sub": "metrics, p99, when",
+          "tone": "warn",
+          "cue": "Confirm"
+        },
+        {
+          "label": "2",
+          "text": "Locate",
+          "sub": "trace: which step",
+          "tone": "blue",
+          "cue": "Locate"
+        },
+        {
+          "label": "3",
+          "text": "Explain",
+          "sub": "logs, EXPLAIN, profiler",
+          "tone": "good",
+          "cue": "Explain"
+        },
+        {
+          "label": "4",
+          "text": "Fix",
+          "sub": "one change",
+          "cue": "Fix"
+        },
+        {
+          "label": "5",
+          "text": "Verify",
+          "sub": "p99 drops",
+          "tone": "good",
+          "cue": "Verify"
+        }
+      ],
+      "say": "The method. Confirm the problem with metrics. Locate the slow step with a trace. Explain it: logs show the exact query, explain shows the query plan, and a profiler shows hot code if the C P U is busy. Then Fix with one change, like a join or an index. And Verify that the p ninety nine really dropped."
+    },
+    {
+      "type": "compare",
+      "head": "Common causes to check",
+      "heads": [
+        "Symptom in the trace",
+        "Usual cause"
+      ],
+      "rows": [
+        [
+          "Many small queries",
+          "N plus one, add a join or batch"
+        ],
+        [
+          "One slow query",
+          "Missing index, check the plan"
+        ],
+        [
+          "Waiting, C P U idle",
+          "Lock contention or slow downstream call"
+        ],
+        [
+          "C P U high",
+          "Hot loop, profile it"
+        ]
+      ],
+      "cues": [
+        "Many small",
+        "One slow",
+        "Waiting",
+        "C P U is high"
+      ],
+      "say": "Match the symptom to the cause. Many small queries: N plus one, so add a join or batch them. One slow query: a missing index, so read the plan. Waiting while the C P U is idle: lock contention, or a slow downstream call. And if the C P U is high, profile the code for the hot loop."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "Likely follow-up",
+        "One-line answer"
+      ],
+      "rows": [
+        [
+          "Why percentiles?",
+          "Averages hide the slow tail that users feel"
+        ],
+        [
+          "Can't reproduce locally?",
+          "Use traces and logs from production, add a request id"
+        ],
+        [
+          "Quick mitigation?",
+          "Roll back, add a cache, or scale out while you find the cause"
+        ],
+        [
+          "Common mistake",
+          "Guessing and changing things before measuring"
+        ]
+      ],
+      "cues": [
+        "Why percentiles",
+        "reproduce",
+        "mitigation",
+        "common mistake"
+      ],
+      "say": "Likely follow-ups. Why percentiles? Averages hide the slow tail. Can't reproduce it locally? Use production traces and logs, tied together by a request id. A quick mitigation? Roll back, add a cache, or scale out while you look. The common mistake: guessing and changing things before measuring."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "First confirm with metrics, looking at p99, not the average.",
+        "Then use a trace to find which step is slow, and logs, query plans or a profiler to explain it.",
+        "Fix one thing, then verify the numbers moved."
+      ],
+      "cues": [
+        "First I confirm",
+        "Then I use a trace",
+        "I fix one thing"
+      ],
+      "say": "First I confirm with metrics, looking at p ninety nine, not the average. Then I use a trace to find which step is slow, and logs, query plans or a profiler to explain it. I fix one thing, then verify the numbers moved."
+    }
+  ]
+}

@@ -3,3 +3,7 @@ out/
 snaps/
 q[0-9]*/
 !scripts/
+[a-z][a-z][0-9][0-9]/
+pilot/
+queue.txt
+book/*.pdf

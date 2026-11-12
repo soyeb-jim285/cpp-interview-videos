@@ -1,0 +1,66 @@
+{
+  "id": "be08", "num": 8, "series": "Backend", "short": "Authentication",
+  "question": "How does authentication work? Sessions versus J W T, password hashing, OAuth.",
+  "caps": [["b crypt", "bcrypt"], ["O Auth", "OAuth"]],
+  "scenes": [
+    { "type": "title", "sub": "Proving who you are, safely.",
+      "say": "Authentication: how does a server know who is calling? Sessions, tokens, password storage, and logging in with Google." },
+
+    { "type": "diagram", "head": "Think of a coat check ticket",
+      "items": [
+        { "id": "br", "x": 140, "y": 440, "w": 340, "h": 150, "label": "Browser", "text": "ticket abc9", "size": 38, "tone": "blue", "cue": "random ticket" },
+        { "id": "sv", "x": 760, "y": 440, "w": 340, "h": 150, "label": "Server", "text": "checks", "size": 40, "cue": "The server" },
+        { "id": "st", "x": 1380, "y": 440, "w": 380, "h": 150, "label": "Session store", "text": "abc9 = user 7", "size": 36, "tone": "warn", "cue": "session store" }
+      ],
+      "arrows": [
+        { "from": "br", "to": "sv", "bend": 40, "label": "cookie abc9", "cue": "ticket back" },
+        { "from": "sv", "to": "st", "bend": 40, "cue": "looks it up" },
+        { "from": "sv", "to": "br", "bend": 40, "tone": "good", "cue": "in a cookie" }
+      ],
+      "say": "Think of a coat check. After you log in, the server gives your browser a random ticket, a session id, in a cookie. The server remembers, in a session store, that abc nine means user seven. On every later request the browser sends the ticket back, and the server looks it up. That is a session. To log out, the server just deletes it." },
+
+    { "type": "compare", "head": "Sessions vs J W T",
+      "heads": ["Session", "J W T"], "rowHeads": ["Where state lives", "Logout / revoke", "Scaling", "Size"],
+      "rows": [
+        ["On the server: id to user", "In the token, signed by the server"],
+        ["Delete it, instant", "Hard until it expires"],
+        ["Needs a shared store", "Any server can verify"],
+        ["Tiny cookie", "Bigger: carries claims"]
+      ],
+      "cues": ["State lives", "Revoking", "Any server", "not secret"],
+      "say": "A J W T, a J S O N web token, flips this. The token itself carries the user id and an expiry, signed by the server. State lives in the token. Revoking is hard until it expires. Any server can verify it without a lookup. It is signed, not secret, so never put passwords inside. For a simple web app, sessions are fine." },
+
+    { "type": "code", "head": "Passwords: hash, never store",
+      "panels": [{ "file": "app.py", "size": 32, "code": "import bcrypt\n\ndef register(pw: str) -> bytes:\n    return bcrypt.hashpw(pw.encode(), bcrypt.gensalt())\n\ndef login(pw: str, stored: bytes) -> bool:\n    return bcrypt.checkpw(pw.encode(), stored)" }],
+      "steps": [
+        { "cue": "On sign up", "lines": [3, 4] },
+        { "cue": "On login", "lines": [6, 7] }
+      ],
+      "notes": [ { "cue": "random salt", "line": 4, "inside": true, "text": "salt built in", "tone": "good" } ],
+      "say": "On sign up, we store a hash of the password, never the password. B crypt adds a random salt, so two users with the same password get different hashes. It is also slow on purpose, which makes guessing expensive. On login, check password compares the typed password to the stored hash. Argon two is a modern alternative. Never use plain fast hashes." },
+
+    { "type": "flow", "head": "OAuth: log in with Google",
+      "items": [
+        { "text": "Redirect", "sub": "app sends you to Google", "cue": "sends you" },
+        { "text": "Consent", "sub": "you log in, approve", "cue": "approve" },
+        { "text": "Code", "sub": "back to app with a code", "cue": "short lived code" },
+        { "text": "Token", "sub": "app swaps code for a token", "tone": "good", "cue": "swaps the code" }
+      ],
+      "say": "O Auth lets you log in without giving the app your password. The app sends you to Google. There you log in and approve what the app may see. Google redirects back to the app with a short lived code. The app swaps the code for an access token, on its own server. The app never saw your Google password." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["Authn vs authz?", "Where store the token?", "Why salt?", "Common mistake"],
+      "rows": [
+        ["Who are you vs what may you do", "Four oh one vs four oh three"],
+        ["An HttpOnly, Secure cookie", "Scripts cannot read it, so X S S cannot steal it"],
+        ["Same password, different hash", "Defeats precomputed tables"],
+        ["Hashing passwords with plain S H A", "Use bcrypt or Argon2"]
+      ],
+      "cues": ["Authn", "store the token", "Why salt", "mistake"],
+      "say": "Likely follow-ups. Authn versus authz: who you are, versus what you may do. Where to store the token? In an HttpOnly, Secure cookie, so scripts cannot steal it. Why salt? So the same password gives different hashes. The common mistake is hashing passwords with a plain fast hash. Use b crypt or Argon two." },
+
+    { "type": "take", "lines": ["Sessions keep state on the server. J W T keeps it in a signed token.", "Passwords are hashed with a slow salted hash, like bcrypt."],
+      "cues": ["Sessions keep", "Passwords"],
+      "say": "Sessions keep state on the server. A J W T keeps it in a signed token. Passwords are hashed with a slow salted hash, like b crypt." }
+  ]
+}

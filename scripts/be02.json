@@ -1,0 +1,73 @@
+{
+  "id": "be02", "num": 2, "series": "Backend", "short": "REST design",
+  "question": "How do you design a REST A P I? Resources, methods, status codes, idempotency.",
+  "scenes": [
+    { "type": "title", "sub": "Nouns in the path, verbs in the method.",
+      "say": "How do you design a REST A P I? Four ideas carry most of the answer: resources, methods, status codes, and idempotency." },
+
+    { "type": "diagram", "head": "Think of a filing cabinet",
+      "items": [
+        { "id": "cab", "x": 140, "y": 360, "w": 420, "h": 160, "label": "Drawer: orders", "text": "/orders", "size": 44, "tone": "blue", "cue": "A drawer" },
+        { "id": "f", "x": 760, "y": 360, "w": 420, "h": 160, "label": "One folder", "text": "/orders/42", "size": 44, "cue": "One folder" },
+        { "id": "act", "x": 1380, "y": 360, "w": 400, "h": 160, "label": "What you do", "text": "read, add, replace", "size": 32, "tone": "warn", "cue": "The verb" }
+      ],
+      "arrows": [
+        { "from": "cab", "to": "f", "cue": "One folder" },
+        { "from": "f", "to": "act", "cue": "The verb" }
+      ],
+      "say": "Picture a filing cabinet. A drawer holds all orders. One folder inside is order forty two. The path names the drawer or the folder, and the verb says what you do with it: read it, add one, or replace it. That is REST: nouns in the path, verbs in the method." },
+
+    { "type": "code", "head": "Resources and methods",
+      "panels": [{ "file": "app.py", "size": 32, "code": "@app.get(\"/orders\")            # 200 list\n@app.get(\"/orders/{id}\")       # 200 or 404\n@app.post(\"/orders\")           # 201 created\n@app.put(\"/orders/{id}\")       # 200 replace\n@app.patch(\"/orders/{id}\")     # 200 partial\n@app.delete(\"/orders/{id}\")    # 204 no body" }],
+      "steps": [
+        { "cue": "Get reads", "lines": [1, 2] },
+        { "cue": "Post creates", "lines": [3] },
+        { "cue": "Put replaces", "lines": [4] },
+        { "cue": "Patch changes", "lines": [5] },
+        { "cue": "Delete removes", "lines": [6] }
+      ],
+      "say": "Use plural nouns: orders, not get orders. Get reads and never changes anything. Post creates a new order. Put replaces the whole order. Patch changes a few fields. Delete removes it." },
+
+    { "type": "diagram", "head": "Status codes: say what happened",
+      "items": [
+        { "id": "ok", "x": 140, "y": 260, "w": 500, "h": 150, "label": "2xx success", "text": "200  201  204", "size": 44, "tone": "good", "cue": "Two hundreds" },
+        { "id": "c4", "x": 710, "y": 260, "w": 500, "h": 150, "label": "4xx caller's fault", "text": "400  401  403  404", "size": 40, "tone": "warn", "cue": "Four hundreds" },
+        { "id": "c5", "x": 1280, "y": 260, "w": 500, "h": 150, "label": "5xx our fault", "text": "500  502  503", "size": 44, "tone": "bad", "cue": "Five hundreds" },
+        { "id": "d1", "x": 140, "y": 640, "w": 500, "h": 150, "text": "201 Created", "sub": "after a successful post", "size": 38, "cue": "Created" },
+        { "id": "d2", "x": 710, "y": 640, "w": 500, "h": 150, "text": "401 vs 403", "sub": "who are you vs not allowed", "size": 38, "cue": "four oh one" },
+        { "id": "d3", "x": 1280, "y": 640, "w": 500, "h": 150, "text": "409 Conflict", "sub": "version clash, duplicate", "size": 38, "cue": "four oh nine" }
+      ],
+      "say": "Two hundreds mean it worked. Two oh one Created after a post. Four hundreds mean the caller got it wrong: bad input, four oh one when you are not logged in, four oh three when you are logged in but not allowed, four oh four not found. Five hundreds are our fault. And four oh nine Conflict is handy for version clashes and duplicates." },
+
+    { "type": "diagram", "head": "Idempotency: is a retry safe?",
+      "items": [
+        { "id": "p1", "x": 140, "y": 280, "w": 360, "h": 130, "text": "PUT x2", "sub": "/orders/42", "size": 42, "cue": "Put twice" },
+        { "id": "r1", "x": 760, "y": 280, "w": 400, "h": 130, "text": "order 42, same", "size": 36, "tone": "good", "cue": "same state" },
+        { "id": "p2", "x": 140, "y": 640, "w": 360, "h": 130, "text": "POST x2", "sub": "/orders", "size": 42, "tone": "warn", "cue": "Post twice" },
+        { "id": "r2", "x": 760, "y": 640, "w": 400, "h": 130, "text": "two orders", "size": 38, "tone": "bad", "cue": "two orders" },
+        { "id": "k", "x": 1380, "y": 640, "w": 400, "h": 130, "text": "Idempotency-Key", "sub": "same key, same result", "size": 32, "tone": "blue", "cue": "idempotency key" }
+      ],
+      "arrows": [
+        { "from": "p1", "to": "r1", "tone": "good", "cue": "same state" },
+        { "from": "p2", "to": "r2", "tone": "bad", "cue": "two orders" },
+        { "from": "k", "to": "r2", "tone": "good", "cue": "idempotency key" }
+      ],
+      "changes": [ { "id": "r2", "text": "one order", "tone": "good", "cue": "returns the first" } ],
+      "say": "Idempotent means repeating the call leaves the same end state. Put twice gives the same state. Get and delete are idempotent too. Post is not. Post twice, and a client who retried after a timeout gets two orders. The fix is an idempotency key: the client sends a unique key, and the server returns the first result for repeats." },
+
+    { "type": "compare", "head": "In the interview",
+      "heads": ["Follow-up", "One-line answer"], "rowHeads": ["Put or patch?", "401 or 403?", "How to version?", "Common mistake"],
+      "rows": [
+        ["Put replaces everything", "Patch changes only the fields sent"],
+        ["Four oh one: not logged in", "Four oh three: logged in, not allowed"],
+        ["A prefix like /v1 in the path", "Never break old clients"],
+        ["Verbs in paths, always 200", "Use nouns and honest status codes"]
+      ],
+      "cues": ["Put or patch", "four oh one or", "version", "mistake"],
+      "say": "Likely follow-ups. Put or patch? Put replaces everything, patch changes only the fields sent. Four oh one or four oh three? Not logged in, versus not allowed. How to version? A prefix like v one in the path, and never break old clients. The common mistake is verbs in paths, and returning two hundred for everything." },
+
+    { "type": "take", "lines": ["Nouns in paths, verbs as methods, honest status codes.", "Get, put and delete are idempotent. Post is not, so I add an idempotency key."],
+      "cues": ["Nouns", "Get, put"],
+      "say": "Nouns in paths, verbs as methods, honest status codes. Get, put and delete are idempotent. Post is not, so I add an idempotency key." }
+  ]
+}

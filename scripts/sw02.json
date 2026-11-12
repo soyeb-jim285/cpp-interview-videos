@@ -1,0 +1,421 @@
+{
+  "id": "sw02",
+  "num": 2,
+  "series": "SWE",
+  "short": "Processes, threads, async",
+  "question": "What is the difference between a process, a thread, and async await?",
+  "caps": [
+    [
+      "a sync",
+      "async"
+    ]
+  ],
+  "scenes": [
+    {
+      "type": "title",
+      "sub": "Three ways to do many things at once, with very different costs.",
+      "say": "Processes, threads, and async await. Three ways to handle many things at once. The interview answer is about what each one shares, and what each one costs."
+    },
+    {
+      "type": "diagram",
+      "head": "Analogy: a restaurant",
+      "items": [
+        {
+          "id": "k1",
+          "x": 160,
+          "y": 420,
+          "w": 480,
+          "h": 230,
+          "text": "Process",
+          "sub": "a separate restaurant, own kitchen",
+          "size": 48,
+          "tone": "warn",
+          "cue": "separate restaurant"
+        },
+        {
+          "id": "k2",
+          "x": 720,
+          "y": 420,
+          "w": 480,
+          "h": 230,
+          "text": "Threads",
+          "sub": "cooks sharing one kitchen and fridge",
+          "size": 48,
+          "tone": "blue",
+          "cue": "Threads are cooks"
+        },
+        {
+          "id": "k3",
+          "x": 1280,
+          "y": 420,
+          "w": 480,
+          "h": 230,
+          "text": "Async",
+          "sub": "one waiter, many tables",
+          "size": 48,
+          "tone": "good",
+          "cue": "one waiter"
+        }
+      ],
+      "say": "Think of a restaurant. A process is a separate restaurant, with its own kitchen and its own fridge. Threads are cooks in one kitchen, sharing the same fridge, which is fast but they can collide. Async is one waiter with many tables. He never stands waiting at one table. He takes an order, then moves on."
+    },
+    {
+      "type": "diagram",
+      "head": "Process vs threads: what is shared?",
+      "items": [
+        {
+          "id": "pa",
+          "region": true,
+          "x": 120,
+          "y": 260,
+          "w": 900,
+          "h": 560,
+          "label": "PROCESS A",
+          "tone": "blue"
+        },
+        {
+          "id": "pb",
+          "region": true,
+          "x": 1100,
+          "y": 260,
+          "w": 720,
+          "h": 560,
+          "label": "PROCESS B",
+          "tone": "warn"
+        },
+        {
+          "id": "heap",
+          "x": 160,
+          "y": 340,
+          "w": 820,
+          "h": 130,
+          "text": "Heap and globals: shared",
+          "size": 36,
+          "tone": "blue",
+          "cue": "One process"
+        },
+        {
+          "id": "t1",
+          "x": 160,
+          "y": 590,
+          "w": 380,
+          "h": 150,
+          "text": "Thread 1",
+          "sub": "own stack",
+          "size": 40,
+          "cue": "Each thread"
+        },
+        {
+          "id": "t2",
+          "x": 600,
+          "y": 590,
+          "w": 380,
+          "h": 150,
+          "text": "Thread 2",
+          "sub": "own stack",
+          "size": 40,
+          "cue": "Each thread"
+        },
+        {
+          "id": "mem",
+          "x": 1140,
+          "y": 340,
+          "w": 640,
+          "h": 130,
+          "text": "Its own memory",
+          "size": 36,
+          "tone": "warn",
+          "cue": "A second process"
+        },
+        {
+          "id": "t3",
+          "x": 1140,
+          "y": 590,
+          "w": 640,
+          "h": 150,
+          "text": "Main thread",
+          "sub": "own stack",
+          "size": 40,
+          "cue": "A second process"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "t1",
+          "to": "heap",
+          "cue": "share the heap"
+        },
+        {
+          "from": "t2",
+          "to": "heap",
+          "cue": "share the heap"
+        }
+      ],
+      "changes": [
+        {
+          "id": "heap",
+          "tone": "bad",
+          "cue": "race conditions"
+        }
+      ],
+      "say": "One process owns its own memory. Inside it, threads are separate lines of execution. Each thread has its own stack, but all threads share the heap. That makes sharing data cheap, and causes race conditions. A second process gets completely separate memory, so it is safer, but talking between processes is slower."
+    },
+    {
+      "type": "code",
+      "head": "Async: one thread, many waiting tasks",
+      "panels": [
+        {
+          "file": "app.py",
+          "size": 32,
+          "code": "import asyncio\n\nasync def fetch(name, secs):\n    await asyncio.sleep(secs)\n    return name\n\nasync def main():\n    r = await asyncio.gather(fetch(\"a\", 1), fetch(\"b\", 1))\n    print(r)\n\nasyncio.run(main())"
+        }
+      ],
+      "steps": [
+        {
+          "cue": "async function",
+          "lines": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "cue": "await",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "cue": "gather",
+          "lines": [
+            8
+          ]
+        },
+        {
+          "cue": "about one second",
+          "lines": [
+            8,
+            9
+          ]
+        }
+      ],
+      "output": {
+        "cmd": "python app.py   # about 1 second, not 2",
+        "tone": "good",
+        "cue": "about one second",
+        "text": "['a', 'b']"
+      },
+      "say": "Here is an async function. At the await, it says: I am waiting, run something else. Gather starts both fetches together. Each one sleeps for one second, but the sleeps overlap. The whole program takes about one second, not two, and it never used a second thread."
+    },
+    {
+      "type": "diagram",
+      "head": "The event loop",
+      "items": [
+        {
+          "id": "loop",
+          "x": 740,
+          "y": 300,
+          "w": 440,
+          "h": 170,
+          "text": "Event loop",
+          "sub": "one thread",
+          "size": 44,
+          "tone": "blue",
+          "cue": "event loop"
+        },
+        {
+          "id": "ta",
+          "x": 200,
+          "y": 620,
+          "w": 380,
+          "h": 130,
+          "text": "Task A",
+          "size": 44,
+          "cue": "Task A"
+        },
+        {
+          "id": "tb",
+          "x": 1340,
+          "y": 620,
+          "w": 380,
+          "h": 130,
+          "text": "Task B",
+          "size": 44,
+          "cue": "Task B"
+        },
+        {
+          "id": "now",
+          "x": 740,
+          "y": 650,
+          "w": 440,
+          "h": 120,
+          "text": "A runs",
+          "size": 40,
+          "tone": "warn",
+          "cue": "Task A"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "loop",
+          "to": "ta",
+          "cue": "Task A"
+        },
+        {
+          "from": "loop",
+          "to": "tb",
+          "cue": "Task B"
+        }
+      ],
+      "changes": [
+        {
+          "id": "now",
+          "text": "A waits, B runs",
+          "cue": "hits an await"
+        },
+        {
+          "id": "ta",
+          "tone": "ghost",
+          "cue": "hits an await"
+        },
+        {
+          "id": "now",
+          "text": "A resumes",
+          "cue": "reply arrives"
+        },
+        {
+          "id": "ta",
+          "tone": "good",
+          "cue": "reply arrives"
+        }
+      ],
+      "say": "The event loop is one thread running a queue of tasks. Task A runs until it hits an await, say a network call. The loop parks it and runs Task B. When the reply arrives, the loop resumes A. It's cooperative. A task that never awaits, like a heavy loop, blocks everything."
+    },
+    {
+      "type": "diagram",
+      "head": "Which one do I pick?",
+      "items": [
+        {
+          "id": "io",
+          "x": 160,
+          "y": 300,
+          "w": 480,
+          "h": 150,
+          "text": "I/O-bound",
+          "sub": "waiting on network or disk",
+          "size": 40,
+          "tone": "blue",
+          "cue": "waits"
+        },
+        {
+          "id": "io2",
+          "x": 1160,
+          "y": 300,
+          "w": 600,
+          "h": 150,
+          "text": "Async or threads",
+          "sub": "cheap, thousands at once",
+          "size": 40,
+          "tone": "good",
+          "cue": "async"
+        },
+        {
+          "id": "cpu",
+          "x": 160,
+          "y": 600,
+          "w": 480,
+          "h": 150,
+          "text": "CPU-bound",
+          "sub": "number crunching",
+          "size": 40,
+          "tone": "warn",
+          "cue": "crunching"
+        },
+        {
+          "id": "cpu2",
+          "x": 1160,
+          "y": 600,
+          "w": 600,
+          "h": 150,
+          "text": "Processes",
+          "sub": "real parallel cores",
+          "size": 40,
+          "tone": "good",
+          "cue": "separate processes"
+        }
+      ],
+      "arrows": [
+        {
+          "from": "io",
+          "to": "io2",
+          "cue": "async"
+        },
+        {
+          "from": "cpu",
+          "to": "cpu2",
+          "cue": "separate processes"
+        }
+      ],
+      "say": "How to choose. If the program mostly waits on network or disk, use async or threads. They are cheap, and thousands can wait at once. If it is crunching numbers, you want real parallel cores, so use separate processes. In Python the G I L lets only one thread run Python code at a time, so threads do not speed up C P U work."
+    },
+    {
+      "type": "compare",
+      "head": "In the interview",
+      "heads": [
+        "They ask",
+        "You say"
+      ],
+      "rowHeads": [
+        "Race",
+        "Fix",
+        "GIL",
+        "Deadlock",
+        "Mistake"
+      ],
+      "rows": [
+        [
+          "What is a race condition?",
+          "Result depends on thread timing"
+        ],
+        [
+          "How do you fix it?",
+          "A lock, or avoid shared state"
+        ],
+        [
+          "What is the Python GIL?",
+          "One thread runs Python at a time"
+        ],
+        [
+          "What is a deadlock?",
+          "Each waits for the other's lock"
+        ],
+        [
+          "Common mistake",
+          "Calling async multithreading"
+        ]
+      ],
+      "cues": [
+        "race condition",
+        "fix it",
+        "G I L",
+        "deadlock",
+        "mistake"
+      ],
+      "say": "Likely follow-ups. A race condition: the result depends on thread timing. Fix it with a lock, or avoid shared state. The G I L: only one thread runs Python code at a time. A deadlock: two threads each wait for the other's lock. The mistake candidates make is calling async multithreading. It runs on one thread."
+    },
+    {
+      "type": "take",
+      "lines": [
+        "Process: own memory, safest, heaviest. Thread: shared memory, needs locks.",
+        "Async: one thread, tasks yield at await. Great for I/O, bad for C P U work.",
+        "I/O-bound: async or threads. C P U-bound: processes."
+      ],
+      "cues": [
+        "A process",
+        "Async",
+        "I O bound"
+      ],
+      "say": "A process has its own memory. Threads share memory and need locks. Async runs many tasks on one thread, yielding at await. So for I O bound work use async or threads, and for C P U bound work, use processes."
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+ "id": "cp19",
+ "num": 19,
+ "series": "DSA",
+ "short": "Fenwick and segment trees",
+ "question": "How do you answer range sum queries with point updates fast? Explain Fenwick trees and segment trees.",
+ "caps": [
+  [
+   "Fenwick",
+   "Fenwick"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "Range queries with updates, in O of log n each.",
+   "say": "Range query problems say: here's an array. Answer sums or minimums over ranges, while values keep changing. Fenwick trees and segment trees both do that in log n."
+  },
+  {
+   "type": "diagram",
+   "head": "The problem: n = 8, many queries and updates",
+   "items": [
+    {
+     "id": "p1",
+     "x": 150,
+     "y": 300,
+     "w": 480,
+     "h": 150,
+     "label": "plain array",
+     "text": "update 1, sum 8",
+     "sub": "update fast, query slow",
+     "size": 38,
+     "tone": "bad",
+     "cue": "plain array"
+    },
+    {
+     "id": "p2",
+     "x": 720,
+     "y": 300,
+     "w": 480,
+     "h": 150,
+     "label": "prefix sums",
+     "text": "update 8, sum 1",
+     "sub": "query fast, update slow",
+     "size": 38,
+     "tone": "bad",
+     "cue": "prefix sums"
+    },
+    {
+     "id": "p3",
+     "x": 1290,
+     "y": 300,
+     "w": 480,
+     "h": 150,
+     "label": "Fenwick or segment tree",
+     "text": "about 3 each",
+     "sub": "log of 8 is 3",
+     "size": 38,
+     "tone": "good",
+     "cue": "tree of subtotals"
+    },
+    {
+     "id": "k",
+     "x": 520,
+     "y": 640,
+     "w": 880,
+     "h": 130,
+     "label": "with 200 thousand queries",
+     "text": "O(n) each is too slow",
+     "size": 40,
+     "tone": "warn",
+     "cue": "two hundred thousand"
+    }
+   ],
+   "say": "Take eight numbers. A plain array updates in one step, but a sum scans up to eight cells. Prefix sums answer a sum in one step, but one update must rewrite up to eight. With two hundred thousand queries on a big array, linear cost is too slow. The fix is a tree of subtotals, where both operations cost about log n. For eight cells, that's three steps."
+  },
+  {
+   "type": "diagram",
+   "head": "Fenwick: sum of the first 7 values",
+   "items": [
+    {
+     "id": "t1",
+     "x": 150,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[1]",
+     "text": "3",
+     "sub": "covers 1",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t2",
+     "x": 360,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[2]",
+     "text": "5",
+     "sub": "covers 1-2",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t3",
+     "x": 570,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[3]",
+     "text": "5",
+     "sub": "covers 3",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t4",
+     "x": 780,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[4]",
+     "text": "11",
+     "sub": "covers 1-4",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t5",
+     "x": 990,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[5]",
+     "text": "4",
+     "sub": "covers 5",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t6",
+     "x": 1200,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[6]",
+     "text": "10",
+     "sub": "covers 5-6",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t7",
+     "x": 1410,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[7]",
+     "text": "2",
+     "sub": "covers 7",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "t8",
+     "x": 1620,
+     "y": 420,
+     "w": 190,
+     "h": 120,
+     "label": "tree[8]",
+     "text": "30",
+     "sub": "covers 1-8",
+     "size": 44,
+     "tone": "blue",
+     "cue": "The Fenwick tree stores"
+    },
+    {
+     "id": "sum",
+     "x": 760,
+     "y": 740,
+     "w": 400,
+     "h": 110,
+     "label": "running sum",
+     "text": "0",
+     "size": 48,
+     "tone": "good",
+     "cue": "To sum the first seven"
+    }
+   ],
+   "changes": [
+    {
+     "id": "t7",
+     "tone": "warn",
+     "cue": "start at seven"
+    },
+    {
+     "id": "sum",
+     "text": "2",
+     "cue": "start at seven"
+    },
+    {
+     "id": "t6",
+     "tone": "warn",
+     "cue": "drop to six"
+    },
+    {
+     "id": "sum",
+     "text": "12",
+     "cue": "drop to six"
+    },
+    {
+     "id": "t4",
+     "tone": "warn",
+     "cue": "then four"
+    },
+    {
+     "id": "sum",
+     "text": "23",
+     "cue": "then four"
+    }
+   ],
+   "say": "Array: three, two, five, one, four, six, two, seven. The Fenwick tree stores, at position i, the sum of the last lowbit of i values. Position four covers one to four. Position six covers five to six. To sum the first seven, start at seven: two. Remove the lowest set bit of seven to drop to six: ten, total twelve. Remove the lowest bit of six, then four: eleven, total twenty three. Three steps, not seven."
+  },
+  {
+   "type": "code",
+   "head": "Fenwick tree in code",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "struct BIT {\n    int n; vector<long long> t;\n    BIT(int n) : n(n), t(n + 1, 0) {}\n    void add(int i, long long v) {            // a[i] += v\n        for (; i <= n; i += i & -i) t[i] += v;\n    }\n    long long sum(int i) {                    // a[1..i]\n        long long s = 0;\n        for (; i > 0; i -= i & -i) s += t[i];\n        return s;\n    }\n    long long range(int l, int r) { return sum(r) - sum(l - 1); }\n};"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "Query goes down",
+     "lines": [
+      7,
+      8,
+      9,
+      10
+     ]
+    },
+    {
+     "cue": "Update goes up",
+     "lines": [
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "range sum",
+     "lines": [
+      12
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "Query goes down",
+     "line": 9,
+     "inside": true,
+     "text": "i -= lowbit",
+     "tone": "info"
+    },
+    {
+     "cue": "Update goes up",
+     "line": 5,
+     "inside": true,
+     "text": "i += lowbit",
+     "tone": "info"
+    }
+   ],
+   "say": "Query goes down: subtract the lowest bit each time, adding tree values. Update goes up: add the lowest bit each time, changing every cell that covers position i. Both loops run at most log n times. A range sum is sum of r minus sum of l minus one. It's tiny, which is why contest people love it. Its limit: it needs an operation you can subtract, like sums."
+  },
+  {
+   "type": "code",
+   "head": "Segment tree: also min, max, and more",
+   "panels": [
+    {
+     "file": "sol.cpp",
+     "code": "struct Seg {\n    int n; vector<long long> t;\n    Seg(int n) : n(n), t(2 * n, 0) {}\n    void set(int i, long long v) {            // a[i] = v, 0-indexed\n        for (t[i += n] = v; i > 1; i >>= 1) t[i >> 1] = t[i] + t[i ^ 1];\n    }\n    long long query(int l, int r) {           // sum of [l, r)\n        long long s = 0;\n        for (l += n, r += n; l < r; l >>= 1, r >>= 1) {\n            if (l & 1) s += t[l++];\n            if (r & 1) s += t[--r];\n        }\n        return s;\n    }\n};"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "leaves",
+     "lines": [
+      3
+     ]
+    },
+    {
+     "cue": "update",
+     "lines": [
+      4,
+      5
+     ]
+    },
+    {
+     "cue": "query",
+     "lines": [
+      7,
+      8,
+      9,
+      10,
+      11
+     ]
+    }
+   ],
+   "say": "A segment tree stores the array's values as leaves, and every parent holds the combination of its two children, here a sum. Update: change a leaf, then recompute the parents up to the root. Query: walk inward from both ends of the range, taking whole blocks. Swap the plus for min or max and it works unchanged. Range updates need lazy propagation, the usual follow-up. Time is O of log n per operation."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "They ask",
+    "You say"
+   ],
+   "rows": [
+    [
+     "Fenwick or segment tree?",
+     "Fenwick for prefix sums, shorter code. Segment tree for min, max, or lazy updates."
+    ],
+    [
+     "Build time?",
+     "Fenwick: n adds, n log n. Segment tree: O of n."
+    ],
+    [
+     "Why does lowbit work?",
+     "Cell i covers exactly the last lowbit of i values."
+    ],
+    [
+     "Common mistake",
+     "Fenwick is 1-indexed; index zero loops forever."
+    ]
+   ],
+   "cues": [
+    "Fenwick or segment",
+    "Build time",
+    "Why lowbit",
+    "Common mistake"
+   ],
+   "say": "Follow-ups. Fenwick or segment tree? Fenwick for sums, a segment tree for min, max, or lazy range updates. Build time? Segment tree is linear. Why lowbit? Cell i covers the last lowbit of i values. Classics: Range Sum Query Mutable, Count of Smaller Numbers After Self. The common mistake: using index zero in a Fenwick tree. It loops forever."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Both answer range queries with point updates in O of log n.",
+    "Fenwick: tiny, for sums. Segment tree: general, supports min, max, lazy.",
+    "Index from one in a Fenwick tree."
+   ],
+   "cues": [
+    "Both answer",
+    "Fenwick is tiny",
+    "Index from one"
+   ],
+   "say": "Both answer range queries with point updates in log n. Fenwick is tiny and made for sums. A segment tree is general, and supports min, max, and lazy updates. And remember to index from one in a Fenwick tree."
+  }
+ ]
+}

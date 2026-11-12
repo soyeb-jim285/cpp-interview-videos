@@ -1,0 +1,288 @@
+{
+ "id": "ai06",
+ "num": 6,
+ "series": "AI Eval",
+ "short": "Human data for AI",
+ "question": "Why does R L H F need careful human labels?",
+ "caps": [
+  [
+   "R L H F",
+   "RLHF"
+  ]
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "The model learns exactly what the labels reward, including the mistakes.",
+   "say": "Human data for A I. Behind every polite, helpful model are thousands of human judgments. If those judgments are sloppy, the model learns sloppy habits."
+  },
+  {
+   "type": "diagram",
+   "head": "Like training a dog with treats",
+   "items": [
+    {
+     "id": "s1",
+     "x": 200,
+     "y": 300,
+     "w": 520,
+     "h": 130,
+     "text": "Sits: treat",
+     "sub": "every time",
+     "size": 38,
+     "tone": "good",
+     "cue": "every time"
+    },
+    {
+     "id": "s2",
+     "x": 1200,
+     "y": 300,
+     "w": 520,
+     "h": 130,
+     "text": "Sits: treat, then none",
+     "sub": "at random",
+     "size": 34,
+     "tone": "warn",
+     "cue": "at random"
+    },
+    {
+     "id": "o1",
+     "x": 200,
+     "y": 620,
+     "w": 520,
+     "h": 110,
+     "text": "Dog learns sit",
+     "size": 36,
+     "tone": "good",
+     "cue": "learns"
+    },
+    {
+     "id": "o2",
+     "x": 1200,
+     "y": 620,
+     "w": 520,
+     "h": 110,
+     "text": "Dog is confused",
+     "size": 36,
+     "tone": "bad",
+     "cue": "confused"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "s1",
+     "to": "o1",
+     "cue": "learns"
+    },
+    {
+     "from": "s2",
+     "to": "o2",
+     "cue": "confused"
+    }
+   ],
+   "say": "Think of training a dog. Give a treat every time it sits, and it learns quickly. Give treats at random, and the dog is confused. Training a model from human feedback is the same. The human choice is the treat. Consistent treats teach a clear habit, and random treats teach noise."
+  },
+  {
+   "type": "flow",
+   "head": "R L H F in one line",
+   "items": [
+    {
+     "text": "Prompt",
+     "sub": "a real task",
+     "size": 34,
+     "tone": "blue",
+     "cue": "A prompt"
+    },
+    {
+     "text": "Two answers",
+     "sub": "A and B",
+     "size": 32,
+     "cue": "two answers"
+    },
+    {
+     "text": "Human picks",
+     "sub": "A is better",
+     "size": 32,
+     "tone": "warn",
+     "cue": "A person picks"
+    },
+    {
+     "text": "Reward model",
+     "sub": "learns the taste",
+     "size": 30,
+     "cue": "reward model"
+    },
+    {
+     "text": "Tuned model",
+     "sub": "chases the reward",
+     "size": 30,
+     "tone": "good",
+     "cue": "tuned"
+    }
+   ],
+   "say": "R L H F means reinforcement learning from human feedback. A prompt goes to the model, which writes two answers. A person picks the better one. Thousands of those choices train a reward model that predicts human taste. Then the main model is tuned to earn a high reward. Whatever the humans preferred, good or bad, becomes the target."
+  },
+  {
+   "type": "diagram",
+   "head": "Consistency is the whole game",
+   "items": [
+    {
+     "id": "pair",
+     "x": 760,
+     "y": 230,
+     "w": 400,
+     "h": 110,
+     "text": "Same pair",
+     "sub": "A vs B",
+     "size": 36,
+     "cue": "same pair"
+    },
+    {
+     "id": "an1",
+     "x": 260,
+     "y": 450,
+     "w": 400,
+     "h": 110,
+     "label": "Annotator 1",
+     "text": "picks A",
+     "size": 38,
+     "tone": "blue",
+     "cue": "One picks A"
+    },
+    {
+     "id": "an2",
+     "x": 1260,
+     "y": 450,
+     "w": 400,
+     "h": 110,
+     "label": "Annotator 2",
+     "text": "picks B",
+     "size": 38,
+     "tone": "blue",
+     "cue": "other picks B"
+    },
+    {
+     "id": "gd",
+     "x": 560,
+     "y": 740,
+     "w": 800,
+     "h": 110,
+     "text": "Disagreement: fix the guideline",
+     "size": 36,
+     "tone": "warn",
+     "cue": "fix the guideline"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "pair",
+     "to": "an1",
+     "cue": "One picks A"
+    },
+    {
+     "from": "pair",
+     "to": "an2",
+     "cue": "other picks B"
+    },
+    {
+     "from": "an1",
+     "to": "gd",
+     "cue": "fix the guideline"
+    },
+    {
+     "from": "an2",
+     "to": "gd",
+     "cue": "fix the guideline"
+    }
+   ],
+   "say": "Two annotators see the same pair. One picks A, the other picks B. If this is common, the reward model gets contradictory signals and learns noise. Teams measure inter annotator agreement for exactly this reason. When it is low, the usual culprit is an unclear guideline, so you fix the guideline, not just the people."
+  },
+  {
+   "type": "code",
+   "head": "A guideline with a tie-breaker",
+   "panels": [
+    {
+     "file": "guidelines.txt",
+     "code": "Pick the better answer. Order of priority:\n\n1. Correct and truthful\n2. Follows every instruction\n3. Safe: no harmful content\n4. Clear and concise\n\nLonger is NOT better. Same facts in\nfewer words wins.\n\nUnsure? Mark \"tie\" and explain why."
+    }
+   ],
+   "steps": [
+    {
+     "cue": "ranked priorities",
+     "lines": [
+      3,
+      4,
+      5,
+      6
+     ]
+    },
+    {
+     "cue": "Length",
+     "lines": [
+      8,
+      9
+     ]
+    },
+    {
+     "cue": "tie",
+     "lines": [
+      11
+     ]
+    }
+   ],
+   "say": "A good guideline has ranked priorities, so correctness beats style when they clash. It names known traps. Length is the big one: people tend to prefer longer answers, so the model learns to ramble unless the guideline says otherwise. And it allows a tie with a written reason, so annotators don't guess."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "Follow-up",
+    "One-line answer"
+   ],
+   "rowHeads": [
+    "Measure quality?",
+    "Low agreement?",
+    "Bias traps?",
+    "Common mistake"
+   ],
+   "rows": [
+    [
+     "How do you measure label quality?",
+     "Inter annotator agreement"
+    ],
+    [
+     "What if agreement is low?",
+     "Clarify the guideline, add examples"
+    ],
+    [
+     "Which bias is common?",
+     "Preferring longer answers"
+    ],
+    [
+     "Labeling on gut feeling",
+     "Follow the written guideline"
+    ]
+   ],
+   "cues": [
+    "How do you measure",
+    "agreement is low",
+    "Which bias",
+    "The common mistake"
+   ],
+   "say": "Likely follow-ups. How do you measure label quality? Inter annotator agreement. What if agreement is low? Clarify the guideline and add examples. Which bias is common? Preferring longer answers. The common mistake is labeling on gut feeling instead of following the written guideline."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "R L H F trains a reward model on human choices between answers.",
+    "Noisy or biased labels teach the model noisy or biased habits.",
+    "Clear ranked guidelines, examples, and agreement checks keep labels consistent."
+   ],
+   "cues": [
+    "R L H F trains",
+    "Noisy",
+    "Clear ranked"
+   ],
+   "say": "R L H F trains a reward model from human choices between answers. Noisy or biased labels teach the model noisy or biased habits. Clear ranked guidelines, examples, and agreement checks keep labels consistent."
+  }
+ ]
+}

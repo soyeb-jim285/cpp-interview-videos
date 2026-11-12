@@ -1,0 +1,275 @@
+{
+ "id": "ai03",
+ "num": 3,
+ "series": "AI Eval",
+ "short": "Evaluating AI agents",
+ "question": "How do you evaluate an A I agent that uses tools?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "An agent is judged on what it did, not only on what it said.",
+   "say": "Evaluating agents. A chatbot gives one answer. An agent takes many steps, calls tools, and changes things. That changes how you grade it."
+  },
+  {
+   "type": "diagram",
+   "head": "Like a driving test",
+   "items": [
+    {
+     "id": "d",
+     "x": 200,
+     "y": 300,
+     "w": 560,
+     "h": 130,
+     "text": "Arrived on time",
+     "sub": "the outcome",
+     "size": 38,
+     "tone": "good",
+     "cue": "arrives"
+    },
+    {
+     "id": "r",
+     "x": 1160,
+     "y": 300,
+     "w": 560,
+     "h": 130,
+     "text": "Ran a red light",
+     "sub": "the route",
+     "size": 38,
+     "tone": "bad",
+     "cue": "red light"
+    },
+    {
+     "id": "f",
+     "x": 660,
+     "y": 680,
+     "w": 600,
+     "h": 130,
+     "text": "Examiner: fail",
+     "size": 40,
+     "tone": "bad",
+     "cue": "fails"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "d",
+     "to": "f",
+     "cue": "fails"
+    },
+    {
+     "from": "r",
+     "to": "f",
+     "cue": "fails"
+    }
+   ],
+   "say": "Think of a driving test. A driver arrives at the destination on time. But on the way they ran a red light. The examiner still fails them, because how you got there matters. An agent test works the same way. An A I agent is a model that can take actions with tools, so we grade the route as well as the result."
+  },
+  {
+   "type": "flow",
+   "head": "A trajectory: one run, step by step",
+   "items": [
+    {
+     "label": "step 1",
+     "text": "search",
+     "sub": "find the failing test",
+     "size": 36,
+     "tone": "blue",
+     "cue": "search the code"
+    },
+    {
+     "label": "step 2",
+     "text": "read file",
+     "sub": "open sort.py",
+     "size": 36,
+     "tone": "blue",
+     "cue": "reads the file"
+    },
+    {
+     "label": "step 3",
+     "text": "edit file",
+     "sub": "change sort.py",
+     "size": 36,
+     "tone": "blue",
+     "cue": "edits it"
+    },
+    {
+     "label": "step 4",
+     "text": "run tests",
+     "sub": "pytest",
+     "size": 36,
+     "tone": "blue",
+     "cue": "runs the tests"
+    },
+    {
+     "label": "result",
+     "text": "2 failed",
+     "sub": "task not done",
+     "size": 36,
+     "tone": "warn",
+     "cue": "two tests still fail"
+    }
+   ],
+   "changes": [
+    {
+     "id": "f4",
+     "kill": true,
+     "tone": "bad",
+     "cue": "So the run fails"
+    }
+   ],
+   "say": "Say the task is, fix the failing sort function. The agent starts with a tool call to search the code. Then it reads the file. Then it edits it. Then it runs the tests. Two tests still fail. So the run fails. This whole chain of calls, with their inputs and outputs, is the trajectory."
+  },
+  {
+   "type": "diagram",
+   "head": "Two things to check",
+   "items": [
+    {
+     "id": "out",
+     "x": 200,
+     "y": 300,
+     "w": 700,
+     "h": 150,
+     "label": "Outcome",
+     "text": "Did it work?",
+     "sub": "tests pass, state is correct",
+     "size": 42,
+     "tone": "good",
+     "cue": "The outcome"
+    },
+    {
+     "id": "trj",
+     "x": 1020,
+     "y": 300,
+     "w": 700,
+     "h": 150,
+     "label": "Trajectory",
+     "text": "Was the path sound?",
+     "sub": "right tools, safe, no waste",
+     "size": 42,
+     "tone": "blue",
+     "cue": "The trajectory"
+    },
+    {
+     "id": "o1",
+     "x": 200,
+     "y": 640,
+     "w": 700,
+     "h": 110,
+     "text": "Pass or fail, checked by code",
+     "size": 32,
+     "cue": "Pass or fail"
+    },
+    {
+     "id": "t1",
+     "x": 1020,
+     "y": 640,
+     "w": 700,
+     "h": 110,
+     "text": "Wrong args, loops, side effects",
+     "size": 32,
+     "tone": "warn",
+     "cue": "wrong arguments"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "out",
+     "to": "o1",
+     "cue": "Pass or fail"
+    },
+    {
+     "from": "trj",
+     "to": "t1",
+     "cue": "wrong arguments"
+    }
+   ],
+   "say": "Two things to check. The outcome: did the task actually get done? That should be a pass or fail, ideally checked by code. The trajectory: was the path sound? Look for wrong arguments to a tool, loops that repeat the same call, deleted files nobody asked about. An agent can reach the right result by a dangerous route."
+  },
+  {
+   "type": "code",
+   "head": "Success criteria as a deterministic check",
+   "panels": [
+    {
+     "file": "check.py",
+     "code": "import subprocess\n\ndef passed(repo):\n    t = subprocess.run([\"pytest\", \"-q\"], cwd=repo)\n    d = subprocess.run([\"git\", \"diff\", \"--name-only\"], cwd=repo,\n                       capture_output=True, text=True)\n    edited_tests = any(f.startswith(\"tests/\") for f in d.stdout.split())\n    return t.returncode == 0 and not edited_tests"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "run the real tests",
+     "lines": [
+      4
+     ]
+    },
+    {
+     "cue": "which files changed",
+     "lines": [
+      5,
+      6,
+      7
+     ]
+    },
+    {
+     "cue": "Pass only if",
+     "lines": [
+      8
+     ]
+    }
+   ],
+   "say": "Here is a success criterion written as code. First, run the real tests. Then ask git which files changed. Pass only if the tests succeed and the agent did not edit the tests themselves. Notice there is no opinion in it. Any correct fix passes, and a cheat does not. That is the follow-up interviewers like: how do you stop it gaming the check?"
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "Follow-up",
+    "One-line answer"
+   ],
+   "rowHeads": [
+    "Success criteria?",
+    "Many valid paths?",
+    "Flaky tools?",
+    "Common mistake"
+   ],
+   "rows": [
+    [
+     "How do you define success?",
+     "A code check on the final state"
+    ],
+    [
+     "What if there are many valid paths?",
+     "Check the outcome, not exact steps"
+    ],
+    [
+     "What if a tool is flaky?",
+     "Run several times, report pass rate"
+    ],
+    [
+     "Grading only the final message",
+     "Check state and the tool calls"
+    ]
+   ],
+   "cues": [
+    "How do you define",
+    "many valid paths",
+    "a tool is flaky",
+    "The common mistake"
+   ],
+   "say": "Likely follow-ups. How do you define success? A code check on the final state. What if there are many valid paths? Check the outcome, not exact steps. What if a tool is flaky? Run several times and report the pass rate. The common mistake is grading only the final message instead of the state and the tool calls."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Judge the outcome with a pass or fail check, ideally code.",
+    "Judge the trajectory: tool calls, arguments, side effects, wasted steps.",
+    "Write criteria that accept any correct route and reject cheating."
+   ],
+   "cues": [
+    "Judge the outcome",
+    "Judge the trajectory",
+    "Write criteria"
+   ],
+   "say": "Judge the outcome with a pass or fail check, ideally code. Judge the trajectory too: tool calls, arguments, side effects. And write criteria that accept any correct route but reject cheating."
+  }
+ ]
+}

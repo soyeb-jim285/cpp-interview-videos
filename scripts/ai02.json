@@ -1,0 +1,327 @@
+{
+ "id": "ai02",
+ "num": 2,
+ "series": "AI Eval",
+ "short": "Grading LLM answers",
+ "question": "How do you grade an L L M's answers consistently?",
+ "scenes": [
+  {
+   "type": "title",
+   "sub": "A rubric turns a gut feeling into a decision someone else can repeat.",
+   "say": "Grading model answers. Anyone can say, that looks good. The job is to grade so that a different person reaches the same verdict."
+  },
+  {
+   "type": "diagram",
+   "head": "Like marking an exam",
+   "items": [
+    {
+     "id": "v",
+     "x": 200,
+     "y": 300,
+     "w": 560,
+     "h": 130,
+     "text": "Vague",
+     "sub": "is it a good essay?",
+     "size": 38,
+     "tone": "bad",
+     "cue": "is this a good essay"
+    },
+    {
+     "id": "m",
+     "x": 1160,
+     "y": 300,
+     "w": 560,
+     "h": 130,
+     "text": "Mark scheme",
+     "sub": "2 points per question part",
+     "size": 38,
+     "tone": "good",
+     "cue": "mark scheme"
+    },
+    {
+     "id": "v2",
+     "x": 200,
+     "y": 620,
+     "w": 560,
+     "h": 110,
+     "text": "Two teachers, two grades",
+     "size": 32,
+     "tone": "warn",
+     "cue": "two teachers"
+    },
+    {
+     "id": "m2",
+     "x": 1160,
+     "y": 620,
+     "w": 560,
+     "h": 110,
+     "text": "Two teachers, same grade",
+     "size": 32,
+     "tone": "good",
+     "cue": "same grade"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "v",
+     "to": "v2",
+     "cue": "two teachers"
+    },
+    {
+     "from": "m",
+     "to": "m2",
+     "cue": "same grade"
+    }
+   ],
+   "say": "Think of marking an exam. If the teacher just asks, is this a good essay, two teachers give two different grades. Give them a mark scheme, two points for this, two points for that, and they land on the same grade. Grading model answers works the same way: the rubric is the mark scheme."
+  },
+  {
+   "type": "code",
+   "head": "A prompt and a response to grade",
+   "panels": [
+    {
+     "file": "prompt.txt",
+     "code": "Summarize the text below in exactly\ntwo sentences. Do not use bullets.\n\nText: The city opened a new bridge\non Monday. It cuts commute time by\n12 minutes and cost 40 million."
+    },
+    {
+     "file": "response.txt",
+     "code": "The city opened a new bridge.\nIt cuts commutes by 12 minutes.\nIt cost 40 million dollars.\n\n(three sentences)"
+    }
+   ],
+   "steps": [
+    {
+     "cue": "The prompt asks",
+     "panel": 0,
+     "lines": [
+      1,
+      2
+     ]
+    },
+    {
+     "cue": "The response is",
+     "panel": 1,
+     "lines": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "notes": [
+    {
+     "cue": "Count the sentences",
+     "panel": 1,
+     "line": 3,
+     "inside": true,
+     "text": "3, not 2",
+     "tone": "bad"
+    }
+   ],
+   "say": "The prompt asks for exactly two sentences, no bullets. The response is accurate and readable. But count the sentences. There are three. A quick reader would say, good summary. A careful grader catches that it broke an explicit instruction."
+  },
+  {
+   "type": "diagram",
+   "head": "Grade each criterion separately",
+   "panels": [
+    {
+     "file": "rubric.txt",
+     "code": "1. Correct: facts match the text\n2. Instructions: every rule followed\n3. No invented facts\n4. Clear and concise\n\nEach one: pass or fail."
+    }
+   ],
+   "steps": [
+    {
+     "cue": "A rubric",
+     "lines": [
+      1,
+      2,
+      3,
+      4
+     ]
+    },
+    {
+     "cue": "pass or fail",
+     "lines": [
+      6
+     ]
+    }
+   ],
+   "items": [
+    {
+     "id": "c1",
+     "x": 1100,
+     "y": 250,
+     "w": 520,
+     "h": 110,
+     "text": "Correct",
+     "sub": "pass",
+     "size": 38,
+     "tone": "good",
+     "cue": "Correct facts"
+    },
+    {
+     "id": "c2",
+     "x": 1100,
+     "y": 400,
+     "w": 520,
+     "h": 110,
+     "text": "Instructions",
+     "sub": "fail: three sentences",
+     "size": 38,
+     "tone": "bad",
+     "cue": "Instructions fail"
+    },
+    {
+     "id": "c3",
+     "x": 1100,
+     "y": 550,
+     "w": 520,
+     "h": 110,
+     "text": "No invented facts",
+     "sub": "pass",
+     "size": 34,
+     "tone": "good",
+     "cue": "No invented"
+    },
+    {
+     "id": "c4",
+     "x": 1100,
+     "y": 700,
+     "w": 520,
+     "h": 110,
+     "text": "Clear and concise",
+     "sub": "pass",
+     "size": 34,
+     "tone": "good",
+     "cue": "Clear and concise"
+    }
+   ],
+   "say": "A rubric splits one vague question into small checks. Correct facts: pass. Instructions fail, because of the third sentence. No invented facts: pass. Clear and concise: pass. Each check is pass or fail, so two graders have little room to disagree, and you can say exactly why the answer lost points."
+  },
+  {
+   "type": "diagram",
+   "head": "When you can't score it, compare it",
+   "items": [
+    {
+     "id": "pr",
+     "x": 760,
+     "y": 230,
+     "w": 400,
+     "h": 110,
+     "text": "Same prompt",
+     "size": 36,
+     "cue": "Same prompt"
+    },
+    {
+     "id": "ra",
+     "x": 260,
+     "y": 450,
+     "w": 400,
+     "h": 110,
+     "text": "Answer A",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Answer A"
+    },
+    {
+     "id": "rb",
+     "x": 1260,
+     "y": 450,
+     "w": 400,
+     "h": 110,
+     "text": "Answer B",
+     "size": 38,
+     "tone": "blue",
+     "cue": "Answer B"
+    },
+    {
+     "id": "gr",
+     "x": 760,
+     "y": 700,
+     "w": 400,
+     "h": 110,
+     "text": "A is better",
+     "sub": "reason: followed the rule",
+     "size": 36,
+     "tone": "good",
+     "cue": "pick a winner"
+    }
+   ],
+   "arrows": [
+    {
+     "from": "pr",
+     "to": "ra",
+     "cue": "Answer A"
+    },
+    {
+     "from": "pr",
+     "to": "rb",
+     "cue": "Answer B"
+    },
+    {
+     "from": "ra",
+     "to": "gr",
+     "cue": "pick a winner"
+    },
+    {
+     "from": "rb",
+     "to": "gr",
+     "cue": "pick a winner"
+    }
+   ],
+   "say": "Some tasks have no clean checklist, like which email sounds better. Then use pairwise comparison. Show the same prompt with Answer A and Answer B, and pick a winner, with a written reason. Swap the order for a second pass, because graders favor whichever answer they see first. If two graders still disagree, fix the rubric, not the people."
+  },
+  {
+   "type": "compare",
+   "head": "In the interview",
+   "heads": [
+    "Follow-up",
+    "One-line answer"
+   ],
+   "rowHeads": [
+    "Graders disagree?",
+    "Judge model?",
+    "Position bias?",
+    "Common mistake"
+   ],
+   "rows": [
+    [
+     "What if two graders disagree?",
+     "Fix the rubric, then re-grade"
+    ],
+    [
+     "Can a model grade for you?",
+     "Yes, but spot-check against humans"
+    ],
+    [
+     "What is position bias?",
+     "Favoring the first answer shown"
+    ],
+    [
+     "Rewarding length or tone",
+     "Grade correctness first"
+    ]
+   ],
+   "cues": [
+    "What if two graders",
+    "Can a model",
+    "What is position",
+    "The common mistake"
+   ],
+   "say": "Likely follow-ups. What if two graders disagree? Fix the rubric, then re-grade. Can a model grade for you? Yes, but spot check it against humans. What is position bias? Favoring whichever answer is shown first. The common mistake is rewarding length or a nice tone. Grade correctness first."
+  },
+  {
+   "type": "take",
+   "lines": [
+    "Break grading into separate criteria: correct, follows instructions, no made-up facts.",
+    "Use pass or fail checks so two graders agree.",
+    "For open tasks, compare A against B, swap the order, and write the reason."
+   ],
+   "cues": [
+    "Break grading",
+    "pass or fail",
+    "For open tasks"
+   ],
+   "say": "Break grading into separate criteria: correctness, instruction following, no made up facts. Make each a pass or fail check so two graders agree. For open tasks, compare A against B, swap the order, and always write the reason."
+  }
+ ]
+}
