@@ -43,19 +43,23 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Find the next bigger number for every item, in one pass. Then find the top k of a billion numbers, with memory for only k. By the end, you'll do both.",
+     "say": "Scan every item for its next bigger one, and a thousand items cost half a million steps. By the end you'll do it in one pass, and find the top k of a billion numbers with memory for only k.",
      "lines": [
       {
-       "text": "Next bigger item, one pass",
-       "cue": "next bigger number"
+       "text": "Next bigger, 1,000 items",
+       "cue": "Scan every item"
       },
       {
-       "text": "Top k of a billion numbers",
-       "cue": "top k of a billion"
+       "text": "About 500,000 steps",
+       "cue": "half a million steps"
       },
       {
-       "text": "Memory for just k.",
-       "cue": "memory for only k",
+       "text": "One pass.",
+       "cue": "in one pass"
+      },
+      {
+       "text": "Top k of a billion, memory for k.",
+       "cue": "top k of a billion",
        "accent": true
       }
      ]
@@ -88,26 +92,6 @@
       "example": "The first string",
       "output": "so false"
      }
-    },
-    {
-     "type": "chart",
-     "head": "Next bigger, n = 1,000",
-     "unit": "steps",
-     "say": "Obvious way: scan right from every item. For a thousand items, that's almost five hundred thousand comparisons. A stack: two thousand steps, tops.",
-     "bars": [
-      {
-       "label": "Scan",
-       "value": 499500,
-       "tone": "bad",
-       "cue": "five hundred thousand"
-      },
-      {
-       "label": "Stack",
-       "value": 2000,
-       "tone": "good",
-       "cue": "two thousand steps"
-      }
-     ]
     },
     {
      "type": "flow",
@@ -358,6 +342,26 @@
       "example": "Two, one, two",
       "output": "gives four"
      }
+    },
+    {
+     "type": "chart",
+     "head": "Next bigger, n = 1,000: worst case",
+     "unit": "steps",
+     "say": "Why a stack? If the array only goes down, scanning right costs about five hundred thousand steps for a thousand items. A stack: at most two thousand pushes and pops.",
+     "bars": [
+      {
+       "label": "Scan",
+       "value": 499500,
+       "tone": "bad",
+       "cue": "five hundred thousand"
+      },
+      {
+       "label": "Stack",
+       "value": 2000,
+       "tone": "good",
+       "cue": "two thousand"
+      }
+     ]
     },
     {
      "type": "flow",
@@ -701,7 +705,7 @@
     {
      "type": "code",
      "head": "nextGreater",
-     "say": "Here's the code. The result starts at minus one, for items never beaten. The stack holds indices. While the top item is smaller than the newcomer, pop it and record the newcomer as its answer. Then push the newcomer.",
+     "say": "Here's the code. The result starts at minus one, for items never beaten. The stack holds indices. While the top item is smaller than the newcomer, pop it and record the newcomer as its answer. Then push the newcomer. The stack stays in decreasing order: a monotonic stack.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -739,6 +743,10 @@
         9
        ],
        "cue": "Then push"
+      },
+      {
+       "lines": [],
+       "cue": "a monotonic stack"
       }
      ]
     },
@@ -859,30 +867,24 @@
     },
     {
      "type": "flow",
-     "head": "The podium",
-     "say": "Picture a podium with three spots. A newcomer only has to beat whoever is last on it. A heap always shows you that person instantly. Looking costs O of one. Adding or removing costs O of log n.",
+     "head": "A line with the smallest first",
+     "say": "Picture a line where the smallest person always stands at the front. Newcomers join, and the line fixes itself. A heap is that line: peeking at the front costs O of one. Adding or removing costs O of log n.",
      "items": [
       {
-       "label": "podium",
-       "text": "3 spots",
-       "cue": "podium"
+       "label": "the line",
+       "text": "smallest first",
+       "cue": "smallest person"
       },
       {
        "label": "newcomer",
-       "text": "beats last?",
-       "cue": "newcomer"
+       "text": "joins the line",
+       "cue": "Newcomers join"
       },
       {
-       "label": "heap shows",
-       "text": "the last",
-       "sub": "min on top",
-       "cue": "always shows you"
-      },
-      {
-       "label": "peek",
+       "label": "peek front",
        "text": "O(1)",
        "tone": "good",
-       "cue": "Looking"
+       "cue": "peeking"
       },
       {
        "label": "push, pop",
@@ -894,7 +896,7 @@
     {
      "type": "diagram",
      "head": "Push 2: sift up",
-     "say": "A heap is a tree stored in an array. Five on top, twelve below it: a min-heap, smallest on top. Insert two. It lands in the next free slot. Its parent is five. Smaller than its parent, so they swap. The array swaps too. Two is on top. Sift up: O of log n.",
+     "say": "A heap is a tree stored in an array. Five on top, twelve below it: a min-heap, smallest on top. Insert two. It lands in the next free slot. Its parent, index i minus one over two, is five. Smaller, so they swap. The array swaps too. Two is on top. Sift up: O of log n.",
      "items": [
       {
        "id": "r",
@@ -970,7 +972,7 @@
        "x": 1230,
        "y": 270,
        "text": "parent: (i-1)/2",
-       "cue": "Its parent is five"
+       "cue": "Its parent"
       }
      ],
      "changes": [
@@ -1768,7 +1770,7 @@
      "covers": [
       "cp07"
      ],
-     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? Pop everything the new item beats, and answer them. Why O of n? Each index is pushed once, popped once. Previous greater? Flip the comparison. Values or indices? Indices.",
+     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? A monotonic stack: pop everything the new item beats, answer them. Why O of n? Each index is pushed once, popped once. Previous greater? Flip the comparison. Values or indices? Indices.",
      "heads": [
       "They ask",
       "You say"
@@ -1780,7 +1782,7 @@
       ],
       [
        "Next greater element?",
-       "pop everything the new item beats, answer them"
+       "monotonic stack: values decrease; pop what it beats"
       ],
       [
        "Why `O(n)`?",
@@ -1804,7 +1806,7 @@
      "covers": [
       "cp08"
      ],
-     "say": "What is a heap? A tree stored in an array, smallest on top. Costs? Top O of one, push and pop O of log n, build linear. Top k largest? A min heap of size k: its top is the weakest keeper. Why not sort? A heap is O of n log k and handles streams.",
+     "say": "What is a heap? A tree stored in an array, smallest on top. Costs? Top O of one, push and pop O of log n. Top k largest? A min heap of size k: its top is the weakest keeper. Why not sort? A heap is O of n log k and handles streams.",
      "heads": [
       "They ask",
       "You say"
@@ -1816,7 +1818,7 @@
       ],
       [
        "Costs?",
-       "top O(1), push/pop O(log n), build O(n)"
+       "top O(1), push/pop O(log n)"
       ],
       [
        "Top k largest?",
@@ -1842,7 +1844,13 @@
      "pause": 5,
      "say": "Self test. You must keep the three largest numbers from a stream. Which kind of heap, and how big?",
      "q": "Keep the 3 largest of a stream. Which heap, what size?",
-     "answer": "min-heap, size 3"
+     "answer": "min-heap, size 3",
+     "options": [
+      "max-heap, size 3",
+      "min-heap, size 3",
+      "min-heap, size n",
+      "max-heap, size n"
+     ]
     },
     {
      "type": "compare",
@@ -1850,7 +1858,7 @@
      "covers": [
       "cp08"
      ],
-     "say": "Merge k sorted lists? Heap of the k fronts: pop the smallest, push its next. Cost? O of N log k. A billion numbers, tiny memory? Min heap of size k. Common mistake? Priority queue is a max heap.",
+     "say": "Min heap, size three: its top is the weakest keeper. Merge k sorted lists? Heap of the k fronts: pop the smallest, push its next. Cost? O of N log k. A billion numbers, tiny memory? Min heap of size k. Common mistake? Priority queue is a max heap.",
      "heads": [
       "They ask",
       "You say"
