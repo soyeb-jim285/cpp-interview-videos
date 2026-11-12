@@ -51,6 +51,22 @@ bad("drill-covers", (L) => { L.covers = []; });
 bad("chapter-kind", (L) => { L.chapters[0].kind = "bogus"; });
 bad("gap", (L) => { Object.assign(L.chapters[0].scenes[1], { say: w(16), steps: [{ lines: [1] }] }); });
 
+const miss = (what, mut) => test(`missing ${what} cue fails`, () => {
+  const L = good(); mut(L.chapters[0].scenes);
+  const r = check(L);
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stdout, new RegExp(`${what} cue "nope" not found in say`));
+  assert.ok(!r.stdout.includes("[gap]") && !r.stdout.includes("[cue-order]"), r.stdout); // no order/gap noise on a partial cue list
+});
+miss("optCue", (S) => { S[2].optCue = "nope"; });
+miss("hook line 0", (S) => { S[0].lines[0].cue = "nope"; });
+miss("bar 0", (S) => { S.push({ type: "chart", say: "Linear is small.", bars: [{ label: "n", value: 1, cue: "nope" }] }); });
+miss("panel 0", (S) => { S[1].panels[0].type = true; S[1].panels[0].cue = "nope"; });
+miss("subCue", (S) => { S.push({ type: "title", say: "Hello there.", subCue: "nope" }); });
+miss("step", (S) => { S[1].steps[0].cue = "nope"; });
+bad("cue-count", (L) => { L.chapters[0].scenes.push({ type: "compare", say: "One row. Two rows.", heads: ["a"], rows: [["x"], ["y"]], cues: ["One row"] }); });
+bad("macro", (L) => { L.chapters[0].scenes.push({ type: "diagram", say: "A tree.", items: [{ tree: { id: "t", nodes: [[1, 5]], cue: "A tree" } }] }); });
+
 test("legacy scripts still pass", () => {
   const r = spawnSync("node", ["validate.mjs", ...fs.readdirSync(path.join(ROOT, "scripts")).filter((f) => f.endsWith(".json")).map((f) => "scripts/" + f)], { cwd: ROOT, encoding: "utf8" });
   assert.equal(r.status, 0, r.stdout);

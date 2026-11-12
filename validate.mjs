@@ -9,8 +9,18 @@ const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take", "h
 const SPOKEN_BAN = [/C\+\+/, /std::/, /->/, /::/, /[{}<>;`]/, /\bnullptr\b(?! t)/i, /\bRAII\b/, /\bSTL\b/];
 
 const wordsBefore = (say, cue) => say.slice(0, say.toLowerCase().indexOf(String(cue).toLowerCase())).split(/\s+/).filter(Boolean).length;
+// Every string cue in a scene, labelled for error messages (numbers are 0..1 fractions of the voice).
+const cueRefs = (sc) => [
+  ...(sc.steps || []).map((x) => ["step", x.cue]), ...(sc.notes || []).map((x) => ["note", x.cue]), ["output", sc.output?.cue],
+  ...(["compare", "take"].includes(sc.type) ? (sc.cues || []).map((c) => [sc.type === "take" ? "take" : "row", c]) : []),
+  ...(sc.items || []).map((b) => [sc.type === "flow" ? "flow item" : `item ${b.id}`, b.cue]),
+  ...(sc.arrows || []).map((a, j) => [`arrow ${j}`, a.cue]), ...(sc.changes || []).map((c) => [`change ${c.id}`, c.cue]),
+  ...(sc.type === "hook" ? (sc.lines || []).map((l, j) => [`hook line ${j}`, l.cue]) : []),
+  ...(sc.bars || []).map((b, j) => [`bar ${j}`, b.cue]), ...(sc.panels || []).map((p, k) => [`panel ${k}`, p.cue]),
+  ["optCue", sc.optCue], ["subCue", sc.subCue],
+].filter(([, c]) => typeof c === "string");
 // Lesson-only per-scene rules: font floor, cue order, reveal gaps.
-function lessonScene(s, sc, at, panels) {
+function lessonScene(s, sc, at, panels, cuesOk) {
   const area = sc.type === "code" ? { w: 1600, h: sc.output ? 560 : 720, ...sc.area } : { w: 840, h: 700, ...sc.area };
   panels.forEach((p, k) => {
     const px = panelFont(p, (area.w - 40 * (panels.length - 1)) / panels.length, area);
@@ -23,6 +33,9 @@ function lessonScene(s, sc, at, panels) {
     const px = boxFont(b, vals);
     if (px < 32) err(at, `[font-floor] box ${b.id ?? b.label} font ${px}px < 32px`);
   }
+  for (const [g, want] of [["rows", sc.type === "compare" && sc.rows], ["lines", sc.type === "take" && sc.lines]])
+    if (want && sc.cues && sc.cues.length !== want.length) err(at, `[cue-count] ${sc.cues.length} cues for ${want.length} ${g} (one cue per ${g.slice(0, -1)})`);
+  if (!cuesOk) return; // missing cues already reported; order/gap would be computed on a partial list
   const named = (a = []) => a.map((x) => (x && typeof x === "object" ? x.cue : x)).filter((c) => typeof c === "string" && sc.say.toLowerCase().includes(c.toLowerCase()));
   // declared-order groups (diagram items/arrows/changes are time-sorted by build, so skipped)
   const groups = [sc.steps, sc.notes, sc.type === "compare" && sc.cues, sc.type === "take" && sc.cues, sc.type === "flow" && sc.items, sc.type === "hook" && sc.lines, sc.bars];
@@ -74,8 +87,10 @@ for (const f of process.argv.slice(2)) {
   if (s.scenes?.at(-1)?.type !== "take") err(f, "last scene must be take");
   if (s.chapters) lessonRules(f, s);
   (s.scenes || []).forEach((sc, i) => {
-    if (sc.type === "diagram") { const ex = expandMacros(sc); sc = { ...sc, items: ex.items, arrows: [...(sc.arrows || []), ...ex.arrows] }; } // lint what build draws: macro cells c0..cN are real ids
     const at = `${f} scene ${i} (${sc.type})`;
+    if (sc.type === "diagram") { // lint what build draws: macro cells c0..cN are real ids
+      try { const ex = expandMacros(sc); sc = { ...sc, items: ex.items, arrows: [...(sc.arrows || []), ...ex.arrows] }; } catch (e) { return err(at, `[macro] ${e.message}`); }
+    }
     if (!TYPES.has(sc.type)) return err(at, "unknown type");
     if (sc.type === "chapter") return sc.say === undefined ? undefined : err(at, "chapter card must have no say");
     if (!sc.say) return err(at, "missing say");
@@ -83,13 +98,11 @@ for (const f of process.argv.slice(2)) {
     const words = sc.say.split(/\s+/).length;
     if (s.chapters && words > 90) err(at, `[say-length] say is ${words} words (max 90)`);
     if (!s.chapters && words > 110) err(at, `say is ${words} words; keep scenes under ~100`);
-    const cue = (c, what) => {
-      if (c === undefined || typeof c === "number") return;
-      if (!sc.say.toLowerCase().includes(String(c).toLowerCase())) err(at, `${what} cue "${c}" not found in say`);
-    };
+    const missing = cueRefs(sc).filter(([, c]) => !sc.say.toLowerCase().includes(c.toLowerCase()));
+    for (const [what, c] of missing) err(at, `${what} cue "${c}" not found in say`);
     const panels = sc.panels || [];
     const nLines = panels.map((p) => p.code.replace(/\n$/, "").split("\n").length);
-    if (s.chapters) lessonScene(s, sc, at, panels);
+    if (s.chapters) lessonScene(s, sc, at, panels, !missing.length);
     panels.forEach((p, k) => {
       const lines = p.code.split("\n");
       if (lines.length > 16) err(at, `panel ${k} has ${lines.length} lines (max 16)`);
@@ -97,45 +110,36 @@ for (const f of process.argv.slice(2)) {
       if (w > (sc.type === "diagram" ? 52 : panels.length > 1 ? 44 : 78)) err(at, `panel ${k} line width ${w} too wide`);
     });
     for (const st of sc.steps || []) {
-      cue(st.cue, "step");
       const k = st.panel ?? 0;
       for (const l of st.lines || []) if (!nLines[k] || l < 1 || l > nLines[k]) err(at, `step line ${l} out of range for panel ${k}`);
     }
     for (const n of sc.notes || []) {
-      cue(n.cue, "note");
       if (n.line && (!nLines[n.panel || 0] || n.line > nLines[n.panel || 0])) err(at, `note line ${n.line} out of range`);
       if (!n.line && (n.x === undefined || n.y === undefined)) err(at, "note needs line (code) or x,y (diagram)");
       if ((n.text || "").length > 32) err(at, `note text too long: "${n.text}"`);
     }
-    if (sc.output) cue(sc.output.cue, "output");
     if (sc.type === "compare") {
       sc.rows.forEach((r, j) => r.length !== sc.heads.length && err(at, `row ${j} has ${r.length} cells, heads ${sc.heads.length}`));
       if (sc.rowHeads && sc.rowHeads.length !== sc.rows.length) err(at, "rowHeads length != rows length");
       if (sc.rows.length > 7) err(at, "max 7 rows");
-      (sc.cues || []).forEach((c) => cue(c, "row"));
     }
     if (sc.type === "take") {
       if (sc.lines.length > 3) err(at, "take: max 3 lines");
-      (sc.cues || []).forEach((c) => cue(c, "take"));
     }
     if (sc.type === "flow") {
       if (sc.items.length > 5) err(at, "flow: max 5 items");
-      sc.items.forEach((it) => cue(it.cue, "flow item"));
     }
     if (sc.type === "diagram") {
       const ids = new Set((sc.items || []).map((b) => b.id));
       for (const b of sc.items || []) {
-        cue(b.cue, `item ${b.id}`);
         if (/^a\d+$/.test(b.id)) err(at, `item id "${b.id}" clashes with arrow ids (a0, a1…)`);
         if (b.x < 100 || b.y < 190 || b.x + b.w > 1820 || b.y + b.h > 920) err(at, `item ${b.id} outside safe area (x 100-1820, y 190-920)`);
         if (panels.length && b.x < (120 + (sc.area?.w ?? 840) + 30)) err(at, `item ${b.id} overlaps code panel (x must be > ${120 + (sc.area?.w ?? 840) + 30})`);
       }
       (sc.arrows || []).forEach((a, j) => {
-        cue(a.cue, `arrow ${j}`);
         if (!ids.has(a.from) || !ids.has(a.to)) err(at, `arrow ${j} from/to unknown id`);
       });
       for (const c of sc.changes || []) {
-        cue(c.cue, `change ${c.id}`);
         const m = c.id.match(/^a(\d+)$/);
         if (m ? +m[1] >= (sc.arrows || []).length : !ids.has(c.id)) err(at, `change targets unknown id ${c.id}`);
       }

@@ -59,7 +59,7 @@ chapter (recap)   : Practice card → take (last scene of the lesson)
    output that is wrong).
 
 Order may flex (a trap can come before the quiz), but every teach chapter has a quiz, ≥ 3 distinct scene types, and
-no type three times in a row. Chapter 1 opens with the hook, then **why it matters**: one scene stating, in outcome
+no type three times in a row. Chapter 1 (a teach chapter) opens with the hook, then **why it matters**, both inside it: one scene stating, in outcome
 language, what the viewer gains (the thesis lands by beat 2). Split the lesson into 3–5 teach chapters of 4–8 scenes;
 dense lessons (8–10 covers) can use 5–6. Chapter titles ≤ 30 chars, specific ("Search the answer, not the array",
 not "Part 2").
@@ -68,14 +68,17 @@ not "Part 2").
 the way the interviewer would and answers it the way he should say it: the core answer, one concrete example or
 number, the likely follow-up. Each drill scene carries `"covers": ["<cid>"]` (one scene may cover two closely
 related ids). Default shape: `compare` with heads `["They ask", "You say"]`, one row per sub-question, a cue per row.
-Use `code` when the answer is "what does this print". Drill only what the lesson taught.
+Use `code` when the answer is "what does this print".
+**Teach everything you cover.** Every `covers` id is taught in a teach chapter (usually its own chapter) AND drilled.
+The lint forces the drill to name every id, so a drill answer for something no chapter taught is a bug in your plan:
+add the chapter, never a drill-only id.
 
 **Recap** (`"kind": "recap"`). Last chapter. Scene 1 is the **Practice card**, last scene is a `take`.
 - Practice card: `compare` with heads `["Solve next", "Why"]`, 3 rows, e.g. `LeetCode 35 · Search Insert Position`.
-  **Required for every DSA lesson**, and for any lesson that teaches a coding pattern. Use only problems you are
+  **Required for every DSA and C++ lesson**; optional elsewhere (use a hands-on exercise instead). Use only problems you are
   certain exist with that exact number and official title (LeetCode "N · Title", Codeforces "1352C · K-th Not
-  Divisible by n"). Order easy → harder. If unsure of a number, pick a more famous problem. For non-coding lessons
-  the card is 3 concrete "say it out loud" exercises ("Explain to a friend why X, in 30 s").
+  Divisible by n"). Order easy → harder. If unsure of a number, pick a more famous problem. Without problems, the card
+  is 3 concrete hands-on exercises ("Add an index to `orders.user_id` and compare `EXPLAIN` before/after").
 - `take`: 3 lines, the whole lesson as he would say it in the interview.
 
 ## 4. Hooks and clarity techniques
@@ -110,8 +113,10 @@ Never paraphrase the source script in order. Reorder for understanding: problem 
   reveal fires when the voice reaches the phrase. Elements without a cue appear when the voice starts; use that only
   for the stage carried over from the previous scene.
 - **A reveal every ≤ 15 words** (≈ 6 s). Lint `[gap]` counts words from the start of `say` to the first cue, between
-  consecutive cues, and from the last cue to the end. Any scene with cues is checked (quiz has none, so it is
-  exempt); code, diagram, compare, flow and chart fail even with no cues at all.
+  consecutive cues, and from the last cue to the end. Quiz is exempt, and so are hook/take with no cue phrases;
+  code, diagram, compare, flow and chart fail even with no cues at all. A missing cue is reported first.
+- **Tables budget words.** `compare` and `take` get exactly one cue per row/line (`[cue-count]`), so with N rows
+  the `say` can be at most ≈ 15·(N+1) words. More to say? Add rows or split into another scene.
 - **One motion per reveal.** Each cue moves one thing (a box arrives, a pointer moves, a value changes). Recolor +
   glow on the same box counts as one. Don't fire a move, a new box and a text change on the same phrase; give each
   its own words.
@@ -269,7 +274,7 @@ Ops combine in one object when they are one motion: `{"id": "v0", "text": "no", 
  "cues": ["Lookup", "Worst case", "Order"]}
 ```
 `heads` (2–3 columns), `rows` (≤ 7, each with one cell per head), optional `rowHeads` (one per row, a narrow left
-column), `cues` (one per row, required in practice: a row without one appears at a guessed time and fails `[gap]`).
+column), `cues` (exactly one per row, `[cue-count]`; ≤ 15 words of `say` per row, see § 5).
 With > 2 rows, earlier rows dim as each new row lands and everything un-dims at the end. Cells ≤ ~45 chars (2 cols).
 
 ### quiz — pause and predict
@@ -281,7 +286,7 @@ The question appears, options pop in, a silent 3-2-1 countdown ring runs after t
 lights green and holds 3 s. `q` ≤ 80 chars; 2–4 `options`, ≤ 22 chars each; `answer` = option index or the exact
 option string (a mismatch silently highlights nothing). Open question: omit `options`, `answer` = the short answer
 text (≤ 30 chars) revealed after the countdown. `pause` (default 3) and `hold` (default 3) in seconds; give the drill
-self-tests `"pause": 5`. `optCue` (fraction 0–1 of the voice, default 0.35) sets when options appear. The `say` asks
+self-tests `"pause": 5`. `optCue` (fraction 0–1 of the voice, or a phrase from `say`; default 0.35) sets when options appear. The `say` asks
 and stops: never speak the answer inside the quiz. The next scene's first sentence gives it with the reason.
 
 ### chart — bars that grow and count
@@ -322,6 +327,7 @@ TTS reads `say` literally and captions show it. Lint bans `C++`, `std::`, `->`, 
 | `i plus plus`, `plus plus i` | i++, ++i (automatic) |
 | spaced acronyms `R A I I`, `S T L`, `U B`, `H T T P`, `A P I`, `S Q L`, `J S O N`, `J W T`, `C P U`, `T C P`, `D N S`, `C S S`, `D O M`, `L L M` | RAII, STL, … (automatic: single capitals separated by spaces are joined) |
 | `O of n`, `O of log n`, `O of n log n`, `O of n squared`, `O of one` | add to `caps` (below) |
+| `Big O` (as the existing scripts say it) | add `["Big O", "Big-O"]` to `caps` |
 | `star p` (for `*p`), `ampersand`, `arrow`, `double colon` | as written |
 | camelCase as words: `use effect`, `push back`, `make unique` | add to `caps`: `["[Uu]se effect", "useEffect"]` |
 | numbers as words: `forty two`, `ten to the eighth`, `LeetCode thirty five` | as written |
@@ -330,7 +336,8 @@ TTS reads `say` literally and captions show it. Lint bans `C++`, `std::`, `->`, 
 are already joined). Put longer patterns first: `[["O of n log n", "O(n log n)"], ["O of n squared", "O(n²)"],
 ["O of n", "O(n)"], ["O of one", "O(1)"]]`. Regexes are case-sensitive. Avoid two single capitals in a row that are
 not an acronym ("is it A or B" is fine; "plan A B" becomes "AB"). Names TTS might mangle (Kokoro, Dijkstra) are fine;
-rephrase anything that is pure punctuation.
+rephrase anything that is pure punctuation. `caps` touch captions only: screen text you write (`head`, hook `lines`,
+cells, labels) is shown exactly as written, so write it in display form (`Big-O`, `O(n)`, `std::move`).
 
 ## 10. Code must be correct, and every output real
 
@@ -348,8 +355,9 @@ sqlite3 :memory: < query.sql                                                    
 - A deliberately broken snippet (the trap) gets a `bad` label/note; describe the error in plain words or use the
   real compiler message, never an invented one. Undefined behaviour is never shown as having a fixed output.
 - Panel code may omit `#include` and `using namespace std;` (contest style) but must compile once they are added.
-- DSA code is C++ (`sol.cpp`). Backend: Python or TypeScript + SQL. Frontend: TypeScript/TSX (check the logic as
-  plain `.ts`). Use the real complexity, real HTTP status codes, real SQL.
+- Language per track: **DSA** C++ (`sol.cpp`, no Python); **C++** C++; **SWE** and **Backend** Python (`app.py`),
+  plus SQL (`query.sql`) or shell (`run.sh`) when the topic needs it; **Frontend** TypeScript/TSX (check the logic
+  as plain `.ts`); **AI Eval** Python. Use the real complexity, real HTTP status codes, real SQL.
 
 ## 11. Workflow (repeat until green)
 
@@ -376,10 +384,19 @@ go in a temp dir).
 | `[cue-order]` | reorder the list or pick a phrase that first occurs later |
 | `[say-length]` | `say` ≤ 90 words: split the scene |
 | `[font-floor]` | shorten code lines / box text, fewer lines, or widen the box |
-| `cue "…" not found in say` | the cue must be an exact substring of that scene's `say` |
+| `… cue "…" not found in say` | every cue (steps, notes, output, rows, items, arrows, changes, hook lines, bars, panels, `optCue`) must be an exact substring of that scene's `say`; order/gap checks wait until all are found |
+| `[cue-count]` | one cue per compare row / take line |
+| `[macro] …` | a macro is malformed (e.g. a tree parent index that doesn't exist) |
 | `outside safe area` / `overlaps code panel` | move the item (macros too: trees too deep or wide) |
 | `change targets unknown id` / `arrow … unknown id` | typo, or arrow index beyond the arrows list |
 | `say contains /…/` | write the symbol as words (§ 9) |
+| structural: `missing say` / `chapter card must have no say` | every scene needs `say`; never write `chapter` scenes |
+| structural: `panel k has N lines (max 16)` / `line width W too wide` | ≤ 12 lines; ≤ 74 chars (one panel), 32 (two), 35 (beside diagram) |
+| structural: `step line …` / `note line … out of range` | line numbers start at 1 and must exist in that panel |
+| structural: `note text too long` / `note needs line (code) or x,y (diagram)` | notes ≤ 32 chars; code notes take `line`, diagram notes `x`,`y` |
+| structural: `row j has N cells, heads M` / `rowHeads length != rows length` / `max 7 rows` | one cell per head, one rowHead per row, ≤ 7 rows |
+| structural: `take: max 3 lines` / `flow: max 5 items` | split into another scene |
+| structural: `item id "a0" clashes with arrow ids` | rename the item (`a0`, `a1`… are arrows) |
 | `already claimed by <id>` (coverage) | your `covers` must match your syllabus row |
 
 ## 12. Self-check before you hand back
