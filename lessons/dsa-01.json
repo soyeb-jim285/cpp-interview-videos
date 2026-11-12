@@ -74,11 +74,11 @@
       "input": "n = 200,000",
       "output": "O(n log n) or better"
      },
-     "say": "The judge gives one second, and tells you n. Which algorithms can pass? For example, n is two hundred thousand. The answer: n log n or better. The budget is about a hundred million steps.",
+     "say": "One second, then the judge kills your program. Which algorithms survive? Say n is two hundred thousand. The survivors: n log n or better. Roughly a hundred million steps fit in that second.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
-      "note": "The budget"
+      "example": "Say n is",
+      "output": "The survivors",
+      "note": "a hundred million steps"
      },
      "note": "budget: about 10⁸ simple steps per second"
     },
@@ -286,10 +286,10 @@
       "input": "n ≤ 1,000,000",
       "output": "O(n log n), or O(n)"
      },
-     "say": "Every problem hides a hint in its limit on n. Read it, name the complexity. For example, n is at most one million. The answer: n log n, or plain n.",
+     "say": "Every limit on n is a hint. A million? Then n log n, or plain n, is expected. Read any n that way.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "A million?",
+      "output": "n log n, or plain n"
      }
     },
     {
@@ -432,10 +432,10 @@
       "input": "[2, -2, 5, -2, 2]",
       "output": "4"
      },
-     "say": "Count pairs of positions whose values add to zero, n up to two hundred thousand. For example, two, minus two, five, minus two, two. The answer is four. With n that big, brute force is too slow.",
+     "say": "Two hundred thousand numbers, and you must count the pairs that add to zero. Take two, minus two, five, minus two, two. Four pairs. Doing it by trying every pair is too slow.",
      "cues": {
-      "example": "For example",
-      "output": "The answer is four",
+      "example": "Take two, minus",
+      "output": "Four pairs",
       "note": "too slow"
      },
      "note": "n up to 200,000: brute force is too slow"

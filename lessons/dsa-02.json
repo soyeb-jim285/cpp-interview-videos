@@ -91,10 +91,10 @@
       "input": "[2, 7, 11, 15], target 9",
       "output": "indexes 0 and 1"
      },
-     "say": "Given an array and a target, find two numbers that add to the target. For example, two, seven, eleven, fifteen, target nine. The answer: indexes zero and one. Ten thousand numbers means fifty million pairs, so we need better.",
+     "say": "Given an array and a target, find the two numbers that add up to it. Take two, seven, eleven, fifteen, with target nine. Indexes zero and one. Ten thousand numbers would mean fifty million pairs to try.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
+      "example": "Take two, seven",
+      "output": "Indexes zero and one",
       "note": "fifty million pairs"
      },
      "note": "10,000 numbers: 50 million pairs to check"
@@ -369,10 +369,10 @@
       "input": "[3, 1, 3, 2, 3, 1]",
       "output": "3 (appears 3 times)"
      },
-     "say": "Next problem. Which value appears most often in an array? For example, three, one, three, two, three, one. The answer: three, three times. The same map solves Group Anagrams and Top K Frequent Elements.",
+     "say": "Which value shows up most? Look at three, one, three, two, three, one. Three, three times. The same map also cracks Group Anagrams and Top K Frequent Elements.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
+      "example": "Look at three",
+      "output": "Three, three times",
       "note": "Group Anagrams"
      },
      "note": "same map: Group Anagrams, Top K Frequent Elements"
@@ -631,10 +631,10 @@
       "input": "key: cat",
       "output": "bucket 2, found in one step"
      },
-     "say": "How can a hash map find any key in one step? When does it break? For example, the key cat. The answer: hash it to a bucket, and jump straight there.",
+     "say": "Why can a hash map find any key in one step? Try the key cat. It's hashed to a bucket, then found at once. And yes, there is a way to break it.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Try the key cat",
+      "output": "found at once"
      }
     },
     {
@@ -839,11 +839,11 @@
       "input": "[1, 2, 3, -2, 2], sum of a[1..3]",
       "output": "3"
      },
-     "say": "New problem. Answer many questions: what is the sum from index l to r? For example, one, two, three, minus two, two, from index one to three. The answer: three. We want each answer instantly.",
+     "say": "Imagine thousands of questions, each asking for the sum between two indexes. Take one, two, three, minus two, two, and ask index one to three. Three. Re-adding every time would be wasteful.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
-      "note": "each answer instantly"
+      "example": "Take one, two",
+      "output": "Three.",
+      "note": "wasteful"
      },
      "note": "many queries: no re-adding each time"
     },
@@ -1173,10 +1173,10 @@
       "input": "[1, 2, 3, -2, 2], k = 3",
       "output": "4 subarrays"
      },
-     "say": "The famous problem. Count the subarrays whose sum is exactly k. For example, the same array, with k equal to three. The answer: four subarrays. Two nested loops would work, but we want one pass.",
+     "say": "Count the stretches of an array that add up to exactly k. Same array as before, k equal to three. Four stretches. Two nested loops would do it, but we want one pass.",
      "cues": {
-      "example": "For example",
-      "output": "The answer",
+      "example": "Same array",
+      "output": "Four stretches",
       "note": "one pass"
      },
      "note": "brute force O(n²); target: one pass"
@@ -1563,10 +1563,10 @@
       "input": "add 5 to indexes 1..3, length 6",
       "output": "[0, 5, 5, 5, 0, 0]"
      },
-     "say": "Last problem. Many updates, each adding a value to a range. For example, add five to indexes one to three, in six zeros. The answer: zero, five, five, five, zero, zero.",
+     "say": "Now flip it: updates instead of questions. Start with six zeros and add five to indexes one to three. Zero, five, five, five, zero, zero. Thousands of such updates are coming.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Start with six",
+      "output": "Zero, five, five, five"
      }
     },
     {

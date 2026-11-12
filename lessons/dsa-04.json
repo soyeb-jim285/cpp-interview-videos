@@ -79,10 +79,10 @@
       "input": "[5, 2, 4, 6, 1, 3]",
       "output": "[1, 2, 3, 4, 5, 6]"
      },
-     "say": "Here's the problem. Put numbers in increasing order, and say what it costs. For example, five, two, four, six, one, three. The answer: one through six. We start with the simplest way.",
+     "say": "Put numbers in increasing order, and say what that costs. Start with five, two, four, six, one, three. We get one through six. First, the simplest method.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Start with five",
+      "output": "We get one through six"
      }
     },
     {
@@ -355,10 +355,10 @@
       "input": "1,000,000 items, reversed",
       "output": "about 20,000,000 steps"
      },
-     "say": "Insertion sort is too slow on big input. Can we do better? For example, a million items, in reverse. The answer: about twenty million steps, with merge sort.",
+     "say": "Insertion sort chokes on big input. A million items in reverse order? Half a trillion moves. We want about twenty million steps instead, and merge sort gets there.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "A million items",
+      "output": "twenty million steps"
      }
     },
     {
@@ -851,10 +851,10 @@
       "input": "[5, 2, 4, 6, 1, 3], pivot 3",
       "output": "3 lands at index 2: smaller left, bigger right"
      },
-     "say": "The problem: sort in place, by fixing one element's final spot at a time. For example, five, two, four, six, one, three, with pivot three. The answer: three lands at index two, smaller cards left, bigger right.",
+     "say": "Can we sort without any extra memory, fixing one element's final spot at a time? Take five, two, four, six, one, three, with pivot three. Three lands at index two, smaller cards left, bigger right.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Take five, two",
+      "output": "Three lands"
      }
     },
     {
@@ -1275,10 +1275,10 @@
       "input": "words by length: banana, fig, apple, kiwi",
       "output": "fig, kiwi, apple, banana"
      },
-     "say": "What does s t d colon colon sort do? How about a custom order? For example, sort words by length. The answer: introsort, with a comparator.",
+     "say": "What does s t d colon colon sort do? Can you set your own order? Say, words by length: fig, kiwi, apple, banana. An introsort with a comparator.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Say, words",
+      "output": "An introsort"
      }
     },
     {
@@ -1485,10 +1485,10 @@
       "input": "[3, 1, 0, 3, 4, 1, 3]",
       "output": "[0, 1, 1, 3, 3, 3, 4]"
      },
-     "say": "The problem: sort small whole numbers, like ages, without comparing. For example, three, one, zero, three, four, one, three. The answer: zero, one, one, three, three, three, four.",
+     "say": "Ages run from zero to one hundred twenty, so why compare at all? Take three, one, zero, three, four, one, three. Out comes zero, one, one, three, three, three, four.",
      "cues": {
-      "example": "For example",
-      "output": "The answer"
+      "example": "Take three",
+      "output": "Out comes"
      }
     },
     {
