@@ -1,0 +1,1468 @@
+{
+ "id": "swe-02",
+ "track": "SWE",
+ "num": 2,
+ "title": "Processes, Threads, Async & Python Traps",
+ "covers": [
+  "sw02",
+  "sw09"
+ ],
+ "caps": [
+  [
+   "functools wraps",
+   "functools.wraps"
+  ],
+  [
+   "asyncio",
+   "asyncio"
+  ],
+  [
+   "G I L",
+   "GIL"
+  ],
+  [
+   "C Profile",
+   "cProfile"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Three ways to wait",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "A hundred downloads, a second each. One way takes a hundred seconds. Another takes one. By the end you'll know why, and you'll spot the Python bugs interviewers plant.",
+     "lines": [
+      {
+       "text": "100 downloads × 1 second",
+       "cue": "A hundred downloads"
+      },
+      {
+       "text": "100 seconds... or 1?",
+       "cue": "One way takes",
+       "accent": "1"
+      },
+      {
+       "text": "Same machine. Same Python.",
+       "cue": "know why"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The puzzle we'll solve",
+     "say": "Here's today's puzzle. Downloads one by one: a hundred seconds. A pool of ten threads: about ten. Asyncio: about one. Then the twist. The same threads on number crunching: no faster at all.",
+     "items": [
+      {
+       "label": "one by one",
+       "text": "100 s",
+       "tone": "bad",
+       "cue": "one by one"
+      },
+      {
+       "label": "10 threads",
+       "text": "10 s",
+       "cue": "ten threads"
+      },
+      {
+       "label": "asyncio",
+       "text": "1 s",
+       "tone": "good",
+       "cue": "Asyncio"
+      },
+      {
+       "label": "CPU work",
+       "text": "no gain",
+       "tone": "warn",
+       "cue": "no faster"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A restaurant, three ways",
+     "say": "Think of a restaurant. A process is a separate restaurant, with its own kitchen and fridge. Threads are cooks sharing one kitchen and one fridge: fast, but they can collide. Async is one waiter with many tables. He takes an order and moves on.",
+     "items": [
+      {
+       "label": "process",
+       "text": "restaurant",
+       "sub": "own kitchen, own fridge",
+       "cue": "A process"
+      },
+      {
+       "label": "threads",
+       "text": "cooks",
+       "sub": "one shared fridge",
+       "tone": "warn",
+       "cue": "Threads are cooks"
+      },
+      {
+       "label": "async",
+       "text": "one waiter",
+       "sub": "never stands waiting",
+       "tone": "good",
+       "cue": "Async is one"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "What does each one share?",
+     "say": "Now the real thing. One process owns its memory. Inside it, threads are separate lines of execution. Each has its own stack, but all share the heap. Sharing is cheap, and that causes race conditions. A second process has completely separate memory. Safer, but talking across is slower.",
+     "items": [
+      {
+       "id": "pa",
+       "region": true,
+       "x": 120,
+       "y": 230,
+       "w": 1000,
+       "h": 600,
+       "label": "process A",
+       "cue": "One process owns"
+      },
+      {
+       "id": "t1",
+       "x": 170,
+       "y": 400,
+       "w": 320,
+       "h": 140,
+       "label": "thread 1",
+       "text": "own stack",
+       "cue": "separate lines"
+      },
+      {
+       "id": "t2",
+       "x": 170,
+       "y": 640,
+       "w": 320,
+       "h": 140,
+       "label": "thread 2",
+       "text": "own stack",
+       "cue": "Each has"
+      },
+      {
+       "id": "heap",
+       "x": 700,
+       "y": 520,
+       "w": 340,
+       "h": 160,
+       "text": "shared heap",
+       "sub": "all threads see it",
+       "tone": "warn",
+       "cue": "share the heap"
+      },
+      {
+       "id": "pb",
+       "region": true,
+       "x": 1260,
+       "y": 230,
+       "w": 560,
+       "h": 600,
+       "label": "process B",
+       "tone": "good",
+       "cue": "A second process"
+      },
+      {
+       "id": "hb",
+       "x": 1330,
+       "y": 520,
+       "w": 420,
+       "h": 160,
+       "text": "own heap",
+       "sub": "separate memory",
+       "tone": "good",
+       "cue": "completely separate"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t1",
+       "to": "heap",
+       "cue": "Sharing is cheap"
+      },
+      {
+       "from": "t2",
+       "to": "heap",
+       "cue": "race conditions"
+      },
+      {
+       "from": "heap",
+       "to": "hb",
+       "label": "pipe or socket",
+       "tone": "bad",
+       "cue": "slower"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A global x is zero. A worker sets it to ninety nine, once as a thread, once as a process. Main prints x. What do you see?",
+     "q": "Worker sets x = 99. Main prints x. Thread vs process?",
+     "options": [
+      "99 and 99",
+      "99 and 0",
+      "0 and 99",
+      "0 and 0"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "code",
+     "head": "Same global, two answers",
+     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def run(kind):\n    global x\n    x = 0\n    w = kind(target=bump)\n    w.start(); w.join()\n    print(kind.__name__, x)\n\nrun(Thread)\nrun(Process)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        8
+       ],
+       "cue": "A thread shares"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "A process got"
+      },
+      {
+       "lines": [],
+       "cue": "Same line"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "Thread 99\nProcess 0",
+      "cue": "still sees zero"
+     }
+    }
+   ]
+  },
+  {
+   "title": "100 downloads in 1 second",
+   "scenes": [
+    {
+     "type": "code",
+     "head": "The slow scraper",
+     "say": "A new hire writes a scraper. A for loop, one URL at a time. A hundred pages, a second each: a hundred seconds. The CPU isn't busy. It's waiting on the network. And waiting is the part we can overlap.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def fetch(url):\n    time.sleep(1)   # a 1 s download\n\nfor url in urls:\n    fetch(url)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "A for loop"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "waiting on the network"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "100 × 1 s = 100 s",
+       "tone": "bad",
+       "cue": "a hundred seconds"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A pool of ten threads",
+     "say": "A thread pool keeps ten workers. Each fetch sleeps one second. Ten run at once, so a hundred downloads take ten rounds. About ten seconds. While one thread waits, the others run.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "from concurrent.futures import (\n    ThreadPoolExecutor)\n\nwith ThreadPoolExecutor(10) as pool:\n    list(pool.map(fetch, urls))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "keeps ten workers"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Ten run at once"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "10 rounds × 1 s",
+       "tone": "good",
+       "cue": "ten rounds"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Predict. Same hundred downloads, one second each, but now twenty workers instead of ten. How long does it take?",
+     "q": "100 downloads, 1 s each, 20 threads. Total time?",
+     "options": [
+      "2 s",
+      "5 s",
+      "10 s",
+      "20 s"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "chart",
+     "head": "More workers, fewer rounds",
+     "unit": "seconds",
+     "say": "Five seconds: a hundred over twenty is five rounds. One worker takes a hundred. Ten workers take ten. Twenty take five. But asyncio does it in about one second, with no extra threads.",
+     "bars": [
+      {
+       "label": "1 worker",
+       "value": 100,
+       "tone": "bad",
+       "cue": "One worker"
+      },
+      {
+       "label": "10 threads",
+       "value": 10,
+       "cue": "Ten workers take"
+      },
+      {
+       "label": "20 threads",
+       "value": 5,
+       "cue": "Twenty take"
+      },
+      {
+       "label": "asyncio",
+       "value": 1,
+       "tone": "good",
+       "cue": "asyncio does it"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Async: one thread, 100 tasks",
+     "say": "Here is how. At await, the function says: I'm waiting, run something else. Gather starts all hundred together. Every sleep overlaps, so the whole thing takes about a second, on a single thread.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "async def afetch(url):\n    await asyncio.sleep(1)\n\nasync def main():\n    await asyncio.gather(\n        *(afetch(u) for u in urls))\n\nasyncio.run(main())"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "At await"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "Gather starts"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "on a single thread"
+      }
+     ],
+     "output": {
+      "cmd": "python dl.py",
+      "text": "sequential 100 s\n10 threads 10 s\nasyncio    1 s",
+      "cue": "about a second"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "The event loop",
+     "say": "Who runs this? The event loop: one thread with a queue of tasks. Task A runs until it hits an await. The loop parks it, and runs task B. When A's reply arrives, the loop resumes A. It is cooperative: tasks take turns by choice.",
+     "items": [
+      {
+       "id": "loop",
+       "x": 760,
+       "y": 260,
+       "w": 400,
+       "h": 140,
+       "label": "one thread",
+       "text": "event loop",
+       "tone": "blue",
+       "cue": "event loop: one"
+      },
+      {
+       "id": "a",
+       "x": 260,
+       "y": 560,
+       "w": 360,
+       "h": 140,
+       "label": "task A",
+       "text": "running",
+       "tone": "good",
+       "cue": "Task A runs"
+      },
+      {
+       "id": "b",
+       "x": 780,
+       "y": 560,
+       "w": 360,
+       "h": 140,
+       "label": "task B",
+       "text": "waiting",
+       "tone": "dim",
+       "cue": "task B"
+      },
+      {
+       "id": "net",
+       "x": 1300,
+       "y": 560,
+       "w": 360,
+       "h": 140,
+       "label": "network",
+       "text": "reply",
+       "tone": "warn",
+       "cue": "reply arrives"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "loop",
+       "to": "a",
+       "cue": "Task A runs"
+      },
+      {
+       "from": "net",
+       "to": "loop",
+       "tone": "warn",
+       "bend": -60,
+       "cue": "reply arrives"
+      }
+     ],
+     "changes": [
+      {
+       "id": "a",
+       "text": "await",
+       "tone": "dim",
+       "cue": "hits an await"
+      },
+      {
+       "id": "b",
+       "text": "running",
+       "tone": "good",
+       "cue": "runs task B"
+      },
+      {
+       "id": "a",
+       "text": "resumed",
+       "tone": "good",
+       "cue": "resumes A"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "One blocking call ruins it",
+     "say": "The mistake: calling async multithreading. It's one thread. So a task that never awaits blocks everyone. Both of these run two tasks. The good one awaits sleep. The bad one calls time sleep, and the tasks queue up.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "async def good():\n    await asyncio.sleep(1)\n\nasync def bad():\n    time.sleep(1)   # never awaits"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "never awaits"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "The good one"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "The bad one"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "blocks the loop",
+       "tone": "bad",
+       "cue": "calls time sleep"
+      }
+     ],
+     "output": {
+      "cmd": "python block.py",
+      "text": "good 1 s\nbad 2 s",
+      "cue": "tasks queue up"
+     }
+    }
+   ]
+  },
+  {
+   "title": "One microphone: the GIL",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "The GIL: one microphone",
+     "say": "Standard Python has a rule: the G I L, the global interpreter lock. Picture one microphone. Only one thread may run Python code at a time. A thread waiting on the network hands the mic over. Number crunching never waits, so threads just take turns.",
+     "items": [
+      {
+       "id": "t1",
+       "x": 200,
+       "y": 300,
+       "w": 360,
+       "h": 130,
+       "text": "thread 1",
+       "cue": "one thread"
+      },
+      {
+       "id": "t2",
+       "x": 200,
+       "y": 620,
+       "w": 360,
+       "h": 130,
+       "text": "thread 2",
+       "cue": "take turns"
+      },
+      {
+       "id": "gil",
+       "x": 760,
+       "y": 460,
+       "w": 420,
+       "h": 150,
+       "label": "the lock",
+       "text": "GIL",
+       "sub": "one holder at a time",
+       "tone": "warn",
+       "cue": "the G I L"
+      },
+      {
+       "id": "py",
+       "x": 1380,
+       "y": 460,
+       "w": 360,
+       "h": 150,
+       "text": "runs Python",
+       "tone": "good",
+       "cue": "run Python code"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t1",
+       "to": "gil",
+       "cue": "Picture one"
+      },
+      {
+       "from": "t2",
+       "to": "gil",
+       "cue": "hands the mic"
+      },
+      {
+       "from": "gil",
+       "to": "py",
+       "cue": "Only one thread"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t2",
+       "tone": "dim",
+       "cue": "hands the mic"
+      },
+      {
+       "id": "t1",
+       "tone": "dim",
+       "cue": "never waits"
+      },
+      {
+       "id": "t2",
+       "tone": "good",
+       "cue": "take turns"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Four CPU-heavy jobs",
+     "say": "Test it. Four jobs, each crunching five million squares. One by one takes about ten seconds. Four threads: no faster, they just share the mic. Four processes each get their own interpreter, and finish much sooner.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def crunch(n):\n    return sum(i * i for i in range(n))\n\nfor _ in range(4): crunch(5_000_000)\nThreadPoolExecutor(4).map(crunch, jobs)\nProcessPoolExecutor(4).map(crunch, jobs)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "One by one"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Four threads"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Four processes"
+      }
+     ],
+     "output": {
+      "cmd": "python cpu.py",
+      "text": "one by one 10.1 s\n4 threads  10.5 s\n4 processes 4.4 s",
+      "cue": "about ten seconds"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. You resize five hundred photos on an eight core laptop. It is pure number crunching. Which tool actually makes it faster?",
+     "q": "Resizing 500 photos on 8 cores (pure CPU). Best tool?",
+     "options": [
+      "asyncio",
+      "threads",
+      "processes",
+      "more await"
+     ],
+     "answer": 2,
+     "pause": 5
+    },
+    {
+     "type": "compare",
+     "head": "Which one do I pick?",
+     "say": "Processes. Pure crunching needs real parallel cores, and each process has its own GIL. Waiting on network or disk? Async or threads: cheap, thousands can wait. Need separate memory for safety? Processes again.",
+     "heads": [
+      "Your work",
+      "Use"
+     ],
+     "rows": [
+      [
+       "crunching numbers",
+       "processes: one GIL each"
+      ],
+      [
+       "waiting on network or disk",
+       "async or threads"
+      ],
+      [
+       "need isolation",
+       "processes: separate memory"
+      ]
+     ],
+     "cues": [
+      "Processes. Pure",
+      "Waiting on network",
+      "separate memory"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Races, locks, deadlocks",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "A race condition",
+     "say": "Even with the GIL, shared data breaks. The counter is five. Thread one reads five. Thread two reads five, before one writes. Both write six. Two adds, but the counter moved once. The result depends on timing. That's a race condition.",
+     "items": [
+      {
+       "id": "cnt",
+       "x": 760,
+       "y": 250,
+       "w": 400,
+       "h": 150,
+       "label": "shared counter",
+       "text": "5",
+       "size": 64,
+       "tone": "warn",
+       "cue": "The counter is five"
+      },
+      {
+       "id": "r1",
+       "x": 260,
+       "y": 600,
+       "w": 420,
+       "h": 140,
+       "label": "thread 1",
+       "text": "waiting",
+       "tone": "dim",
+       "cue": "Thread one"
+      },
+      {
+       "id": "r2",
+       "x": 1240,
+       "y": 600,
+       "w": 420,
+       "h": 140,
+       "label": "thread 2",
+       "text": "waiting",
+       "tone": "dim",
+       "cue": "Thread two"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r1",
+       "to": "cnt",
+       "cue": "Thread one"
+      },
+      {
+       "from": "r2",
+       "to": "cnt",
+       "cue": "Thread two"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r1",
+       "text": "read 5",
+       "tone": "blue",
+       "cue": "reads five"
+      },
+      {
+       "id": "r2",
+       "text": "read 5",
+       "tone": "blue",
+       "cue": "reads five, before"
+      },
+      {
+       "id": "cnt",
+       "text": "6",
+       "tone": "bad",
+       "cue": "Both write six"
+      },
+      {
+       "id": "r2",
+       "text": "wrote 6",
+       "tone": "bad",
+       "cue": "moved once"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix: a lock",
+     "say": "The fix is a lock. With lock means only one thread is inside that block at a time. Two threads each add a hundred thousand times, and every run gives exactly two hundred thousand. The other fix is to avoid shared state.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "lock = threading.Lock()\n\ndef add():\n    global count\n    for _ in range(100_000):\n        with lock:\n            count += 1"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "With lock means"
+      },
+      {
+       "lines": [],
+       "cue": "every run gives"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "one thread at a time",
+       "tone": "good",
+       "cue": "inside that block"
+      }
+     ],
+     "output": {
+      "cmd": "python lock.py",
+      "text": "200000",
+      "cue": "two hundred thousand"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "One more bug. Thread one holds lock A and waits for lock B. Thread two holds lock B and waits for lock A. What happens?",
+     "q": "T1 holds A, wants B. T2 holds B, wants A. Result?",
+     "options": [
+      "Both finish",
+      "Deadlock",
+      "A race",
+      "Python raises"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "diagram",
+     "head": "Deadlock",
+     "say": "Deadlock. Each thread waits for the lock the other one holds, so neither ever moves. No error, the program just hangs. The usual fix: every thread takes the locks in the same order.",
+     "items": [
+      {
+       "id": "d1",
+       "x": 200,
+       "y": 320,
+       "w": 360,
+       "h": 130,
+       "text": "thread 1",
+       "sub": "holds A, wants B",
+       "cue": "Each thread"
+      },
+      {
+       "id": "d2",
+       "x": 1360,
+       "y": 320,
+       "w": 360,
+       "h": 130,
+       "text": "thread 2",
+       "sub": "holds B, wants A",
+       "cue": "the other one holds"
+      },
+      {
+       "id": "la",
+       "x": 200,
+       "y": 640,
+       "w": 360,
+       "h": 130,
+       "text": "lock A",
+       "tone": "warn",
+       "cue": "lock the other"
+      },
+      {
+       "id": "lb",
+       "x": 1360,
+       "y": 640,
+       "w": 360,
+       "h": 130,
+       "text": "lock B",
+       "tone": "warn",
+       "cue": "lock the other"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "d1",
+       "to": "lb",
+       "bend": -40,
+       "tone": "bad",
+       "cue": "waits for the lock"
+      },
+      {
+       "from": "d2",
+       "to": "la",
+       "bend": -40,
+       "tone": "bad",
+       "cue": "neither ever moves"
+      }
+     ],
+     "changes": [
+      {
+       "id": "d1",
+       "tone": "bad",
+       "cue": "neither ever moves"
+      },
+      {
+       "id": "d2",
+       "tone": "bad",
+       "cue": "neither ever moves"
+      },
+      {
+       "id": "la",
+       "glow": true,
+       "tone": "bad",
+       "cue": "just hangs"
+      },
+      {
+       "id": "d1",
+       "tone": "good",
+       "cue": "the same order"
+      },
+      {
+       "id": "d2",
+       "tone": "good",
+       "cue": "the same order"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Names, defaults, lambdas",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "A name is a sticky note",
+     "say": "Python variables are sticky notes, not boxes. A is a note on the list. B is a second note on the same list, not a new one. Copy makes a real second list. Append through B, and A sees three. C is unchanged.",
+     "panels": [
+      {
+       "file": "alias.py",
+       "code": "a = [1, 2]\nb = a\nc = a.copy()\nb.append(3)\nprint(a)  # [1, 2, 3]\nprint(c)  # [1, 2]"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A is a note"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "B is a second"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Copy makes"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "A sees three"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "C is unchanged"
+      }
+     ],
+     "items": [
+      {
+       "id": "l1",
+       "x": 1200,
+       "y": 300,
+       "w": 380,
+       "h": 130,
+       "label": "list",
+       "text": "1, 2, 3",
+       "tone": "good",
+       "cue": "A is a note"
+      },
+      {
+       "id": "l2",
+       "x": 1200,
+       "y": 640,
+       "w": 380,
+       "h": 130,
+       "label": "copy",
+       "text": "1, 2",
+       "cue": "Copy makes"
+      },
+      {
+       "id": "na",
+       "x": 1020,
+       "y": 280,
+       "w": 110,
+       "h": 70,
+       "text": "a",
+       "tone": "warn",
+       "cue": "A is a note"
+      },
+      {
+       "id": "nb",
+       "x": 1020,
+       "y": 370,
+       "w": 110,
+       "h": 70,
+       "text": "b",
+       "tone": "warn",
+       "cue": "B is a second"
+      },
+      {
+       "id": "nc",
+       "x": 1020,
+       "y": 660,
+       "w": 110,
+       "h": 70,
+       "text": "c",
+       "tone": "warn",
+       "cue": "Copy makes"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "na",
+       "to": "l1",
+       "cue": "A is a note"
+      },
+      {
+       "from": "nb",
+       "to": "l1",
+       "cue": "B is a second"
+      },
+      {
+       "from": "nc",
+       "to": "l2",
+       "cue": "Copy makes"
+      }
+     ],
+     "changes": [
+      {
+       "id": "l1",
+       "glow": true,
+       "tone": "good",
+       "cue": "A sees three"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The mutable default",
+     "say": "Same idea, hidden in a default. That empty list is built once, when the function is defined. Every call shares it. So the second call sees the first call's item. The fix: None, then build inside.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def add(x, items=[]):\n    items.append(x)\n    return items\n\nprint(add(1))\nprint(add(2))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "built once"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "the second call"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "one list, shared",
+       "tone": "bad",
+       "cue": "Every call shares"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "fix: None, build inside",
+       "tone": "good",
+       "cue": "The fix"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "[1]\n[1, 2]",
+      "tone": "bad",
+      "cue": "first call's item"
+     },
+     "hold": 0
+    },
+    {
+     "type": "quiz",
+     "say": "Predict. Three lambdas built in a loop, each returning i. We call each one. What list do we get?",
+     "q": "fs = [lambda: i for i in range(3)]\n[f() for f in fs]  gives?",
+     "options": [
+      "[0, 1, 2]",
+      "[2, 2, 2]",
+      "[3, 3, 3]",
+      "error"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "code",
+     "head": "Late binding",
+     "say": "Two, two, two. A lambda looks up i when it is called, not when it is made. By then the loop ended and i is two. Fix it by freezing the value as a default argument: i equals i. Now zero, one, two.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "fs = [lambda: i for i in range(3)]\nprint([f() for f in fs])\n\ngs = [lambda i=i: i for i in range(3)]\nprint([f() for f in gs])"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "looks up i"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "By then the loop"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "freezing the value"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Now zero, one"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "[2, 2, 2]\n[0, 1, 2]",
+      "cue": "Two, two, two"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "is versus ==",
+     "say": "One more. Equals asks: same value? Is asks: same object? Two separate lists with the same items are equal, but not the same object. Use is for None, and equals for everything else.",
+     "heads": [
+      "Operator",
+      "Asks"
+     ],
+     "rows": [
+      [
+       "a == b",
+       "same value?"
+      ],
+      [
+       "a is b",
+       "same object?"
+      ],
+      [
+       "[1, 2] vs [1, 2]",
+       "== True, is False"
+      ],
+      [
+       "x is None",
+       "the right test for None"
+      ]
+     ],
+     "cues": [
+      "Equals asks",
+      "Is asks",
+      "Two separate lists",
+      "Use is for None"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Lazy generators, wrapped functions",
+   "scenes": [
+    {
+     "type": "code",
+     "head": "Generators are lazy",
+     "say": "A generator uses yield. Yield pauses the function and hands back one value. Next resumes it. The first next gives zero. The second gives one. Nothing is computed early.",
+     "panels": [
+      {
+       "file": "gen.py",
+       "code": "def squares(n):\n    for i in range(n):\n        yield i * i      # pause\n\ng = squares(3)\nprint(next(g))\nprint(next(g))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Yield pauses"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "The first next"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "The second gives"
+      }
+     ],
+     "output": {
+      "cmd": "python gen.py",
+      "text": "0\n1",
+      "cue": "gives zero"
+     }
+    },
+    {
+     "type": "chart",
+     "head": "A million squares: bytes",
+     "unit": "bytes",
+     "say": "Measure it with get size of. The list of a million squares: over eight million bytes. The generator for the same million: two hundred eight.",
+     "bars": [
+      {
+       "label": "list",
+       "value": 8448728,
+       "tone": "bad",
+       "cue": "The list of"
+      },
+      {
+       "label": "generator",
+       "value": 208,
+       "tone": "good",
+       "cue": "The generator for"
+      }
+     ],
+     "hold": 0
+    },
+    {
+     "type": "code",
+     "head": "Decorators wrap functions",
+     "say": "A decorator is a function that takes a function and returns a new one. The wrapper runs extra code around the call. Writing at logged above work means work becomes logged of work. And functools wraps keeps the original name.",
+     "panels": [
+      {
+       "file": "deco.py",
+       "code": "def logged(fn):\n    @functools.wraps(fn)\n    def wrapper(*a, **kw):\n        print(\"calling\", fn.__name__)\n        return fn(*a, **kw)\n    return wrapper\n@logged\ndef work(x): return x * 2\nprint(work(21), work.__name__)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "takes a function"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "The wrapper runs"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Writing at logged"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "functools wraps"
+      }
+     ],
+     "output": {
+      "cmd": "python deco.py",
+      "text": "calling work\n42 work",
+      "cue": "original name"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Last prediction. Delete the functools wraps line. We print work dot dunder name. What does it print?",
+     "q": "Without @functools.wraps, `work.__name__` prints?",
+     "options": [
+      "work",
+      "wrapper",
+      "logged",
+      "None"
+     ],
+     "answer": 1,
+     "pause": 4
+    },
+    {
+     "type": "compare",
+     "head": "Why people forget wraps",
+     "say": "Wrapper. Without wraps, it wears the wrapper's name. That breaks debuggers. With wraps, it stays work.",
+     "heads": [
+      "",
+      "Name you see"
+     ],
+     "rows": [
+      [
+       "without it",
+       "`wrapper`"
+      ],
+      [
+       "with `functools.wraps`",
+       "`work`"
+      ]
+     ],
+     "cues": [
+      "Without wraps",
+      "With wraps"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw02"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Process, thread, async? Own memory, shared memory, one thread yielding. Race condition? Timing decides the result. Lock it. GIL? One thread runs Python at a time. Deadlock? Each waits for the other's lock. Pick? Waiting, async. Crunching, processes.",
+     "rows": [
+      [
+       "Process, thread, async?",
+       "own memory / shared / one thread, yields"
+      ],
+      [
+       "Race condition?",
+       "timing decides the result; use a lock"
+      ],
+      [
+       "The GIL?",
+       "one thread runs Python at a time"
+      ],
+      [
+       "Deadlock?",
+       "each waits for the other's lock"
+      ],
+      [
+       "Which to pick?",
+       "waiting: async. crunching: processes"
+      ]
+     ],
+     "cues": [
+      "Process, thread",
+      "Race condition",
+      "GIL",
+      "Deadlock",
+      "Pick"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw09"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Mutable default? Built once at definition, so default to None. Does assignment copy? No, names share objects. GIL and threads? Fine for waiting, use processes for crunching. List versus generator? A generator makes values on demand. Decorators? A function wrapping a function.",
+     "rows": [
+      [
+       "Mutable default?",
+       "built once; default to None"
+      ],
+      [
+       "Does assignment copy?",
+       "no: names share objects"
+      ],
+      [
+       "GIL kills threads?",
+       "not for I/O; CPU: processes"
+      ],
+      [
+       "List vs generator?",
+       "generator: values on demand"
+      ],
+      [
+       "What is a decorator?",
+       "a function that wraps a function"
+      ]
+     ],
+     "cues": [
+      "Mutable default",
+      "Does assignment",
+      "GIL and threads",
+      "List versus",
+      "Decorators"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these this week",
+     "say": "Three exercises. Time your own slow loop with a thread pool, then asyncio. Break a counter without a lock, then fix it. Write a decorator and delete wraps to see the damage.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Run 20 `sleep(1)` jobs: loop, pool, asyncio",
+       "see 20 s, 2 s, 1 s"
+      ],
+      [
+       "Two threads, shared counter, no lock",
+       "watch a race, then fix"
+      ],
+      [
+       "Write a `@timed` decorator, drop wraps",
+       "see the lost name"
+      ]
+     ],
+     "cues": [
+      "thread pool",
+      "Break a counter",
+      "Write a decorator"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A process has its own memory, threads share it, async yields at await. Waiting work: async or threads. Crunching: processes, because of the GIL. And watch defaults, late binding, and assignment that never copies.",
+     "lines": [
+      "Process: own memory. Thread: shared. Async: yields.",
+      "Waiting: async or threads. CPU: processes.",
+      "Defaults run once; assignment never copies."
+     ],
+     "cues": [
+      "A process has",
+      "Waiting work",
+      "watch defaults"
+     ]
+    }
+   ]
+  }
+ ]
+}
