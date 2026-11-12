@@ -111,7 +111,7 @@
     {
      "type": "flow",
      "head": "The re-grading teacher",
-     "say": "Picture a teacher with thirty papers. One student changes an answer. A bad teacher re-grades all thirty. A good teacher re-grades only that one. Memo is the good one.",
+     "say": "Meet a teacher with thirty papers. One student changes an answer. A bad teacher re-grades all thirty. A good teacher re-grades only that one. Memo is the good one.",
      "items": [
       {
        "label": "the class",
@@ -243,7 +243,7 @@
      "panels": [
       {
        "file": "App.tsx",
-       "code": "const Rows = React.memo(function Rows({ items, onPick }: Props) {\n  // renders 10,000 rows\n});\n\nfunction App() {\n  const [q, setQ] = useState('');\n  const pick = useCallback((id: number) => go(id), []);\n  return <>\n    <input value={q} onChange={(e) => setQ(e.target.value)} />\n    <Rows items={items} onPick={pick} />\n  </>;\n}"
+       "code": "const Rows = React.memo(function Rows({ items, onPick }: Props) {\n  // renders 10,000 rows\n});\nfunction App() {\n  const [q, setQ] = useState('');\n  const pick = useCallback((id: number) => go(id), []);\n  return <>\n    <input value={q} onChange={(e) => setQ(e.target.value)} />\n    <Rows items={items} onPick={pick} />\n  </>;\n}"
       }
      ],
      "steps": [
@@ -257,21 +257,21 @@
       },
       {
        "lines": [
-        9,
-        10
+        8,
+        9
        ],
        "cue": "Every key you type"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "a function written"
       }
      ],
      "notes": [
       {
-       "line": 7,
+       "line": 6,
        "inside": true,
        "text": "stable",
        "tone": "good",
@@ -396,7 +396,7 @@
     {
      "type": "diagram",
      "head": "Virtualization: a window on the list",
-     "say": "Picture a scroll of paper seen through a small window. A list is the scroll, and your screen is the window. So why build ten thousand rows? Virtualization draws only the visible ones, plus a few spare. Scroll to the middle: rows four thousand on. The cost: two milliseconds.",
+     "say": "Imagine a scroll of paper seen through a small window. A list is the scroll, and your screen is the window. So why build ten thousand rows? Virtualization draws only the visible ones, plus a few spare. Scroll to the middle: rows five thousand on. The cost: two milliseconds.",
      "items": [
       {
        "id": "all",
@@ -448,7 +448,7 @@
      "changes": [
       {
        "id": "vis",
-       "text": "rows 4000 to 4019",
+       "text": "rows 5000 to 5019",
        "cue": "Scroll to the middle"
       },
       {
@@ -524,7 +524,7 @@
       "Yes, every render",
       "No: deps are unchanged",
       "Only on first render",
-      "Only if q is empty"
+      "Yes: App makes a new items array each render"
      ],
      "answer": 1
     },
@@ -685,7 +685,7 @@
     {
      "type": "flow",
      "head": "The list on the fridge door",
-     "say": "Think of a family shopping list. If it lives in one person's head, nobody else can use it. Stick it on the fridge door, and everyone can read it. The kid adds bread, and everyone sees bread. A parent component is the fridge door.",
+     "say": "Your family keeps a shopping list. If it lives in one person's head, nobody else can use it. Stick it on the fridge door, and everyone can read it. The kid adds bread, and everyone sees bread. A parent component is the fridge door.",
      "items": [
       {
        "label": "in one head",
@@ -902,7 +902,7 @@
        "from": "p",
        "to": "h",
        "tone": "good",
-       "bend": -420,
+       "bend": -560,
        "cue": "Context skips"
       }
      ],
@@ -945,22 +945,21 @@
      "panels": [
       {
        "file": "cart.tsx",
-       "code": "const Ctx = createContext({ n: 0, theme: 'light' });\nfunction Header() {\n  const { n } = useContext(Ctx);\n  return <b>{n}</b>;\n}\nconst useCart = create<{ n: number }>()(() => ({ n: 0 }));\nfunction Count() {\n  const n = useCart((s) => s.n);\n  return <b>{n}</b>;\n}"
+       "code": "const Ctx = createContext({ n: 0, theme: 'light' });\nfunction Root() {\n  return <Ctx.Provider value={{ n: 0, theme: 'light' }}>\n    <Header /></Ctx.Provider>;\n}\nfunction Header() { const { n } = useContext(Ctx); return <b>{n}</b>; }\nconst useCart = create<{ n: number }>()(() => ({ n: 0 }));\nfunction Count() {\n  const n = useCart((s) => s.n);\n  return <b>{n}</b>;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2,
+        3,
+        4
        ],
        "cue": "Wrap the tree"
       },
       {
        "lines": [
-        2,
-        3,
-        4,
-        5
+        6
        ],
        "cue": "reads the value"
       },
@@ -972,20 +971,20 @@
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "external store"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "just the slice"
       }
      ],
      "notes": [
       {
-       "line": 3,
+       "line": 4,
        "inside": true,
        "text": "any change re-renders",
        "tone": "warn",
@@ -1108,7 +1107,7 @@
       ],
       [
        "products from the server",
-       "a query cache: TanStack Query"
+       "a query cache: TanStack Query (fetched server data, cached)"
       ]
      ],
      "cues": [
@@ -1132,7 +1131,7 @@
       "input": "user.nmae",
       "output": "compile error, never ships"
      },
-     "say": "It is Friday evening, and someone types user dot nmae. In plain JavaScript it ships, and customers see undefined. We want the compiler to stop it with an error.",
+     "say": "It is Friday evening, and someone types user dot nmae. Plain JavaScript ships it, and customers see undefined. We want the compiler to stop it.",
      "cues": {
       "example": "user dot nmae",
       "output": "compiler to stop"
@@ -1141,7 +1140,7 @@
     {
      "type": "flow",
      "head": "The shipping label",
-     "say": "Think of a shipping label. It says fragile, two kilos. That label is the type. The warehouse checks every parcel against its label. That is the compiler. But the delivered box has no label. Types are erased, so nothing is checked at runtime.",
+     "say": "Consider a shipping label. It says fragile, two kilos. That label is the type. The warehouse checks every parcel against its label. That is the compiler. But the delivered box has no label. Types are erased, so nothing is checked at runtime.",
      "items": [
       {
        "label": "the label",
@@ -1180,7 +1179,7 @@
       "interface",
       "type"
      ],
-     "say": "The classic question. For object shapes they are almost the same. To extend, an interface says extends. A type uses an ampersand. Only a type can name a union or a tuple, a fixed-length list. Only interfaces support declaration merging, where same-name ones join. Rule: interface for objects, type for the rest.",
+     "say": "The classic question. For object shapes they are almost the same. To extend, an interface says extends. A union is one of several types. Only a type can name a union or a tuple, a fixed-length list. Only interfaces support declaration merging, where same-name ones join. Rule: interface for objects, type for the rest.",
      "rows": [
       [
        "object shape",
@@ -1323,11 +1322,11 @@
     {
      "type": "diagram",
      "head": "Discriminated union",
-     "say": "Objects narrow too. Give each shape a kind field with a literal value. That is a discriminated union. Check the kind. Inside the if, TypeScript knows it is a circle, so r is available. After the return, it must be a square, so w is available.",
+     "say": "Objects narrow too. Give each shape a kind field with a literal value, an exact value like 'circle'. That is a discriminated union. Check the kind. Inside the if, TypeScript knows it is a circle, so r is available. After the return, it must be a square, so w is available.",
      "panels": [
       {
        "file": "shape.ts",
-       "code": "type Shape =\n  | { kind: 'circle'; r: number }\n  | { kind: 'square'; w: number };\n\nfunction area(s: Shape) {\n  if (s.kind === 'circle')\n    return Math.PI * s.r ** 2;\n  return s.w ** 2;\n}"
+       "code": "type Shape =\n  | { kind: 'circle'; r: number }\n  | { kind: 'square'; w: number };\nfunction area(s: Shape) {\n  if (s.kind === 'circle')\n    return Math.PI * s.r ** 2;\n  return s.w ** 2;\n}"
       }
      ],
      "steps": [
@@ -1341,19 +1340,19 @@
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "Check the kind"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "so r is available"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "so w is available"
       }
@@ -1426,7 +1425,7 @@
     {
      "type": "quiz",
      "say": "Your turn. User has an id and a name. Pick of User and id keeps only the id. Which value has that type? Pause and predict.",
-     "q": "User is `{ id, name }`. Which value has type `Pick<User, 'id'>`?",
+     "q": "User is `{ id, name }`. Which object literal fits `Pick<User, 'id'>` with no error?",
      "options": [
       "{ id: 3 }",
       "{ id: 3, name: 'A' }",
@@ -1687,7 +1686,7 @@
       ],
       [
        "Generics?",
-       "A type parameter, inferred per call, keeps the return type exact."
+       "A placeholder type T, filled in per call, keeps the return type exact."
       ],
       [
        "Narrowing?",
