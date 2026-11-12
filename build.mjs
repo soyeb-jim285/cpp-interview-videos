@@ -353,7 +353,12 @@ function build(specPath) {
     .replaceAll("%DUR%", total).replace("%BRAND%", ({ Backend: "BE", SWE: "SWE", DSA: "DSA", Frontend: "FE", "AI Eval": "AI" })[spec.series] || "C++").replace("%QCHIP%", `${spec.series ? esc(spec.series) + " " : "Q"}${spec.num} · ${esc(spec.short)}`)
     .replace("%SCENES%", scenesHtml).replace("%CAPS%", caps).replace("%AUDIO%", audio)
     .replace("%TWEENS%", tws.join("\n") + `\n// global\ntl.fromTo("#prog",{scaleX:0},{scaleX:1,duration:${total},ease:"none"},0);`);
-  fs.writeFileSync(path.join(dir, "index.html"), html);
+  // ponytail: RES=720 renders 1280x720 by scaling the 1920x1080 canvas; layout/lint stay in 1080 units
+  const out = process.env.RES === "720" ? html.replace('content="width=1920, height=1080"', 'content="width=1280, height=720"')
+    .replace("html,body{width:1920px;height:1080px", "html,body{width:1280px;height:720px").replace("#root{position:relative;width:1920px;height:1080px", "#root{position:relative;width:1280px;height:720px")
+    .replace('data-width="1920" data-height="1080">', 'data-width="1280" data-height="720">\n<div id="cv" style="position:absolute;left:0;top:0;width:1920px;height:1080px;transform:scale(0.666667);transform-origin:0 0">')
+    .replace("</div>\n<script>", "</div>\n</div>\n<script>") : html;
+  fs.writeFileSync(path.join(dir, "index.html"), out);
   if (spec.chapters) { // YouTube chapters: first line must be 0:00:00
     const ts = (x) => `${Math.floor(x / 3600)}:${String(Math.floor(x / 60) % 60).padStart(2, "0")}:${String(Math.floor(x % 60)).padStart(2, "0")}`;
     const rows = spec.chapters.map((c) => [spec.scenes[c.start].t0, c.title]);

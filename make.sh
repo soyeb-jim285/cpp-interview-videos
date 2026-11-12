@@ -2,6 +2,7 @@
 # Usage: ./make.sh q02 cp04 dsa-03 ...   (voice -> build -> render each)
 # Legacy id (scripts/<id>.json) -> out/<id>-<slug>.mp4 ; lesson id (lessons/<id>.json) -> out/course/<track>/<id>-<slug>.mp4
 set -euo pipefail
+export RES="${RES:-720}"   # 720p default (user request); RES=1080 for full HD
 cd "$(dirname "$0")"
 mkdir -p out
 for q in "$@"; do
@@ -19,6 +20,6 @@ for q in "$@"; do
   mkdir -p "$q"; cp -n hf/hyperframes.json hf/package.json "$q/"
   node build.mjs "$spec"
   slug=$(node -e "const s=require('./$spec');console.log(s.short.toLowerCase().replace(/[^a-z0-9+]+/g,'-').replace(/\+/g,'p').replace(/^-|-$/g,''))")
-  (cd "$q" && npx hyperframes render -o "../$dest/$q-$slug.mp4" --workers "${WORKERS:-3}" --quiet > "../out/$q.log" 2>&1) && echo "rendered $dest/$q-$slug.mp4"
+  (cd "$q" && npx hyperframes render -f "${FPS:-24}" -o "../$dest/$q-$slug.mp4" --workers "${WORKERS:-3}" --quiet > "../out/$q.log" 2>&1) && echo "rendered $dest/$q-$slug.mp4"
   if [ -f "$q/chapters.txt" ]; then cp "$q/chapters.txt" "$dest/$q-$slug-chapters.txt"; fi
 done
