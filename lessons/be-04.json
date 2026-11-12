@@ -51,6 +51,14 @@
   [
    "local storage",
    "localStorage"
+  ],
+  [
+   "AJWT",
+   "A JWT"
+  ],
+  [
+   "O of one",
+   "O(1)"
   ]
  ],
  "chapters": [
@@ -59,7 +67,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Anyone can type any email. So how does your server know who's calling? By the end you'll read a token, store passwords safely, and stop one client flooding your API.",
+     "say": "Anyone can type any email. How does your server know who's calling? Attackers guess billions of passwords a second. By the end you'll store passwords, read a token, and stop one client flooding your API.",
      "lines": [
       {
        "text": "Anyone can type any email",
@@ -68,6 +76,11 @@
       {
        "text": "Who is really calling?",
        "cue": "who's calling"
+      },
+      {
+       "text": "Billions of guesses a second",
+       "cue": "billions of passwords",
+       "accent": "Billions"
       },
       {
        "text": "Then: how much may they call?",
@@ -94,14 +107,14 @@
     {
      "type": "problem",
      "title": "How do we store passwords?",
-     "statement": "Users sign up with passwords. If the database leaks, nobody's password should leak with it.",
+     "statement": "If the database leaks, no password may leak with it.",
      "example": {
       "input": "the password hunter2",
       "output": "a stored value nobody can reverse"
      },
-     "say": "Here's the problem. Users sign up with passwords, and the database may leak one day. For example, the password hunter two. We want to store something nobody can turn back into it.",
+     "say": "Users sign up with passwords like hunter two, and the database may leak one day. We want to store something nobody can turn back into the password.",
      "cues": {
-      "example": "For example",
+      "example": "like hunter two",
       "output": "We want to store"
      }
     },
@@ -147,7 +160,7 @@
     {
      "type": "diagram",
      "head": "Sign up, then log in",
-     "say": "Sign up. We feed hunter two to b crypt. Out comes one string, with four parts. Algorithm, b crypt. Cost twelve, meaning two to the twelfth rounds. A random salt, fresh for every user. And the hash itself. At login, we take the salt from that string, hash the typed password again, and compare. Same hash: match.",
+     "say": "Sign up. We feed hunter two to b crypt. Out comes one string, with four parts. Algorithm, b crypt. Cost twelve, meaning two to the twelfth rounds. A random salt: random bytes mixed into the password, fresh for every user. So a precomputed table of common hashes is useless. And the hash itself. At login, we take the salt from that string, hash the typed password again, and compare. Same hash: match.",
      "items": [
       {
        "id": "pw",
@@ -245,6 +258,12 @@
      ],
      "changes": [
       {
+       "id": "salt",
+       "glow": true,
+       "tone": "warn",
+       "cue": "precomputed table"
+      },
+      {
        "id": "login",
        "glow": true,
        "tone": "good",
@@ -302,7 +321,8 @@
       "No: salts differ",
       "Only if same cost"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "Does the users table"
     },
     {
      "type": "compare",
@@ -351,14 +371,14 @@
     {
      "type": "problem",
      "title": "How does the server know it's you?",
-     "statement": "After login, every request must prove who is calling, without sending the password again.",
+     "statement": "Every request must prove who is calling, without the password.",
      "example": {
       "input": "a request carrying a cookie or token",
       "output": "the server knows: user 42"
      },
-     "say": "Next problem. After login, every request must prove who is calling, without the password. For example, a request with a cookie. We want the server to know it is user forty two.",
+     "say": "You're logged in. Now every request must prove who is calling, like this one with a cookie. We want the server to know it is user forty two.",
      "cues": {
-      "example": "For example",
+      "example": "every request",
       "output": "We want the server"
      }
     },
@@ -468,25 +488,27 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "tok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\nprint(json.loads(base64.urlsafe_b64decode(body + \"==\")))"
+       "code": "claims = {\"sub\": \"42\", \"exp\": 1893456000}\ntok = jwt.encode(claims, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\nraw = base64.urlsafe_b64decode(body + \"==\")\nprint(json.loads(raw))"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "three parts"
       },
       {
        "lines": [
-        1
+        1,
+        2
        ],
        "cue": "Here's one"
       },
       {
        "lines": [
-        3
+        4,
+        5
        ],
        "cue": "decode the payload"
       }
@@ -545,14 +567,15 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A token lasts one hour. The user logs out at minute five, but someone copied the token. At minute ten, does it still work? Pause and predict.",
+     "say": "Your turn. The token lasts an hour. The user logs out at minute five. A thief copied the token. At minute ten, does it work? Pause and predict.",
      "q": "JWT valid 1 hour. Logout at minute 5. Copied token at minute 10?",
      "options": [
       "Rejected",
       "Still accepted",
       "Accepted once"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "A thief copied"
     },
     {
      "type": "compare",
@@ -596,7 +619,7 @@
     {
      "type": "compare",
      "head": "Where does the token live?",
-     "say": "Where does the browser keep it? Not in local storage: an injected script can read it. Use an HttpOnly, Secure cookie: scripts can't read it. And never put secrets in a JWT. Anyone can decode it.",
+     "say": "Where does the browser keep it? Not in local storage: a script an attacker injects into your page can read it. Use an HttpOnly, Secure cookie: scripts can't read it. And never put secrets in a JWT. Anyone can decode it.",
      "heads": [
       "Choice",
       "Why"
@@ -624,7 +647,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. A session id or a signed token tells the server who is calling.",
+     "say": "So the server knows. A session id or a signed token tells it who is calling.",
      "lines": [
       "Session or token: user 42"
      ],
@@ -725,9 +748,10 @@
      "options": [
       "Yes: anyone can swap it",
       "No: needs the app's secret",
-      "Only after a day"
+      "Yes: codes are tokens"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "A thief copies"
     },
     {
      "type": "diagram",
@@ -806,7 +830,7 @@
     {
      "type": "compare",
      "head": "Authn vs authz",
-     "say": "Now two words people mix up. Authentication asks: who are you? Failing it is four oh one. Authorization asks: what may you do? Failing that is four oh three.",
+     "say": "OAuth tells the app who you are. That is authentication: failing it is four oh one. What you may do is a separate check, authorization. Failing that is four oh three.",
      "heads": [
       "",
       "Question",
@@ -832,7 +856,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. OAuth shows the app who you are, without your password.",
+     "say": "Problem solved. OAuth shows the app who you are, without your password.",
      "lines": [
       "OAuth: identity, no password"
      ],
@@ -848,21 +872,21 @@
     {
      "type": "problem",
      "title": "How do we stop one client flooding?",
-     "statement": "We know it's user 42. Now limit how much they may call: bursts are fine, floods are not.",
+     "statement": "Limit how much one user may call: bursts are fine, floods are not.",
      "example": {
       "input": "user 42 sends 15 requests at once",
       "output": "10 pass, 5 get 429"
      },
-     "say": "Next problem. We know it's user forty two. Now limit how much they may call. For example, fifteen requests at once. We want ten to pass and five to get four twenty nine.",
+     "say": "Now, how much may they call? Say user forty two fires fifteen requests at once. We want ten to pass, and five to get four twenty nine.",
      "cues": {
-      "example": "For example",
+      "example": "Say user forty two",
       "output": "We want ten"
      }
     },
     {
      "type": "flow",
      "head": "From who to how much",
-     "say": "Now the server knows who's calling: user forty two. Next question: how much may they call? Picture an arcade coin jar. Each game costs one coin. The jar refills one coin a second, never above ten.",
+     "say": "The key is user forty two, from the token. Picture an arcade coin jar. Each game costs one coin. The jar refills one coin a second, never above ten.",
      "items": [
       {
        "label": "the key",
@@ -896,7 +920,7 @@
     {
      "type": "diagram",
      "head": "Fifteen requests, ten tokens",
-     "say": "The token says sub forty two, so that's the key: one bucket per user. User forty two sends a burst of fifteen requests in one second. Each takes a token. Ten tokens, ten requests pass. The last five are rejected with four twenty nine.",
+     "say": "The token says sub forty two, so that's the key: one bucket per user. User forty two sends a burst of fifteen requests at the same instant. Each takes a token. Ten tokens, ten requests pass. The last five are rejected with four twenty nine.",
      "items": [
       {
        "id": "rq",
@@ -999,7 +1023,7 @@
     {
      "type": "code",
      "head": "The whole algorithm",
-     "say": "The code needs no timer. We store the tokens, and the time of the last request. Each request, we compute how many tokens were earned since then, never above capacity. At least one? Spend it and say yes. Otherwise no. Constant time, constant memory per user.",
+     "say": "The code needs no timer. We store the tokens, and the time of the last request. Each request, compute what was earned. Cap it at capacity. At least one? Spend it and say yes. Otherwise no. Constant time, constant memory per user.",
      "panels": [
       {
        "file": "app.py",
@@ -1019,13 +1043,13 @@
        "lines": [
         6
        ],
-       "cue": "compute how many"
+       "cue": "compute what was earned"
       },
       {
        "lines": [
         7
        ],
-       "cue": "never above capacity"
+       "cue": "Cap it at"
       },
       {
        "lines": [
@@ -1106,13 +1130,14 @@
     {
      "type": "quiz",
      "say": "Your turn. The bucket is empty after the burst. Three seconds pass. Five more requests arrive together. How many pass? Pause and predict.",
-     "q": "Empty bucket, refill 1 per second. 3 s later, 5 requests arrive. Passes?",
+     "q": "Empty bucket, +1 per second. 3 s later, 5 requests arrive. Passes?",
      "options": [
       "0",
       "3",
       "5"
      ],
-     "answer": "3"
+     "answer": "3",
+     "optCue": "Five more requests"
     },
     {
      "type": "chart",
@@ -1143,7 +1168,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. A bucket per user lets ten through and rejects five.",
+     "say": "There's our answer. A bucket per user lets ten through and rejects five.",
      "lines": [
       "Per-user bucket: 10 in, 5 out"
      ],
@@ -1171,49 +1196,22 @@
      }
     },
     {
-     "type": "compare",
-     "head": "Three algorithms, one catch each",
-     "say": "Other ways exist. A fixed window counts per minute, so bursts can double at the edge. Sliding window avoids that, at a memory cost. Token bucket allows bursts up to capacity, then holds the average.",
-     "heads": [
-      "Idea",
-      "Catch"
-     ],
-     "rows": [
-      [
-       "Fixed window: count per minute",
-       "double burst at the window edge"
-      ],
-      [
-       "Sliding window: last 60 seconds",
-       "more memory, more work"
-      ],
-      [
-       "Token bucket: spend and refill",
-       "bursts up to capacity"
-      ]
-     ],
-     "cues": [
-      "A fixed window",
-      "Sliding window",
-      "Token bucket"
-     ]
-    },
-    {
      "type": "quiz",
-     "say": "Your turn. You run two app servers, each with its own local bucket of ten. One client sends twenty requests, ten to each server. How many pass? Pause and predict.",
-     "q": "2 servers, local bucket of 10 each. 20 requests, 10 per server. Pass?",
+     "say": "Your turn. Two servers, each with its own local bucket of ten. One client sends ten requests to each. How many pass? Pause and predict.",
+     "q": "2 servers, local bucket of 10 each. 10 requests to each. Pass?",
      "options": [
       "10",
-      "15",
+      "11",
       "20",
       "0"
      ],
-     "answer": "20"
+     "answer": "20",
+     "optCue": "One client sends"
     },
     {
      "type": "diagram",
      "head": "Local buckets leak",
-     "say": "Twenty. Each server sees ten requests and its own full bucket, so everything passes. The limit was ten. The client got twenty. The fix is one shared bucket in Redis, a fast shared store, with a key per user. Both servers ask Redis. The read, refill and spend must be one atomic step, so a small Lua script, run inside Redis, does it.",
+     "say": "Twenty. Each server sees ten requests and its own full bucket, so everything passes. The limit was ten. The client got twenty.",
      "items": [
       {
        "id": "s1",
@@ -1272,18 +1270,6 @@
        "size": 48,
        "tone": "bad",
        "cue": "everything passes"
-      },
-      {
-       "id": "rd",
-       "x": 700,
-       "y": 500,
-       "w": 440,
-       "h": 130,
-       "label": "Redis",
-       "text": "user:42 = 10",
-       "size": 40,
-       "tone": "good",
-       "cue": "shared bucket in Redis"
       }
      ],
      "arrows": [
@@ -1296,7 +1282,91 @@
        "from": "s2",
        "to": "b2",
        "cue": "Each server"
+      }
+     ],
+     "changes": [
+      {
+       "id": "b1",
+       "kill": true,
+       "cue": "The limit was ten"
       },
+      {
+       "id": "b2",
+       "kill": true,
+       "cue": "The limit was ten"
+      },
+      {
+       "id": "res",
+       "glow": true,
+       "tone": "bad",
+       "cue": "client got twenty"
+      }
+     ],
+     "hold": 1.5
+    },
+    {
+     "type": "diagram",
+     "head": "One shared bucket, one step",
+     "say": "The fix is one shared bucket in Redis, a fast shared store, with a key per user. Both servers ask Redis. But one token is left. Both servers read one, and both spend it. Two pass. So the read and the spend must be atomic. Atomic means no request slips in between. A small Lua script, run inside Redis, does it.",
+     "items": [
+      {
+       "id": "s1",
+       "x": 140,
+       "y": 260,
+       "w": 320,
+       "h": 130,
+       "text": "server 1",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "s2",
+       "x": 140,
+       "y": 740,
+       "w": 320,
+       "h": 130,
+       "text": "server 2",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "rd",
+       "x": 700,
+       "y": 500,
+       "w": 440,
+       "h": 130,
+       "label": "Redis",
+       "text": "user:42 = 10",
+       "size": 40,
+       "tone": "good",
+       "cue": "shared bucket in Redis"
+      },
+      {
+       "id": "race",
+       "x": 1340,
+       "y": 260,
+       "w": 440,
+       "h": 130,
+       "label": "read, then write",
+       "text": "both read 1",
+       "size": 40,
+       "tone": "warn",
+       "cue": "both servers read one"
+      },
+      {
+       "id": "lua",
+       "x": 1340,
+       "y": 740,
+       "w": 440,
+       "h": 130,
+       "label": "atomic",
+       "text": "Lua: one step",
+       "size": 40,
+       "tone": "good",
+       "cue": "small Lua script"
+      }
+     ],
+     "arrows": [
       {
        "from": "s1",
        "to": "rd",
@@ -1314,36 +1384,70 @@
      ],
      "notes": [
       {
-       "x": 1180,
-       "y": 700,
-       "text": "atomic Lua script",
+       "x": 1340,
+       "y": 520,
+       "text": "nothing slips between",
        "tone": "good",
-       "cue": "one atomic step"
+       "cue": "Atomic means"
       }
      ],
      "changes": [
       {
        "id": "rd",
+       "text": "user:42 = 1",
+       "cue": "one token is left"
+      },
+      {
+       "id": "race",
+       "text": "2 pass, not 1",
+       "tone": "bad",
+       "cue": "Two pass"
+      },
+      {
+       "id": "rd",
        "glow": true,
        "tone": "good",
-       "cue": "Lua script"
-      },
-      {
-       "id": "b1",
-       "kill": true,
-       "cue": "The limit was ten"
-      },
-      {
-       "id": "b2",
-       "kill": true,
-       "cue": "The limit was ten"
+       "cue": "must be atomic"
       }
      ]
     },
     {
      "type": "compare",
+     "head": "Three algorithms, one catch each",
+     "say": "Token bucket isn't the only limiter. A fixed window counts per minute. A client can spend ten at second fifty nine, ten more at sixty: twenty in two seconds. A sliding window counts the last sixty seconds, at a memory cost. Token bucket allows bursts up to capacity, then holds the average.",
+     "heads": [
+      "Idea",
+      "Catch"
+     ],
+     "rows": [
+      [
+       "Fixed window: count per minute",
+       "resets at each minute mark"
+      ],
+      [
+       "Its edge burst",
+       "10 at :59 + 10 at :60 = 20 in 2 s"
+      ],
+      [
+       "Sliding window: last 60 seconds",
+       "more memory, more work"
+      ],
+      [
+       "Token bucket: spend and refill",
+       "bursts up to capacity"
+      ]
+     ],
+     "cues": [
+      "A fixed window",
+      "ten at second",
+      "sliding window",
+      "Token bucket allows"
+     ]
+    },
+    {
+     "type": "compare",
      "head": "What the client sees",
-     "say": "Reject with four twenty nine. Add a Retry After header, so clients know when to come back. Two classic mistakes: counting in local memory, and a non atomic read then write. Capacity sets the burst. Refill sets the average.",
+     "say": "Reject with four twenty nine. Add a Retry After header, so clients know when to come back. Classic mistakes: local counters, and two servers spending one token. Capacity sets the burst. Refill sets the average.",
      "heads": [
       "Topic",
       "Answer"
@@ -1359,7 +1463,7 @@
       ],
       [
        "Classic mistakes",
-       "local counters; read-then-write race"
+       "local counters; 2 servers read 1, both spend"
       ],
       [
        "Burst vs average",
@@ -1369,14 +1473,14 @@
      "cues": [
       "Reject with",
       "Retry After",
-      "classic mistakes",
+      "Classic mistakes",
       "Capacity sets"
      ]
     },
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. One shared Redis bucket enforces a single limit across servers.",
+     "say": "And that's one limit across servers. One shared Redis bucket, updated atomically, enforces it.",
      "lines": [
       "One shared bucket, atomic"
      ],
@@ -1392,7 +1496,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Sessions or JWT?",
      "covers": [
       "be08"
      ],
@@ -1400,40 +1504,104 @@
       "They ask",
       "You say"
      ],
-     "say": "Sessions versus JWT? Sessions keep state on the server. A JWT carries it, signed. Passwords? A slow salted hash: b crypt or Argon two. OAuth? Redirect, consent, code, token: the app never sees your password. Authn versus authz? Who you are, versus what you may do. Token storage? An HttpOnly cookie.",
+     "say": "Sessions or J W T? A session lives on the server: instant logout, but servers need a shared store. Any server verifies a J W T, but you can't revoke it early. Where's the token kept? In an HttpOnly cookie, so scripts can't read it.",
      "rows": [
       [
-       "Sessions vs JWT?",
-       "server state vs signed token"
+       "Sessions or JWT?",
+       "session: instant logout, shared store"
       ],
       [
-       "How store passwords?",
-       "slow salted hash: bcrypt, Argon2"
+       "The trade-off?",
+       "JWT: any server verifies, no revoke till expiry"
       ],
       [
-       "How does OAuth work?",
-       "redirect, consent, code, token"
-      ],
-      [
-       "Authn vs authz?",
-       "who you are vs what you may do"
-      ],
-      [
-       "Where store the token?",
-       "`HttpOnly` cookie"
+       "Where's it kept?",
+       "`HttpOnly` cookie: scripts can't read it"
       ]
      ],
      "cues": [
-      "Sessions versus",
-      "Passwords",
-      "OAuth",
-      "Authn versus",
-      "Token storage"
+      "A session lives",
+      "Any server verifies",
+      "Where's the token"
      ]
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Passwords and access",
+     "covers": [
+      "be08"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you store passwords? As a slow salted hash, like b crypt or Argon two. Why not plain S H A? It's fast, so attackers guess billions a second. Authentication is who you are. Failing it gives four oh one. Authorization is what you may do. Failing it gives four oh three.",
+     "rows": [
+      [
+       "How store passwords?",
+       "slow salted hash: bcrypt or Argon2"
+      ],
+      [
+       "Why not plain SHA?",
+       "fast: billions of guesses a second"
+      ],
+      [
+       "What is authn?",
+       "who you are; failing it: 401"
+      ],
+      [
+       "And authz?",
+       "what you may do; failing it: 403"
+      ]
+     ],
+     "cues": [
+      "As a slow",
+      "Why not plain",
+      "Authentication is",
+      "Authorization is"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "How does OAuth work?",
+     "covers": [
+      "be08"
+     ],
+     "say": "How does O Auth work? The app redirects you to Google. You log in there and approve. Google sends you back with a short lived code. The app's server swaps it for a token, using its secret. So the app never sees your password.",
+     "items": [
+      {
+       "label": "1",
+       "text": "redirect",
+       "cue": "redirects you"
+      },
+      {
+       "label": "2",
+       "text": "approve",
+       "cue": "log in there"
+      },
+      {
+       "label": "3",
+       "text": "code",
+       "cue": "short lived code"
+      },
+      {
+       "label": "4",
+       "text": "token",
+       "tone": "good",
+       "sub": "needs the secret",
+       "cue": "swaps it"
+      },
+      {
+       "label": "result",
+       "text": "no password",
+       "tone": "good",
+       "cue": "never sees"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Build a token bucket",
      "covers": [
       "be09"
      ],
@@ -1441,12 +1609,44 @@
       "They ask",
       "You say"
      ],
-     "say": "Token bucket? Refills at a fixed rate, each request spends one. Burst versus steady? Capacity sets the burst, refill sets the average. Many servers? Shared Redis, atomic Lua script, key per user. Status code? Four twenty nine, with Retry After. Mistake? Local counters, or a non atomic read then write.",
+     "say": "How do you implement a token bucket? Store two numbers per user: tokens, and the last request time. Each request adds rate times elapsed seconds, capped at capacity. One token or more? Spend one and allow it. Otherwise, return four twenty nine. That's O of one.",
      "rows": [
       [
-       "What is a token bucket?",
-       "refills steadily, each request spends one"
+       "How to implement it?",
+       "store tokens and last time per user"
       ],
+      [
+       "Each request?",
+       "add rate × elapsed, cap at capacity"
+      ],
+      [
+       "Then?",
+       "one token or more: spend one, allow"
+      ],
+      [
+       "Otherwise?",
+       "429. Every step is O(1)"
+      ]
+     ],
+     "cues": [
+      "Store two numbers",
+      "Each request adds",
+      "One token or more",
+      "Otherwise, return"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Rate limits in production",
+     "covers": [
+      "be09"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Burst versus steady? Capacity sets the burst, refill sets the average. Many servers? One shared bucket in Redis, updated atomically by a Lua script. What does the client get? Four twenty nine, with a Retry After header. Common mistake? Local counters, so each server allows the full limit.",
+     "rows": [
       [
        "Burst vs steady?",
        "capacity = burst, refill = average"
@@ -1456,20 +1656,19 @@
        "shared Redis, atomic Lua, key per user"
       ],
       [
-       "Status code?",
+       "What status code?",
        "429 + `Retry-After`"
       ],
       [
        "Common mistake?",
-       "local counters, non-atomic read-write"
+       "local counters: each server allows all"
       ]
      ],
      "cues": [
-      "Token bucket",
       "Burst versus",
       "Many servers",
-      "Status code",
-      "Mistake"
+      "What does the client",
+      "Common mistake"
      ]
     }
    ]
