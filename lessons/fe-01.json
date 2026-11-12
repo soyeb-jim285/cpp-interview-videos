@@ -1,0 +1,1556 @@
+{
+ "id": "fe-01",
+ "track": "Frontend",
+ "num": 1,
+ "title": "How the Browser Draws & CSS Layout",
+ "covers": [
+  "fe01",
+  "fe10"
+ ],
+ "caps": [
+  [
+   "offset height",
+   "offsetHeight"
+  ],
+  [
+   "get bounding client rect",
+   "getBoundingClientRect()"
+  ],
+  [
+   "scroll top",
+   "scrollTop"
+  ],
+  [
+   "border box",
+   "border-box"
+  ],
+  [
+   "content box",
+   "content-box"
+  ],
+  [
+   "box sizing",
+   "box-sizing"
+  ],
+  [
+   "justify content",
+   "justify-content"
+  ],
+  [
+   "align items",
+   "align-items"
+  ],
+  [
+   "space between",
+   "space-between"
+  ],
+  [
+   "Space between",
+   "space-between"
+  ],
+  [
+   "important flag",
+   "!important"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "From HTML to pixels",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "One line of JavaScript can freeze a whole page. You'll learn which line, and why. And you'll win any C S S argument about which rule applies.",
+     "lines": [
+      {
+       "text": "1 line of JavaScript",
+       "cue": "One line"
+      },
+      {
+       "text": "Frozen page.",
+       "cue": "freeze a whole page",
+       "accent": true
+      },
+      {
+       "text": "CSS argument won.",
+       "cue": "win any C S S argument"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Follow a page from H T M L to pixels. Spot the loop that forces a thousand layouts. And size boxes, pick flex or grid, and win on specificity.",
+     "lines": [
+      "Follow a page from HTML to pixels",
+      "Spot the loop that forces 1,000 layouts",
+      "Size boxes, pick flex or grid, win specificity"
+     ],
+     "cues": [
+      "Follow a page",
+      "Spot the loop",
+      "size boxes"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "From text file to pixels",
+     "statement": "The browser receives HTML and CSS as plain text. Name the steps that turn it into the pixels you see.",
+     "example": {
+      "input": "`<h1>Hi</h1>` + `h1 { color: red }`",
+      "output": "a red heading on screen"
+     },
+     "say": "Here is the problem. The browser gets plain text. For example, one heading tag and one color rule. We want a red heading on screen. Which steps happen in between?",
+     "cues": {
+      "example": "For example",
+      "output": "red heading"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Think of building a house",
+     "say": "Think of building a house. First, a blueprint says which rooms exist. Then paint swatches say how each room looks. Then you measure where every wall goes. Then you paint. The browser does these four jobs, in this order, for every page.",
+     "items": [
+      {
+       "label": "blueprint",
+       "text": "DOM",
+       "sub": "which rooms exist",
+       "cue": "blueprint"
+      },
+      {
+       "label": "swatches",
+       "text": "CSSOM",
+       "sub": "how rooms look",
+       "cue": "paint swatches"
+      },
+      {
+       "label": "measuring",
+       "text": "Layout",
+       "sub": "size and place",
+       "tone": "warn",
+       "cue": "measure where"
+      },
+      {
+       "label": "painting",
+       "text": "Paint",
+       "sub": "fill in color",
+       "tone": "good",
+       "cue": "Then you paint"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The real names",
+     "say": "Now the real names. Parsing H T M L gives the D O M, a tree of nodes. Parsing C S S gives the C S S O M, a tree of rules. Merge them into the render tree. Layout sizes and places each box. Paint fills the pixels.",
+     "items": [
+      {
+       "label": "from HTML",
+       "text": "DOM",
+       "cue": "the D O M"
+      },
+      {
+       "label": "from CSS",
+       "text": "CSSOM",
+       "cue": "C S S O M, a tree"
+      },
+      {
+       "label": "merged",
+       "text": "Render tree",
+       "cue": "render tree"
+      },
+      {
+       "label": "step 3",
+       "text": "Layout",
+       "tone": "warn",
+       "cue": "Layout sizes"
+      },
+      {
+       "label": "step 4",
+       "text": "Paint",
+       "tone": "good",
+       "cue": "Paint fills"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "What a change re-runs",
+     "say": "After the first render, a change re-runs the pipeline from some step onward. Change a width or a position, and the browser restarts at layout. That's a reflow, and a repaint follows. Change a color, and it skips layout. Just a repaint. Change only transform or opacity, and the graphics card composites. No layout, no repaint.",
+     "items": [
+      {
+       "id": "lay",
+       "x": 360,
+       "y": 220,
+       "w": 300,
+       "h": 130,
+       "text": "Layout",
+       "tone": "warn",
+       "cue": "re-runs the pipeline"
+      },
+      {
+       "id": "pnt",
+       "x": 810,
+       "y": 220,
+       "w": 300,
+       "h": 130,
+       "text": "Paint",
+       "tone": "good",
+       "cue": "re-runs the pipeline"
+      },
+      {
+       "id": "cmp",
+       "x": 1260,
+       "y": 220,
+       "w": 300,
+       "h": 130,
+       "text": "Composite",
+       "cue": "re-runs the pipeline"
+      },
+      {
+       "id": "w",
+       "x": 360,
+       "y": 480,
+       "w": 300,
+       "h": 130,
+       "text": "width, top",
+       "tone": "blue",
+       "cue": "a width or a position"
+      },
+      {
+       "id": "c",
+       "x": 810,
+       "y": 480,
+       "w": 300,
+       "h": 130,
+       "text": "color",
+       "tone": "blue",
+       "cue": "Change a color"
+      },
+      {
+       "id": "t",
+       "x": 1260,
+       "y": 480,
+       "w": 300,
+       "h": 130,
+       "text": "transform",
+       "tone": "blue",
+       "cue": "Change only transform"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "w",
+       "to": "lay",
+       "cue": "restarts at layout"
+      },
+      {
+       "from": "c",
+       "to": "pnt",
+       "cue": "skips layout"
+      },
+      {
+       "from": "t",
+       "to": "cmp",
+       "cue": "the graphics card composites"
+      }
+     ],
+     "notes": [
+      {
+       "x": 300,
+       "y": 660,
+       "text": "reflow: layout runs again",
+       "tone": "warn",
+       "cue": "That's a reflow"
+      },
+      {
+       "x": 760,
+       "y": 660,
+       "text": "repaint: pixels redrawn",
+       "tone": "good",
+       "cue": "Just a repaint"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. You animate a box's top from zero to a hundred pixels. Sixty frames a second. Which steps run on every frame? Pause and predict.",
+     "q": "Animating `top` from 0 to 100px: what runs each frame?",
+     "options": [
+      "Composite only",
+      "Paint + composite",
+      "Layout+paint+composite",
+      "Nothing, GPU does it"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "code",
+     "head": "Same slide, two costs",
+     "say": "Layout, paint, and composite, on every frame. Top is a position, so each frame restarts at layout. Sixty reflows a second. The fix is transform. It only composites, so the same slide costs almost nothing. In the interview, say animate transform and opacity.",
+     "panels": [
+      {
+       "file": "slow.css",
+       "label": "bad",
+       "tone": "bad",
+       "code": ".box {\n  position: relative;\n  transition: top 1s;\n}\n.box:hover {\n  top: 100px;\n}"
+      },
+      {
+       "file": "fast.css",
+       "label": "good",
+       "tone": "good",
+       "code": ".box {\n  transition: transform 1s;\n}\n.box:hover {\n  transform:\n    translateY(100px);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        3,
+        6
+       ],
+       "cue": "restarts at layout"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2,
+        5,
+        6
+       ],
+       "cue": "The fix is transform"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2
+       ],
+       "cue": "It only composites"
+      },
+      {
+       "panel": 1,
+       "lines": [],
+       "cue": "animate transform and opacity"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The loop that freezes a page",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does this loop freeze the page?",
+     "statement": "A script sets each item's width and reads its height, for 1,000 items. The page locks up. Make it fast.",
+     "example": {
+      "input": "1,000 items: write, read, write, read",
+      "output": "1 layout, not 1,000"
+     },
+     "say": "Here is the problem. For example, a thousand items: write, read, write, read. We want one layout, not a thousand.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A foreman with a notebook",
+     "say": "Think of a foreman with a notebook. You change a wall's width. He jots it down. No measuring yet. Then you ask, how tall is that wall right now? He can't guess. He must stop and re-measure every wall. Reading a height is that question.",
+     "items": [
+      {
+       "label": "you write",
+       "text": "Change width",
+       "sub": "jotted down, free",
+       "cue": "change a wall's width"
+      },
+      {
+       "label": "you read",
+       "text": "Ask height",
+       "sub": "needs a true answer",
+       "tone": "warn",
+       "cue": "how tall is that wall"
+      },
+      {
+       "label": "browser",
+       "text": "Layout",
+       "sub": "re-measure everything",
+       "tone": "bad",
+       "cue": "re-measure every wall"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "1,000 passes, 1,000 layouts",
+     "say": "In the browser the notebook is a flag: layout is stale. A write sets the flag, which is free. A read of offset height needs a true answer, so the browser runs layout now. Write, read, write, read: that's a thousand layouts. Read everything first, then write everything. Layout runs once.",
+     "items": [
+      {
+       "id": "loop",
+       "x": 160,
+       "y": 430,
+       "w": 380,
+       "h": 140,
+       "label": "your loop",
+       "text": "write, read",
+       "tone": "blue"
+      },
+      {
+       "id": "lay",
+       "x": 900,
+       "y": 430,
+       "w": 340,
+       "h": 140,
+       "label": "browser",
+       "text": "Layout",
+       "tone": "warn"
+      },
+      {
+       "id": "cnt",
+       "x": 1400,
+       "y": 430,
+       "w": 320,
+       "h": 140,
+       "label": "layouts run",
+       "text": "0",
+       "size": 64
+      }
+     ],
+     "arrows": [
+      {
+       "from": "loop",
+       "to": "lay",
+       "label": "write: stale",
+       "tone": "dim",
+       "bend": -110,
+       "cue": "A write"
+      },
+      {
+       "from": "loop",
+       "to": "lay",
+       "label": "read: now",
+       "tone": "bad",
+       "bend": 110,
+       "cue": "A read"
+      }
+     ],
+     "changes": [
+      {
+       "id": "lay",
+       "glow": true,
+       "tone": "bad",
+       "cue": "runs layout now"
+      },
+      {
+       "id": "cnt",
+       "count": [
+        0,
+        1000
+       ],
+       "dur": 1.5,
+       "cue": "a thousand layouts"
+      },
+      {
+       "id": "loop",
+       "text": "batched",
+       "tone": "good",
+       "cue": "Read everything first"
+      },
+      {
+       "id": "cnt",
+       "text": "1",
+       "tone": "good",
+       "cue": "Layout runs once"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Read first, write second",
+     "say": "Here it is in code. On the left, slow. Each pass writes a width, then reads offset height, so every pass forces layout. On the right, fast. Read every height into a list first. Then write every width. One layout.",
+     "panels": [
+      {
+       "file": "slow.js",
+       "label": "bad",
+       "tone": "bad",
+       "code": "let total = 0;\nfor (const el of items) {\n  el.style.width = '50px';\n  total += el.offsetHeight;\n}"
+      },
+      {
+       "file": "fast.js",
+       "label": "good",
+       "tone": "good",
+       "code": "const hs = items.map(el =>\n  el.offsetHeight);\nitems.forEach(el => {\n  el.style.width = '50px';\n});"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Each pass writes"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        4
+       ],
+       "cue": "reads offset height"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "On the right"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Read every height"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "write every width"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A loop sets width, then color, on a thousand items. It never reads anything. How many layouts run? Pause and predict.",
+     "q": "Loop sets `width` and `color` on 1,000 items. No reads. Layouts?",
+     "options": [
+      "1,000",
+      "1, at frame end",
+      "0, never",
+      "2,000"
+     ],
+     "answer": "1, at frame end"
+    },
+    {
+     "type": "chart",
+     "head": "Layouts per run",
+     "unit": "layouts",
+     "say": "One, at the end of the frame. Writes alone only mark things stale, so the browser lays out once, just before painting. The mixed loop: a thousand. Batched, reads then writes: one again. Same work, a thousand times the layouts.",
+     "bars": [
+      {
+       "label": "Writes",
+       "value": 1,
+       "tone": "good",
+       "cue": "Writes alone"
+      },
+      {
+       "label": "write+read",
+       "value": 1000,
+       "tone": "bad",
+       "cue": "The mixed loop"
+      },
+      {
+       "label": "Batched",
+       "value": 1,
+       "tone": "good",
+       "cue": "Batched, reads"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Reads that look harmless",
+     "say": "Careful, many reads look harmless. Offset height forces layout. So does get bounding client rect. And scroll top. Plain style writes only mark things stale.",
+     "heads": [
+      "You write",
+      "Browser does"
+     ],
+     "rows": [
+      [
+       "`el.offsetHeight`",
+       "layout now"
+      ],
+      [
+       "`el.getBoundingClientRect()`",
+       "layout now"
+      ],
+      [
+       "`el.scrollTop`",
+       "layout now"
+      ],
+      [
+       "`el.style.width = ...`",
+       "marks stale, waits"
+      ]
+     ],
+     "cues": [
+      "Offset height forces",
+      "get bounding",
+      "scroll top",
+      "Plain style writes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "How wide is a box?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "How wide is this card?",
+     "statement": "A card is 200px wide with 20px of padding and a 2px border on every side. How wide is it on screen?",
+     "example": {
+      "input": "width 200, padding 20, border 2",
+      "output": "244 px, not 200"
+     },
+     "say": "Here is the problem. For example, a card two hundred wide, with padding and border. On screen? Not two hundred.",
+     "cues": {
+      "example": "For example",
+      "output": "Not two hundred"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A gift in a box",
+     "say": "Think of a gift in a box. The gift is the content, two hundred pixels wide. Around it, bubble wrap: padding. Then the box wall: the border. The gap to the next box is the margin. It never counts.",
+     "items": [
+      {
+       "label": "gift",
+       "text": "Content",
+       "sub": "200px wide",
+       "cue": "The gift"
+      },
+      {
+       "label": "bubble wrap",
+       "text": "Padding",
+       "sub": "inside the border",
+       "cue": "bubble wrap"
+      },
+      {
+       "label": "box wall",
+       "text": "Border",
+       "sub": "the edge",
+       "cue": "box wall"
+      },
+      {
+       "label": "gap outside",
+       "text": "Margin",
+       "sub": "not in the size",
+       "tone": "dim",
+       "cue": "The gap"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Adding it up",
+     "say": "Add it up. Content: two hundred. Padding is twenty on the left and twenty on the right: forty. The border is two on each side: four. Total, two hundred forty four. By default, width means content only.",
+     "items": [
+      {
+       "id": "c",
+       "x": 160,
+       "y": 430,
+       "w": 360,
+       "h": 150,
+       "label": "content",
+       "sub": "width",
+       "text": "200",
+       "size": 64,
+       "tone": "blue",
+       "cue": "Content: two hundred"
+      },
+      {
+       "id": "p",
+       "x": 600,
+       "y": 430,
+       "w": 360,
+       "h": 150,
+       "label": "padding",
+       "sub": "20 each side",
+       "text": "+ 40",
+       "size": 64,
+       "tone": "warn",
+       "cue": "Padding is twenty"
+      },
+      {
+       "id": "b",
+       "x": 1040,
+       "y": 430,
+       "w": 300,
+       "h": 150,
+       "label": "border",
+       "sub": "2 each side",
+       "text": "+ 4",
+       "size": 64,
+       "cue": "border is two"
+      },
+      {
+       "id": "t",
+       "x": 1420,
+       "y": 430,
+       "w": 320,
+       "h": 150,
+       "label": "on screen",
+       "text": "0",
+       "size": 64,
+       "tone": "good",
+       "cue": "Total"
+      }
+     ],
+     "changes": [
+      {
+       "id": "t",
+       "count": [
+        0,
+        244
+       ],
+       "cue": "two hundred forty four"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "`box-sizing` changes the rule",
+     "say": "Set box sizing to border box, and width now includes padding and border. The card stays two hundred, and the content shrinks to make room. Most projects set this once, for everything.",
+     "panels": [
+      {
+       "file": "style.css",
+       "code": ".card {\n  width: 200px;\n  padding: 20px;\n  border: 2px solid;\n}\n* { box-sizing: border-box; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "width now includes"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Most projects"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "total stays 200px",
+       "tone": "good",
+       "cue": "stays two hundred"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Default sizing. Width three hundred, padding ten on each side, border five on each side. How wide on screen? Pause and predict.",
+     "q": "`width: 300px; padding: 10px; border: 5px`. Screen width?",
+     "options": [
+      "300px",
+      "320px",
+      "330px",
+      "340px"
+     ],
+     "answer": "330px"
+    },
+    {
+     "type": "diagram",
+     "head": "Same sum, new numbers",
+     "say": "Three hundred thirty. Content three hundred. Padding twenty in total. Border ten in total. Add them up and the box is three thirty wide.",
+     "items": [
+      {
+       "id": "c",
+       "x": 160,
+       "y": 430,
+       "w": 360,
+       "h": 150,
+       "label": "content",
+       "sub": "width",
+       "text": "200",
+       "size": 64,
+       "tone": "blue"
+      },
+      {
+       "id": "p",
+       "x": 600,
+       "y": 430,
+       "w": 360,
+       "h": 150,
+       "label": "padding",
+       "sub": "20 each side",
+       "text": "+ 40",
+       "size": 64,
+       "tone": "warn"
+      },
+      {
+       "id": "b",
+       "x": 1040,
+       "y": 430,
+       "w": 300,
+       "h": 150,
+       "label": "border",
+       "sub": "2 each side",
+       "text": "+ 4",
+       "size": 64
+      },
+      {
+       "id": "t",
+       "x": 1420,
+       "y": 430,
+       "w": 320,
+       "h": 150,
+       "label": "on screen",
+       "text": "244",
+       "size": 64,
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c",
+       "text": "300",
+       "cue": "Content three hundred"
+      },
+      {
+       "id": "p",
+       "text": "+ 20",
+       "cue": "Padding twenty"
+      },
+      {
+       "id": "b",
+       "text": "+ 10",
+       "cue": "Border ten"
+      },
+      {
+       "id": "t",
+       "count": [
+        244,
+        330
+       ],
+       "cue": "three thirty wide"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Two 50% columns that overflow",
+     "say": "Here's the bug this causes. Two columns, each fifty percent of a thousand pixels. Each has padding. Default sizing makes each five forty, so they spill over. Border box makes each five hundred, and they fit.",
+     "heads": [
+      "",
+      "content-box",
+      "border-box"
+     ],
+     "rows": [
+      [
+       "each column",
+       "500 + 40 = 540",
+       "500"
+      ],
+      [
+       "both columns",
+       "1,080 in a 1,000 box",
+       "1,000, fits"
+      ],
+      [
+       "result",
+       "spills or wraps",
+       "side by side"
+      ]
+     ],
+     "cues": [
+      "Two columns",
+      "Default sizing",
+      "Border box makes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Flexbox or grid?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Lay out a nav bar and a gallery",
+     "statement": "A nav bar needs a logo on the left and a menu on the right. A gallery needs three equal columns. Which tool for each?",
+     "example": {
+      "input": "nav: logo + menu; gallery: 4 cards",
+      "output": "nav: flex; gallery: grid"
+     },
+     "say": "Here is the problem. A nav bar and a card gallery. For example, a logo and a menu, and four cards. We want to pick the right layout tool for each.",
+     "cues": {
+      "example": "For example",
+      "output": "We want"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A shelf and an egg carton",
+     "say": "Think of two ways to store things. A shelf: items in one line. That is flexbox, one axis. An egg carton: fixed slots in rows and columns together. That is grid, two axes.",
+     "items": [
+      {
+       "label": "flexbox",
+       "text": "Shelf",
+       "sub": "one line of items",
+       "cue": "A shelf"
+      },
+      {
+       "label": "grid",
+       "text": "Egg carton",
+       "sub": "rows and columns",
+       "cue": "An egg carton"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Flex puts items on one line",
+     "say": "Here is a flex container, a box a thousand pixels wide. Three items, each a hundred pixels. Display flex lines them up on one axis, packed at the start. The empty space is leftover.",
+     "items": [
+      {
+       "id": "box",
+       "region": true,
+       "x": 460,
+       "y": 300,
+       "w": 1000,
+       "h": 440,
+       "label": "display: flex, 1000px",
+       "cue": "a flex container"
+      },
+      {
+       "id": "a",
+       "x": 460,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "A",
+       "tone": "blue",
+       "cue": "Three items"
+      },
+      {
+       "id": "b",
+       "x": 560,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "B",
+       "tone": "blue",
+       "cue": "Three items"
+      },
+      {
+       "id": "c",
+       "x": 660,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "C",
+       "tone": "blue",
+       "cue": "Three items"
+      }
+     ],
+     "changes": [
+      {
+       "id": "box",
+       "glow": true,
+       "cue": "lines them up"
+      }
+     ],
+     "notes": [
+      {
+       "x": 640,
+       "y": 580,
+       "text": "free space: 700px",
+       "tone": "warn",
+       "cue": "The empty space"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now add justify content space between. First item at the left edge, last at the right edge. How wide is each gap between items? Pause and predict.",
+     "q": "1000px box, three 100px items, `space-between`. Gap size?",
+     "options": [
+      "100px",
+      "233px",
+      "350px",
+      "700px"
+     ],
+     "answer": "350px"
+    },
+    {
+     "type": "diagram",
+     "head": "Flex puts items on one line",
+     "say": "Three fifty. Seven hundred pixels free, split in two gaps. B slides to the middle. C slides to the right edge.",
+     "items": [
+      {
+       "id": "box",
+       "region": true,
+       "x": 460,
+       "y": 300,
+       "w": 1000,
+       "h": 440,
+       "label": "display: flex, 1000px"
+      },
+      {
+       "id": "a",
+       "x": 460,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "A",
+       "tone": "blue"
+      },
+      {
+       "id": "b",
+       "x": 560,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "B",
+       "tone": "blue"
+      },
+      {
+       "id": "c",
+       "x": 660,
+       "y": 400,
+       "w": 100,
+       "h": 100,
+       "text": "C",
+       "tone": "blue"
+      }
+     ],
+     "changes": [
+      {
+       "id": "b",
+       "move": [
+        910,
+        400
+       ],
+       "cue": "B slides"
+      },
+      {
+       "id": "c",
+       "move": [
+        1360,
+        400
+       ],
+       "cue": "C slides"
+      }
+     ],
+     "notes": [
+      {
+       "x": 640,
+       "y": 580,
+       "text": "free space: 700px",
+       "tone": "warn"
+      },
+      {
+       "x": 640,
+       "y": 650,
+       "text": "700 / 2 gaps = 350px",
+       "tone": "good",
+       "cue": "split in two gaps"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Grid fills rows and columns",
+     "say": "Now grid. Three equal columns with a gap. Four cards fill the slots in order. The fourth does not fit in the first row, so it wraps to a second row by itself.",
+     "items": [
+      {
+       "id": "g",
+       "region": true,
+       "x": 360,
+       "y": 260,
+       "w": 1200,
+       "h": 420,
+       "label": "display: grid, 3 columns",
+       "cue": "Three equal columns"
+      },
+      {
+       "id": "k1",
+       "x": 400,
+       "y": 350,
+       "w": 340,
+       "h": 130,
+       "text": "1",
+       "tone": "blue",
+       "cue": "Four cards"
+      },
+      {
+       "id": "k2",
+       "x": 790,
+       "y": 350,
+       "w": 340,
+       "h": 130,
+       "text": "2",
+       "tone": "blue",
+       "cue": "fill the slots"
+      },
+      {
+       "id": "k3",
+       "x": 1180,
+       "y": 350,
+       "w": 340,
+       "h": 130,
+       "text": "3",
+       "tone": "blue",
+       "cue": "in order"
+      },
+      {
+       "id": "k4",
+       "x": 400,
+       "y": 510,
+       "w": 340,
+       "h": 130,
+       "text": "4",
+       "tone": "good",
+       "cue": "wraps to a second row"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Nav, gallery, and centering",
+     "say": "In C S S, the nav is display flex with space between. The gallery is display grid, three equal columns, sixteen pixels of gap. And to center anything, make its parent flex, and center both axes. Flex when content decides, grid when the layout decides.",
+     "panels": [
+      {
+       "file": "style.css",
+       "code": ".nav {\n  display: flex;\n  justify-content: space-between;\n}\n.gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 16px;\n}\n.center { display: flex;\n  justify-content: center;\n  align-items: center; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "the nav"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8,
+        9
+       ],
+       "cue": "The gallery"
+      },
+      {
+       "lines": [
+        10,
+        11,
+        12
+       ],
+       "cue": "center anything"
+      },
+      {
+       "lines": [],
+       "cue": "grid when the layout"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Why did my style lose?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which color wins?",
+     "statement": "Two rules match the same heading. One uses an id. The other chains three classes. Which color shows?",
+     "example": {
+      "input": "`#hero` red vs `.a.b.c` blue",
+      "output": "red: (1,0,0) beats (0,3,0)"
+     },
+     "say": "Here is the problem. Two rules hit one heading. For example, an id says red, three chained classes say blue. The answer is red. Let's see why.",
+     "cues": {
+      "example": "For example",
+      "output": "The answer is red"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Specificity is a medal table",
+     "say": "Think of an Olympic medal table. Compare gold first. Only on a tie, silver. Only then bronze. Same for selectors: ids, classes, elements. Three silvers never beat one gold.",
+     "items": [
+      {
+       "label": "gold",
+       "text": "ids",
+       "sub": "#hero",
+       "cue": "Compare gold first"
+      },
+      {
+       "label": "silver",
+       "text": "classes",
+       "sub": ".card",
+       "cue": "Only on a tie"
+      },
+      {
+       "label": "bronze",
+       "text": "elements",
+       "sub": "h1",
+       "cue": "Only then bronze"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Score each selector",
+     "say": "Score each rule. The id hero scores one, zero, zero. The chain of three classes scores zero, three, zero. Compare left to right. The first slot is one against zero, so the id wins. We never even count the three.",
+     "items": [
+      {
+       "id": "ra",
+       "x": 160,
+       "y": 300,
+       "w": 400,
+       "h": 130,
+       "label": "rule A",
+       "text": "#hero",
+       "tone": "blue",
+       "cue": "The id hero"
+      },
+      {
+       "id": "rb",
+       "x": 160,
+       "y": 560,
+       "w": 400,
+       "h": 130,
+       "label": "rule B",
+       "text": ".a.b.c",
+       "tone": "blue",
+       "cue": "chain of three classes"
+      },
+      {
+       "id": "sa",
+       "x": 760,
+       "y": 300,
+       "w": 340,
+       "h": 130,
+       "label": "(id, class, element)",
+       "text": "(1, 0, 0)",
+       "cue": "one, zero, zero"
+      },
+      {
+       "id": "sb",
+       "x": 760,
+       "y": 560,
+       "w": 340,
+       "h": 130,
+       "text": "(0, 3, 0)",
+       "cue": "zero, three, zero"
+      },
+      {
+       "id": "win",
+       "x": 1360,
+       "y": 430,
+       "w": 340,
+       "h": 130,
+       "label": "verdict",
+       "text": "red wins",
+       "tone": "good",
+       "cue": "so the id wins"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ra",
+       "to": "sa",
+       "cue": "The id hero"
+      },
+      {
+       "from": "rb",
+       "to": "sb",
+       "cue": "chain of three classes"
+      },
+      {
+       "from": "sa",
+       "to": "win",
+       "tone": "good",
+       "cue": "so the id wins"
+      }
+     ],
+     "changes": [
+      {
+       "id": "sa",
+       "glow": true,
+       "tone": "good",
+       "cue": "one against zero"
+      },
+      {
+       "id": "sb",
+       "tone": "dim",
+       "cue": "never even count"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Prove it in the browser",
+     "say": "Here is the page. A heading with id hero and classes a, b, and c. Three rules: the id says red, the classes say blue, the element says green. The heading renders red.",
+     "panels": [
+      {
+       "file": "index.html",
+       "code": "<h1 id=\"hero\"\n    class=\"a b c\">Hi</h1>"
+      },
+      {
+       "file": "style.css",
+       "code": "#hero { color: red; }\n.a.b.c { color: blue; }\nh1 { color: green; }"
+      }
+     ],
+     "steps": [
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "A heading"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1
+       ],
+       "cue": "the id says red"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        2
+       ],
+       "cue": "classes say blue"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        3
+       ],
+       "cue": "element says green"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1
+       ],
+       "cue": "renders red"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Two rules, one list item with class on. First rule: class menu, then class on, red. Second rule: list, item, class on, blue. Which color? Pause and predict.",
+     "q": "`.menu .on` red, then `ul li.on` blue. Which wins?",
+     "options": [
+      "`.menu .on` red",
+      "`ul li.on` blue",
+      "Tie: later wins",
+      "Neither"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "compare",
+     "head": "Score both rules",
+     "say": "Red. Menu on scores zero, two, zero. List item on scores zero, one, two. The middle slot decides: two beats one. File order never mattered.",
+     "heads": [
+      "Rule",
+      "Score"
+     ],
+     "rows": [
+      [
+       "`.menu .on`",
+       "(0, 2, 0)"
+      ],
+      [
+       "`ul li.on`",
+       "(0, 1, 2)"
+      ],
+      [
+       "Winner",
+       "middle slot: 2 beats 1"
+      ]
+     ],
+     "cues": [
+      "Menu on scores",
+      "List item on",
+      "The middle slot"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Ties, inline and `!important`",
+     "say": "Same score? The later rule wins. Inline style beats any selector. Important beats inline, so it is a last resort. Instead, lower the selector.",
+     "heads": [
+      "Situation",
+      "Who wins"
+     ],
+     "rows": [
+      [
+       "Same score",
+       "the later rule wins"
+      ],
+      [
+       "Inline `style=...`",
+       "beats any selector"
+      ],
+      [
+       "`!important`",
+       "beats inline: last resort"
+      ],
+      [
+       "Stubborn style?",
+       "lower the selector"
+      ]
+     ],
+     "cues": [
+      "Same score",
+      "Inline style",
+      "Important beats",
+      "Instead, lower"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe01"
+     ],
+     "say": "How does a browser render? Parse into trees, then layout, paint, composite. Reflow versus repaint? Reflow recomputes positions, so it costs more. Why is transform cheap? It only composites. Common mistake? Reading offset height between writes.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How does a browser render?",
+       "DOM + CSSOM, render tree, layout, paint, composite"
+      ],
+      [
+       "Reflow vs repaint?",
+       "reflow recomputes positions, costs more"
+      ],
+      [
+       "Why is `transform` cheap?",
+       "it only composites: no layout, no repaint"
+      ],
+      [
+       "Common mistake?",
+       "reading `offsetHeight` between writes"
+      ]
+     ],
+     "cues": [
+      "How does a browser",
+      "Reflow versus",
+      "Why is transform",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe10"
+     ],
+     "say": "Box model? Content, padding, border, margin. Use border box so width includes padding. Flex or grid? Flex for one axis, grid for two. Center a div? Flex, then center both axes. A stubborn style? Lower the selector, avoid important.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Box model?",
+       "content, padding, border, margin; use `border-box`"
+      ],
+      [
+       "Flex or grid?",
+       "flex: one axis. grid: two axes"
+      ],
+      [
+       "Center a div?",
+       "`display: flex`, center both axes"
+      ],
+      [
+       "Stubborn style?",
+       "lower the selector, avoid `!important`"
+      ]
+     ],
+     "cues": [
+      "Box model",
+      "Flex or grid",
+      "Center a div",
+      "stubborn style"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Try these next. Open the DevTools Performance tab, record the thousand item loop, and find the layout bars. Animate a box with top, then with transform, and compare. Then rebuild a nav, a gallery, and the specificity quiz by hand.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Record the 1,000-item loop in DevTools Performance",
+       "see the purple layout bars"
+      ],
+      [
+       "Animate `top`, then `transform`",
+       "compare frame cost"
+      ],
+      [
+       "Build a flex nav + 3-column grid gallery",
+       "muscle memory for layout"
+      ]
+     ],
+     "cues": [
+      "DevTools Performance",
+      "Animate a box",
+      "rebuild a nav"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. The browser builds the D O M and C S S O M, then layout, paint, composite. Reads between writes force layout, so batch them. And border box, flex or grid, and specificity decide your layout.",
+     "lines": [
+      "DOM + CSSOM, layout, paint, composite. Animate `transform`.",
+      "Batch reads before writes: one layout, not 1,000.",
+      "`border-box`; flex for 1D, grid for 2D; ids beat classes."
+     ],
+     "cues": [
+      "builds the D O M",
+      "Reads between",
+      "border box"
+     ]
+    }
+   ]
+  }
+ ]
+}
