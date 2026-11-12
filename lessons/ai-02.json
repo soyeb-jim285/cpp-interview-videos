@@ -1,0 +1,1490 @@
+{
+ "id": "ai-02",
+ "track": "AI Eval",
+ "num": 2,
+ "title": "Grading LLM Answers and Agents",
+ "covers": [
+  "ai02",
+  "ai03"
+ ],
+ "caps": [],
+ "chapters": [
+  {
+   "title": "Two graders, one score",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Two reviewers read the same model answer. One scores it a four. The other scores it a two. By the end, you'll grade so both agree, then judge an agent by its steps.",
+     "lines": [
+      {
+       "text": "Same answer. Two reviewers.",
+       "cue": "Two reviewers"
+      },
+      {
+       "text": "One says 4. One says 2.",
+       "cue": "a four"
+      },
+      {
+       "text": "Make them agree.",
+       "cue": "grade so both agree",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Grade answers with a rubric that two people share. Compare two answers when no checklist fits. And judge an agent by every step it took.",
+     "lines": [
+      "Grade with a rubric two people share",
+      "Compare A and B when no checklist fits",
+      "Judge an agent by every step it took"
+     ],
+     "cues": [
+      "Grade answers with",
+      "Compare two answers",
+      "judge an agent"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Explain recursion: 4 or 2?",
+     "statement": "Two model answers to 'explain recursion'. Score each from 0 to 5, so that any two graders give the same score.",
+     "example": {
+      "input": "Answer A and Answer B, two graders",
+      "output": "Both graders: A is 4, B is 2"
+     },
+     "say": "Here is the problem. Two answers to explain recursion, two graders. For example, answers A and B. We want both graders to agree: four for A, two for B.",
+     "cues": {
+      "example": "For example",
+      "output": "We want both graders"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Why a noisy score hurts",
+     "say": "Why care? A team ships whichever model scores higher. If the same answer gets a four from one grader and a two from another, the ranking is noise. Noise picks the wrong model, and users get the worse one.",
+     "items": [
+      {
+       "label": "same answer",
+       "text": "4 vs 2",
+       "tone": "warn",
+       "cue": "gets a four"
+      },
+      {
+       "label": "the ranking",
+       "text": "is noise",
+       "tone": "bad",
+       "cue": "ranking is noise"
+      },
+      {
+       "label": "what ships",
+       "text": "worse model",
+       "tone": "bad",
+       "cue": "wrong model"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A rubric is a mark scheme",
+     "say": "Think of marking an exam. Ask two teachers, is this a good essay, and they give two different grades. Hand them a mark scheme, two points for this, two points for that, and they land on the same grade. The rubric is the mark scheme.",
+     "items": [
+      {
+       "id": "v",
+       "x": 200,
+       "y": 300,
+       "w": 560,
+       "h": 130,
+       "text": "Vague question",
+       "sub": "is this a good essay?",
+       "size": 38,
+       "tone": "bad",
+       "cue": "is this a good essay"
+      },
+      {
+       "id": "m",
+       "x": 1160,
+       "y": 300,
+       "w": 560,
+       "h": 130,
+       "text": "Mark scheme",
+       "sub": "points for each part",
+       "size": 38,
+       "tone": "good",
+       "cue": "mark scheme, two points"
+      },
+      {
+       "id": "v2",
+       "x": 200,
+       "y": 620,
+       "w": 560,
+       "h": 110,
+       "text": "Two different grades",
+       "size": 34,
+       "tone": "warn",
+       "cue": "two different grades"
+      },
+      {
+       "id": "m2",
+       "x": 1160,
+       "y": 620,
+       "w": 560,
+       "h": 110,
+       "text": "The same grade",
+       "size": 34,
+       "tone": "good",
+       "cue": "land on the same grade"
+      },
+      {
+       "id": "rb",
+       "x": 690,
+       "y": 800,
+       "w": 540,
+       "h": 100,
+       "label": "in our case",
+       "text": "rubric = mark scheme",
+       "size": 34,
+       "tone": "info",
+       "cue": "The rubric is"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "v",
+       "to": "v2",
+       "cue": "two different grades"
+      },
+      {
+       "from": "m",
+       "to": "m2",
+       "cue": "land on the same grade"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Our rubric and two answers",
+     "say": "Here is our rubric, out of five. Correct is worth up to two: no false claims. Complete, up to two: names the self call and the base case. Clear, one. Answer A is correct and clear, but never names a base case. Answer B calls recursion a loop.",
+     "panels": [
+      {
+       "file": "rubric.txt",
+       "code": "Correct   0-2: no false claim\nComplete  0-2: self-call and\n          base case named\nClear     0-1: easy to follow\n\nTotal: 0 to 5"
+      },
+      {
+       "file": "answers.txt",
+       "code": "A: A function that calls\n   itself on a smaller input.\n   Example: 3! is 3 times 2!\n\nB: A loop that repeats some\n   code."
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "Correct is worth"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "panel": 0,
+       "cue": "Complete, up to two"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 0,
+       "cue": "Clear, one"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "panel": 1,
+       "cue": "Answer A is"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "panel": 1,
+       "cue": "Answer B calls"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Two graders, same scores",
+     "say": "Two graders, two answers, one rubric. Grader one scores answer A at four. Grader two gives it four again. Now answer B. Grader one gives two. Grader two gives two as well. Keep A and B as anchors, worked examples of a four and a two.",
+     "items": [
+      {
+       "id": "hA",
+       "x": 600,
+       "y": 260,
+       "w": 340,
+       "h": 90,
+       "text": "Answer A",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "hB",
+       "x": 1060,
+       "y": 260,
+       "w": 340,
+       "h": 90,
+       "text": "Answer B",
+       "size": 40,
+       "tone": "blue"
+      },
+      {
+       "id": "r1",
+       "x": 180,
+       "y": 400,
+       "w": 340,
+       "h": 130,
+       "text": "Grader 1",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Grader one scores"
+      },
+      {
+       "id": "r2",
+       "x": 180,
+       "y": 580,
+       "w": 340,
+       "h": 130,
+       "text": "Grader 2",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Grader two gives it"
+      },
+      {
+       "id": "g1A",
+       "x": 600,
+       "y": 400,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 56
+      },
+      {
+       "id": "g1B",
+       "x": 1060,
+       "y": 400,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 56
+      },
+      {
+       "id": "g2A",
+       "x": 600,
+       "y": 580,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 56
+      },
+      {
+       "id": "g2B",
+       "x": 1060,
+       "y": 580,
+       "w": 340,
+       "h": 130,
+       "text": "?",
+       "size": 56
+      },
+      {
+       "id": "anc",
+       "x": 560,
+       "y": 790,
+       "w": 800,
+       "h": 110,
+       "label": "anchors",
+       "text": "A = 4  ·  B = 2",
+       "size": 48,
+       "tone": "good",
+       "cue": "as anchors"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g1A",
+       "text": "4",
+       "tone": "good",
+       "cue": "answer A at four"
+      },
+      {
+       "id": "g2A",
+       "text": "4",
+       "tone": "good",
+       "cue": "four again"
+      },
+      {
+       "id": "g1B",
+       "text": "2",
+       "tone": "good",
+       "cue": "gives two."
+      },
+      {
+       "id": "g2B",
+       "text": "2",
+       "tone": "good",
+       "cue": "two as well"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A new answer says: recursion is a function calling itself on a smaller input until a base case stops it. Apply the rubric. What score? Pause and predict.",
+     "q": "Answer C: 'A function calls itself on a smaller input until a base case stops it.'",
+     "options": [
+      "3",
+      "4",
+      "5",
+      "2"
+     ],
+     "answer": "5"
+    },
+    {
+     "type": "compare",
+     "head": "Scoring answer C",
+     "say": "Five. Correct earns two, nothing false. Complete earns two, it names the self call and the base case. Clear earns one. No example needed, because the rubric never asked for one.",
+     "heads": [
+      "Criterion",
+      "Answer C"
+     ],
+     "rows": [
+      [
+       "Correct",
+       "2 of 2: nothing false"
+      ],
+      [
+       "Complete",
+       "2 of 2: self-call + base case"
+      ],
+      [
+       "Clear",
+       "1 of 1: easy to follow"
+      ]
+     ],
+     "cues": [
+      "Correct earns",
+      "Complete earns",
+      "Clear earns"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Pass or fail, one check each",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Exactly two sentences",
+     "statement": "The prompt says: summarize in exactly two sentences, no bullets. The response reads well. Does it pass?",
+     "example": {
+      "input": "Response: three short sentences",
+      "output": "Fail: it broke an explicit rule"
+     },
+     "note": "Easy to miss when skimming",
+     "say": "Next problem. The prompt wants exactly two sentences. The response reads well. For example, it has three short ones. Does it pass? No, it broke a rule. A quick reader misses that.",
+     "cues": {
+      "example": "For example",
+      "output": "it broke a rule",
+      "note": "A quick reader"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A prompt and its response",
+     "say": "Here is the prompt, and the response. Read the response. Smooth, and every fact matches. Now count the sentences. One, two, three. A quick reader says good summary. A careful grader sees a broken rule.",
+     "panels": [
+      {
+       "file": "prompt.txt",
+       "code": "Summarize in exactly\ntwo sentences.\nNo bullets.\n\nText: The city opened a\nnew bridge on Monday. It\ncuts commutes by 12 min\nand cost 40 million."
+      },
+      {
+       "file": "response.txt",
+       "label": "3 sentences",
+       "tone": "warn",
+       "code": "The city opened a bridge.\nIt cuts commutes by 12\nminutes.\nIt cost 40 million dollars."
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "panel": 1,
+       "cue": "Read the response"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 1,
+       "cue": "One,"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "panel": 1,
+       "cue": "two,"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 1,
+       "cue": "three."
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "3rd: rule broken",
+       "tone": "bad",
+       "cue": "careful grader"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Four checks, pass or fail",
+     "say": "A rubric splits one vague question into small checks. Facts match the text: pass. Rules followed: fail, three sentences. Nothing invented: pass. Clear and short: pass. Each check is pass or fail, so graders have little room to disagree, and you can say exactly why points were lost.",
+     "items": [
+      {
+       "id": "c0",
+       "x": 140,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Facts match",
+       "text": "pass",
+       "size": 56,
+       "tone": "good",
+       "cue": "Facts match"
+      },
+      {
+       "id": "c1",
+       "x": 560,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Rules followed",
+       "text": "fail",
+       "sub": "3 sentences",
+       "size": 56,
+       "tone": "bad",
+       "cue": "Rules followed"
+      },
+      {
+       "id": "c2",
+       "x": 980,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Nothing invented",
+       "text": "pass",
+       "size": 56,
+       "tone": "good",
+       "cue": "Nothing invented"
+      },
+      {
+       "id": "c3",
+       "x": 1400,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Clear and short",
+       "text": "pass",
+       "size": 56,
+       "tone": "good",
+       "cue": "Clear and short"
+      }
+     ],
+     "notes": [
+      {
+       "x": 140,
+       "y": 700,
+       "text": "Two graders, little room",
+       "tone": "warn",
+       "cue": "little room"
+      },
+      {
+       "x": 980,
+       "y": 700,
+       "text": "Point lost: rules followed",
+       "tone": "bad",
+       "cue": "exactly why"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same two sentence summary, but now the response says the bridge cost four hundred million. The text said forty. Which check fails? Pause and predict.",
+     "q": "The text says 40 million; the response says 400 million. Which check fails?",
+     "options": [
+      "Facts match",
+      "Rules followed",
+      "Nothing invented",
+      "Clear and short"
+     ],
+     "answer": "Facts match"
+    },
+    {
+     "type": "diagram",
+     "head": "Four checks, pass or fail",
+     "say": "Facts match fails. The text says forty million, and the response says four hundred million. Rules followed now passes. Nothing invented still passes, because only a number is wrong. One failed check, one reason.",
+     "items": [
+      {
+       "id": "c0",
+       "x": 140,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Facts match",
+       "text": "pass",
+       "size": 56,
+       "tone": "good"
+      },
+      {
+       "id": "c1",
+       "x": 560,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Rules followed",
+       "text": "fail",
+       "sub": "3 sentences",
+       "size": 56,
+       "tone": "bad"
+      },
+      {
+       "id": "c2",
+       "x": 980,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Nothing invented",
+       "text": "pass",
+       "size": 56,
+       "tone": "good"
+      },
+      {
+       "id": "c3",
+       "x": 1400,
+       "y": 400,
+       "w": 380,
+       "h": 200,
+       "label": "Clear and short",
+       "text": "pass",
+       "size": 56,
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": "fail",
+       "tone": "bad",
+       "cue": "Facts match fails"
+      },
+      {
+       "id": "c1",
+       "text": "pass",
+       "tone": "good",
+       "cue": "now passes"
+      },
+      {
+       "id": "c2",
+       "glow": true,
+       "tone": "good",
+       "cue": "still passes"
+      }
+     ],
+     "notes": [
+      {
+       "x": 140,
+       "y": 700,
+       "text": "40 million, not 400 million",
+       "tone": "bad",
+       "cue": "four hundred million"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Three grading traps",
+     "say": "Three traps. Rewarding length: longer wins by habit. Rewarding tone: a warm wrong answer is still wrong. Writing only good: say which check failed, so others can repeat it.",
+     "heads": [
+      "Trap",
+      "Do instead"
+     ],
+     "rows": [
+      [
+       "Reward the longer answer",
+       "Same facts, fewer words wins"
+      ],
+      [
+       "Reward a friendly tone",
+       "Check facts first, tone last"
+      ],
+      [
+       "Write only \"good\"",
+       "Write which check failed"
+      ]
+     ],
+     "cues": [
+      "Rewarding length",
+      "Rewarding tone",
+      "Writing only good"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "No checklist? Compare A and B",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which reply sounds better?",
+     "statement": "Two replies to an angry customer. No checklist captures sounds better. How do you pick a winner that holds up?",
+     "example": {
+      "input": "Reply A vs Reply B, same prompt",
+      "output": "A winner plus a written reason"
+     },
+     "say": "No checklist. Which of two replies to an angry customer sounds better? For example, reply A against reply B. We want a winner, and a written reason.",
+     "cues": {
+      "example": "For example",
+      "output": "a winner, and"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Pairwise: a blind taste test",
+     "say": "Think of a blind taste test. Nobody scores flavor. You taste two cups, pick one, say why. Answers work the same: two answers, a winner, a reason.",
+     "items": [
+      {
+       "label": "two cups",
+       "text": "A and B",
+       "sub": "two answers, one prompt",
+       "cue": "two cups"
+      },
+      {
+       "label": "pick one",
+       "text": "winner",
+       "sub": "the better answer",
+       "cue": "pick one"
+      },
+      {
+       "label": "say why",
+       "text": "reason",
+       "sub": "written down",
+       "cue": "say why"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Judge twice, swap the order",
+     "say": "Graders tend to favor whatever they see first. That is position bias, so judge twice. Run one: A in the first slot, B second. The grader picks A. Run two: swap them. B first, A second. It picks A again. Same winner in both orders, so we trust it.",
+     "items": [
+      {
+       "id": "t1",
+       "x": 160,
+       "y": 330,
+       "w": 230,
+       "h": 130,
+       "text": "Run 1",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Run one"
+      },
+      {
+       "id": "s1a",
+       "x": 440,
+       "y": 330,
+       "w": 200,
+       "h": 130,
+       "label": "first slot",
+       "text": "A",
+       "size": 56,
+       "tone": "blue",
+       "cue": "A in the first slot"
+      },
+      {
+       "id": "s1b",
+       "x": 670,
+       "y": 330,
+       "w": 200,
+       "h": 130,
+       "label": "second slot",
+       "text": "B",
+       "size": 56,
+       "tone": "blue",
+       "cue": "B second"
+      },
+      {
+       "id": "p1",
+       "x": 960,
+       "y": 330,
+       "w": 360,
+       "h": 130,
+       "text": "picks A",
+       "size": 48,
+       "tone": "good",
+       "cue": "The grader picks A"
+      },
+      {
+       "id": "t2",
+       "x": 160,
+       "y": 580,
+       "w": 230,
+       "h": 130,
+       "text": "Run 2",
+       "size": 40,
+       "tone": "warn",
+       "cue": "Run two"
+      },
+      {
+       "id": "s2a",
+       "x": 440,
+       "y": 580,
+       "w": 200,
+       "h": 130,
+       "text": "B",
+       "size": 56,
+       "tone": "blue",
+       "cue": "B first"
+      },
+      {
+       "id": "s2b",
+       "x": 670,
+       "y": 580,
+       "w": 200,
+       "h": 130,
+       "text": "A",
+       "size": 56,
+       "tone": "blue",
+       "cue": "A second"
+      },
+      {
+       "id": "p2",
+       "x": 960,
+       "y": 580,
+       "w": 360,
+       "h": 130,
+       "text": "picks A",
+       "size": 48,
+       "tone": "good",
+       "cue": "picks A again"
+      },
+      {
+       "id": "v",
+       "x": 1420,
+       "y": 455,
+       "w": 340,
+       "h": 130,
+       "label": "verdict",
+       "text": "A wins",
+       "size": 48,
+       "tone": "good",
+       "cue": "we trust it"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p1",
+       "to": "v",
+       "cue": "we trust it"
+      },
+      {
+       "from": "p2",
+       "to": "v",
+       "cue": "we trust it"
+      }
+     ],
+     "notes": [
+      {
+       "x": 160,
+       "y": 220,
+       "text": "Graders favor the first slot",
+       "tone": "warn",
+       "cue": "position bias"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Order A then B, and the grader picks A. Swap to B then A, and it picks B. What does that tell you? Pause and predict.",
+     "q": "Order A,B picks A. Order B,A picks B. What happened?",
+     "options": [
+      "A is clearly better",
+      "B is clearly better",
+      "Position bias",
+      "The rubric is perfect"
+     ],
+     "answer": "Position bias"
+    },
+    {
+     "type": "code",
+     "head": "Both orders, or it's a tie",
+     "say": "Position bias: it picked the first slot twice. This code asks in both orders. If the picks disagree, it says tie. Our biased judge always says slot one, so it says tie. A fair judge would not.",
+     "panels": [
+      {
+       "file": "judge.py",
+       "code": "def judge(ask, a, b):\n    one, two = ask(a, b), ask(b, a)\n    if one == 1 and two == 2:\n        return \"A wins\"\n    if one == 2 and two == 1:\n        return \"B wins\"\n    return \"tie\"\nprint(judge(lambda x, y: 1, \"A\", \"B\"))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [],
+       "cue": "Position bias"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "asks in both orders"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "If the picks"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "it says tie"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "always says slot one"
+      }
+     ],
+     "output": {
+      "cmd": "python judge.py",
+      "text": "tie",
+      "cue": "says tie."
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups you'll hear",
+     "say": "Three follow-ups. When two graders still disagree, fix the rubric, then re-grade. Can a model grade for you? Yes, but spot check its scores against humans. Why write a reason? So another person can check and repeat it.",
+     "heads": [
+      "Question",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Graders still disagree?",
+       "Fix the rubric, then re-grade"
+      ],
+      [
+       "Let a model grade?",
+       "Yes, spot-check against humans"
+      ],
+      [
+       "Why write a reason?",
+       "Others can check and repeat it"
+      ]
+     ],
+     "cues": [
+      "two graders still",
+      "Can a model",
+      "Why write a reason"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Grade the route, not the end",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Cheapest flight to Boston",
+     "statement": "An agent must book the cheapest flight to Boston on May 3. It makes five tool calls, then says: Booked!",
+     "example": {
+      "input": "5 tool calls, then 'Booked the cheapest flight!'",
+      "output": "Score every step, not the message"
+     },
+     "say": "Now the model acts. It must book the cheapest Boston flight. For example, five tool calls, then a cheerful message. We must grade the whole run.",
+     "cues": {
+      "example": "For example",
+      "output": "grade the whole run"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "A driving test",
+     "say": "Think of a driving test. A driver arrives on time, but ran a red light on the way. The examiner still fails them, because the route matters. An agent is a model that takes actions by calling tools, like search or payment. So we grade the route too, not only the arrival.",
+     "items": [
+      {
+       "id": "arr",
+       "x": 160,
+       "y": 300,
+       "w": 420,
+       "h": 120,
+       "text": "Arrived on time",
+       "size": 38,
+       "tone": "good",
+       "cue": "arrives on time"
+      },
+      {
+       "id": "red",
+       "x": 750,
+       "y": 300,
+       "w": 420,
+       "h": 120,
+       "text": "Ran a red light",
+       "size": 38,
+       "tone": "bad",
+       "cue": "red light"
+      },
+      {
+       "id": "ex",
+       "x": 1340,
+       "y": 300,
+       "w": 420,
+       "h": 120,
+       "label": "examiner",
+       "text": "Fail",
+       "size": 48,
+       "tone": "bad",
+       "cue": "still fails them"
+      },
+      {
+       "id": "ag",
+       "x": 160,
+       "y": 620,
+       "w": 560,
+       "h": 120,
+       "label": "agent",
+       "text": "a model",
+       "sub": "search, pay, reply",
+       "size": 40,
+       "tone": "blue",
+       "cue": "An agent is a model"
+      },
+      {
+       "id": "gr",
+       "x": 1000,
+       "y": 620,
+       "w": 760,
+       "h": 120,
+       "label": "we grade",
+       "text": "the route and the result",
+       "size": 40,
+       "tone": "good",
+       "cue": "grade the route too"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ag",
+       "to": "gr",
+       "cue": "grade the route too"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ag",
+       "text": "tool calls",
+       "cue": "calling tools"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "The trajectory: five tool calls",
+     "say": "That run is the trajectory: every tool call, in order. Step one searches flights for May three. Step two sorts by price. Step three books a flight. Step four charges the card. Step five tells the user. Looks fine, until you read step three.",
+     "items": [
+      {
+       "label": "step 1",
+       "text": "search",
+       "sub": "date May 3",
+       "cue": "Step one"
+      },
+      {
+       "label": "step 2",
+       "text": "sort",
+       "sub": "by price",
+       "cue": "Step two"
+      },
+      {
+       "label": "step 3",
+       "text": "book",
+       "sub": "date May 4",
+       "cue": "Step three books"
+      },
+      {
+       "label": "step 4",
+       "text": "charge",
+       "sub": "the card",
+       "cue": "Step four"
+      },
+      {
+       "label": "step 5",
+       "text": "reply",
+       "sub": "Booked!",
+       "cue": "Step five"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Score every step",
+     "say": "Now score each step on its own. Search for May three: pass. Sort by price: pass. Booking: fail. It picked May four. Charging the card paid for the wrong flight. The reply sounds right but is false. The outcome check agrees: wrong date.",
+     "items": [
+      {
+       "id": "s0",
+       "x": 130,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "label": "step 1",
+       "text": "search",
+       "sub": "date May 3",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "s1",
+       "x": 470,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "label": "step 2",
+       "text": "sort",
+       "sub": "by price",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "s2",
+       "x": 810,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "label": "step 3",
+       "text": "book",
+       "sub": "date May 4",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "s3",
+       "x": 1150,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "label": "step 4",
+       "text": "charge",
+       "sub": "card",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "s4",
+       "x": 1490,
+       "y": 330,
+       "w": 300,
+       "h": 150,
+       "label": "step 5",
+       "text": "reply",
+       "sub": "Booked!",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "r0",
+       "x": 130,
+       "y": 560,
+       "w": 300,
+       "h": 110,
+       "text": "?",
+       "size": 44,
+       "cue": "Search for May three"
+      },
+      {
+       "id": "r1",
+       "x": 470,
+       "y": 560,
+       "w": 300,
+       "h": 110,
+       "text": "?",
+       "size": 44,
+       "cue": "Sort by price"
+      },
+      {
+       "id": "r2",
+       "x": 810,
+       "y": 560,
+       "w": 300,
+       "h": 110,
+       "text": "?",
+       "size": 44,
+       "cue": "Booking"
+      },
+      {
+       "id": "r3",
+       "x": 1150,
+       "y": 560,
+       "w": 300,
+       "h": 110,
+       "text": "?",
+       "size": 44,
+       "cue": "Charging the card"
+      },
+      {
+       "id": "r4",
+       "x": 1490,
+       "y": 560,
+       "w": 300,
+       "h": 110,
+       "text": "?",
+       "size": 44,
+       "cue": "sounds right"
+      },
+      {
+       "id": "out",
+       "x": 520,
+       "y": 790,
+       "w": 880,
+       "h": 110,
+       "label": "outcome check",
+       "text": "booked May 4, wanted May 3",
+       "size": 38,
+       "tone": "bad",
+       "cue": "outcome check"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r0",
+       "text": "pass",
+       "tone": "good",
+       "cue": "Search for May three"
+      },
+      {
+       "id": "r1",
+       "text": "pass",
+       "tone": "good",
+       "cue": "Sort by price"
+      },
+      {
+       "id": "r2",
+       "text": "fail",
+       "tone": "bad",
+       "cue": "Booking"
+      },
+      {
+       "id": "s2",
+       "glow": true,
+       "tone": "bad",
+       "cue": "picked May four"
+      },
+      {
+       "id": "r3",
+       "text": "wrong flight",
+       "tone": "warn",
+       "size": 30,
+       "cue": "Charging the card"
+      },
+      {
+       "id": "r4",
+       "text": "false claim",
+       "tone": "warn",
+       "cue": "sounds right"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The outcome check, as code",
+     "say": "Here is the outcome check, written as code. It reads the real booking from the database, not the agent's message. Right day? Cheapest price? Charged exactly once? All three must hold. For our run the day is May four, so it prints False.",
+     "panels": [
+      {
+       "file": "check.py",
+       "code": "def passed(db):\n    b = db.booking()\n    right_day = b.date == \"May 3\"\n    cheapest = b.price == db.cheapest(\"May 3\")\n    once = db.charges() == 1\n    return right_day and cheapest and once\n\nprint(passed(db))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "reads the real booking"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Right day"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Cheapest price"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Charged exactly once"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "All three must hold"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "state, not the message",
+       "tone": "good",
+       "cue": "reads the real booking"
+      }
+     ],
+     "output": {
+      "cmd": "python check.py",
+      "text": "False",
+      "cue": "prints False",
+      "setup": {
+       "check.py": "class B: pass\nclass DB:\n    def booking(s):\n        b = B(); b.date = \"May 4\"; b.price = 212; return b\n    def cheapest(s, d): return 212\n    def charges(s): return 1\ndb = DB()\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Agent A and agent B both book the right flight, on the right day, at the cheapest price. But agent B also deleted the user's saved trips on the way. Who passes? Pause and predict.",
+     "q": "A and B both book it right. B also deletes saved trips. Who passes?",
+     "options": [
+      "Both pass",
+      "Only A passes",
+      "Only B passes",
+      "Neither"
+     ],
+     "answer": "Only A passes"
+    },
+    {
+     "type": "compare",
+     "head": "Outcome plus route",
+     "say": "Only A passes. Both outcomes pass, but B's route did damage nobody asked for. Check the route for side effects.",
+     "heads": [
+      "Agent",
+      "Outcome",
+      "Route"
+     ],
+     "rows": [
+      [
+       "A",
+       "pass",
+       "clean"
+      ],
+      [
+       "B",
+       "pass",
+       "deleted saved trips"
+      ]
+     ],
+     "cues": [
+      "Only A passes",
+      "B's route"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Four agent-grading mistakes",
+     "say": "Four mistakes. Grading the final message only? Check the real state and the tool calls. Demanding one exact path? Accept any route that passes. A flaky tool? Run it several times, report the pass rate. Letting the agent edit the check? Lock it, and fail runs that touch it.",
+     "heads": [
+      "Mistake",
+      "Fix"
+     ],
+     "rows": [
+      [
+       "Grade the final message only",
+       "Check state and tool calls"
+      ],
+      [
+       "Demand one exact path",
+       "Accept any route that passes"
+      ],
+      [
+       "Run a flaky tool once",
+       "Run several times, report pass rate"
+      ],
+      [
+       "Let the agent edit the check",
+       "Lock it; fail runs that touch it"
+      ]
+     ],
+     "cues": [
+      "final message only",
+      "one exact path",
+      "flaky tool",
+      "edit the check"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "How do you grade consistently? Use separate checks with anchored examples. No clean checklist? Compare A and B, swap the order, and write why. Graders disagree? Fix the rubric, then re-grade. A model as grader? Yes, but spot check against humans.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Grade answers consistently?",
+       "Separate checks, anchored examples"
+      ],
+      [
+       "No clean checklist?",
+       "Compare A and B, swap order, say why"
+      ],
+      [
+       "Graders disagree?",
+       "Fix the rubric, then re-grade"
+      ],
+      [
+       "Model as grader?",
+       "Yes, spot-check against humans"
+      ]
+     ],
+     "cues": [
+      "How do you grade",
+      "No clean",
+      "Graders disagree",
+      "A model as"
+     ],
+     "covers": [
+      "ai02"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "How do you evaluate an agent? Check the outcome with code. What's on the route? Tool calls, arguments, side effects. Many valid paths? Accept any that pass. Flaky tool? Run several times. Cheating? Lock the checks.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Evaluate an agent?",
+       "Code check on the final state"
+      ],
+      [
+       "What is on the route?",
+       "Tool calls, arguments, side effects"
+      ],
+      [
+       "Many valid paths?",
+       "Check the outcome, not exact steps"
+      ],
+      [
+       "Flaky tool?",
+       "Run several times, report pass rate"
+      ],
+      [
+       "Stop it gaming the check?",
+       "Lock the check; flag edits to it"
+      ]
+     ],
+     "cues": [
+      "How do you evaluate",
+      "What's on the route",
+      "Many valid",
+      "Flaky tool",
+      "Cheating"
+     ],
+     "covers": [
+      "ai03"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Try these three. First, write a rubric for a two sentence summary. Grade five answers with a friend. Second, judge ten answer pairs in both orders and count the flips. Third, write a code check for the flight task that reads the final state.",
+     "heads": [
+      "Try next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Rubric for a 2-sentence summary",
+       "Grade 5 answers with a friend, compare"
+      ],
+      [
+       "Judge 10 answer pairs, both orders",
+       "Count how often the pick flips"
+      ],
+      [
+       "Code check for the flight task",
+       "Read the final state, not the reply"
+      ]
+     ],
+     "cues": [
+      "First, write",
+      "Second, judge",
+      "Third, write"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "Say this. Pass or fail checks with anchors make graders agree. With no checklist, compare A and B, swap the order, and say why. For agents, check the outcome with code, then the route.",
+     "lines": [
+      "Pass/fail checks plus anchors: graders agree.",
+      "No checklist? Compare A and B, swap, say why.",
+      "Agents: code-check the outcome, grade the route."
+     ],
+     "cues": [
+      "Pass or fail",
+      "With no checklist",
+      "For agents"
+     ]
+    }
+   ]
+  }
+ ]
+}
