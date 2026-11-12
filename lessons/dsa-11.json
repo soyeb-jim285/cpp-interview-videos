@@ -1,0 +1,2081 @@
+{
+ "id": "dsa-11",
+ "track": "DSA",
+ "num": 11,
+ "title": "Backtracking & Bitmasks",
+ "covers": [
+  "cp15",
+  "cp17"
+ ],
+ "caps": [
+  [
+   "O of n times two to the n",
+   "O(n · 2ⁿ)"
+  ],
+  [
+   "O of n times n factorial",
+   "O(n · n!)"
+  ],
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "n factorial",
+   "n!"
+  ],
+  [
+   "two to the n",
+   "2ⁿ"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Choose, explore, undo",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "List every subset of three items: eight of them. By the end you'll list every subset and every permutation with one pattern, and skip dead ends early. Forget one line, and it all breaks.",
+     "lines": [
+      {
+       "text": "List every subset of 3 items",
+       "cue": "List every subset of"
+      },
+      {
+       "text": "8 of them",
+       "cue": "eight of them"
+      },
+      {
+       "text": "Every permutation too",
+       "cue": "every permutation"
+      },
+      {
+       "text": "Forget one line: it breaks.",
+       "cue": "Forget one line",
+       "accent": "breaks"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. List every subset with choose, explore, undo. Prune dead branches in permutations and sums. And do it again with bit tricks.",
+     "lines": [
+      "Every subset: choose, explore, undo",
+      "Permutations, and pruned searches",
+      "The same with bit tricks"
+     ],
+     "cues": [
+      "List every subset",
+      "Prune dead branches",
+      "bit tricks"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "All subsets",
+     "statement": "Given distinct numbers, return every subset.",
+     "example": {
+      "input": "[1, 2, 3]",
+      "output": "8 subsets, [] to [1, 2, 3]"
+     },
+     "note": "n up to 20",
+     "say": "Here is the problem. For example, one, two, three. Eight subsets, from empty to all three. Up to twenty items.",
+     "cues": {
+      "example": "For example",
+      "output": "Eight subsets",
+      "note": "Up to twenty"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Build a pizza, then undo it",
+     "say": "Think of building a pizza from olive and onion. Start plain, and write that down. Add olive, write it down. Add onion, write it down. Then take both off and try onion alone. Four pizzas, every subset.",
+     "items": [
+      {
+       "label": "start",
+       "text": "plain",
+       "sub": "write it down",
+       "cue": "Start plain"
+      },
+      {
+       "label": "add",
+       "text": "olive",
+       "sub": "write it down",
+       "cue": "Add olive"
+      },
+      {
+       "label": "add more",
+       "text": "olive+onion",
+       "sub": "write it down",
+       "cue": "Add onion"
+      },
+      {
+       "label": "undo, retry",
+       "text": "onion only",
+       "sub": "write it down",
+       "tone": "good",
+       "cue": "onion alone"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Subsets of 1, 2, 3: calls in order",
+     "say": "Same idea with one, two, three. Each box is one call, and each call writes its pizza down. Empty first. Add one. Add two. Add three, and that's a dead end. Undo back, and one three. Undo to the top, try two. Then two three. Last, three alone. Eight boxes, eight subsets.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 190,
+        "nodes": [
+         [
+          "empty",
+          -1
+         ],
+         [
+          "1",
+          0
+         ],
+         [
+          "1,2",
+          1
+         ],
+         [
+          "1,2,3",
+          2
+         ],
+         [
+          "1,3",
+          1
+         ],
+         [
+          "2",
+          0
+         ],
+         [
+          "2,3",
+          5
+         ],
+         [
+          "3",
+          0
+         ]
+        ],
+        "cues": [
+         "Empty first",
+         "Add one",
+         "Add two",
+         "Add three",
+         "one three",
+         "try two",
+         "two three",
+         "three alone"
+        ]
+       }
+      },
+      {
+       "id": "cnt",
+       "x": 1480,
+       "y": 420,
+       "w": 300,
+       "h": 130,
+       "label": "pizzas written",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Each box is one call"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cnt",
+       "count": [
+        0,
+        8
+       ],
+       "dur": 2,
+       "cue": "Eight boxes"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Subsets: choose, explore, undo",
+     "say": "Here it is in C plus plus. Cur is the pizza we're building. Every call writes cur into res. A loop then tries each topping from position i onward. First, choose: push it. Then explore: recurse from j plus one, so only later toppings. Finally undo: pop it, and cur is back as before.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<vector<int>> res;\nvector<int> cur;\nvoid go(vector<int>& a, int i) {\n    res.push_back(cur);\n    for (int j = i; j < (int)a.size(); j++) {\n        cur.push_back(a[j]);\n        go(a, j + 1);\n        cur.pop_back();\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "writes cur"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "tries each topping"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "choose"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "explore"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "undo"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "choose",
+       "tone": "good",
+       "cue": "push it"
+      },
+      {
+       "line": 7,
+       "inside": true,
+       "text": "explore",
+       "tone": "info",
+       "cue": "only later toppings"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "undo",
+       "tone": "warn",
+       "cue": "pop it"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Run it on 1, 2, 3",
+     "say": "Main calls go from zero, then prints every saved pizza in brackets. Empty, one, one two, one two three, one three, two, two three, three. Same order as the boxes. A copy costs up to n each time, so O of n times two to the n.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int main() {\n    vector<int> a = {1, 2, 3};\n    go(a, 0);\n    for (auto& s : res) {\n        cout << '[';\n        for (int x : s) cout << x;\n        cout << \"] \";\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "calls go"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "cue": "prints every saved"
+      },
+      {
+       "lines": [],
+       "cue": "Same order as"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "total O(n · 2ⁿ)",
+       "tone": "warn",
+       "cue": "so O of n times"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "[] [1] [12] [123] [13] [2] [23] [3]",
+      "cue": "Empty, one"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A pizza place has ten toppings, and you write down every possible pizza. How many pizzas is that? Pause and predict.",
+     "q": "10 toppings, every subset: how many pizzas?",
+     "options": [
+      "20",
+      "100",
+      "1,024",
+      "3,628,800"
+     ],
+     "answer": 2,
+     "pause": 5
+    },
+    {
+     "type": "chart",
+     "head": "Each topping doubles the count",
+     "unit": "pizzas",
+     "say": "One thousand twenty four. Pizzas by topping count: each topping doubles it. Seven toppings: one twenty eight. Eight: two fifty six. Nine: five twelve. Ten: one thousand twenty four.",
+     "bars": [
+      {
+       "label": "7 toppings",
+       "value": 128,
+       "cue": "Seven toppings"
+      },
+      {
+       "label": "8 toppings",
+       "value": 256,
+       "cue": "Eight"
+      },
+      {
+       "label": "9 toppings",
+       "value": 512,
+       "cue": "Nine"
+      },
+      {
+       "label": "10 toppings",
+       "value": 1024,
+       "tone": "good",
+       "cue": "Ten"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The forgotten undo",
+     "say": "The classic trap. Delete the pop line and cur never shrinks. It writes one two three three, then one two three three two. Still eight boxes, but garbage inside. Every push needs a pop, right after the recursive call.",
+     "heads": [
+      "What you do",
+      "What happens"
+     ],
+     "rows": [
+      [
+       "Delete `cur.pop_back()`",
+       "cur never shrinks"
+      ],
+      [
+       "Output after [123]",
+       "[1233], then [12332]"
+      ],
+      [
+       "Still eight boxes",
+       "but the contents are garbage"
+      ],
+      [
+       "The habit",
+       "every push gets a matching pop"
+      ]
+     ],
+     "cues": [
+      "Delete the pop",
+      "It writes",
+      "Still eight boxes",
+      "Every push"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Permutations: order matters",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "All orderings",
+     "statement": "Given distinct numbers, return every ordering.",
+     "example": {
+      "input": "[1, 2, 3]",
+      "output": "6 permutations"
+     },
+     "say": "New problem. For example, one, two, three. Six orderings, from one two three to three two one.",
+     "cues": {
+      "example": "For example",
+      "output": "Six orderings"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Three friends, three chairs",
+     "say": "Three friends, three chairs, and order matters. Each seating is a permutation. Chair one has three choices. Chair two has two left. Chair three has one. Three times two times one is six orders.",
+     "items": [
+      {
+       "label": "chair 1",
+       "text": "3 choices",
+       "cue": "Chair one"
+      },
+      {
+       "label": "chair 2",
+       "text": "2 choices",
+       "cue": "Chair two"
+      },
+      {
+       "label": "chair 3",
+       "text": "1 choice",
+       "cue": "Chair three"
+      },
+      {
+       "label": "orders",
+       "text": "6",
+       "sub": "3 × 2 × 1",
+       "tone": "good",
+       "cue": "is six orders"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Permutations of 1, 2, 3: the first",
+     "say": "Now the real run on one, two, three. Three empty slots, three free items. Pick one for the first slot. One is used. Pick two for the second. Two is used. Only three is left, so it fills the third. A full path: save it.",
+     "items": [
+      {
+       "id": "s0",
+       "x": 200,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 1",
+       "text": "_",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Three empty slots"
+      },
+      {
+       "id": "s1",
+       "x": 560,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 2",
+       "text": "_",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Three empty slots"
+      },
+      {
+       "id": "s2",
+       "x": 920,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 3",
+       "text": "_",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Three empty slots"
+      },
+      {
+       "id": "u0",
+       "x": 200,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 1",
+       "text": "free",
+       "tone": "good",
+       "cue": "three free items"
+      },
+      {
+       "id": "u1",
+       "x": 440,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 2",
+       "text": "free",
+       "tone": "good",
+       "cue": "three free items"
+      },
+      {
+       "id": "u2",
+       "x": 680,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 3",
+       "text": "free",
+       "tone": "good",
+       "cue": "three free items"
+      },
+      {
+       "id": "res",
+       "x": 1340,
+       "y": 380,
+       "w": 380,
+       "h": 140,
+       "label": "saved",
+       "text": "none",
+       "tone": "info",
+       "cue": "three free items"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s0",
+       "text": "1",
+       "tone": "good",
+       "cue": "Pick one"
+      },
+      {
+       "id": "u0",
+       "text": "used",
+       "tone": "dim",
+       "cue": "One is used"
+      },
+      {
+       "id": "s1",
+       "text": "2",
+       "tone": "good",
+       "cue": "Pick two"
+      },
+      {
+       "id": "u1",
+       "text": "used",
+       "tone": "dim",
+       "cue": "Two is used"
+      },
+      {
+       "id": "s2",
+       "text": "3",
+       "tone": "good",
+       "cue": "fills the third"
+      },
+      {
+       "id": "u2",
+       "text": "used",
+       "tone": "dim",
+       "cue": "Only three"
+      },
+      {
+       "id": "res",
+       "text": "123",
+       "tone": "good",
+       "cue": "save it"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Undo, then try the next one",
+     "say": "Now backtrack. Undo three: slot three empties. Three is free again. Undo two: slot two empties. Two is free again. Slot two takes three this time, and slot three takes two. Save one, three, two. Starting with one gives two orders. Two and three give two each. Six in all.",
+     "items": [
+      {
+       "id": "s0",
+       "x": 200,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 1",
+       "text": "1",
+       "size": 56,
+       "tone": "good"
+      },
+      {
+       "id": "s1",
+       "x": 560,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 2",
+       "text": "2",
+       "size": 56,
+       "tone": "good"
+      },
+      {
+       "id": "s2",
+       "x": 920,
+       "y": 380,
+       "w": 300,
+       "h": 140,
+       "label": "slot 3",
+       "text": "3",
+       "size": 56,
+       "tone": "good"
+      },
+      {
+       "id": "u0",
+       "x": 200,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 1",
+       "text": "used",
+       "tone": "dim"
+      },
+      {
+       "id": "u1",
+       "x": 440,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 2",
+       "text": "used",
+       "tone": "dim"
+      },
+      {
+       "id": "u2",
+       "x": 680,
+       "y": 700,
+       "w": 200,
+       "h": 110,
+       "label": "item 3",
+       "text": "used",
+       "tone": "dim"
+      },
+      {
+       "id": "res",
+       "x": 1340,
+       "y": 380,
+       "w": 380,
+       "h": 140,
+       "label": "saved",
+       "text": "123",
+       "tone": "good"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1340,
+       "y": 560,
+       "text": "2 start with item 1",
+       "tone": "info",
+       "cue": "gives two orders"
+      }
+     ],
+     "changes": [
+      {
+       "id": "s2",
+       "text": "_",
+       "tone": "blue",
+       "cue": "slot three empties"
+      },
+      {
+       "id": "u2",
+       "text": "free",
+       "tone": "good",
+       "cue": "Three is free again"
+      },
+      {
+       "id": "s1",
+       "text": "_",
+       "tone": "blue",
+       "cue": "slot two empties"
+      },
+      {
+       "id": "u1",
+       "text": "free",
+       "tone": "good",
+       "cue": "Two is free again"
+      },
+      {
+       "id": "s1",
+       "text": "3",
+       "tone": "good",
+       "cue": "takes three this time"
+      },
+      {
+       "id": "s2",
+       "text": "2",
+       "tone": "good",
+       "cue": "slot three takes two"
+      },
+      {
+       "id": "res",
+       "text": "123 132",
+       "cue": "Save one, three, two"
+      },
+      {
+       "id": "res",
+       "text": "6 saved",
+       "tone": "warn",
+       "cue": "Six in all"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Permutations: any unused item",
+     "say": "Now the code. When cur is as long as a, save it. Otherwise try every item, not only later ones, but skip used ones. Mark it used, push it, recurse. Then undo both. That's n factorial leaves, and copying each costs n: O of n times n factorial.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "void perm(vector<int>& a, vector<int>& cur,\n          vector<bool>& used, vector<vector<int>>& res) {\n    if (cur.size() == a.size()) { res.push_back(cur); return; }\n    for (int i = 0; i < (int)a.size(); i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        cur.push_back(a[i]);\n        perm(a, cur, used, res);\n        cur.pop_back();\n        used[i] = false;\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "save it"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "skip used ones"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Mark it used"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "recurse"
+      },
+      {
+       "lines": [
+        9,
+        10
+       ],
+       "cue": "undo both"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "skip used",
+       "tone": "warn",
+       "cue": "every item"
+      },
+      {
+       "line": 11,
+       "inside": true,
+       "text": "total O(n · n!)",
+       "tone": "warn",
+       "cue": "O of n times n factorial"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Three friends, but only two chairs. How many different seatings are there? Pause and predict.",
+     "q": "3 friends, 2 chairs, order matters: how many seatings?",
+     "options": [
+      "5",
+      "6",
+      "8",
+      "9"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "flow",
+     "head": "Chair 2 has one fewer choice",
+     "say": "Six. Chair one has three choices. Chair two has two, because one friend already sits. Three times two is six. Nine would let a friend sit twice. The used array prevents that.",
+     "items": [
+      {
+       "label": "chair 1",
+       "text": "3 choices",
+       "cue": "Chair one"
+      },
+      {
+       "label": "chair 2",
+       "text": "2 choices",
+       "cue": "Chair two"
+      },
+      {
+       "label": "seatings",
+       "text": "6",
+       "tone": "good",
+       "sub": "3 × 2",
+       "cue": "is six"
+      },
+      {
+       "label": "no used flag",
+       "text": "9",
+       "tone": "bad",
+       "sub": "3 × 3",
+       "cue": "Nine would"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The two used-flag traps",
+     "say": "Two traps. No used reset: every item stays used, so one permutation, not six. No used check: items repeat, like one one one. The fix: undo everything you did before recursing.",
+     "heads": [
+      "Mistake",
+      "What you get"
+     ],
+     "rows": [
+      [
+       "Forget `used[i] = false`",
+       "only 123: one permutation, not six"
+      ],
+      [
+       "Forget `if (used[i]) continue`",
+       "repeats like 111: 27 results"
+      ],
+      [
+       "The fix",
+       "undo every line done before recursing"
+      ]
+     ],
+     "cues": [
+      "No used reset",
+      "No used check",
+      "The fix"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Prune the dead branches",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Combination Sum",
+     "statement": "Candidates may repeat. Find every combination that adds to the target.",
+     "example": {
+      "input": "[2, 3, 6, 7], target 7",
+      "output": "[2, 2, 3] and [7]"
+     },
+     "say": "Next problem. Candidates two, three, six, seven, target seven. Two combinations: two two three, and seven.",
+     "cues": {
+      "example": "Candidates two",
+      "output": "Two combinations"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The suitcase rule",
+     "say": "Your bag holds seven kilos, and you've packed five. Add a six kilo item and the scale reads eleven, so you stop. If items are sorted by weight, every heavier one is out too. Pruning is that rule: cut early.",
+     "items": [
+      {
+       "label": "bag limit",
+       "text": "7 kg",
+       "cue": "holds seven kilos"
+      },
+      {
+       "label": "packed",
+       "text": "5 kg",
+       "cue": "packed five"
+      },
+      {
+       "label": "add a 6",
+       "text": "11 kg",
+       "tone": "bad",
+       "sub": "over: stop",
+       "cue": "reads eleven"
+      },
+      {
+       "label": "sorted, heavier",
+       "text": "also out",
+       "tone": "warn",
+       "cue": "every heavier"
+      },
+      {
+       "label": "pruning",
+       "text": "cut early",
+       "tone": "good",
+       "cue": "Pruning is"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Target 7 from 2, 3, 6, 7 (reuse OK)",
+     "say": "Candidates two, three, six, seven. Target seven, and numbers may repeat. Start empty. Add two. Now two again. A third two leaves one, too small for any candidate. Dead end. Add three instead: that's seven exactly. Found. Back up. Two then three leaves only two. Dead again. At the top, add three, then three again. One to go. Dead. Add six. Nothing fits. Last, seven alone: found.",
+     "items": [
+      {
+       "tree": {
+        "id": "t",
+        "y": 190,
+        "nodes": [
+         [
+          "start",
+          -1
+         ],
+         [
+          "2",
+          0
+         ],
+         [
+          "2,2",
+          1
+         ],
+         [
+          "2,2,2",
+          2
+         ],
+         [
+          "2,2,3",
+          2
+         ],
+         [
+          "2,3",
+          1
+         ],
+         [
+          "3",
+          0
+         ],
+         [
+          "3,3",
+          6
+         ],
+         [
+          "6",
+          0
+         ],
+         [
+          "7",
+          0
+         ]
+        ],
+        "cues": [
+         "Start empty",
+         "Add two",
+         "Now two again",
+         "A third two",
+         "Add three instead",
+         "Two then three",
+         "top, add three",
+         "three again",
+         "Add six",
+         "Last, seven"
+        ]
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "t3",
+       "kill": true,
+       "cue": "Dead end"
+      },
+      {
+       "id": "t4",
+       "glow": true,
+       "tone": "good",
+       "cue": "Found"
+      },
+      {
+       "id": "t5",
+       "kill": true,
+       "cue": "Dead again"
+      },
+      {
+       "id": "t7",
+       "kill": true,
+       "cue": "One to go"
+      },
+      {
+       "id": "t8",
+       "kill": true,
+       "cue": "Nothing fits"
+      },
+      {
+       "id": "t9",
+       "glow": true,
+       "tone": "good",
+       "cue": "alone: found"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Prune with a sorted break",
+     "say": "Same skeleton. Left is what we still need. Zero left means a full answer: save it. Now the prune. The list is sorted, so a candidate bigger than left means every later one is too. Break. Passing j, not j plus one, lets a number repeat.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "// a is sorted; numbers may be reused\nvoid comb(vector<int>& a, int i, int left,\n          vector<int>& cur, vector<vector<int>>& out) {\n    if (left == 0) { out.push_back(cur); return; }\n    for (int j = i; j < (int)a.size(); j++) {\n        if (a[j] > left) break;\n        cur.push_back(a[j]);\n        comb(a, j, left - a[j], cur, out);\n        cur.pop_back();\n    }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Left is what"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "save it"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Now the prune"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Passing j"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "prune: stop this loop",
+       "tone": "good",
+       "cue": "bigger than left"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "j, not j + 1: reuse",
+       "tone": "info",
+       "cue": "lets a number repeat"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "What the break saves",
+     "unit": "calls",
+     "say": "Ten primes, two up to twenty nine, and target forty. Without the break: fourteen thousand one hundred eighty four calls. With it: two thousand six hundred seventy eight. Five times fewer.",
+     "bars": [
+      {
+       "label": "No break",
+       "value": 14184,
+       "tone": "bad",
+       "cue": "Without the break"
+      },
+      {
+       "label": "Break",
+       "value": 2678,
+       "tone": "good",
+       "cue": "With it"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same candidates, but the target is nine, and numbers may repeat. How many different combinations make nine? Pause and predict.",
+     "q": "Candidates 2, 3, 6, 7, target 9: how many combinations?",
+     "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": 2,
+     "pause": 6
+    },
+    {
+     "type": "flow",
+     "head": "Four ways to make nine",
+     "say": "Four. Two, two, two, three. Two and seven. Three, three, three. Three and six. One search finds them all.",
+     "items": [
+      {
+       "label": "1",
+       "text": "2+2+2+3",
+       "tone": "good",
+       "cue": "Two, two, two, three"
+      },
+      {
+       "label": "2",
+       "text": "2+7",
+       "tone": "good",
+       "cue": "Two and seven"
+      },
+      {
+       "label": "3",
+       "text": "3+3+3",
+       "tone": "good",
+       "cue": "Three, three, three"
+      },
+      {
+       "label": "4",
+       "text": "3+6",
+       "tone": "good",
+       "cue": "Three and six"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Break assumes sorted input",
+     "say": "The trap: break assumes sorted input. Sorted two, three, six, target five: finds two and three. Unsorted six, two, three: break fires at six, and nothing is found. Sort first, or use continue.",
+     "heads": [
+      "Input, target 5",
+      "Result"
+     ],
+     "rows": [
+      [
+       "`[2, 3, 6]`",
+       "finds [2, 3]"
+      ],
+      [
+       "`[6, 2, 3]`",
+       "break at 6: finds nothing"
+      ],
+      [
+       "The fix",
+       "sort first, or use `continue`"
+      ]
+     ],
+     "cues": [
+      "Sorted two, three, six",
+      "Unsorted six",
+      "Sort first"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "A subset is a number",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Subsets with sum 40",
+     "statement": "Count the subsets of the items that add to the target.",
+     "example": {
+      "input": "[10, 20, 30], target 40",
+      "output": "1 subset: {10, 30}"
+     },
+     "say": "The problem: ten, twenty, thirty, target forty. Exactly one subset works: ten and thirty.",
+     "cues": {
+      "example": "ten, twenty, thirty",
+      "output": "Exactly one"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "One light switch per item",
+     "say": "Here's a shortcut for naming subsets. Give each item a light switch. On means take it. Off means skip it. Read three switches as one binary number: zero to seven.",
+     "items": [
+      {
+       "label": "switch on",
+       "text": "take it",
+       "tone": "good",
+       "cue": "On means"
+      },
+      {
+       "label": "switch off",
+       "text": "skip it",
+       "tone": "dim",
+       "cue": "Off means"
+      },
+      {
+       "label": "3 switches",
+       "text": "0 to 7",
+       "sub": "one number",
+       "cue": "Read three switches"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Mask 5 picks 10 and 30",
+     "say": "Items ten, twenty, thirty, each with a switch called a bit. All off: the mask is zero, the empty subset. Switch on bit zero. Switch on bit two. Read the bits from the right: one zero one. That's five. Mask five takes ten and thirty.",
+     "items": [
+      {
+       "id": "i0",
+       "x": 250,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 0",
+       "text": "10",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Items ten"
+      },
+      {
+       "id": "i1",
+       "x": 650,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 1",
+       "text": "20",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Items ten"
+      },
+      {
+       "id": "i2",
+       "x": 1050,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 2",
+       "text": "30",
+       "size": 48,
+       "tone": "blue",
+       "cue": "Items ten"
+      },
+      {
+       "id": "w0",
+       "x": 250,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "off",
+       "tone": "dim",
+       "cue": "called a bit"
+      },
+      {
+       "id": "w1",
+       "x": 650,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "off",
+       "tone": "dim",
+       "cue": "called a bit"
+      },
+      {
+       "id": "w2",
+       "x": 1050,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "off",
+       "tone": "dim",
+       "cue": "called a bit"
+      },
+      {
+       "id": "mask",
+       "x": 1480,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "mask",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "the mask is zero"
+      },
+      {
+       "id": "sub",
+       "x": 250,
+       "y": 790,
+       "w": 1100,
+       "h": 110,
+       "label": "subset",
+       "text": "{ }",
+       "size": 48,
+       "tone": "info",
+       "cue": "empty subset"
+      }
+     ],
+     "changes": [
+      {
+       "id": "w0",
+       "text": "on",
+       "tone": "good",
+       "cue": "Switch on bit zero"
+      },
+      {
+       "id": "w2",
+       "text": "on",
+       "tone": "good",
+       "cue": "Switch on bit two"
+      },
+      {
+       "id": "mask",
+       "text": "5",
+       "cue": "That's five"
+      },
+      {
+       "id": "sub",
+       "text": "{10, 30}",
+       "tone": "good",
+       "cue": "takes ten and thirty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Loop over every mask",
+     "say": "One shifted left by n is two to the n, the number of masks. Loop mask over all of them. For each, test every bit: shift the mask right by i, and with one, and you read bit i. If it's on, add that item. We count subsets summing to forty. Only ten plus thirty works, so it prints one.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int a[] = {10, 20, 30}, n = 3, cnt = 0;\nfor (int mask = 0; mask < (1 << n); mask++) {\n    int sum = 0;\n    for (int i = 0; i < n; i++)\n        if ((mask >> i) & 1) sum += a[i];\n    if (sum == 40) cnt++;\n}\ncout << cnt;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Loop mask"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "test every bit"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "We count subsets"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "2ⁿ masks",
+       "tone": "warn",
+       "cue": "two to the n"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "read bit i",
+       "tone": "good",
+       "cue": "you read bit i"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "1",
+      "cue": "prints one"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Mask six, on the same items. Which items does it take, and what's their sum? Pause and predict.",
+     "q": "Items 10, 20, 30. Mask 6 takes items summing to?",
+     "options": [
+      "30",
+      "40",
+      "50",
+      "60"
+     ],
+     "answer": 2,
+     "pause": 6
+    },
+    {
+     "type": "diagram",
+     "head": "Mask 6 = 110: bits 1 and 2",
+     "say": "Fifty. Six is one one zero. Bit zero is off, bits one and two are on. That's twenty plus thirty. Reading left to right gives ten plus twenty, thirty: the classic slip. Bit zero is the rightmost.",
+     "items": [
+      {
+       "id": "i0",
+       "x": 250,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 0",
+       "text": "10",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "i1",
+       "x": 650,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 1",
+       "text": "20",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "i2",
+       "x": 1050,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "bit 2",
+       "text": "30",
+       "size": 48,
+       "tone": "blue"
+      },
+      {
+       "id": "w0",
+       "x": 250,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "on",
+       "tone": "good"
+      },
+      {
+       "id": "w1",
+       "x": 650,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "off",
+       "tone": "dim"
+      },
+      {
+       "id": "w2",
+       "x": 1050,
+       "y": 530,
+       "w": 300,
+       "h": 110,
+       "label": "switch",
+       "text": "on",
+       "tone": "good"
+      },
+      {
+       "id": "mask",
+       "x": 1480,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "label": "mask",
+       "text": "5",
+       "size": 56,
+       "tone": "warn"
+      },
+      {
+       "id": "sub",
+       "x": 250,
+       "y": 790,
+       "w": 1100,
+       "h": 110,
+       "label": "subset",
+       "text": "{10, 30}",
+       "size": 48,
+       "tone": "good"
+      }
+     ],
+     "changes": [
+      {
+       "id": "mask",
+       "text": "6",
+       "cue": "Six is one one zero"
+      },
+      {
+       "id": "w0",
+       "text": "off",
+       "tone": "dim",
+       "cue": "Bit zero is off"
+      },
+      {
+       "id": "w1",
+       "text": "on",
+       "tone": "good",
+       "cue": "bits one and two"
+      },
+      {
+       "id": "sub",
+       "text": "{20, 30} = 50",
+       "tone": "good",
+       "cue": "twenty plus thirty"
+      },
+      {
+       "id": "i0",
+       "glow": true,
+       "tone": "bad",
+       "cue": "the classic slip"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Why bitmasks stop near 20 items",
+     "unit": "steps",
+     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million. So bitmasks stop near twenty.",
+     "bars": [
+      {
+       "label": "n = 16",
+       "value": 1048576,
+       "tone": "good",
+       "cue": "Sixteen items"
+      },
+      {
+       "label": "n = 20",
+       "value": 20971520,
+       "tone": "warn",
+       "cue": "Twenty"
+      },
+      {
+       "label": "n = 24",
+       "value": 402653184,
+       "tone": "bad",
+       "cue": "four hundred million"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Three bit tricks",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Single number",
+     "statement": "Every number appears twice except one. Find the loner.",
+     "example": {
+      "input": "[4, 1, 2, 1, 2]",
+      "output": "4"
+     },
+     "note": "O(1) extra memory",
+     "say": "Last problem. Four, one, two, one, two. Every number has a twin except four. And no extra memory.",
+     "cues": {
+      "example": "Four, one, two",
+      "output": "except four",
+      "note": "no extra memory"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Subtract 1: the odometer",
+     "say": "Think of an odometer rolling back from one thousand to nine ninety nine. The one vanishes, and the zeros below it become nines. Binary does the same. Eight is one zero zero zero. Minus one is seven: zero one one one.",
+     "items": [
+      {
+       "label": "decimal",
+       "text": "1000",
+       "cue": "from one thousand"
+      },
+      {
+       "label": "minus 1",
+       "text": "999",
+       "sub": "zeros became 9s",
+       "cue": "zeros below it"
+      },
+      {
+       "label": "8 in binary",
+       "text": "1000",
+       "cue": "Eight is"
+      },
+      {
+       "label": "minus 1 = 7",
+       "text": "0111",
+       "tone": "good",
+       "cue": "Minus one is seven"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "n & (n − 1) clears the lowest 1",
+     "say": "Take n equals twelve: one one zero zero. Subtract one: eleven, one zero one one. The lowest one turned off, and the zeros below it turned on. Now and them together: one zero zero zero. The lowest set bit is gone. Again: eight and seven is zero. Two rounds, two set bits.",
+     "items": [
+      {
+       "id": "n",
+       "x": 100,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n",
+       "text": "1100 = 12",
+       "size": 56,
+       "tone": "blue",
+       "cue": "n equals twelve"
+      },
+      {
+       "id": "m",
+       "x": 700,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n − 1",
+       "text": "1011 = 11",
+       "size": 56,
+       "tone": "warn",
+       "cue": "Subtract one"
+      },
+      {
+       "id": "r",
+       "x": 1300,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n & (n − 1)",
+       "text": "?",
+       "size": 56,
+       "tone": "info",
+       "cue": "and them together"
+      },
+      {
+       "id": "rounds",
+       "x": 700,
+       "y": 720,
+       "w": 420,
+       "h": 130,
+       "label": "rounds",
+       "text": "0",
+       "size": 56,
+       "tone": "dim",
+       "cue": "Subtract one"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n",
+       "to": "m",
+       "label": "− 1",
+       "cue": "Subtract one"
+      },
+      {
+       "from": "m",
+       "to": "r",
+       "label": "AND n",
+       "cue": "and them together"
+      }
+     ],
+     "changes": [
+      {
+       "id": "m",
+       "glow": true,
+       "tone": "bad",
+       "cue": "lowest one turned off"
+      },
+      {
+       "id": "m",
+       "glow": true,
+       "tone": "good",
+       "cue": "turned on"
+      },
+      {
+       "id": "r",
+       "text": "1000 = 8",
+       "tone": "good",
+       "cue": "one zero zero zero"
+      },
+      {
+       "id": "rounds",
+       "text": "1",
+       "tone": "good",
+       "cue": "is gone"
+      },
+      {
+       "id": "n",
+       "text": "1000 = 8",
+       "cue": "Again"
+      },
+      {
+       "id": "m",
+       "text": "0111 = 7",
+       "cue": "eight and seven"
+      },
+      {
+       "id": "r",
+       "text": "0000 = 0",
+       "tone": "good",
+       "cue": "is zero"
+      },
+      {
+       "id": "rounds",
+       "text": "2",
+       "tone": "warn",
+       "cue": "Two rounds"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Three one-liners to memorize",
+     "say": "Three one liners. A power of two has one set bit, so n and n minus one is zero. Lowbit: n and minus n keeps only the lowest set bit, because minus n flips every bit above it. Twelve gives four. Popcount counts set bits: twelve has two.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "bool pow2(int n)  { return n > 0 && (n & (n - 1)) == 0; }\nint lowbit(int n) { return n & -n; }\nint bits(int n)   { return __builtin_popcount(n); }\nint main() {\n    cout << pow2(64) << ' ' << pow2(48) << '\\n';\n    cout << lowbit(12) << ' ' << bits(12);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "power of two"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Lowbit"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Popcount"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "-n flips bits above",
+       "tone": "info",
+       "cue": "because minus n flips"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "1 0\n4 2",
+      "cue": "Twelve gives four"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Forty is one zero one zero zero zero in binary. What does forty and thirty nine give? Pause and predict.",
+     "q": "What is 40 & 39? (40 = 101000)",
+     "options": [
+      "0",
+      "8",
+      "32",
+      "39"
+     ],
+     "answer": 2,
+     "pause": 6
+    },
+    {
+     "type": "diagram",
+     "head": "40 & 39 = 32",
+     "say": "Thirty two. Forty has set bits at thirty two and eight. Minus one turns the eight off and the three bits below it on. And keeps only the thirty two. Lowbit of forty is the eight that got cleared.",
+     "items": [
+      {
+       "id": "n",
+       "x": 100,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n",
+       "text": "101000 = 40",
+       "size": 56,
+       "tone": "blue"
+      },
+      {
+       "id": "m",
+       "x": 700,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n − 1",
+       "text": "?",
+       "size": 56,
+       "tone": "warn"
+      },
+      {
+       "id": "r",
+       "x": 1300,
+       "y": 400,
+       "w": 520,
+       "h": 150,
+       "label": "n & (n − 1)",
+       "text": "?",
+       "size": 56,
+       "tone": "info"
+      },
+      {
+       "id": "low",
+       "x": 700,
+       "y": 720,
+       "w": 520,
+       "h": 130,
+       "label": "lowbit: n & −n",
+       "text": "?",
+       "size": 56,
+       "tone": "dim"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n",
+       "glow": true,
+       "tone": "good",
+       "cue": "Forty has set bits"
+      },
+      {
+       "id": "m",
+       "text": "100111 = 39",
+       "tone": "warn",
+       "cue": "Minus one turns"
+      },
+      {
+       "id": "r",
+       "text": "100000 = 32",
+       "tone": "good",
+       "cue": "keeps only"
+      },
+      {
+       "id": "low",
+       "text": "001000 = 8",
+       "tone": "info",
+       "cue": "Lowbit of forty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "XOR cancels pairs, 1LL for big shifts",
+     "say": "Xor is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "vector<int> v = {4, 1, 2, 1, 2};\nint r = 0;\nfor (int x : v) r ^= x;\ncout << r << ' ';\ncout << (1LL << 40);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Xor is the star"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "so xoring a whole"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "one L L"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "pairs cancel",
+       "tone": "good",
+       "cue": "cancels every pair"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "plain 1 << 40 overflows",
+       "tone": "warn",
+       "cue": "overflows an int"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "4 1099511627776",
+      "cue": "leaves four"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Every submask of a mask",
+     "say": "Last trick: every submask of m, biggest first. Start at m. Subtract one, then and with m, to skip patterns outside m. Mask five, one zero one, gives five, four, one. Then the empty set, zero, by hand.",
+     "panels": [
+      {
+       "file": "sol.cpp",
+       "code": "int m = 5;\nfor (int s = m; s > 0; s = (s - 1) & m)\n    cout << s << ' ';\ncout << 0;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Subtract one"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "by hand"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "& m skips bits outside m",
+       "tone": "info",
+       "cue": "skip patterns"
+      }
+     ],
+     "output": {
+      "cmd": "./sol",
+      "text": "5 4 1 0",
+      "cue": "gives five, four, one"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Precedence and shift traps",
+     "say": "Last trap: precedence. Comparison binds tighter than bitwise and, so n and one equals zero is always false. Wrap the and in parentheses. And a plain int shifted by thirty two or more is undefined: use one L L.",
+     "heads": [
+      "Code",
+      "Problem"
+     ],
+     "rows": [
+      [
+       "`n & 1 == 0`",
+       "parsed as `n & (1 == 0)`: always false"
+      ],
+      [
+       "`(n & 1) == 0`",
+       "parentheses fix it"
+      ],
+      [
+       "`1 << 40` on an int",
+       "undefined: write `1LL << 40`"
+      ]
+     ],
+     "cues": [
+      "Comparison binds",
+      "Wrap the and",
+      "thirty two or more"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp15"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What's backtracking? Choose, explore, undo, with pruning when a branch can't work. Cost? Subsets: n times two to the n. Permutations: n times n factorial. Duplicates? Sort, skip equal neighbours. Mistake? Forgetting the undo.",
+     "rows": [
+      [
+       "What is backtracking?",
+       "choose, explore, undo; prune dead branches"
+      ],
+      [
+       "Cost?",
+       "subsets n·2ⁿ; permutations n·n!"
+      ],
+      [
+       "Duplicates?",
+       "sort, skip equal neighbours at same level"
+      ],
+      [
+       "Common mistake?",
+       "forgetting the undo"
+      ]
+     ],
+     "cues": [
+      "What's backtracking",
+      "Cost",
+      "Duplicates",
+      "Mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "cp17"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Loop over all subsets? Mask from zero to two to the n, test bit i. Bit tricks? n and n minus one clears the lowest bit, xor cancels pairs. Size limit? About twenty items. Mistake? Precedence, and shifting past the type.",
+     "rows": [
+      [
+       "Loop over all subsets?",
+       "mask in [0, 2ⁿ), test `(mask >> i) & 1`"
+      ],
+      [
+       "Bit tricks?",
+       "`n & (n-1)` clears lowest bit; xor cancels pairs"
+      ],
+      [
+       "How big can n be?",
+       "about 20 items"
+      ],
+      [
+       "Common mistake?",
+       "precedence; shifting past the type"
+      ]
+     ],
+     "cues": [
+      "Loop over all",
+      "Bit tricks",
+      "Size limit",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode one thirty six, Single Number, is the xor trick. LeetCode seventy eight, Subsets, is today's choose, explore, undo. LeetCode thirty nine, Combination Sum, adds the sorted break.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 136 · Single Number",
+       "xor cancels pairs"
+      ],
+      [
+       "LeetCode 78 · Subsets",
+       "choose, explore, undo"
+      ],
+      [
+       "LeetCode 39 · Combination Sum",
+       "prune with a sorted break"
+      ]
+     ],
+     "cues": [
+      "one thirty six",
+      "seventy eight",
+      "thirty nine"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Choose, explore, undo, and prune. A mask is a subset: bit i on means item i is chosen. And n and n minus one clears the lowest set bit.",
+     "lines": [
+      "Choose, explore, undo. Prune dead branches.",
+      "A mask is a subset: bit i on = item i chosen.",
+      "`n & (n - 1)` clears the lowest set bit."
+     ],
+     "cues": [
+      "Choose, explore",
+      "A mask is",
+      "And n and n minus one"
+     ]
+    }
+   ]
+  }
+ ]
+}
