@@ -289,7 +289,7 @@
       "tone": "good",
       "cue": "says true",
       "setup": {
-       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport bcrypt"
+       "app.py": "import bcrypt"
       }
      }
     },
@@ -496,7 +496,7 @@
       "text": "{'sub': '42', 'exp': 1893456000}",
       "cue": "It prints",
       "setup": {
-       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\""
+       "app.py": "import jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\""
       }
      }
     },
@@ -539,7 +539,7 @@
       "tone": "good",
       "cue": "Rejected",
       "setup": {
-       "app.py": "import sys\nsys.path.insert(0, \"/home/jim/.cache/codecheck-libs\")\nimport jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\ntok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\ndef b64(d):\n    return base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip(\"=\")"
+       "app.py": "import jwt, json, base64\nKEY = \"a-long-secret-key-of-32-bytes-min!\"\ntok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\ndef b64(d):\n    return base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip(\"=\")"
       }
      }
     },

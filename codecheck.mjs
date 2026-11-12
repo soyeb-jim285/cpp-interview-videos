@@ -9,10 +9,13 @@ const ROOT = "/tmp/claude-1000/codecheck";
 const NET = /\b(curl|wget|ssh|scp|docker|psql|mysql|redis-cli|kubectl|nc|telnet)\b|https?:\/\/|git\s+(push|pull|fetch|clone|remote)/;
 const trim = (s) => s.split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trim();
 
+// ponytail: extra pip libs (bcrypt, pyjwt) live here; CI installs them to the same path
+const LIBS = `${process.env.HOME}/.cache/codecheck-libs`;
+
 function sh(cmd, cwd) {
   // lesson-supplied commands run only inside bubblewrap: no network, read-only fs except the scratch dir
   const r = spawnSync("/usr/bin/bwrap", ["--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp", "--bind", cwd, cwd, "--chdir", cwd,
-    "--unshare-all", "--die-with-parent", "--new-session", "sh", "-c", cmd], { encoding: "utf8", timeout: 10000 });
+    "--unshare-all", "--die-with-parent", "--new-session", "sh", "-c", cmd], { encoding: "utf8", timeout: 10000, env: { ...process.env, PYTHONPATH: LIBS } });
   if (r.error) return { err: r.error.code === "ETIMEDOUT" ? "timeout after 10s" : String(r.error) };
   return { out: r.stdout, errout: r.stderr, status: r.status };
 }
