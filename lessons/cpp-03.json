@@ -98,7 +98,7 @@
     {
      "type": "diagram",
      "head": "The memory map",
-     "say": "Here is the map. Low addresses at the bottom. The code, main, sits in text, read only. The global g has a value, so it lives in data. Static z has none, so B S S, zero filled. The Point we asked for lives on the heap. Local and p live on the stack, at the top.",
+     "say": "Here is the map. Low addresses at the bottom, high at the top. The code, main, sits in text, read only. The global g has a value, so it lives in data. Static z has none, so B S S, zero filled. The Point we asked for lives on the heap, which grows up. Local and p live on the stack, which grows down.",
      "items": [
       {
        "id": "st",
@@ -106,7 +106,7 @@
        "y": 240,
        "w": 700,
        "h": 100,
-       "text": "stack: local, p",
+       "text": "stack: local, p · grows down",
        "cue": "Local and p",
        "tone": "blue"
       },
@@ -116,7 +116,7 @@
        "y": 370,
        "w": 700,
        "h": 100,
-       "text": "heap: Point(1, 2)",
+       "text": "heap: Point(1, 2) · grows up",
        "cue": "The Point we asked",
        "tone": "warn"
       },
@@ -192,6 +192,20 @@
        ],
        "cue": "Local and p"
       }
+     ],
+     "notes": [
+      {
+       "x": 1050,
+       "y": 880,
+       "text": "low addresses",
+       "cue": "Low addresses"
+      },
+      {
+       "x": 1050,
+       "y": 196,
+       "text": "high addresses",
+       "cue": "high at the top"
+      }
      ]
     },
     {
@@ -209,7 +223,7 @@
     {
      "type": "code",
      "head": "Ask the linker",
-     "say": "B S S. A global with no initial value is zero filled at startup. The tool nm confirms it. Capital D is data, g. Lowercase b is B S S, z. And capital T is text, main.",
+     "say": "B S S. Static z has no initial value, so startup zero fills it. The tool nm confirms it. Capital D is data, g. Lowercase b is B S S, z. And capital T is text, main.",
      "panels": [
       {
        "file": "main.cpp",
@@ -221,7 +235,7 @@
        "lines": [
         2
        ],
-       "cue": "A global with no initial"
+       "cue": "Static z has no initial"
       },
       {
        "lines": [
@@ -252,12 +266,21 @@
       "setup": {
        "main.cpp": "#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <iostream>\nusing namespace std;\nstruct Point { int x, y; Point(int a, int b) : x(a), y(b) {} };\n"
       }
-     }
+     },
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "zero filled at startup",
+       "tone": "info",
+       "cue": "startup zero fills it"
+      }
+     ]
     },
     {
      "type": "compare",
      "head": "Two groups of memory",
-     "say": "Two groups. Lifetime: stack and heap come and go, static areas last the whole run. Size: static areas are fixed at load. Freed by: the compiler, you, or the loader. Growth: stack down, heap up, static areas never.",
+     "say": "Two groups. Lifetime: stack and heap come and go. Statics last the whole run. Size: static areas are fixed at load. Freed by: the compiler, you, or the loader. Growth: stack down, heap up, static areas never.",
      "heads": [
       "",
       "Stack, heap",
@@ -314,7 +337,7 @@
     {
      "type": "flow",
      "head": "A hotel front desk",
-     "say": "Think of a hotel. You ask the front desk for a room. That desk is operator new, and on most systems it calls malloc. The allocator keeps a list of free rooms and hands one out. Only when the hotel is full does it ask the operating system for a new floor.",
+     "say": "Think of a hotel. You ask the front desk for a room. That desk is operator new, and on most systems it calls malloc. The allocator keeps a list of free rooms. When the hotel is full, it asks the operating system for a new floor.",
      "items": [
       {
        "label": "your code",
@@ -327,8 +350,14 @@
        "cue": "That desk is operator new"
       },
       {
+       "label": "malloc",
+       "text": "malloc",
+       "sub": "on most systems",
+       "cue": "it calls malloc"
+      },
+      {
        "label": "allocator",
-       "text": "free rooms list",
+       "text": "free rooms",
        "cue": "keeps a list of free rooms"
       },
       {
@@ -336,7 +365,7 @@
        "text": "new floor",
        "sub": "only when full",
        "tone": "warn",
-       "cue": "the hotel is full"
+       "cue": "it asks the operating system"
       }
      ]
     },
@@ -398,6 +427,12 @@
       }
      ],
      "changes": [
+      {
+       "id": "c",
+       "glow": true,
+       "tone": "good",
+       "cue": "static storage"
+      },
       {
        "id": "h",
        "kill": true,
@@ -723,7 +758,7 @@
     {
      "type": "compare",
      "head": "malloc versus new",
-     "say": "Failure first: malloc returns NULL, new throws bad alloc. Constructor: only new runs one. Size: bytes by hand, versus computed from the type. Returns: void star, versus a typed pointer. Release: free, versus delete. Resize: realloc, versus allocate and move.",
+     "say": "Failure first: malloc returns NULL, and you can forget to check. New throws, so you can't miss it. Constructor: only new runs one. Size: bytes by hand, versus computed from the type. Returns: void star, versus a typed pointer. Release: free, versus delete. Resize: realloc, versus allocate and move.",
      "heads": [
       "",
       "malloc",
@@ -762,7 +797,7 @@
       ]
      ],
      "cues": [
-      "Failure first",
+      "New throws",
       "Constructor:",
       "Size:",
       "Returns: void",
@@ -961,7 +996,7 @@
     {
      "type": "compare",
      "head": "free versus delete",
-     "say": "Destructor: free never calls it, delete calls it first. Memory from: each only takes its own kind, and mixing is undefined behavior. Null: both do nothing, so skip the if. Custom: only delete can be overloaded.",
+     "say": "Free knows only bytes. It skips the destructor. Delete runs it first. Memory from: each only takes its own kind, and mixing is undefined behavior. Null: both do nothing, so skip the if. Custom: you can overload operator delete. Free is fixed.",
      "heads": [
       "",
       "free",
@@ -990,7 +1025,7 @@
       ]
      ],
      "cues": [
-      "Destructor",
+      "Free knows only",
       "Memory from",
       "Null",
       "Custom"
@@ -1241,7 +1276,7 @@
     {
      "type": "code",
      "head": "Mismatch: undefined",
-     "say": "Undefined behavior. In practice it often runs one destructor, then hands the allocator the wrong address, so it crashes or corrupts the heap. The reverse mismatch is undefined too, even for int. The fix: a vector, and no delete at all.",
+     "say": "Undefined behavior. Plain delete never reads the hidden count. In practice it often runs one destructor, then hands the allocator the wrong address, so it crashes or corrupts the heap. The reverse mismatch is undefined too, even for int. The fix: a vector, and no delete at all.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1316,7 +1351,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "How does allocation work? Three storages: static, stack, heap. What does new call? Operator new, then the allocator, then the operating system when full. Modern advice? Stack first, owners over raw new.",
+     "say": "How does allocation work? Three storages: static, stack, heap. What does new call? Operator new, then malloc, then the operating system. Modern advice? Stack first, owners over raw new.",
      "heads": [
       "They ask",
       "You say"
@@ -1345,39 +1380,37 @@
      ]
     },
     {
-     "type": "compare",
+     "type": "flow",
      "head": "Say it in 20 seconds",
      "say": "Text? Read only machine code. Data and B S S? Globals and statics, with values or zero filled. Heap? Dynamic memory, alive until freed. Stack? Locals, freed at scope end, and small.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Text?",
-       "machine code, read-only"
-      ],
-      [
-       "Data and BSS?",
-       "globals and statics: valued / zero-filled"
-      ],
-      [
-       "Heap?",
-       "dynamic: lives until freed"
-      ],
-      [
-       "Stack?",
-       "locals: freed at scope end, small"
-      ]
-     ],
-     "cues": [
-      "Text?",
-      "Data and B S S",
-      "Heap?",
-      "Stack?"
-     ],
      "covers": [
       "q17"
+     ],
+     "items": [
+      {
+       "label": "text?",
+       "text": "machine code",
+       "sub": "read-only",
+       "cue": "Read only machine code"
+      },
+      {
+       "label": "data + bss?",
+       "text": "globals",
+       "sub": "valued or zeroed",
+       "cue": "Globals and statics"
+      },
+      {
+       "label": "heap?",
+       "text": "dynamic",
+       "sub": "lives until freed",
+       "cue": "Dynamic memory"
+      },
+      {
+       "label": "stack?",
+       "text": "locals",
+       "sub": "freed at scope end",
+       "cue": "Locals, freed at scope end"
+      }
      ]
     },
     {
@@ -1418,40 +1451,43 @@
      ]
     },
     {
-     "type": "compare",
+     "type": "flow",
      "head": "Say it in 20 seconds",
      "say": "What does new do? It calls operator new for raw memory, then runs the constructor. If the constructor throws? New frees the memory for you. And delete? The reverse: destructor, then operator delete.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What does `new` do?",
-       "`operator new`, then the constructor"
-      ],
-      [
-       "Constructor throws?",
-       "`new` frees the memory for you"
-      ],
-      [
-       "And `delete`?",
-       "destructor, then `operator delete`"
-      ]
-     ],
-     "cues": [
-      "What does new do",
-      "If the constructor",
-      "And delete"
-     ],
      "covers": [
       "q20"
+     ],
+     "items": [
+      {
+       "label": "operator new",
+       "text": "raw memory",
+       "cue": "It calls operator new"
+      },
+      {
+       "label": "constructor",
+       "text": "object built",
+       "sub": "runs inside it",
+       "cue": "then runs the constructor"
+      },
+      {
+       "label": "throws?",
+       "text": "freed",
+       "sub": "new frees it",
+       "tone": "warn",
+       "cue": "New frees the memory"
+      },
+      {
+       "label": "delete",
+       "text": "destructor",
+       "sub": "then operator delete",
+       "cue": "The reverse: destructor"
+      }
      ]
     },
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "Why delete brackets? New brackets hides a count, and only delete brackets reads it. Wrong form? Undefined behavior, even for int. Best fix? A vector, or a unique pointer to an array.",
+     "say": "Why brackets? New brackets hide a count. Only delete brackets read it. Wrong form? Undefined behavior, even for int. Best fix? A vector, or a unique pointer to an array.",
      "heads": [
       "They ask",
       "You say"
@@ -1471,7 +1507,7 @@
       ]
      ],
      "cues": [
-      "Why delete brackets",
+      "Why brackets",
       "Wrong form",
       "Best fix"
      ],
@@ -1488,7 +1524,7 @@
     {
      "type": "compare",
      "head": "Practice before your interview",
-     "say": "Solve these next. LeetCode two hundred six, reverse linked list: rewire heap nodes. LeetCode twenty one, merge two sorted lists: splice nodes, and know who owns them. Then add two numbers: allocate each new node with new.",
+     "say": "Solve these next. LeetCode two hundred six, reverse linked list: rewire heap nodes. LeetCode twenty one, merge sorted lists: splice nodes, know who owns them. Add two numbers: allocate each new node with new.",
      "heads": [
       "Solve next",
       "Why"
@@ -1510,7 +1546,7 @@
      "cues": [
       "LeetCode two hundred six",
       "LeetCode twenty one",
-      "add two numbers"
+      "Add two numbers"
      ]
     },
     {
