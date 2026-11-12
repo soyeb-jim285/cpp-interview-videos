@@ -58,7 +58,11 @@
        "cue": "Find two numbers"
       },
       {
-       "text": "Two loops? No. One lookup.",
+       "text": "Two loops?",
+       "cue": "two nested loops"
+      },
+      {
+       "text": "No. One lookup.",
        "cue": "It needs one lookup"
       },
       {
@@ -73,9 +77,9 @@
      "kicker": "Today",
      "say": "Today's plan. Hash maps first: two sum, counting, and why lookups are fast. Then prefix sums for range sums. Finally, both together to count subarrays, plus difference arrays.",
      "lines": [
-      "Solve two sum in one pass",
-      "Answer range sums instantly",
-      "Count subarrays with sum k"
+      "Hash maps: two sum, counting, fast lookups",
+      "Prefix sums: instant range sums",
+      "Count subarrays, update ranges"
      ],
      "cues": [
       "Hash maps first",
@@ -715,7 +719,7 @@
     {
      "type": "diagram",
      "head": "When every key collides",
-     "say": "O of n. Dog and emu land in bucket two too, chained one after another. To find emu, walk past cat, then dog, then reach emu. That's n steps when n keys collide. Normal hashing spreads keys out, so chains stay short.",
+     "say": "O of n. Dog and emu land in bucket two too, chained one after another in a list. To find emu, walk past cat, then dog, then reach emu. That's n steps when n keys collide. Normal hashing spreads keys out, so chains stay short.",
      "items": [
       {
        "array": {
@@ -791,8 +795,8 @@
      "type": "compare",
      "head": "map vs unordered_map",
      "heads": [
-      "`map`",
-      "`unordered_map`"
+      "map",
+      "unordered_map"
      ],
      "rowHeads": [
       "lookup",
@@ -800,7 +804,7 @@
       "order",
       "contest tip"
      ],
-     "say": "Last question: map or unordered map? Lookup? Sorted tree, O of log n, versus hash, O of one on average. Worst case? Map stays log n. Hashing can hit O of n. Order? Only map keeps keys sorted. Contest tip? Setters can build colliding inputs, so add a custom hash.",
+     "say": "Last question: map or unordered map? Lookup? Sorted tree, O of log n, versus hash, O of one on average. Worst case? Map stays log n. Hashing can hit O of n. Order? Only map keeps keys sorted. Contest tip? Testers can force collisions, so add a custom hash, your own scrambling function.",
      "rows": [
       [
        "O(log n), tree walk",
@@ -1136,7 +1140,7 @@
       "What happens",
       "Fix"
      ],
-     "say": "Three traps. P of r minus p of l misses a of r. Use r plus one. Sums past two billion overflow an int. Use long long. Updates between queries? Prefix sums are static. Use a Fenwick tree.",
+     "say": "Three traps. P of r minus p of l misses a of r. Use r plus one. Sums past two billion overflow an int. Use long long. Updates between queries? Prefix sums are static. Use a Fenwick tree, a structure for updates.",
      "rows": [
       [
        "`p[r] - p[l]`",
@@ -1424,6 +1428,11 @@
        "cue": "Another match"
       },
       {
+       "id": "mp",
+       "text": "0:1  1:1  3:1  6:2  4:1",
+       "cue": "Store six"
+      },
+      {
        "id": "fd",
        "glow": true,
        "tone": "good",
@@ -1572,7 +1581,7 @@
     {
      "type": "flow",
      "head": "Mark the start and the stop",
-     "say": "Now the mirror image: many range updates. Think of a heater schedule: on at day one, off at day four. Mark just those two days, then sweep the days with a running total.",
+     "say": "Think of a heater schedule: on at day one, off at day four. Mark just those two days, then sweep the days with a running total.",
      "items": [
       {
        "label": "day 1",
@@ -1744,10 +1753,10 @@
      "say": "Your turn. Also add two to indexes two to four. What does the final array look like? Pause and predict.",
      "q": "Also add 2 to indexes 2 to 4. Final array?",
      "options": [
-      "0 5 7 7 2 0",
-      "0 5 7 7 2 2",
-      "0 5 5 5 2 0",
-      "0 7 7 7 2 0"
+      "0, 5, 7, 7, 2, 0",
+      "0, 5, 7, 7, 2, 2",
+      "0, 5, 5, 5, 2, 0",
+      "0, 7, 7, 7, 2, 0"
      ],
      "answer": 0
     },
@@ -1838,7 +1847,7 @@
       "What happens",
       "Fix"
      ],
-     "say": "Two traps. Subtracting at r, not r plus one, stops the range a cell early. And r plus one can equal n, so the array needs n plus one slots. Many big updates can also overflow, so use long long.",
+     "say": "Two traps. Subtract at r, and the range stops a cell early. And r plus one can equal n, so the array needs n plus one slots. Many big updates can also overflow, so use long long.",
      "rows": [
       [
        "`d[r] -= v`",
@@ -1857,8 +1866,8 @@
       ]
      ],
      "cues": [
-      "Subtracting at r",
-      "r plus one can equal",
+      "Subtract at r",
+      "And r plus one",
       "Many big updates"
      ]
     }
@@ -1878,7 +1887,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Two sum? Look up target minus x, store x. One pass. Counting? Map value to count. Why O of one? Hash the key, jump to its bucket.",
+     "say": "Two sum? Look up target minus x, store x. One pass. Counting? Map value to count. Why O of one? Hash the key, jump to its bucket, one step on average.",
      "rows": [
       [
        "Two sum with a hash map?",
@@ -1950,7 +1959,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Prefix sums? A running total, built once in O of n. Any range sum is one subtraction. Subarray sum equals k? Count earlier prefixes equal to sum minus k.",
+     "say": "Zero, and the size grows by one: reading creates the key. Prefix sums? A running total, built once in O of n. Any range sum is one subtraction. Subarray sum equals k? Count earlier prefixes equal to sum minus k.",
      "rows": [
       [
        "Prefix sums?",
