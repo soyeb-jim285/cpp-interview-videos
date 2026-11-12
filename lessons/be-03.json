@@ -55,7 +55,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Two people withdraw from one account at the same moment, and the bank loses money. By the end, you'll explain exactly how, and the three ways to stop it.",
+     "say": "A transfer can crash halfway. Two people withdraw from one account at the same moment, and the bank loses money. By the end, you'll explain exactly how, and the three ways to stop it.",
      "lines": [
       {
        "text": "Two withdrawals at once",
@@ -280,7 +280,7 @@
     },
     {
      "type": "quiz",
-     "say": "Quick check. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Begin starts a transaction, and commit saves it. Alice started at five hundred. What does she show after the restart? Pause and predict.",
+     "say": "Quick check. Same transfer, same crash after step one. But now the transfer sits inside begin and commit. Alice started at five hundred. What does she show after the restart? Pause and predict.",
      "q": "BEGIN; debit Alice 100; crash before COMMIT. Alice started at 500: now?",
      "options": [
       "400",
@@ -543,48 +543,48 @@
     {
      "type": "code",
      "head": "The same race, replayed",
-     "say": "Here's that exact interleaving in code. A and B are two database connections. A reads. B reads. A writes thirty less. B writes twenty less, from its out of date copy. The print shows the balance: eighty.",
+     "say": "Here's that exact interleaving in code, from one hundred. A and B are two connections. A reads. B reads. A writes thirty less. B writes twenty less, from its out of date copy. The print shows the balance: eighty.",
      "panels": [
       {
        "file": "app.py",
-       "code": "x = read(a)\ny = read(b)\nwrite(a, x - 30)\nwrite(b, y - 20)\nprint(read(a))"
+       "code": "a = sqlite3.connect(\"r.db\", isolation_level=None)\nb = sqlite3.connect(\"r.db\", isolation_level=None)\nread = lambda c: c.execute(\"SELECT balance FROM accounts\").fetchone()[0]\ndef write(c, v): c.execute(\"UPDATE accounts SET balance=?\", (v,))\nx = read(a)\ny = read(b)\nwrite(a, x - 30)\nwrite(b, y - 20)\nprint(read(a))"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        5
        ],
        "cue": "A reads"
       },
       {
        "lines": [
-        2
+        6
        ],
        "cue": "B reads"
       },
       {
        "lines": [
-        3
+        7
        ],
        "cue": "A writes"
       },
       {
        "lines": [
-        4
+        8
        ],
        "cue": "B writes"
       },
       {
        "lines": [
-        5
+        9
        ],
        "cue": "The print"
       }
      ],
      "notes": [
       {
-       "line": 4,
+       "line": 8,
        "inside": true,
        "text": "A's 30 is lost",
        "tone": "bad",
@@ -597,7 +597,7 @@
       "tone": "bad",
       "cue": "shows the balance",
       "setup": {
-       "app.py": "import sqlite3\nc0 = sqlite3.connect(\"r.db\")\nc0.execute(\"CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT)\")\nc0.execute(\"INSERT INTO accounts VALUES (1,100)\")\nc0.commit()\na = sqlite3.connect(\"r.db\", isolation_level=None)\nb = sqlite3.connect(\"r.db\", isolation_level=None)\ndef read(c):\n    return c.execute(\"SELECT balance FROM accounts WHERE id=1\").fetchone()[0]\ndef write(c, v):\n    c.execute(\"UPDATE accounts SET balance=? WHERE id=1\", (v,))"
+       "app.py": "import sqlite3\nc0 = sqlite3.connect(\"r.db\")\nc0.execute(\"CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT)\")\nc0.execute(\"INSERT INTO accounts VALUES (1,100)\")\nc0.commit()\n"
       }
      }
     },
@@ -642,8 +642,8 @@
     },
     {
      "type": "compare",
-     "head": "Two fixes that don't work",
-     "say": "Two tempting fixes fail. First, wrapping the read and write in begin and commit. Both still read one hundred, because a plain read takes no lock. Second, a lock inside your app code. It breaks with many servers.",
+     "head": "Two fixes that fail at read committed",
+     "say": "Two tempting fixes fail at read committed. First, wrapping the read and write in begin and commit. Both still read one hundred, because a plain read takes no lock. Second, a lock inside your app code. It breaks with many servers.",
      "heads": [
       "Tempting fix",
       "Why it fails"
@@ -671,9 +671,9 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That's the mechanism. Two requests that read, then write, lose an update.",
+     "say": "That's the mechanism. Two requests that read, then write, can lose an update.",
      "lines": [
-      "Read, think, write loses updates"
+      "Read, think, write can lose updates"
      ],
      "cues": [
       "Two requests"
@@ -701,7 +701,7 @@
     {
      "type": "code",
      "head": "Fix one: one atomic statement",
-     "say": "Three ways to get there. Fix one: skip the read. Let the database subtract inside one statement. The extra condition blocks overdrafts. A takes thirty, B takes twenty. The balance prints fifty. If a statement changes zero rows, there wasn't enough money.",
+     "say": "Three ways to get there. Fix one: skip the read. Let the database subtract inside one statement. The extra condition blocks overdrafts. Each request is one statement, run back to back. The balance prints fifty. If a statement changes zero rows, there wasn't enough money.",
      "panels": [
       {
        "file": "bank.sql",
@@ -726,14 +726,14 @@
        "lines": [
         1
        ],
-       "cue": "A takes thirty"
+       "cue": "Each request is one statement"
       },
       {
        "lines": [
         3,
         4
        ],
-       "cue": "B takes twenty"
+       "cue": "run back to back"
       },
       {
        "lines": [
@@ -755,7 +755,7 @@
       "cmd": "sqlite3 bank.db",
       "text": "50",
       "tone": "good",
-      "cue": "B takes twenty",
+      "cue": "fifty",
       "setup": {
        "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT);\nINSERT INTO accounts VALUES (1,100);"
       }
@@ -1122,7 +1122,7 @@
     {
      "type": "diagram",
      "head": "A non-repeatable read",
-     "say": "Second problem. T1 reads the balance: one hundred. Then T2 updates the row to seventy and commits. T1 reads again and gets seventy. Same query, two answers, inside one transaction. That's a non-repeatable read. A phantom is the same trick with rows: a new row appears.",
+     "say": "Second problem. T1 reads the balance: one hundred. Then T2 updates the row to seventy and commits. T1 reads again and gets seventy. Same query, two answers, inside one transaction. That's a non-repeatable read. A phantom: T1 counts accounts over 50 twice, and T2 inserts one between, so the second count is one higher.",
      "items": [
       {
        "id": "t1",
@@ -1226,6 +1226,13 @@
        "text": "phantom: new row appears",
        "tone": "warn",
        "cue": "A phantom"
+      },
+      {
+       "x": 1000,
+       "y": 760,
+       "text": "+1 row between",
+       "tone": "warn",
+       "cue": "T2 inserts one between"
       }
      ],
      "changes": [
@@ -1308,7 +1315,7 @@
     {
      "type": "diagram",
      "head": "Repeatable read: a steady view",
-     "say": "One hundred. At repeatable read, T1 keeps the view from its first read. T2 still commits seventy to the row. But T1's second read keeps showing one hundred. Still, neither BEGIN alone nor any isolation level alone stops the lost update. At read committed, a plain read takes no lock. The fix is an atomic UPDATE or SELECT ... FOR UPDATE.",
+     "say": "One hundred. At repeatable read, T1 keeps the view from its first read. T2 still commits seventy to the row. But T1's second read keeps showing one hundred. Now the trap. At read committed, a plain read-then-write can lose an update. BEGIN alone does not stop it. Repeatable read and serializable catch it instead: Postgres aborts the late writer with a serialization error, so your app retries. The simplest fixes: an atomic UPDATE, SELECT ... FOR UPDATE, or a version column.",
      "items": [
       {
        "id": "t1",
@@ -1327,9 +1334,9 @@
        "w": 380,
        "h": 120,
        "label": "1st read",
-       "text": "?",
+       "text": "100",
        "size": 52,
-       "cue": "T1 keeps the view"
+       "cue": "from its first read"
       },
       {
        "id": "r2",
@@ -1338,9 +1345,9 @@
        "w": 380,
        "h": 120,
        "label": "2nd read",
-       "text": "?",
+       "text": "100",
        "size": 52,
-       "cue": "T1 keeps the view"
+       "cue": "keeps showing one hundred"
       },
       {
        "id": "row",
@@ -1351,7 +1358,7 @@
        "label": "balance",
        "text": "100",
        "size": 56,
-       "cue": "T1 keeps the view"
+       "cue": "One hundred"
       },
       {
        "id": "t2",
@@ -1372,19 +1379,14 @@
        "text": "COMMIT",
        "tone": "good",
        "size": 44,
-       "cue": "T2 still commits"
+       "cue": "commits seventy"
       }
      ],
      "arrows": [
       {
-       "from": "row",
-       "to": "r1",
-       "cue": "T1 keeps the view"
-      },
-      {
        "from": "t2",
        "to": "cm",
-       "cue": "T2 still commits"
+       "cue": "commits seventy"
       },
       {
        "from": "cm",
@@ -1394,8 +1396,13 @@
       },
       {
        "from": "row",
+       "to": "r1",
+       "cue": "from its first read"
+      },
+      {
+       "from": "row",
        "to": "r2",
-       "cue": "second read"
+       "cue": "keeps showing one hundred"
       }
      ],
      "notes": [
@@ -1411,41 +1418,30 @@
        "y": 840,
        "text": "read committed: no read lock",
        "tone": "warn",
-       "cue": "takes no lock"
+       "cue": "At read committed"
       }
      ],
      "changes": [
       {
-       "id": "r1",
-       "text": "100",
-       "cue": "One hundred"
-      },
-      {
        "id": "row",
-       "tone": "warn",
-       "cue": "neither BEGIN alone"
+       "text": "70",
+       "tone": "good",
+       "cue": "to the row"
       },
       {
        "id": "row",
        "tone": "bad",
-       "cue": "At read committed"
+       "cue": "BEGIN alone"
+      },
+      {
+       "id": "t1",
+       "tone": "bad",
+       "cue": "aborts the late writer"
       },
       {
        "id": "row",
        "tone": "good",
-       "cue": "The fix is an atomic"
-      },
-      {
-       "id": "row",
-       "text": "70",
-       "tone": "warn",
-       "cue": "commits seventy"
-      },
-      {
-       "id": "r2",
-       "text": "100",
-       "tone": "good",
-       "cue": "keeps showing one hundred"
+       "cue": "The simplest fixes"
       }
      ]
     },
@@ -1596,7 +1592,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's a transaction? Statements that all happen or none do, like a transfer. What does ACID mean? Atomic is all or nothing. Consistent means rules like no negative balance still hold. Isolated means no peeking, at serializable. Durable means a commit survives a crash.",
+     "say": "What's a transaction? Statements that all happen or none do, like a transfer. What does ACID mean? Atomic is all or nothing. Consistent means rules like no negative balance still hold. Isolated means concurrent runs act as if one at a time, fully so at serializable. Durable means a commit survives a crash.",
      "rows": [
       [
        "What is a transaction?",
@@ -1611,15 +1607,20 @@
        "Rules like balance >= 0 still hold"
       ],
       [
-       "Isolated? Durable?",
-       "Serializable: no peeking. Commits survive a crash"
+       "Isolated?",
+       "Concurrent runs act as if one at a time, fully so at serializable"
+      ],
+      [
+       "Durable?",
+       "A commit survives a crash"
       ]
      ],
      "cues": [
       "What's a transaction",
       "What does ACID",
       "Consistent means",
-      "Isolated means"
+      "Isolated means",
+      "Durable means"
      ]
     },
     {
@@ -1704,7 +1705,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's a race condition? Someone sneaks in between read and write. Now the best fix: one atomic update, no gap. And otherwise? Add a version column, and retry on zero rows. Or lock the row with select for update.",
+     "say": "What's a race condition? Someone sneaks in between read and write. Now the best fix: one atomic update, no gap. And otherwise? Read the version, update where it still matches, retry on zero rows. Or lock the row with select for update.",
      "rows": [
       [
        "What is a race condition?",
@@ -1716,7 +1717,7 @@
       ],
       [
        "Otherwise?",
-       "Version column, retry on 0 rows"
+       "Read version 7, then UPDATE ... WHERE version = 7; 0 rows changed means reread and retry"
       ],
       [
        "Or?",
