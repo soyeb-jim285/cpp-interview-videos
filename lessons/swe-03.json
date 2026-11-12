@@ -35,6 +35,10 @@
        "accent": "Break nothing"
       },
       {
+       "text": "Zero edits to the old code",
+       "cue": "zero edits"
+      },
+      {
        "text": "Name the pattern",
        "cue": "name the pattern"
       }
@@ -211,7 +215,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "from abc import ABC, abstractmethod\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\""
+       "code": "from abc import ABC, abstractmethod\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\"\ndef checkout(strategy, amount):\n    return strategy.pay(amount)"
       }
      ],
      "steps": [
@@ -232,17 +236,17 @@
       },
       {
        "lines": [
+        5,
         6,
-        7,
-        8
+        7
        ],
        "cue": "Card keeps"
       },
       {
        "lines": [
-        10,
-        11,
-        12
+        8,
+        9,
+        10
        ],
        "cue": "PayPal keeps"
       }
@@ -573,7 +577,7 @@
     {
      "type": "diagram",
      "head": "The fix: split the family",
-     "say": "Liskov. A penguin can't stand in for a flying bird. The fix: Bird no longer promises to fly. Only FlyingBird does. Sparrow inherits from it. Penguin doesn't, so migrate never receives one.",
+     "say": "Liskov. A penguin can't stand in for a flying bird. The fix: Bird no longer promises to fly. Only FlyingBird does. Sparrow inherits from it. Penguin doesn't. So migrate now takes only FlyingBird, and migrate never receives one.",
      "items": [
       {
        "id": "bird",
@@ -634,6 +638,41 @@
        "cue": "Penguin doesn't"
       }
      ]
+    },
+    {
+     "type": "code",
+     "head": "migrate now takes a FlyingBird",
+     "say": "Here's the new signature. Migrate takes a FlyingBird. Sparrow passes, and a type checker rejects a penguin. So migrate never receives one.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class FlyingBird:\n    def fly(self):\n        return \"flap\"\nclass Sparrow(FlyingBird):\n    pass\ndef migrate(bird: FlyingBird):\n    return bird.fly()\nprint(migrate(Sparrow()))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Migrate takes a FlyingBird"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Sparrow passes"
+      },
+      {
+       "lines": [],
+       "cue": "never receives one"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "flap",
+      "cue": "never receives one"
+     }
     },
     {
      "type": "flow",
@@ -1139,7 +1178,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "class RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\n        return \"ok\"\nfor g in (RealGateway(), FakeGateway()):\n    t = time.perf_counter()\n    assert Checkout(g).run(50) == \"ok\"\n    print(type(g).__name__, round(time.perf_counter() - t, 3), \"s\")"
+       "code": "import time\nclass RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\nfor g in (RealGateway(), FakeGateway()):\n    t = time.perf_counter()\n    Checkout(g).run(50)\n    print(type(g).__name__, round(time.perf_counter() - t, 3), \"s\")"
       }
      ],
      "steps": [
@@ -1151,7 +1190,6 @@
       },
       {
        "lines": [
-        1,
         2,
         3,
         4
@@ -1267,7 +1305,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Liskov? A subclass must work wherever its parent does. A flightless penguin breaks that. Inherit or compose? I compose, unless it's truly an is a. Is SOLID always right? No. I wait for a second case before I add classes.",
+     "say": "Liskov? A subclass must work wherever its parent does. Inherit or compose? I compose, unless it's truly an is a. Is SOLID always right? No. I wait for a second case before I add classes.",
      "rows": [
       [
        "Liskov?",
@@ -1327,7 +1365,7 @@
      "covers": [
       "sw04"
      ],
-     "say": "Which have you actually used? Name a real one. In our checkout, I used strategy for payment methods, so crypto was one new class. A factory built it from the config string. And I injected a fake gateway, so tests ran in milliseconds.",
+     "say": "Which have you actually used? Name a real one. In our checkout, I used strategy for payment methods, so crypto was one new class plus one table entry. A factory built it from the config string. And I injected a fake gateway, so tests ran in milliseconds.",
      "items": [
       {
        "id": "co",
