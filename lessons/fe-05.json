@@ -59,7 +59,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Put your mouse in a drawer. Can you still sign up? A clickable div says no. By the end you'll fix it, and block the three attacks interviewers always ask about.",
+     "say": "Put your mouse in a drawer. Can you still sign up? A clickable div says no. By the end you'll fix it, and dodge the three mistakes interviewers always ask about.",
      "lines": [
       {
        "text": "No mouse. Can you sign up?",
@@ -70,9 +70,9 @@
        "cue": "div says no"
       },
       {
-       "text": "Fix it. Then block 3 attacks.",
-       "cue": "block the three",
-       "accent": "block 3 attacks"
+       "text": "Fix it. Then dodge 3 mistakes.",
+       "cue": "dodge the three",
+       "accent": "dodge 3 mistakes"
       }
      ]
     },
@@ -120,7 +120,7 @@
        "text": "div onClick",
        "size": 38,
        "tone": "bad",
-       "cue": "a div with"
+       "cue": "For a div with"
       },
       {
        "id": "s1",
@@ -254,7 +254,7 @@
     {
      "type": "diagram",
      "head": "Focus order and live errors",
-     "say": "Now press Tab. Focus should move email, then password, then Sign up, in reading order, with a visible outline. Never remove it. When validation fails, write the message into an aria live region that is already on the page. The screen reader announces it, and focus stays put.",
+     "say": "Now press Tab. Focus should move email, then password, then Sign up, in reading order, with a visible outline. Never remove it. When validation fails, write the message into an A R I A live region. It must already be on the page. Screen readers read it aloud when it changes. The screen reader announces it, and focus stays put.",
      "panels": [
       {
        "file": "Form.tsx",
@@ -268,7 +268,7 @@
         2,
         3
        ],
-       "cue": "aria live region"
+       "cue": "live region"
       }
      ],
      "items": [
@@ -338,6 +338,13 @@
        "text": "never remove the outline",
        "tone": "warn",
        "cue": "Never remove it"
+      },
+      {
+       "x": 1010,
+       "y": 820,
+       "text": "live: read aloud on change",
+       "tone": "info",
+       "cue": "read it aloud"
       }
      ],
      "changes": [
@@ -464,7 +471,7 @@
       "Detail",
       "Rule"
      ],
-     "say": "Four more details. Never write outline none without a replacement, or keyboard users lose their place. Text contrast: W C A G double A wants four point five to one. Alt text describes purpose, and stays empty if decorative. ARIA only fills gaps: native element first. Test with the keyboard, a screen reader, and axe.",
+     "say": "Four more details. Never write outline none without a replacement, or keyboard users lose their place. Text contrast: W C A G double A wants four point five to one. Alt text describes purpose, and stays empty if decorative. ARIA only fills gaps. That fixes the form: button reached, field named, errors announced. Test with the keyboard, a screen reader, and axe.",
      "rows": [
       [
        "`outline: none`",
@@ -479,7 +486,7 @@
        "purpose; empty `alt=\"\"` if decorative"
       ],
       [
-       "ARIA",
+       "ARIA: extra labels for screen readers",
        "native element first; ARIA fills gaps"
       ],
       [
@@ -544,9 +551,9 @@
     },
     {
      "type": "chart",
-     "head": "Our hero image, in seconds",
+     "head": "LCP, hero image (illustrative)",
      "unit": "s",
-     "say": "Here are our numbers. Before: four point one seconds. The limit: two point five. After one fix: two point three.",
+     "say": "Illustrative numbers. Before: four point one seconds. The limit: two point five. After a preload: two point three.",
      "bars": [
       {
        "label": "Before",
@@ -555,16 +562,16 @@
        "cue": "Before"
       },
       {
-       "label": "Limit",
+       "label": "Google limit",
        "value": 2.5,
        "tone": "warn",
        "cue": "The limit"
       },
       {
-       "label": "After",
+       "label": "After preload",
        "value": 2.3,
        "tone": "good",
-       "cue": "After one fix"
+       "cue": "After a preload"
       }
      ]
     },
@@ -725,7 +732,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Take away the width and height. The browser has no idea how tall the image is. When it finally loads, what happens to the text below? Pause and predict.",
+     "say": "Predict it. Take away the width and height. The browser has no idea how tall the image is. When it finally loads, what happens to the text below? Pause and predict.",
      "q": "`<img src='hero.jpg'>` has no width or height. Text below, after it loads?",
      "options": [
       "Stays where it was",
@@ -826,7 +833,7 @@
       "Vital is bad",
       "Look at"
      ],
-     "say": "Which vital is bad tells you where to look. Slow L C P? Preload the hero and compress images. Slow I N P? Break long scripts into small tasks. High C L S? Reserve space for images and ads. And never lazy load the hero image. That delays it.",
+     "say": "Which vital is bad tells you where to look. Slow L C P? Preload the hero and compress images. Slow I N P? Break long scripts into small tasks. High C L S? Reserve space for images and ads. Never lazy load the hero. So it lands near two point three seconds.",
      "rows": [
       [
        "slow LCP",
@@ -908,49 +915,49 @@
     {
      "type": "code",
      "head": "Text, not HTML",
-     "say": "Inner H T M L parses the string, so the script runs. Text content treats it as plain text. Or escape the angle brackets yourself, and it prints harmless text. React escapes for you, unless you reach for dangerously set inner H T M L. Add a Content Security Policy header as a second layer.",
+     "say": "Inner H T M L parses the string, so the script runs. Text content treats it as plain text. Or escape the angle brackets yourself, and it prints harmless text. React escapes for you, unless you reach for dangerously set inner H T M L. As a second layer, add a Content Security Policy: a server header that says which scripts may run.",
      "panels": [
       {
        "file": "comment.js",
-       "code": "const c = '<img src=x onerror=steal()>';\nel.innerHTML = c;\nel.textContent = c;\nconst esc = (s) => s\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\nconsole.log(esc(c));"
+       "code": "const el = {}; // stand-in for a DOM element\nconst c = '<img src=x onerror=steal()>';\nel.innerHTML = c;\nel.textContent = c;\nconst esc = (s) => s.replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconsole.log(esc(c));\n// server sends: Content-Security-Policy: script-src 'self'"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "parses the string"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "plain text"
       },
       {
        "lines": [
-        4,
         5,
-        6,
-        7
+        6
        ],
        "cue": "escape the angle"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "dangerously set"
       },
       {
-       "lines": [],
+       "lines": [
+        8
+       ],
        "cue": "Content Security Policy"
       }
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "script runs",
        "tone": "bad",
@@ -959,9 +966,6 @@
      ],
      "output": {
       "cmd": "node comment.js",
-      "setup": {
-       "comment.js": "const el = {};"
-      },
       "text": "&lt;img src=x onerror=steal()&gt;",
       "cue": "prints harmless text"
      }
@@ -1091,42 +1095,60 @@
     {
      "type": "code",
      "head": "The attack, and the cookie defense",
-     "say": "Here is the attack. A hidden form on evil dot com posts to the bank. The browser adds your cookie. The defense starts with the cookie. Same site lax: the browser skips the cookie on a cross site post. Add a C S R F token, a secret the attacker cannot read.",
+     "say": "Here is the attack. A hidden form on evil dot com posts to the bank. The browser adds your cookie. The defense sits on the bank's side. HttpOnly hides the cookie from scripts. SameSite Lax makes the browser skip it on a cross site post. Add a C S R F token too, a secret the attacker cannot read.",
      "panels": [
       {
        "file": "evil.html",
-       "code": "<form action=\"https://bank.com/pay\"\n      method=\"POST\">\n  <input name=\"to\" value=\"attacker\">\n</form>\n\nSet-Cookie: sid=abc; HttpOnly;\n            SameSite=Lax"
+       "label": "attack",
+       "tone": "bad",
+       "code": "<form method=\"POST\"\n  action=\"https://bank.com/pay\">\n  <input name=to value=attacker>\n</form>"
+      },
+      {
+       "file": "bank.txt",
+       "label": "defense",
+       "tone": "good",
+       "code": "Set-Cookie: sid=abc; HttpOnly;\n            SameSite=Lax\n\n<input type=\"hidden\"\n  name=\"csrf\" value=\"x7Qp\">"
       }
      ],
      "steps": [
       {
+       "panel": 0,
        "lines": [
         1,
         2,
-        3,
-        4
+        3
        ],
        "cue": "hidden form"
       },
       {
+       "panel": 1,
        "lines": [
-        6,
-        7
+        1
        ],
-       "cue": "Same site lax"
+       "cue": "HttpOnly hides"
       },
       {
+       "panel": 1,
        "lines": [
-        3
+        2
+       ],
+       "cue": "SameSite Lax makes"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        4,
+        5
        ],
        "cue": "Add a C S R F token"
       }
      ],
      "notes": [
       {
-       "line": 4,
+       "panel": 0,
+       "line": 1,
        "inside": true,
-       "text": "cookie rides along",
+       "text": "cookie sent",
        "tone": "bad",
        "cue": "adds your cookie"
       }
@@ -1139,7 +1161,7 @@
       "Attack or mistake",
       "Defense"
      ],
-     "say": "X S S runs attacker script on your site: escape output and add a policy. C S R F forges requests: same site cookies and tokens. A token in local storage? Any X S S can read it, so use an HttpOnly cookie. And never change data on a GET.",
+     "say": "X S S runs script on your site: escape output and add a policy. C S R F forges requests: same site cookies and tokens. A token in local storage? Any X S S can read it, so use an HttpOnly cookie. And never change data on a GET. So comments print as plain text, and never run.",
      "rows": [
       [
        "XSS: script runs on your site",
@@ -1187,7 +1209,7 @@
     {
      "type": "diagram",
      "head": "Same-origin policy and the opt-in",
-     "say": "An origin is scheme, host, and port. By default, a page on app dot com cannot read responses from api dot com. The server opts in with a header, Access Control Allow Origin. If it names the page, the browser lets the script read the response. If not, the browser blocks it.",
+     "say": "An origin is scheme, host, and port. By default, a page on app dot com cannot read responses from api dot com. The server opts in with a header, Access Control Allow Origin. If it names the page, the browser lets the script read the response. If not, the browser blocks it. That protects you: sites cannot read each other's data.",
      "items": [
       {
        "id": "app",
@@ -1235,7 +1257,7 @@
        "from": "api",
        "to": "ok",
        "tone": "good",
-       "label": "header matches",
+       "label": "header ok?",
        "cue": "names the page"
       }
      ],
@@ -1244,7 +1266,7 @@
        "id": "ok",
        "text": "yes, read it",
        "tone": "good",
-       "cue": "lets the script"
+       "cue": "names the page"
       },
       {
        "id": "api",
@@ -1256,7 +1278,7 @@
        "id": "ok",
        "text": "blocked",
        "tone": "bad",
-       "cue": "browser blocks it"
+       "cue": "If not"
       }
      ]
     },
@@ -1304,7 +1326,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. The server sends no CORS headers at all. A simple GET from app dot com goes out. What does your script see? Pause and predict.",
+     "say": "Predict it. The server sends no CORS headers at all. A simple GET from app dot com goes out. What does your script see? Pause and predict.",
      "q": "api.com sends no CORS headers. A GET from app.com goes out. Script sees?",
      "options": [
       "The response body",
@@ -1405,7 +1427,7 @@
       "Mistake",
       "Reality"
      ],
-     "say": "Three mistakes. Fixing C O R S in React? Impossible, the server sends headers. A star origin with cookies? Rejected, so name the origin. And C O R S as security? It protects browsers. You still need authentication.",
+     "say": "Three mistakes. Fixing C O R S in React? Impossible, the server sends headers. A star origin with cookies? Rejected, so name the origin. And C O R S as security? It protects browsers only. With the header, your page reads the response.",
      "rows": [
       [
        "fix CORS in React code",
@@ -1474,29 +1496,16 @@
      "answer": "4.5 to 1"
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
+     "kicker": "Say it",
      "covers": [
       "fe11"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
      "say": "Contrast? W C A G double A: four point five to one. Alt text? Purpose, empty if decorative. Common mistake? Clickable divs, and outline none.",
-     "rows": [
-      [
-       "Color contrast?",
-       "WCAG AA: 4.5 to 1 normal text"
-      ],
-      [
-       "Alt text?",
-       "describe purpose; empty if decorative"
-      ],
-      [
-       "Common mistake?",
-       "clickable divs; `outline: none`"
-      ]
+     "lines": [
+      "Contrast? 4.5 to 1 for normal text",
+      "Alt text? Purpose; empty if decorative",
+      "Common mistake? Clickable divs, outline none"
      ],
      "cues": [
       "Contrast",
@@ -1514,15 +1523,19 @@
       "They ask",
       "You say"
      ],
-     "say": "Core Web Vitals, one by one. L C P? Under two and a half seconds: preload the hero. I N P? Under two hundred milliseconds: split big scripts. C L S? Under zero point one: set sizes, reserve space.",
+     "say": "What are Core Web Vitals? Three numbers: load, response, stability. L C P? Under two and a half seconds: preload the hero. I N P? Click to next paint, under two hundred milliseconds: split big scripts. C L S? Under zero point one: set sizes, reserve space.",
      "rows": [
+      [
+       "What are Core Web Vitals?",
+       "LCP, INP, CLS: load, response, stability"
+      ],
       [
        "LCP?",
        "< 2.5 s: preload the hero image"
       ],
       [
        "INP?",
-       "< 200 ms: split big scripts"
+       "click to next paint; < 200 ms: split big scripts"
       ],
       [
        "CLS?",
@@ -1530,9 +1543,10 @@
       ]
      ],
      "cues": [
-      "L C P",
-      "I N P",
-      "C L S"
+      "What are Core",
+      "L C P?",
+      "I N P?",
+      "C L S?"
      ]
     },
     {
@@ -1615,7 +1629,7 @@
    "scenes": [
     {
      "type": "compare",
-     "head": "Try these before your interview",
+     "head": "Try these in 3 steps",
      "heads": [
       "Do next",
       "Why"
