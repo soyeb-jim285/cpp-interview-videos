@@ -58,17 +58,15 @@
     {
      "type": "problem",
      "title": "Slow product page",
-     "statement": "A product page reads the database on every view. Make repeat views fast without serving wrong data.",
+     "statement": "A product page reads the database on every view. Make repeat views fast; 60 s of staleness is fine.",
      "example": {
       "input": "product page, 200 ms database read",
       "output": "about 2 ms on repeat views"
      },
-     "note": "60 s stale is fine",
-     "say": "Start with a slow page. A product page reads the database on every view. For example, two hundred milliseconds each time. We want about two, from Redis, an in-memory store. Sixty seconds of staleness is fine.",
+     "say": "Start with a slow page. A product page reads the database on every view. For example, two hundred milliseconds each time. We want about two, from Redis, an in-memory store.",
      "cues": {
       "example": "For example",
-      "output": "We want about two",
-      "note": "Sixty seconds"
+      "output": "We want about two"
      }
     },
     {
@@ -433,17 +431,15 @@
     {
      "type": "problem",
      "title": "Stale sale price",
-     "statement": "The price changed in the database, but the cache still holds the old one.",
+     "statement": "The price changed in the database, but the cache still holds the old one. One popular key expiring must not flatten the DB.",
      "example": {
       "input": "database $90, Redis $100",
       "output": "users see $90"
      },
-     "note": "one popular key expires",
-     "say": "Next, a stale price. The database changed, but Redis still holds the old one. For example, ninety against one hundred. We want users to see ninety. And one popular key expiring must not flatten the database.",
+     "say": "Next, a stale price. The database changed, Redis didn't. For example, ninety against one hundred. We want users to see ninety. Expiring a popular key must not crush the database.",
      "cues": {
       "example": "For example",
-      "output": "We want users",
-      "note": "popular key expiring"
+      "output": "We want users"
      }
     },
     {
@@ -568,7 +564,8 @@
        "h": 140,
        "text": "1,000 requests",
        "size": 32,
-       "tone": "blue"
+       "tone": "blue",
+       "cue": "About a thousand"
       },
       {
        "id": "rd",
@@ -578,7 +575,8 @@
        "h": 150,
        "label": "Redis",
        "text": "expired",
-       "tone": "bad"
+       "tone": "bad",
+       "cue": "misses at the same"
       },
       {
        "id": "db",
@@ -588,7 +586,8 @@
        "h": 150,
        "label": "Postgres",
        "text": "busy",
-       "tone": "warn"
+       "tone": "warn",
+       "cue": "the same query"
       },
       {
        "id": "ct",
@@ -599,7 +598,8 @@
        "label": "same query runs",
        "text": "0",
        "size": 56,
-       "tone": "warn"
+       "tone": "warn",
+       "cue": "every one runs"
       }
      ],
      "arrows": [
@@ -611,10 +611,17 @@
       {
        "from": "cl",
        "to": "db",
-       "cue": "runs the same query"
+       "cue": "the same query"
       }
      ],
      "notes": [
+      {
+       "x": 1180,
+       "y": 290,
+       "text": "cache stampede",
+       "tone": "bad",
+       "cue": "cache stampede"
+      },
       {
        "x": 1200,
        "y": 700,
@@ -661,34 +668,24 @@
     {
      "type": "compare",
      "head": "More cache questions",
-     "say": "Four quick ones. No T T L and no delete? Stale forever. If Redis goes down, fall back to the database. What to cache? Slow, popular, rarely changing data. Data that must be exact, read from the database. That answers the stale price.",
+     "say": "Two more questions. Redis goes down? Fall back to the database, because a cache is never required. What to cache? Slow, popular, rarely changing data. That answers the stale price.",
      "heads": [
       "Question",
       "Answer"
      ],
      "rows": [
       [
-       "No TTL, no delete?",
-       "Stale forever. Always set a TTL"
-      ],
-      [
        "Redis goes down?",
        "Fall back to the database"
       ],
       [
        "What to cache?",
-       "Read often, slow, rarely changes"
-      ],
-      [
-       "Must be exact?",
-       "Read the database"
+       "Slow, popular, rarely changing; not exact data"
       ]
      ],
      "cues": [
-      "No T T L",
       "Redis goes down",
-      "What to cache",
-      "must be exact"
+      "What to cache"
      ]
     }
    ]
@@ -699,17 +696,15 @@
     {
      "type": "problem",
      "title": "Checkout hangs",
-     "statement": "Checkout sends an email and builds an invoice before replying, so the page hangs. Reply fast, do the work later.",
+     "statement": "Checkout sends an email and builds an invoice before replying, so the page hangs. Reply fast, do the work later, even at noon peaks.",
      "example": {
       "input": "checkout waits for email + invoice",
       "output": "instant reply, work done later"
      },
-     "note": "traffic spikes at noon",
-     "say": "Now checkout freezes. It waits for the email and the invoice before it replies. For example, the page just hangs. We want an instant reply, with the work done later. And noon spikes must not hurt.",
+     "say": "Now checkout freezes. For example, the page hangs while it sends an email and builds an invoice. We want an instant reply, and the work done later, even at noon.",
      "cues": {
       "example": "For example",
-      "output": "We want an instant",
-      "note": "noon spikes"
+      "output": "We want an instant"
      }
     },
     {
@@ -898,7 +893,8 @@
       "Checkout errors",
       "API slows"
      ],
-     "answer": "600 jobs drain"
+     "answer": "600 jobs drain",
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -1027,17 +1023,15 @@
     {
      "type": "problem",
      "title": "Event delivered twice",
-     "statement": "A payment_succeeded event can be delivered twice. Charge the customer exactly once.",
+     "statement": "A payment_succeeded event can be delivered twice. Charge the customer exactly once, even if the worker crashes.",
      "example": {
       "input": "event evt_9 delivered 2 times",
       "output": "1 charge"
      },
-     "note": "worker may crash",
-     "say": "Last, the scary one. A payment event arrives twice, and the customer calls the bank. For example, event nine, delivered two times. We want one charge. And the worker may crash at any moment.",
+     "say": "Last, the scary one: money. For example, event nine arrives twice, and the customer calls the bank. We want one charge, even if the worker crashes.",
      "cues": {
       "example": "For example",
-      "output": "We want one charge",
-      "note": "may crash"
+      "output": "We want one charge"
      }
     },
     {
@@ -1219,7 +1213,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Change handle to ack first, then do the work, and say the worker crashes right after the ack, before charging. What happens to event nine? Pause and predict.",
+     "say": "Your turn. Move ack above the charge, and the worker crashes right after the ack. What happens to event nine? Pause and predict.",
      "q": "ack(msg) moved above the charge, then a crash. Event nine is...",
      "options": [
       "charged twice",
@@ -1227,7 +1221,8 @@
       "charged once",
       "retried"
      ],
-     "answer": "never charged"
+     "answer": "never charged",
+     "optCue": 0.5
     },
     {
      "type": "diagram",
@@ -1243,8 +1238,7 @@
        "label": "Queue",
        "text": "evt_9",
        "size": 44,
-       "tone": "warn",
-       "cue": "The ack told"
+       "tone": "warn"
       },
       {
        "id": "wk",
@@ -1255,8 +1249,7 @@
        "label": "Worker",
        "text": "got it",
        "size": 40,
-       "tone": "good",
-       "cue": "The ack told"
+       "tone": "good"
       },
       {
        "id": "cd",
@@ -1286,8 +1279,7 @@
      "arrows": [
       {
        "from": "q9",
-       "to": "wk",
-       "cue": "The ack told"
+       "to": "wk"
       },
       {
        "from": "wk",
@@ -1328,21 +1320,26 @@
        "text": "never charged",
        "tone": "bad",
        "cue": "no retry"
+      },
+      {
+       "id": "ak",
+       "glow": true,
+       "tone": "good",
+       "cue": "ack after the work"
       }
      ]
     },
     {
      "type": "compare",
      "head": "Delivery guarantees",
-     "say": "At most once: ack first, and a crash loses the job. At least once: ack after the work, and a crash means a duplicate. Exactly once across systems is hard. In practice it's at least once, plus dedupe.",
+     "say": "At most once: ack first, and a crash loses the job. Fine for metrics. At least once: ack after, so a crash brings a duplicate.",
      "heads": [
       "Crash means",
       "Use it for"
      ],
      "rowHeads": [
       "At most once",
-      "At least once",
-      "Exactly once"
+      "At least once"
      ],
      "rows": [
       [
@@ -1352,22 +1349,17 @@
       [
        "duplicate",
        "the default, plus dedupe"
-      ],
-      [
-       "hard across systems",
-       "= at least once + dedupe"
       ]
      ],
      "cues": [
       "At most once",
-      "At least once",
-      "Exactly once"
+      "At least once"
      ]
     },
     {
      "type": "compare",
-     "head": "Dedupe in three places",
-     "say": "Three places to defend. Your own database: a processed table, in the same transaction as its writes. A card charge: the idempotency key, a label so it ignores a repeat. A message that keeps failing: retry with growing waits, called backoff, then park it in a dead letter queue, a side queue. That is how a payment is charged once.",
+     "head": "Dedupe in two places",
+     "say": "Exactly once across systems is hard, so dedupe twice. Your own database: a processed table, written in the same transaction. The card charge: an idempotency key, a label the payment A P I uses to ignore a repeat.",
      "heads": [
       "Where",
       "Defend with"
@@ -1375,26 +1367,49 @@
      "rows": [
       [
        "Your own database",
-       "processed table, same transaction"
+       "processed table, same transaction as DB writes"
       ],
       [
        "Outside payment API",
        "idempotency key = event id"
-      ],
-      [
-       "Message keeps failing",
-       "retry with backoff"
-      ],
-      [
-       "Still failing",
-       "dead letter queue"
       ]
      ],
      "cues": [
-      "processed table",
-      "idempotency key",
-      "keeps failing",
-      "dead letter queue"
+      "own database",
+      "idempotency key"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A message that keeps failing",
+     "say": "And a message that keeps failing? Retry with growing waits, called backoff. Still failing? Park it in a dead letter queue, a side queue. That's how a payment gets charged once.",
+     "items": [
+      {
+       "label": "message",
+       "text": "keeps failing",
+       "tone": "bad",
+       "cue": "keeps failing"
+      },
+      {
+       "label": "retry",
+       "text": "backoff",
+       "sub": "growing waits",
+       "tone": "warn",
+       "cue": "called backoff"
+      },
+      {
+       "label": "still failing",
+       "text": "dead letter Q",
+       "sub": "a side queue",
+       "tone": "blue",
+       "cue": "dead letter queue"
+      },
+      {
+       "label": "result",
+       "text": "charged once",
+       "tone": "good",
+       "cue": "charged once"
+      }
      ]
     }
    ]
@@ -1404,25 +1419,55 @@
    "kind": "drill",
    "scenes": [
     {
+     "type": "flow",
+     "head": "Say it: how caching works",
+     "covers": [
+      "be07"
+     ],
+     "say": "Why cache? Repeat reads skip the slow database. So check Redis, an in-memory store, first. On a miss, read the database, then save a copy with a T T L. The next read is a hit.",
+     "items": [
+      {
+       "label": "check first",
+       "text": "Redis",
+       "sub": "in memory",
+       "tone": "blue",
+       "cue": "check Redis"
+      },
+      {
+       "label": "on a miss",
+       "text": "read the DB",
+       "sub": "200 ms",
+       "tone": "warn",
+       "cue": "On a miss"
+      },
+      {
+       "label": "then",
+       "text": "save, TTL",
+       "sub": "expires in 60 s",
+       "tone": "blue",
+       "cue": "save a copy"
+      },
+      {
+       "label": "next read",
+       "text": "hit",
+       "sub": "about 2 ms",
+       "tone": "good",
+       "cue": "next read"
+      }
+     ]
+    },
+    {
      "type": "compare",
      "head": "Say it in 20 seconds",
      "covers": [
       "be07"
      ],
-     "say": "Why cache? Skip the slow database on repeat reads. How does it work? Check Redis, fill on a miss, set a T T L. Stale data? Delete the key on update. Stampede? One request refills, plus jitter.",
+     "say": "Stale data? Delete the key on update. The T T L backs it up. Stampede? One request refills while the rest wait, plus jitter.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
-      [
-       "Why cache?",
-       "Redis, in memory: repeat reads skip the DB"
-      ],
-      [
-       "How does it work?",
-       "Cache-aside: check Redis, on a miss fill it, with a TTL"
-      ],
       [
        "Stale data?",
        "Delete the key on update; TTL is the safety net"
@@ -1433,8 +1478,6 @@
       ]
      ],
      "cues": [
-      "Why cache",
-      "How does it",
       "Stale data",
       "Stampede"
      ]
@@ -1445,7 +1488,7 @@
      "covers": [
       "be10"
      ],
-     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? At least once: a missing ack means a retry. Dedupe on event id. Exactly once? Not across systems. Ack after the work.",
+     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? Delivery is at least once: no ack means a retry. Exactly once? Not across systems. An idempotent consumer makes twice equal once.",
      "heads": [
       "They ask",
       "You say"
@@ -1457,11 +1500,11 @@
       ],
       [
        "Duplicates?",
-       "At-least-once: retry, so dedupe on event id"
+       "At least once: no ack, retry. Dedupe on event id"
       ],
       [
        "Exactly once?",
-       "At least once + idempotent consumer"
+       "Idempotent consumer: twice = once"
       ]
      ],
      "cues": [
@@ -1477,26 +1520,13 @@
    "kind": "recap",
    "scenes": [
     {
-     "type": "compare",
-     "head": "Build these next",
+     "type": "take",
+     "kicker": "Build next",
      "say": "Three exercises. Cache your slowest endpoint for sixty seconds, and log hit or miss. Send one payment event twice and prove only one charge happens. Kill a worker mid job and watch the message come back.",
-     "heads": [
-      "Build next",
-      "Why"
-     ],
-     "rows": [
-      [
-       "Cache one endpoint, TTL 60 s",
-       "see hit and miss numbers"
-      ],
-      [
-       "Send one event twice",
-       "prove a single charge"
-      ],
-      [
-       "Kill a worker mid job",
-       "watch the retry arrive"
-      ]
+     "lines": [
+      "Cache your slowest endpoint, TTL 60 s; log hits",
+      "Send one payment event twice: prove one charge",
+      "Kill a worker mid-job: watch the retry arrive"
      ],
      "cues": [
       "Cache your slowest",
