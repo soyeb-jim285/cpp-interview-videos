@@ -82,7 +82,7 @@
     {
      "type": "flow",
      "head": "The puzzle we'll solve",
-     "say": "Here's where we're heading. Downloads one by one: a hundred seconds. A pool of ten threads: about ten. Asyncio: about one. Then the twist. The same threads on number crunching: no faster at all.",
+     "say": "Here's where we're heading. Downloads one by one: a hundred seconds. A pool of ten threads: about ten. Asyncio: about one. Then the twist. The same threads on number crunching: barely faster.",
      "items": [
       {
        "label": "one by one",
@@ -103,9 +103,9 @@
       },
       {
        "label": "CPU work",
-       "text": "no gain",
+       "text": "barely faster",
        "tone": "warn",
-       "cue": "no faster"
+       "cue": "barely faster"
       }
      ]
     },
@@ -699,7 +699,7 @@
     {
      "type": "code",
      "head": "Four CPU-heavy jobs",
-     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads, from a thread pool: no faster, they just share the mic. Four processes, from a process pool, each gets their own interpreter, and finish much sooner.",
+     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads, from a thread pool: barely faster, they just share the mic. Four processes, from a process pool, each gets their own interpreter, and finish much sooner.",
      "panels": [
       {
        "file": "app.py",
@@ -743,7 +743,8 @@
        "run.py": "import multiprocessing as mp\nmp.set_start_method(\"fork\")\nimport app\n\ndef sequential(f, jobs):\n    for j in jobs: f(j)\n\nfor how in (sequential, app.threads, app.processes):\n    app.run(how)\n"
       },
       "text": "sequential 1.8 s\nthreads 2.2 s\nprocesses 1.0 s",
-      "cue": "finish much sooner"
+      "cue": "finish much sooner",
+      "hold": 2
      }
     },
     {
@@ -876,6 +877,12 @@
       {
        "id": "cnt",
        "text": "6",
+       "tone": "bad",
+       "cue": "Both write six"
+      },
+      {
+       "id": "r1",
+       "text": "wrote 6",
        "tone": "bad",
        "cue": "Both write six"
       },
@@ -1024,12 +1031,14 @@
       {
        "id": "d1",
        "tone": "good",
-       "cue": "the same order"
+       "cue": "the same order",
+       "text": "A then B"
       },
       {
        "id": "d2",
        "tone": "good",
-       "cue": "the same order"
+       "cue": "the same order",
+       "text": "A then B"
       }
      ]
     }
@@ -1105,7 +1114,7 @@
        "w": 380,
        "h": 130,
        "label": "list",
-       "text": "1, 2, 3",
+       "text": "1, 2",
        "tone": "good",
        "cue": "A is a note"
       },
@@ -1172,7 +1181,8 @@
        "id": "l1",
        "glow": true,
        "tone": "good",
-       "cue": "A sees three"
+       "cue": "A sees three",
+       "text": "1, 2, 3"
       }
      ]
     },
@@ -1183,36 +1193,48 @@
      "panels": [
       {
        "file": "app.py",
+       "label": "bug",
+       "tone": "bad",
        "code": "def add(x, items=[]):\n    items.append(x)\n    return items\n\nprint(add(1))\nprint(add(2))"
+      },
+      {
+       "file": "fix.py",
+       "label": "fix",
+       "tone": "good",
+       "code": "def add(x, items=None):\n    if items is None: items = []\n    items.append(x)\n    return items\n\nprint(add(1))\nprint(add(2))"
       }
      ],
      "steps": [
       {
+       "panel": 0,
        "lines": [
         1
        ],
        "cue": "built once"
       },
       {
+       "panel": 0,
        "lines": [
         5,
         6
        ],
        "cue": "the second call"
+      },
+      {
+       "panel": 1,
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "The fix"
       }
      ],
      "notes": [
       {
+       "panel": 1,
        "line": 1,
        "inside": true,
-       "text": "one list, shared",
-       "tone": "bad",
-       "cue": "Every call shares"
-      },
-      {
-       "line": 3,
-       "inside": true,
-       "text": "fix: None, build inside",
+       "text": "None",
        "tone": "good",
        "cue": "The fix"
       }
@@ -1492,7 +1514,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Process, thread, async? Own memory, shared memory, one thread. Trade off? Processes are safe but slow. Threads are fast but racy. Async is cheap. Race condition? Timing decides, so I use a lock. The GIL? One thread at a time. Threads still help while waiting on I/O. Deadlock? Two threads wait on each other. Which to pick? Async to wait, processes to crunch.",
+     "say": "Process, thread, async? Own memory, shared memory, one thread. Trade-off? Safe but slow. Fast but racy. Race condition? Two threads read-modify-write shared state. Interleaving decides. Fix: a lock. The GIL? One at a time. Deadlock? Each holds one lock, waits for the other. Fix: one global lock order. Which to pick? Async to wait, processes to crunch.",
      "rows": [
       [
        "Process, thread, async?",
@@ -1500,19 +1522,19 @@
       ],
       [
        "Trade-off?",
-       "Safe but slow; fast but racy; never block"
+       "Safe but slow; fast but racy"
       ],
       [
        "Race condition?",
-       "Timing decides; I use a lock."
+       "Two threads read-modify-write shared state; interleaving decides. Fix: a lock."
       ],
       [
        "The GIL?",
-       "One at a time. Threads still help while waiting on I/O."
+       "One at a time"
       ],
       [
        "Deadlock?",
-       "Two threads wait on each other."
+       "Each holds one lock, waits for the other. Fix: one global lock order."
       ],
       [
        "Which to pick?",
@@ -1521,7 +1543,7 @@
      ],
      "cues": [
       "Process, thread",
-      "Trade off",
+      "Trade-off",
       "Race condition",
       "The GIL",
       "Deadlock",
