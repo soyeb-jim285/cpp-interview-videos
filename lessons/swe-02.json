@@ -31,7 +31,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "A hundred downloads, a second each. One way takes a hundred seconds. Another takes one. Which tool? By the end you'll know, and spot the Python bugs interviewers plant.",
+     "say": "A hundred downloads, a second each. One way takes a hundred seconds. Another takes one. Which tool? By the end you'll know, and spot the Python bugs.",
      "lines": [
       {
        "text": "100 downloads × 1 second",
@@ -241,7 +241,7 @@
     {
      "type": "code",
      "head": "Same global, two answers",
-     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory. That answers what each shares. Async comes next.",
+     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory. That answers what each shares.",
      "panels": [
       {
        "file": "app.py",
@@ -383,7 +383,7 @@
      "type": "chart",
      "head": "More workers, fewer rounds",
      "unit": "seconds",
-     "say": "Total time. Twenty workers: five seconds, since a hundred over twenty is five rounds. One worker takes a hundred. Ten workers take ten. Twenty take five. But asyncio does it in about one second, with no extra threads.",
+     "say": "Total time. One worker takes a hundred. Ten workers take ten. Twenty take five, since a hundred over twenty is five rounds. But asyncio does it in about one second, with no extra threads.",
      "bars": [
       {
        "label": "1 worker",
@@ -1487,7 +1487,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Process, thread, async? A process owns memory, a thread shares it, async is one thread. Race condition? Timing decides the result, so I use a lock. GIL? One thread runs Python at a time. Deadlock? Two threads wait on each other. Pick? Async for waiting, processes for crunching.",
+     "say": "Process, thread, async? Own memory, shared memory, one thread. Race condition? Timing decides the result, so I use a lock. GIL? One thread runs Python at a time. Deadlock? Two threads wait on each other. Pick? Async for waiting, processes for crunching.",
      "rows": [
       [
        "Process, thread, async?",
@@ -1524,7 +1524,7 @@
      "covers": [
       "sw09"
      ],
-     "say": "Assignment never copies, names share objects. A default list is built once, so I default to None. The GIL hurts threads on crunching but not waiting, so processes for crunching. A generator makes values on demand, and a decorator is a function wrapping a function.",
+     "say": "Assignment never copies, names share objects. A default list is built once, so I default to None. The GIL hurts threads on crunching but not waiting, so processes for crunching. A generator makes values on demand. A decorator wraps a function.",
      "items": [
       {
        "label": "names",
