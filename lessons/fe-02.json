@@ -121,7 +121,7 @@
     {
      "type": "code",
      "head": "The bug, in three lines",
-     "say": "Here's that loop. Var i counts from zero to two. Each pass schedules a timer that logs i. The timer runs later, after the loop is done. Run it, and you get three, three, three.",
+     "say": "Look at this loop. Var i counts from zero to two. Each pass schedules a timer that logs i. The timer runs later, after the loop is done. Run it, and you get three, three, three.",
      "panels": [
       {
        "file": "app.js",
@@ -163,7 +163,7 @@
     {
      "type": "flow",
      "head": "Think of a backpack",
-     "say": "Think of a backpack. When a function is created, it packs the variables around it. Wherever the function travels, the backpack goes along. Whenever it runs, it reads its own backpack. That backpack is a closure.",
+     "say": "Picture a backpack. When a function is created, it packs the variables around it. Wherever the function travels, the backpack goes along. Whenever it runs, it reads its own backpack. That backpack is a closure.",
      "items": [
       {
        "label": "created",
@@ -189,7 +189,7 @@
     {
      "type": "code",
      "head": "Each call gets its own backpack",
-     "say": "Here's a closure in code. Make counter creates count, and returns a small function. Normally count would vanish when make counter returns. It doesn't: the small function keeps it. A twice gives one, two. B has its own backpack, so one. Nobody else can touch count. That is private state, and callbacks and memoization use the same trick.",
+     "say": "A closure, in code. Make counter creates count, and returns a small function. Normally count would vanish when make counter returns. It doesn't: the small function keeps it. A twice gives one, two. B has its own backpack, so one. Nobody else can touch count. That is private state, and callbacks and memoization use the same trick.",
      "panels": [
       {
        "file": "app.js",
@@ -249,7 +249,7 @@
     {
      "type": "diagram",
      "head": "One `i`, three callbacks",
-     "say": "Here's why the loop fails. With var, there is one i for the whole loop. Three callbacks, all pointing at the same box. The loop runs first, and i climbs to three. Later the timers fire. Each callback reads the same box, and sees three.",
+     "say": "This is why the loop fails. With var, there is one i for the whole loop. Three callbacks, all pointing at the same box. The loop runs first, and i climbs to three. Later the timers fire. Each callback reads the same box, and sees three.",
      "items": [
       {
        "id": "i",
@@ -446,7 +446,7 @@
     {
      "type": "flow",
      "head": "The word I",
-     "say": "Think of the word I. Ada says it: I is Ada. Bo says it: I is Bo. Nobody says it: I is nothing. In code, I is this.",
+     "say": "Take the word I. Ada says it: I is Ada. Bo says it: I is Bo. Nobody says it: I is nothing. In code, I is this.",
      "items": [
       {
        "label": "Ada says it",
@@ -472,7 +472,7 @@
     {
      "type": "code",
      "head": "A detached method loses `this`",
-     "say": "A dot call, u dot hi, works: Ada. Copy the method to f and call it bare. Now this is lost. Class code runs in strict mode, so a bare this is undefined. Calling it throws a type error. Bind locks this to u, and it works again.",
+     "say": "A dot call, u dot hi, works: Ada. Copy the method to f and call it bare. Now this is lost. Class code runs in strict mode, which turns off the global fallback. So a bare this is undefined. Calling it throws a type error. Bind locks this to u, returning a copy that always uses u, so it works again.",
      "panels": [
       {
        "file": "app.js",
@@ -501,6 +501,12 @@
       },
       {
        "lines": [
+        1
+       ],
+       "cue": "a bare this is undefined"
+      },
+      {
+       "lines": [
         5
        ],
        "cue": "throws a type error"
@@ -521,7 +527,7 @@
     },
     {
      "type": "quiz",
-     "say": "Here's a twist. Object h is named Bo, and it borrows u's method. What does h dot hi return?",
+     "say": "Now a twist. Object h is named Bo, and it borrows u's method. What does h dot hi return?",
      "q": "`const h = { name: 'Bo', hi: u.hi }`. What does `h.hi()` return?",
      "options": [
       "Ada",
@@ -534,7 +540,7 @@
     {
      "type": "compare",
      "head": "`this`, in four kinds of call",
-     "say": "Bo. This is decided by the call. A dot call: the object before the dot. A bare call loses it, which is why f crashed. Bind locks this. Arrow functions have no this of their own.",
+     "say": "Bo. This is decided by the call. A bare call loses it, which is why f crashed. Bind locks this. Arrow functions have no this of their own.",
      "heads": [
       "The call",
       "this is"
@@ -577,7 +583,7 @@
       "input": "log 1, timer logs 2, then logs 3, log 4",
       "output": "1, 4, 3, 2"
      },
-     "say": "Four lines, and they don't print top to bottom. A log, a timer, a promise, another log. The real order is one, four, three, two. Here's why.",
+     "say": "Four lines, and they don't print top to bottom. A log, a timer, a promise, another log. The real order is one, four, three, two. Let's see why.",
      "cues": {
       "example": "A log, a timer",
       "output": "The real order"
@@ -586,7 +592,7 @@
     {
      "type": "flow",
      "head": "A shop with one cashier",
-     "say": "Think of a shop with one cashier. That is JavaScript: one thread, one customer at a time. The priority lane holds microtasks: promise callbacks and await. The normal line holds tasks: timers, clicks, network. Priority lane always goes first.",
+     "say": "Imagine a shop with one cashier. That is JavaScript: one thread, one customer at a time. The priority lane holds microtasks: promise callbacks and await. The normal line holds tasks: timers, clicks, network. Priority lane always goes first.",
      "items": [
       {
        "label": "one cashier",
@@ -612,7 +618,7 @@
     {
      "type": "code",
      "head": "The snippet",
-     "say": "Here's the snippet. A log helper that prints on one line. Log one. A timer of zero, which still waits its turn. A promise callback. Then log four. Run it: one, four, three, two. Now watch why.",
+     "say": "Take this snippet. A log helper that prints on one line. Log one. A timer of zero, which still waits its turn. A promise callback. Then log four. Run it: one, four, three, two. Now watch why.",
      "panels": [
       {
        "file": "app.js",
@@ -750,7 +756,7 @@
       {
        "id": "con",
        "text": "1 4",
-       "cue": "prints four"
+       "cue": "Line four"
       },
       {
        "id": "stk",
@@ -862,7 +868,7 @@
       {
        "id": "con",
        "text": "1 4 3 5",
-       "cue": "and prints. The"
+       "cue": "The microtask queue is empty"
       },
       {
        "id": "tsk",
@@ -992,7 +998,7 @@
     {
      "type": "diagram",
      "head": "A promise is a buzzer",
-     "say": "Think of ordering pizza. A promise is your buzzer: it starts pending. Later it settles exactly once. Fulfilled: the pizza arrives. Or rejected: sold out. Never changes after that. Await means sit and wait.",
+     "say": "Consider ordering pizza. A promise is your buzzer: it starts pending. Later it settles exactly once. Fulfilled: the pizza arrives. Or rejected: sold out. Never changes after that. Await means sit and wait.",
      "items": [
       {
        "id": "pend",
@@ -1029,7 +1035,7 @@
       {
        "from": "pend",
        "to": "ful",
-       "label": "pizza arrives",
+       "label": "pizza",
        "cue": "the pizza arrives"
       },
       {
@@ -1048,59 +1054,56 @@
      "panels": [
       {
        "file": "app.js",
-       "code": "async function load(id) {\n  try {\n    const res = await fetch('http://localhost:3000/u/' + id);\n    if (!res.ok) throw new Error('HTTP ' + res.status);\n    return await res.json();\n  } catch (e) { return e.message; }\n}\nload(7).then(console.log);"
+       "code": "globalThis.fetch = async () => ({ ok: false, status: 404 });\nasync function load(id) {\n  try {\n    const res = await fetch('http://localhost:3000/u/' + id);\n    if (!res.ok) throw new Error('HTTP ' + res.status);\n    return await res.json();\n  } catch (e) { return e.message; }\n}\nload(7).then(console.log);"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Await pauses"
       },
       {
        "lines": [
-        2,
-        6
+        3,
+        7
        ],
        "cue": "try and catch just works"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "One trap"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "still resolves"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "check res dot ok"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "The catch then"
       }
      ],
      "output": {
       "cmd": "node app.js",
-      "setup": {
-       "app.js": "globalThis.fetch = async () => ({ ok: false, status: 404 });"
-      },
       "text": "HTTP 404",
       "cue": "handles both"
      },
      "notes": [
       {
-       "line": 6,
+       "line": 7,
        "inside": true,
        "text": "rejection lands here",
        "tone": "info",
@@ -1115,8 +1118,8 @@
      "options": [
       "~100 ms",
       "~200 ms",
-      "~150 ms",
-      "it never finishes"
+      "~300 ms (they add up)",
+      "~100 ms (they overlap)"
      ],
      "answer": "~200 ms"
     },
