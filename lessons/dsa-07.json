@@ -279,7 +279,7 @@
     {
      "type": "diagram",
      "head": "Crossed brackets",
-     "say": "Invalid. Round, square, then a closing round bracket arrives. The top of the stack is square, not round. Mismatch, so return false.",
+     "say": "Invalid. Round, square, then a closing round bracket arrives. The top of the stack is square, not round. Mismatch, so return false. That answers the problem: a stack checks nesting.",
      "items": [
       {
        "array": {
@@ -806,7 +806,7 @@
     {
      "type": "compare",
      "head": "Follow-ups to expect",
-     "say": "Four follow-ups. Why O of n? Each index is pushed once and popped once. Next smaller, or previous greater? Flip the comparison, or scan from the right. Values or indices? Indices: read the value, subtract positions for distances. Leftovers? Never beaten, so they keep minus one.",
+     "say": "Four follow-ups. Why O of n? Each index is pushed once and popped once. Next smaller, or previous greater? Flip the comparison, or scan from the right. Values or indices? Indices: read the value, subtract positions for distances. Leftovers? Never beaten, so they keep minus one. That answers next greater: one pass.",
      "heads": [
       "They ask",
       "Answer"
@@ -1144,7 +1144,7 @@
     {
      "type": "code",
      "head": "Max-heap by default",
-     "say": "Five. The default priority queue is a max heap. Biggest on top. For smallest on top, add greater. The second queue then gives one. That default is the classic slip.",
+     "say": "Five. The default priority queue is a max heap. Biggest on top. For smallest on top, add greater. The second queue then gives one. That default is the classic slip. That answers the problem: a heap gives the extreme item at once.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1178,6 +1178,10 @@
         8
        ],
        "cue": "classic slip"
+      },
+      {
+       "lines": [],
+       "cue": "That answers the problem"
       }
      ],
      "output": {
@@ -1482,7 +1486,7 @@
     {
      "type": "compare",
      "head": "Why a min-heap for the largest",
-     "say": "Why a min heap? Its top is the weakest keeper: one compare. Why not sort? O of n log n, versus O of n log k. Memory? Only k items, even on a stream.",
+     "say": "Why a min heap? Its top is the weakest keeper: one compare. Why not sort? O of n log n, versus O of n log k. Memory? Only k items, even on a stream. That answers top k.",
      "heads": [
       "They ask",
       "Answer"
@@ -1736,7 +1740,7 @@
      "type": "chart",
      "head": "Merge cost in millions",
      "unit": "M steps",
-     "say": "Ten million. A million nodes, about ten heap steps each, since log of a thousand is ten. Sorting everything costs about twenty steps each. And the heap never holds more than a thousand nodes.",
+     "say": "Ten million. A million nodes, about ten heap steps each, since log of a thousand is ten. Sorting everything: about twenty each. The heap holds a thousand nodes. Problem answered.",
      "bars": [
       {
        "label": "Heap of k",
@@ -1748,7 +1752,7 @@
        "label": "Sort all",
        "value": 20,
        "tone": "warn",
-       "cue": "about twenty steps"
+       "cue": "about twenty"
       }
      ]
     }
@@ -1829,6 +1833,16 @@
       "Top k largest",
       "Why not sort"
      ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "cp08"
+     ],
+     "pause": 5,
+     "say": "Self test. You must keep the three largest numbers from a stream. Which kind of heap, and how big?",
+     "q": "Keep the 3 largest of a stream. Which heap, what size?",
+     "answer": "min-heap, size 3"
     },
     {
      "type": "compare",

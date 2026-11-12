@@ -352,7 +352,7 @@
     {
      "type": "compare",
      "head": "Four traps interviewers watch",
-     "say": "Four classic traps. Adding lo and hi can overflow, so use lo plus half the gap. Mixing loop styles can loop forever, so pick one template. If nothing qualifies, lo ends past the end, so check before reading. And on unsorted data, the answer is garbage.",
+     "say": "Four classic traps. Adding lo and hi can overflow, so use lo plus half the gap. Mixing loop styles can loop forever, so pick one template. If nothing qualifies, lo ends past the end, so check before reading. And on unsorted data, the answer is garbage. Problem solved: halve until lo meets hi.",
      "heads": [
       "Trap",
       "What goes wrong"
@@ -964,7 +964,7 @@
     {
      "type": "compare",
      "head": "What the search costs",
-     "say": "Three things to watch. Cost: each check walks every package, and a billion takes about thirty checks. Big sums: the total may overflow int, so use long long. And the check must never flip back, or the search breaks.",
+     "say": "Three things to watch. Cost: each check walks every package, and a billion takes about thirty checks. Big sums: the total may overflow int, so use long long. And the check must never flip back, or the search breaks. That answers the ship problem: fifteen.",
      "heads": [
       "Watch",
       "What it means"
@@ -1166,7 +1166,7 @@
     {
      "type": "code",
      "head": "The standard library version",
-     "say": "For a sorted array, C plus plus already ships lower bound. It returns an iterator to the first element at least the value. Subtract begin to get the index. Three, same as ours. The search on the answer version, you still write yourself. And it needs sorted input.",
+     "say": "For a sorted array, C plus plus already ships lower bound. It returns an iterator to the first element at least the value. Subtract begin to get the index. Three, same as ours. The search on the answer version, you still write yourself. And it needs sorted input. So only check A is searchable.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1195,6 +1195,10 @@
         4
        ],
        "cue": "needs sorted input"
+      },
+      {
+       "lines": [],
+       "cue": "So only check A"
       }
      ],
      "notes": [

@@ -405,7 +405,7 @@
     {
      "type": "code",
      "head": "Build a list, then print it",
-     "say": "Build back to front. Insert thirty, then twenty, then ten, then five. Print follows the pointers from head: five, ten, twenty, thirty. An empty list is just head equal to null, and the same code works.",
+     "say": "Build back to front. Insert thirty, then twenty, then ten, then five. Print follows the pointers from head: five, ten, twenty, thirty. An empty list is just head equal to null, and the same code works. That answers the problem: two links, not a million moves.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -433,6 +433,10 @@
         2
        ],
        "cue": "empty list"
+      },
+      {
+       "lines": [],
+       "cue": "That answers the problem"
       }
      ],
      "output": {
@@ -721,7 +725,7 @@
     {
      "type": "compare",
      "head": "List versus array",
-     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node directly. C plus plus ships both, singly and doubly. In practice, vector usually wins.",
+     "say": "Compare. Reading item k: instant in an array, a long walk in a list. Inserting at the front: the array shifts everything, the list re-points. Memory: arrays are one cache friendly block. Nodes scatter, each with a pointer. A doubly linked list adds prev, so you can unlink a held node. C plus plus has both. In practice, vector usually wins. Delete solved: re-point around it.",
      "heads": [
       "",
       "Array",
@@ -759,7 +763,7 @@
       "Inserting at the front",
       "Memory",
       "A doubly linked",
-      "C plus plus ships"
+      "C plus plus has"
      ]
     }
    ]
@@ -1108,7 +1112,7 @@
     {
      "type": "code",
      "head": "The bug, run for real",
-     "say": "Just one. After the flip, head's next is prev, which is null. So head becomes null, the loop ends, and nodes two, three and four are lost. Always save next before re-pointing.",
+     "say": "Just one. After the flip, head's next is prev, which is null. So head becomes null, the loop ends, and nodes two, three and four are lost. Always save next before re-pointing. That solves reversing: save, flip, step.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1140,6 +1144,10 @@
       {
        "lines": [],
        "cue": "Always save next"
+      },
+      {
+       "lines": [],
+       "cue": "That solves reversing"
       }
      ],
      "notes": [
@@ -1407,7 +1415,7 @@
     {
      "type": "diagram",
      "head": "Even length: the second middle",
-     "say": "Four, the second of the two middle nodes. Both start at one. Slow to two, fast to three. Slow to three, fast to five. Slow to four, and fast steps off the end, to null. Even lengths give the second middle.",
+     "say": "Four, the second of the two middle nodes. Both start at one. Slow to two, fast to three. Slow to three, fast to five. Slow to four, and fast steps off the end, to null. Even lengths give the second middle. That answers it: slow lands on the middle.",
      "items": [
       {
        "id": "n1",
@@ -1950,7 +1958,7 @@
     {
      "type": "diagram",
      "head": "Where does the loop start?",
-     "say": "Where does the loop start? Slow and fast both sit at five. Send fast home, to node one. Both step one at a time now. Slow goes round to two. Fast goes to two. They meet at two, and that is the start of the loop.",
+     "say": "Where does the loop start? Slow and fast both sit at five. Send fast home, to node one. Both step one at a time now. Slow goes round to two. Fast goes to two. They meet at two, and that is the start of the loop. That answers it: yes, and where.",
      "items": [
       {
        "id": "n1",
@@ -2406,7 +2414,7 @@
     {
      "type": "diagram",
      "head": "The leftover tail",
-     "say": "Seven, eight. List a ran out after three, so list b is untouched. One link finishes the job: tail's next points at seven, and eight comes along. No copying, no second loop.",
+     "say": "Seven, eight. List a ran out after three, so list b is untouched. One link finishes the job: tail's next points at seven, and eight comes along. No copying, no second loop. That's our merge: relink, never copy.",
      "items": [
       {
        "id": "la0",
@@ -2573,6 +2581,16 @@
       "Why not always",
       "Common mistake"
      ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "cp24"
+     ],
+     "pause": 5,
+     "say": "Self test. Slow and fast just met inside a loop. How do you find where the loop starts?",
+     "q": "Slow and fast met in a cycle. How do you find the start?",
+     "answer": "reset one to head, step both by 1"
     },
     {
      "type": "compare",
