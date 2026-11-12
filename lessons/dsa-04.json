@@ -1175,7 +1175,7 @@
       "text": "1 2 3 4 5 6",
       "cue": "prints one through six",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint partition(vector<int>& a, int lo, int hi) {\n    int pivot = a[hi], i = lo;\n    for (int j = lo; j < hi; j++) {\n        if (a[j] < pivot) {\n            swap(a[i], a[j]);\n            i++;\n        }\n    }\n    swap(a[i], a[hi]);\n    return i;\n}\nvoid quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}\nint main(){\nvector<int> a = {5, 2, 4, 6, 1, 3};\nquickSort(a, 0, 5);\nfor (int x : a) cout << x << ' ';\n}\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint partition(vector<int>& a, int lo, int hi) {\n    int pivot = a[hi], i = lo;\n    for (int j = lo; j < hi; j++) {\n        if (a[j] < pivot) {\n            swap(a[i], a[j]);\n            i++;\n        }\n    }\n    swap(a[i], a[hi]);\n    return i;\n}\nvoid quickSort(vector<int>& a, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(a, lo, hi);\n    quickSort(a, lo, p - 1);\n    quickSort(a, p + 1, hi);\n}\nint main(){\nvector<int> a = {5, 2, 4, 6, 1, 3};\nquickSort(a, 0, 5);\nfor (int x : a) cout << x << ' ';\n}\n"
       }
      }
     },
@@ -1358,7 +1358,7 @@
       "text": "fig kiwi apple banana",
       "cue": "Fig, kiwi",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<string> w = {\"banana\", \"fig\", \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(), [](const string& x, const string& y) {\n    return x.size() < y.size();\n});\nfor (auto& s : w) cout << s << ' ';\n}\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint main() {\nvector<string> w = {\"banana\", \"fig\", \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(), [](const string& x, const string& y) {\n    return x.size() < y.size();\n});\nfor (auto& s : w) cout << s << ' ';\n}\n"
       }
      }
     },
@@ -1435,7 +1435,7 @@
       "tone": "good",
       "cue": "Bob stays ahead",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';\n}\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint main() {\nvector<pair<string, int>> v =\n    {{\"bob\", 90}, {\"amy\", 85}, {\"cat\", 90}};\nstable_sort(v.begin(), v.end(),\n    [](const auto& x, const auto& y) {\n        return x.second > y.second;\n    });\nfor (auto& [name, score] : v)\n    cout << name << ' ' << score << '\\n';\n}\n"
       }
      }
     },
@@ -1669,7 +1669,7 @@
       "text": "0 1 1 3 3 3 4",
       "cue": "Sorted.",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\nvector<int> a = {3, 1, 0, 3, 4, 1, 3};\nvector<int> cnt(5, 0);\nfor (int x : a) cnt[x]++;\nfor (int v = 0; v < 5; v++)\n    for (int c = 0; c < cnt[v]; c++)\n        cout << v << ' ';\n}\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nint main() {\nvector<int> a = {3, 1, 0, 3, 4, 1, 3};\nvector<int> cnt(5, 0);\nfor (int x : a) cnt[x]++;\nfor (int v = 0; v < 5; v++)\n    for (int c = 0; c < cnt[v]; c++)\n        cout << v << ' ';\n}\n"
       }
      }
     },

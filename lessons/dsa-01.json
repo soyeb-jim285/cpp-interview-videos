@@ -655,7 +655,7 @@
       "text": "4",
       "cue": "prints four",
       "setup": {
-       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvoid fast(vector<int> a);\nint main(){ fast({2,-2,5,-2,2}); }\n"
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\n#include <utility>\nusing namespace std;\nvoid fast(vector<int> a);\nint main(){ fast({2,-2,5,-2,2}); }\n"
       }
      }
     },
