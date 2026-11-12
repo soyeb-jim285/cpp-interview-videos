@@ -583,16 +583,16 @@
       "input": "log 1, timer logs 2, then logs 3, log 4",
       "output": "1, 4, 3, 2"
      },
-     "say": "Four lines, and they don't print top to bottom. A log, a timer, a promise, another log. The real order is one, four, three, two. Let's see why.",
+     "say": "Four lines, and they don't print top to bottom. A log, a timer, a promise, another log. Predict the order, then we will see why.",
      "cues": {
       "example": "A log, a timer",
-      "output": "The real order"
+      "output": "Predict the order"
      }
     },
     {
      "type": "flow",
      "head": "A shop with one cashier",
-     "say": "Imagine a shop with one cashier. That is JavaScript: one thread, one customer at a time. The priority lane holds microtasks: promise callbacks and await. The normal line holds tasks: timers, clicks, network. Priority lane always goes first.",
+     "say": "Imagine a shop with one cashier. That is JavaScript: one thread, one customer at a time. The priority lane holds microtasks: promise callbacks and await. The normal line holds tasks: timers, clicks, network. Priority lane always goes first. A promise is a value that arrives later. Await waits for one.",
      "items": [
       {
        "label": "one cashier",
@@ -612,6 +612,12 @@
        "text": "Tasks",
        "sub": "timers, clicks, network",
        "cue": "normal line holds"
+      },
+      {
+       "label": "await",
+       "text": "Promise",
+       "sub": "arrives later",
+       "cue": "A promise is a value"
       }
      ]
     },
@@ -800,7 +806,7 @@
     },
     {
      "type": "diagram",
-     "head": "The loop, step by step",
+     "head": "The loop, round two",
      "say": "One, four, three, five, two. Both promise callbacks sit in the microtask queue, and the stack is empty. First three runs, and prints. Then five runs, and prints. The microtask queue is empty. Only now does the timer run, and two prints. That's the rule that solves our puzzle: sync code, all microtasks, then one task.",
      "items": [
       {
@@ -949,7 +955,7 @@
      "rows": [
       [
        "`setTimeout(f, 0)` immediate?",
-       "no: after every microtask"
+       "no: after the current code and all microtasks drain"
       ],
       [
        "Microtask examples",
@@ -1050,7 +1056,7 @@
     {
      "type": "code",
      "head": "Errors: try and catch",
-     "say": "Await pauses this function until the promise settles. A rejection becomes a normal throw, so try and catch just works. One trap: fetch only rejects when the network fails. A four oh four still resolves. So check res dot ok, and throw yourself. The catch then handles both. That solves the four oh four problem.",
+     "say": "Pretend the server answers four oh four. Await pauses this function until the promise settles. A rejection becomes a normal throw, so try and catch just works. One trap: fetch only rejects when the network fails. A four oh four still resolves. So check res dot ok, and throw yourself. The catch then handles both. That solves the four oh four problem.",
      "panels": [
       {
        "file": "app.js",
@@ -1103,6 +1109,14 @@
      },
      "notes": [
       {
+       "line": 1,
+       "inside": false,
+       "text": "stand-in server: always 404",
+       "tone": "info",
+       "cue": "Pretend the server",
+       "side": "left"
+      },
+      {
        "line": 7,
        "inside": true,
        "text": "rejection lands here",
@@ -1117,11 +1131,11 @@
      "q": "Await call A (100 ms), then call B (100 ms). Total time?",
      "options": [
       "~100 ms",
-      "~200 ms",
-      "~300 ms (they add up)",
+      "~200 ms (one by one)",
+      "~300 ms (overhead)",
       "~100 ms (they overlap)"
      ],
-     "answer": "~200 ms"
+     "answer": "~200 ms (one by one)"
     },
     {
      "type": "code",
@@ -1257,7 +1271,7 @@
     },
     {
      "type": "flow",
-     "head": "Say it in 20 seconds",
+     "head": "Core ideas, one by one",
      "covers": [
       "fe02"
      ],
