@@ -78,7 +78,7 @@
      "statement": "A struct holds a char, an int and a char: six bytes of data. Explain its size.",
      "example": {
       "input": "struct { char a; int b; char c; }",
-      "output": "12 bytes: 1,000 waste 6 KB"
+      "output": "12 bytes: 6 wasted"
      },
      "note": "typical 64-bit platform, int is 4 bytes",
      "say": "A char, an int, a char: six bytes of data. Ask size of, and it says twelve. Who added six bytes? Padding is unused filler the compiler inserts. Typical platform: an int is four bytes.",
@@ -212,7 +212,7 @@
      "q": "What is the size of `struct { int b; char a; }`?",
      "options": [
       "5",
-      "6",
+      "4",
       "8",
       "12"
      ],
@@ -355,7 +355,7 @@
      "notes": [
       {
        "x": 180,
-       "y": 620,
+       "y": 670,
        "text": "8 bytes, only 2 padding",
        "tone": "good",
        "cue": "down from six"
@@ -366,19 +366,19 @@
      "type": "chart",
      "head": "1,000 structs in an array",
      "unit": " bytes",
-     "say": "Does that matter? Make a thousand of them. Layout A costs twelve thousand bytes. Layout B costs eight thousand. Four kilobytes saved, a third, by reordering alone.",
+     "say": "Does that matter? Make a thousand of them. Struct A costs twelve thousand bytes. Struct B costs eight thousand. Four kilobytes saved, a third, by reordering alone.",
      "bars": [
       {
-       "label": "layout A",
+       "label": "A: char, int, char",
        "value": 12000,
        "tone": "bad",
-       "cue": "Layout A costs"
+       "cue": "Struct A costs"
       },
       {
-       "label": "layout B",
+       "label": "B: int, char, char",
        "value": 8000,
        "tone": "good",
-       "cue": "Layout B costs"
+       "cue": "Struct B costs"
       },
       {
        "label": "saved",
@@ -439,7 +439,7 @@
     {
      "type": "compare",
      "head": "Why the hardware cares",
-     "say": "Why bother? Loads from aligned addresses are fastest. Misaligned ones can be slow or fault. In C plus plus, they are undefined. Align as sixty four gives a counter its own cache line. Pragma pack removes padding, at a cost in speed and safety.",
+     "say": "Why bother? A cache line is the 64-byte block the CPU fetches. Loads from aligned addresses are usually fastest. Misaligned ones can be slow or fault. In C plus plus, they are undefined. Align as sixty four gives a counter its own cache line. Pragma pack removes padding, at a cost in speed and safety.",
      "heads": [
       "Case",
       "Effect"
@@ -447,7 +447,7 @@
      "rows": [
       [
        "aligned load",
-       "fastest on every CPU"
+       "usually fastest"
       ],
       [
        "misaligned load",
@@ -455,7 +455,7 @@
       ],
       [
        "`alignas(64)`",
-       "own cache line, no false sharing"
+       "own 64-byte cache line, no false sharing"
       ],
       [
        "`#pragma pack(1)`",
@@ -477,7 +477,7 @@
     {
      "type": "problem",
      "title": "Make an object without allocating",
-     "statement": "You own a buffer of raw bytes. Build a Point inside it, then clean it up. new must not allocate.",
+     "statement": "You own a buffer of raw bytes. Build a `struct Point { int x, y; }` inside it, then clean it up. new must not allocate.",
      "example": {
       "input": "alignas(Point) unsigned char buf[8]",
       "output": "Point{1, 2} living in buf"
@@ -588,6 +588,15 @@
        "id": "a0",
        "fade": true,
        "cue": "destructor ourselves"
+      }
+     ],
+     "notes": [
+      {
+       "x": 300,
+       "y": 620,
+       "text": "Built in buf, no allocation",
+       "tone": "good",
+       "cue": "That answers the card"
       }
      ]
     },
