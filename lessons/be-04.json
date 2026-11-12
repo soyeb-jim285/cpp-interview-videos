@@ -1,0 +1,1371 @@
+{
+ "id": "be-04",
+ "track": "Backend",
+ "num": 4,
+ "title": "Authentication & Rate Limiting",
+ "covers": [
+  "be08",
+  "be09"
+ ],
+ "caps": [
+  [
+   "four twenty nine",
+   "429"
+  ],
+  [
+   "four oh one",
+   "401"
+  ],
+  [
+   "four oh three",
+   "403"
+  ],
+  [
+   "Retry After",
+   "Retry-After"
+  ],
+  [
+   "Argon two",
+   "Argon2"
+  ],
+  [
+   "b crypt",
+   "bcrypt"
+  ],
+  [
+   "B crypt",
+   "bcrypt"
+  ],
+  [
+   "O Auth",
+   "OAuth"
+  ],
+  [
+   "hunter two",
+   "hunter2"
+  ],
+  [
+   "Authn versus authz",
+   "Authn vs authz"
+  ],
+  [
+   "local storage",
+   "localStorage"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Never store the password",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Anyone can type any email. So how does your server know who's calling? By the end you'll read a token, store passwords safely, and stop one client flooding your API.",
+     "lines": [
+      {
+       "text": "Anyone can type any email",
+       "cue": "Anyone can type"
+      },
+      {
+       "text": "Who is really calling?",
+       "cue": "who's calling"
+      },
+      {
+       "text": "Then: how much may they call?",
+       "cue": "stop one client",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A hash is a meat grinder",
+     "say": "Start with passwords. Never store them. Think of beef, a meat grinder, and mince. Nobody turns mince back into beef. A hash works the same: no way back. At login, grind what they typed, and compare.",
+     "items": [
+      {
+       "label": "beef",
+       "text": "hunter2",
+       "sub": "= the password",
+       "cue": "Think of beef"
+      },
+      {
+       "label": "meat grinder",
+       "text": "hash",
+       "sub": "= b crypt",
+       "cue": "a meat grinder"
+      },
+      {
+       "label": "mince",
+       "text": "9f3a7c...",
+       "sub": "= stored hash",
+       "cue": "and mince"
+      },
+      {
+       "label": "one way",
+       "text": "no way back",
+       "tone": "bad",
+       "sub": "can't un-grind",
+       "cue": "no way back"
+      },
+      {
+       "label": "login",
+       "text": "grind+match",
+       "tone": "good",
+       "sub": "same mince?",
+       "cue": "grind what they typed"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Sign up, then log in",
+     "say": "Sign up. We feed hunter two to b crypt. Out comes one string, with four parts. Algorithm, b crypt. Cost twelve, meaning two to the twelfth rounds. A random salt, fresh for every user. And the hash itself. At login, we take the salt from that string, hash the typed password again, and compare. Same hash: match.",
+     "items": [
+      {
+       "id": "pw",
+       "x": 140,
+       "y": 400,
+       "w": 340,
+       "h": 130,
+       "label": "password",
+       "text": "hunter2",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Sign up"
+      },
+      {
+       "id": "alg",
+       "x": 580,
+       "y": 400,
+       "w": 290,
+       "h": 130,
+       "label": "algo: bcrypt",
+       "text": "$2b$",
+       "size": 40,
+       "cue": "Algorithm"
+      },
+      {
+       "id": "cost",
+       "x": 900,
+       "y": 400,
+       "w": 220,
+       "h": 130,
+       "label": "cost",
+       "text": "12",
+       "size": 44,
+       "cue": "Cost twelve"
+      },
+      {
+       "id": "salt",
+       "x": 1150,
+       "y": 400,
+       "w": 330,
+       "h": 130,
+       "label": "random salt",
+       "text": "ZAehwb...",
+       "size": 36,
+       "tone": "warn",
+       "cue": "A random salt"
+      },
+      {
+       "id": "hash",
+       "x": 1510,
+       "y": 400,
+       "w": 300,
+       "h": 130,
+       "label": "hash",
+       "text": "Z.A2a9...",
+       "size": 36,
+       "tone": "good",
+       "cue": "the hash itself"
+      },
+      {
+       "id": "login",
+       "x": 600,
+       "y": 720,
+       "w": 340,
+       "h": 130,
+       "label": "login attempt",
+       "text": "hunter2",
+       "size": 44,
+       "cue": "At login"
+      },
+      {
+       "id": "same",
+       "x": 1150,
+       "y": 720,
+       "w": 660,
+       "h": 130,
+       "label": "result",
+       "text": "same hash: match",
+       "size": 44,
+       "tone": "good",
+       "cue": "Same hash"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pw",
+       "to": "alg",
+       "cue": "feed hunter two"
+      },
+      {
+       "from": "login",
+       "to": "salt",
+       "cue": "the salt from that string"
+      }
+     ],
+     "changes": [
+      {
+       "id": "login",
+       "glow": true,
+       "tone": "good",
+       "cue": "hash the typed"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "bcrypt in Python",
+     "say": "In Python. Hash the same password twice, each with a fresh salt. Print the first twenty nine characters: algorithm, cost, and salt. The two hashes differ, yet check password says true. The salt lives inside the string.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "pw = b\"hunter2\"\nh1 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nh2 = bcrypt.hashpw(pw, bcrypt.gensalt(12))\nprint(h1.decode()[:29])\nprint(h1 != h2, bcrypt.checkpw(pw, h1))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "twice"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Print the first"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The two hashes differ"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "$2b$12$ZAehwblkkYK5oIAsjVCzpO\nTrue True",
+      "tone": "good",
+      "cue": "says true"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Alice and Bob both pick the password hunter two. Does the users table store the same hash for both? Pause and predict.",
+     "q": "Alice and Bob both pick `hunter2`. Same stored hash?",
+     "options": [
+      "Yes: same input",
+      "No: salts differ",
+      "Only if same cost"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "compare",
+     "head": "Three ways to store a password",
+     "say": "No. Each user gets a fresh salt, so the hashes differ. Plain text leaks everything the moment the database leaks. A plain fast hash lets attackers guess billions a second on a graphics card. B crypt is slow on purpose. Argon two is a modern alternative.",
+     "heads": [
+      "Method",
+      "Problem or benefit"
+     ],
+     "rows": [
+      [
+       "plain text",
+       "one leak exposes every password"
+      ],
+      [
+       "plain fast hash (SHA)",
+       "billions of guesses a second"
+      ],
+      [
+       "`bcrypt` / Argon2 + salt",
+       "slow on purpose, unique per user"
+      ]
+     ],
+     "cues": [
+      "Plain text",
+      "A plain fast hash",
+      "B crypt"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Sessions or tokens?",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A coat check ticket",
+     "say": "Every request must prove who you are. Think of a coat check. You hand in your coat: that's logging in. You get a ticket: a session id, in a cookie. Each visit, you show the ticket. The clerk fetches your coat: the server finds user forty two.",
+     "items": [
+      {
+       "label": "hand in coat",
+       "text": "you log in",
+       "sub": "= password check",
+       "cue": "hand in your coat"
+      },
+      {
+       "label": "get a ticket",
+       "text": "cookie abc9",
+       "sub": "= session id",
+       "cue": "You get a ticket"
+      },
+      {
+       "label": "show ticket",
+       "text": "each request",
+       "sub": "= cookie sent back",
+       "cue": "you show the ticket"
+      },
+      {
+       "label": "coat back",
+       "text": "user 42",
+       "sub": "= server looks up",
+       "tone": "good",
+       "cue": "The clerk fetches"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A session lookup",
+     "say": "Request one: the browser sends cookie abc nine. The server asks the session store: who is abc nine? The store answers, user forty two. Now the server knows who's calling. To log out, the server deletes the row. The ticket stops working at once.",
+     "items": [
+      {
+       "id": "br",
+       "x": 140,
+       "y": 460,
+       "w": 340,
+       "h": 150,
+       "label": "browser",
+       "text": "cookie abc9",
+       "size": 38,
+       "tone": "blue",
+       "cue": "the browser sends"
+      },
+      {
+       "id": "sv",
+       "x": 760,
+       "y": 460,
+       "w": 340,
+       "h": 150,
+       "label": "server",
+       "text": "who is abc9?",
+       "size": 36,
+       "cue": "The server asks"
+      },
+      {
+       "id": "st",
+       "x": 1380,
+       "y": 460,
+       "w": 380,
+       "h": 150,
+       "label": "session store",
+       "text": "abc9 = 42",
+       "size": 40,
+       "tone": "warn",
+       "cue": "the session store"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "br",
+       "to": "sv",
+       "cue": "cookie abc nine"
+      },
+      {
+       "from": "sv",
+       "to": "st",
+       "cue": "who is abc nine"
+      }
+     ],
+     "changes": [
+      {
+       "id": "sv",
+       "text": "user 42",
+       "tone": "good",
+       "cue": "user forty two"
+      },
+      {
+       "id": "st",
+       "kill": true,
+       "cue": "deletes the row"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A JWT is readable",
+     "say": "Now the other way. A J W T needs no store. It has three parts joined by dots: header, payload, signature. Here's one for user forty two. Anyone can decode the payload. It prints sub forty two and an expiry.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "tok = jwt.encode({\"sub\": \"42\", \"exp\": 1893456000}, KEY, \"HS256\")\nhead, body, sig = tok.split(\".\")\nprint(json.loads(base64.urlsafe_b64decode(body + \"==\")))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "three parts"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Here's one"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "decode the payload"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "{'sub': '42', 'exp': 1893456000}",
+      "cue": "It prints"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Readable, but not editable",
+     "say": "So can a user edit it? Change sub from forty two to one, keep the old signature, and verify. Rejected: the signature no longer matches. Signed, not secret.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "body = b64({\"sub\": \"1\", \"exp\": 1893456000})\nforged = head + \".\" + body + \".\" + sig\njwt.decode(forged, KEY, [\"HS256\"])"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Change sub"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "keep the old signature"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "and verify"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "InvalidSignatureError:\nSignature verification failed",
+      "tone": "good",
+      "cue": "Rejected"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A token lasts one hour. The user logs out at minute five, but someone copied the token. At minute ten, does it still work? Pause and predict.",
+     "q": "JWT valid 1 hour. Logout at minute 5. Copied token at minute 10?",
+     "options": [
+      "Rejected",
+      "Still accepted",
+      "Accepted once"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "compare",
+     "head": "Session vs JWT",
+     "say": "Still accepted. Valid signature, expiry not reached, no list on the server. Where state lives: sessions keep it on the server, JWTs in the token. Logout: a session dies instantly. A JWT lives until it expires. Scaling: sessions need a shared store. Any server can verify a JWT. Size: a cookie is tiny, a JWT is bigger.",
+     "heads": [
+      "Session",
+      "JWT"
+     ],
+     "rowHeads": [
+      "State lives",
+      "Logout",
+      "Scaling",
+      "Size"
+     ],
+     "rows": [
+      [
+       "on the server: id to user",
+       "in the signed token"
+      ],
+      [
+       "delete it: instant",
+       "hard until it expires"
+      ],
+      [
+       "needs a shared store",
+       "any server can verify"
+      ],
+      [
+       "tiny cookie",
+       "bigger: carries claims"
+      ]
+     ],
+     "cues": [
+      "Where state lives",
+      "Logout",
+      "Scaling",
+      "Size"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Where does the token live?",
+     "say": "Where does the browser keep it? Not in local storage: an injected script can read it. Use an HttpOnly, Secure cookie: scripts can't read it. And never put secrets in a JWT. Anyone can decode it.",
+     "heads": [
+      "Choice",
+      "Why"
+     ],
+     "rows": [
+      [
+       "`localStorage`",
+       "any injected script can read it"
+      ],
+      [
+       "`HttpOnly` + `Secure` cookie",
+       "scripts can't read it; HTTPS only"
+      ],
+      [
+       "secrets inside a JWT",
+       "payload is readable: never"
+      ]
+     ],
+     "cues": [
+      "local storage",
+      "HttpOnly",
+      "never put secrets"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Log in with Google",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A valet key",
+     "say": "Log in with Google. The app wants to know who you are, not your Google password. Think of a valet key. It starts the car but can't open the trunk. OAuth gives the app a limited key, never the master key.",
+     "items": [
+      {
+       "label": "master key",
+       "text": "your password",
+       "sub": "stays with Google",
+       "tone": "bad",
+       "cue": "your Google password"
+      },
+      {
+       "label": "valet key",
+       "text": "starts the car",
+       "sub": "can't open the trunk",
+       "cue": "valet key"
+      },
+      {
+       "label": "OAuth token",
+       "text": "limited access",
+       "sub": "= the valet key",
+       "tone": "good",
+       "cue": "a limited key"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "OAuth in four arrows",
+     "say": "Here's the dance. One: the app redirects you to Google. Two: you log in at Google and approve. Three: Google sends you back with a short lived code. Four: the app's server swaps the code for a token, using a secret only it knows. Your password never left Google.",
+     "items": [
+      {
+       "label": "1 redirect",
+       "text": "to Google",
+       "sub": "app sends you",
+       "cue": "the app redirects"
+      },
+      {
+       "label": "2 consent",
+       "text": "log in",
+       "sub": "you approve",
+       "tone": "warn",
+       "cue": "you log in"
+      },
+      {
+       "label": "3 code",
+       "text": "short lived",
+       "sub": "back to the app",
+       "cue": "short lived code"
+      },
+      {
+       "label": "4 token",
+       "text": "swap code",
+       "sub": "server + secret",
+       "tone": "good",
+       "cue": "swaps the code"
+      },
+      {
+       "label": "password",
+       "text": "stays put",
+       "sub": "never left Google",
+       "tone": "good",
+       "cue": "never left Google"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The code travels through the browser's address bar. A thief copies it. Is the code alone enough to get your token? Pause and predict.",
+     "q": "A thief copies the short lived code. Enough to get the token?",
+     "options": [
+      "Yes: anyone can swap it",
+      "No: needs the app's secret",
+      "Only after a day"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "A stolen code is not enough",
+     "say": "No. The swap needs the app's secret, and only the app's server has it. The thief arrives with a code and no secret, and Google says no. That's why the code goes through the browser, but the token never does.",
+     "items": [
+      {
+       "id": "th",
+       "x": 140,
+       "y": 470,
+       "w": 340,
+       "h": 150,
+       "label": "thief",
+       "text": "stolen code",
+       "size": 38,
+       "tone": "bad",
+       "cue": "The thief"
+      },
+      {
+       "id": "gg",
+       "x": 760,
+       "y": 470,
+       "w": 400,
+       "h": 150,
+       "label": "Google",
+       "text": "swap?",
+       "size": 44,
+       "tone": "warn",
+       "cue": "Google says no"
+      },
+      {
+       "id": "no",
+       "x": 1400,
+       "y": 470,
+       "w": 380,
+       "h": 150,
+       "label": "answer",
+       "text": "denied",
+       "size": 44,
+       "tone": "bad",
+       "cue": "no secret"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "th",
+       "to": "gg",
+       "label": "code only",
+       "cue": "arrives with a code"
+      },
+      {
+       "from": "gg",
+       "to": "no",
+       "tone": "bad",
+       "cue": "Google says no"
+      }
+     ],
+     "notes": [
+      {
+       "x": 560,
+       "y": 800,
+       "text": "token never touches the browser",
+       "tone": "good",
+       "cue": "token never does"
+      }
+     ],
+     "changes": [
+      {
+       "id": "gg",
+       "text": "needs secret",
+       "tone": "bad",
+       "cue": "the app's secret"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Authn vs authz",
+     "say": "Now two words people mix up. Authentication asks: who are you? Failing it is four oh one. Authorization asks: what may you do? Failing that is four oh three.",
+     "heads": [
+      "",
+      "Question",
+      "Failure"
+     ],
+     "rows": [
+      [
+       "Authentication",
+       "who are you?",
+       "401 Unauthorized"
+      ],
+      [
+       "Authorization",
+       "what may you do?",
+       "403 Forbidden"
+      ]
+     ],
+     "cues": [
+      "Authentication",
+      "Authorization"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "One bucket per caller",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "From who to how much",
+     "say": "Now the server knows who's calling: user forty two. Next question: how much may they call? Picture an arcade coin jar. Each game costs one coin. The jar refills one coin a second, never above ten.",
+     "items": [
+      {
+       "label": "the key",
+       "text": "user:42",
+       "sub": "the token's sub",
+       "tone": "blue",
+       "cue": "user forty two"
+      },
+      {
+       "label": "coin jar",
+       "text": "10 tokens",
+       "sub": "capacity ten",
+       "cue": "coin jar"
+      },
+      {
+       "label": "each request",
+       "text": "costs 1",
+       "sub": "empty: wait",
+       "tone": "warn",
+       "cue": "Each game"
+      },
+      {
+       "label": "refill",
+       "text": "+1 per second",
+       "sub": "never above 10",
+       "tone": "good",
+       "cue": "refills one coin"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Fifteen requests, ten tokens",
+     "say": "The token says sub forty two, so that's the key: one bucket per user. User forty two sends a burst of fifteen requests in one second. Each takes a token. Ten tokens, ten requests pass. The last five are rejected with four twenty nine.",
+     "items": [
+      {
+       "id": "rq",
+       "x": 140,
+       "y": 470,
+       "w": 380,
+       "h": 150,
+       "label": "user 42 burst",
+       "text": "15 requests",
+       "size": 40,
+       "tone": "blue",
+       "cue": "a burst of fifteen"
+      },
+      {
+       "id": "bk",
+       "x": 760,
+       "y": 470,
+       "w": 400,
+       "h": 150,
+       "label": "bucket user:42",
+       "text": "10",
+       "size": 60,
+       "tone": "warn",
+       "cue": "one bucket per user"
+      },
+      {
+       "id": "ok",
+       "x": 1380,
+       "y": 300,
+       "w": 400,
+       "h": 130,
+       "label": "200 OK",
+       "text": "0",
+       "size": 56,
+       "tone": "good",
+       "cue": "ten requests pass"
+      },
+      {
+       "id": "no",
+       "x": 1380,
+       "y": 660,
+       "w": 400,
+       "h": 130,
+       "label": "429 Too Many",
+       "text": "0",
+       "size": 56,
+       "tone": "bad",
+       "cue": "last five"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "rq",
+       "to": "bk",
+       "cue": "Each takes a token"
+      },
+      {
+       "from": "bk",
+       "to": "ok",
+       "tone": "good",
+       "cue": "ten requests pass"
+      },
+      {
+       "from": "bk",
+       "to": "no",
+       "tone": "bad",
+       "cue": "last five"
+      }
+     ],
+     "changes": [
+      {
+       "id": "bk",
+       "count": [
+        10,
+        0
+       ],
+       "dur": 1.5,
+       "cue": "Ten tokens"
+      },
+      {
+       "id": "ok",
+       "count": [
+        0,
+        10
+       ],
+       "dur": 1,
+       "cue": "ten requests pass"
+      },
+      {
+       "id": "no",
+       "count": [
+        0,
+        5
+       ],
+       "dur": 1,
+       "cue": "last five"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The whole algorithm",
+     "say": "The code needs no timer. We store the tokens, and the time of the last request. Each request, we compute how many tokens were earned since then, never above capacity. At least one? Spend it and say yes. Otherwise no. Constant time, constant memory per user.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "class TokenBucket:\n    def __init__(self, rate, cap):\n        self.rate, self.cap = rate, cap\n        self.tokens, self.last = cap, 0.0\n    def allow(self, now):\n        gained = (now - self.last) * self.rate\n        self.tokens = min(self.cap, self.tokens + gained)\n        self.last = now\n        if self.tokens < 1:\n            return False\n        self.tokens -= 1\n        return True"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "We store the tokens"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "compute how many"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "never above capacity"
+      },
+      {
+       "lines": [
+        11,
+        12
+       ],
+       "cue": "Spend it"
+      },
+      {
+       "lines": [
+        9,
+        10
+       ],
+       "cue": "Otherwise no"
+      }
+     ],
+     "notes": [
+      {
+       "line": 12,
+       "inside": true,
+       "text": "O(1) time and memory",
+       "tone": "good",
+       "cue": "Constant time"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fifteen at once",
+     "say": "Now run it. Capacity ten, one token a second. Fifteen requests at the same instant. Count the passes. Ten pass, five fail. One second later, a token is back. In real code, now comes from the clock.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "b = TokenBucket(rate=1, cap=10)\npassed = 0\nfor i in range(15):\n    if b.allow(0): passed += 1\nprint(passed, 15 - passed)\nprint(b.allow(1))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Capacity ten"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "Fifteen requests"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Count the passes"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "One second later"
+      },
+      {
+       "lines": [],
+       "cue": "In real code"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "10 5\nTrue",
+      "tone": "good",
+      "cue": "Ten pass"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The bucket is empty after the burst. Three seconds pass. Five more requests arrive together. How many pass? Pause and predict.",
+     "q": "Empty bucket, refill 1 per second. 3 s later, 5 requests arrive. Passes?",
+     "options": [
+      "0",
+      "3",
+      "5"
+     ],
+     "answer": "3"
+    },
+    {
+     "type": "chart",
+     "head": "Five requests, three seconds later",
+     "unit": "requests",
+     "say": "Three. Three seconds earned three tokens. Refill sets the long run speed. Of five requests, three pass and two get four twenty nine.",
+     "bars": [
+      {
+       "label": "Sent",
+       "value": 5,
+       "tone": "blue",
+       "cue": "Of five requests"
+      },
+      {
+       "label": "Passed",
+       "value": 3,
+       "tone": "good",
+       "cue": "three pass"
+      },
+      {
+       "label": "429",
+       "value": 2,
+       "tone": "bad",
+       "cue": "two get"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Rate limits at scale",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Three algorithms, one catch each",
+     "say": "Other ways exist. A fixed window counts per minute, so bursts can double at the edge. Sliding window avoids that, at a memory cost. Token bucket allows bursts up to capacity, then holds the average.",
+     "heads": [
+      "Idea",
+      "Catch"
+     ],
+     "rows": [
+      [
+       "Fixed window: count per minute",
+       "double burst at the window edge"
+      ],
+      [
+       "Sliding window: last 60 seconds",
+       "more memory, more work"
+      ],
+      [
+       "Token bucket: spend and refill",
+       "bursts up to capacity"
+      ]
+     ],
+     "cues": [
+      "A fixed window",
+      "Sliding window",
+      "Token bucket"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. You run two app servers, each with its own local bucket of ten. One client sends twenty requests, ten to each server. How many pass? Pause and predict.",
+     "q": "2 servers, local bucket of 10 each. 20 requests, 10 per server. Pass?",
+     "options": [
+      "10",
+      "15",
+      "20",
+      "0"
+     ],
+     "answer": "20"
+    },
+    {
+     "type": "diagram",
+     "head": "Local buckets leak",
+     "say": "Twenty. Each server sees ten requests and its own full bucket, so everything passes. The limit was ten. The client got twenty. The fix is one shared bucket in Redis, a key per user. Both servers ask Redis. The read, refill and spend must be one atomic step, so a small Lua script does it.",
+     "items": [
+      {
+       "id": "s1",
+       "x": 140,
+       "y": 260,
+       "w": 320,
+       "h": 130,
+       "text": "server 1",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Each server"
+      },
+      {
+       "id": "s2",
+       "x": 140,
+       "y": 740,
+       "w": 320,
+       "h": 130,
+       "text": "server 2",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Each server"
+      },
+      {
+       "id": "b1",
+       "x": 640,
+       "y": 260,
+       "w": 340,
+       "h": 130,
+       "label": "local bucket",
+       "text": "10",
+       "size": 52,
+       "tone": "warn",
+       "cue": "own full bucket"
+      },
+      {
+       "id": "b2",
+       "x": 640,
+       "y": 740,
+       "w": 340,
+       "h": 130,
+       "label": "local bucket",
+       "text": "10",
+       "size": 52,
+       "tone": "warn",
+       "cue": "own full bucket"
+      },
+      {
+       "id": "res",
+       "x": 1400,
+       "y": 500,
+       "w": 380,
+       "h": 130,
+       "label": "client got",
+       "text": "20 pass",
+       "size": 48,
+       "tone": "bad",
+       "cue": "everything passes"
+      },
+      {
+       "id": "rd",
+       "x": 700,
+       "y": 500,
+       "w": 440,
+       "h": 130,
+       "label": "Redis",
+       "text": "user:42 = 10",
+       "size": 40,
+       "tone": "good",
+       "cue": "shared bucket in Redis"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "s1",
+       "to": "b1",
+       "cue": "Each server"
+      },
+      {
+       "from": "s2",
+       "to": "b2",
+       "cue": "Each server"
+      },
+      {
+       "from": "s1",
+       "to": "rd",
+       "tone": "good",
+       "bend": 40,
+       "cue": "Both servers ask"
+      },
+      {
+       "from": "s2",
+       "to": "rd",
+       "tone": "good",
+       "bend": -40,
+       "cue": "Both servers ask"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1180,
+       "y": 700,
+       "text": "atomic Lua script",
+       "tone": "good",
+       "cue": "one atomic step"
+      }
+     ],
+     "changes": [
+      {
+       "id": "rd",
+       "glow": true,
+       "tone": "good",
+       "cue": "Lua script"
+      },
+      {
+       "id": "b1",
+       "kill": true,
+       "cue": "The limit was ten"
+      },
+      {
+       "id": "b2",
+       "kill": true,
+       "cue": "The limit was ten"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "What the client sees",
+     "say": "Reject with four twenty nine. Add a Retry After header, so clients know when to come back. Two classic mistakes: counting in local memory, and a non atomic read then write. Capacity sets the burst. Refill sets the average.",
+     "heads": [
+      "Topic",
+      "Answer"
+     ],
+     "rows": [
+      [
+       "Status",
+       "429 Too Many Requests"
+      ],
+      [
+       "Header",
+       "`Retry-After`: seconds to wait"
+      ],
+      [
+       "Classic mistakes",
+       "local counters; read-then-write race"
+      ],
+      [
+       "Burst vs average",
+       "capacity = burst, refill = average"
+      ]
+     ],
+     "cues": [
+      "Reject with",
+      "Retry After",
+      "classic mistakes",
+      "Capacity sets"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be08"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Sessions versus JWT? Sessions keep state on the server. A JWT carries it, signed. Passwords? A slow salted hash: b crypt or Argon two. OAuth? Redirect, consent, code, token: the app never sees your password. Authn versus authz? Who you are, versus what you may do. Token storage? An HttpOnly cookie.",
+     "rows": [
+      [
+       "Sessions vs JWT?",
+       "server state vs signed token"
+      ],
+      [
+       "How store passwords?",
+       "slow salted hash: bcrypt, Argon2"
+      ],
+      [
+       "How does OAuth work?",
+       "redirect, consent, code, token"
+      ],
+      [
+       "Authn vs authz?",
+       "who you are vs what you may do"
+      ],
+      [
+       "Where store the token?",
+       "`HttpOnly` cookie"
+      ]
+     ],
+     "cues": [
+      "Sessions versus",
+      "Passwords",
+      "OAuth",
+      "Authn versus",
+      "Token storage"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be09"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Token bucket? Refills at a fixed rate, each request spends one. Burst versus steady? Capacity sets the burst, refill sets the average. Many servers? Shared Redis, atomic Lua script, key per user. Status code? Four twenty nine, with Retry After. Mistake? Local counters, or a non atomic read then write.",
+     "rows": [
+      [
+       "What is a token bucket?",
+       "refills steadily, each request spends one"
+      ],
+      [
+       "Burst vs steady?",
+       "capacity = burst, refill = average"
+      ],
+      [
+       "Many servers?",
+       "shared Redis, atomic Lua, key per user"
+      ],
+      [
+       "Status code?",
+       "429 + `Retry-After`"
+      ],
+      [
+       "Common mistake?",
+       "local counters, non-atomic read-write"
+      ]
+     ],
+     "cues": [
+      "Token bucket",
+      "Burst versus",
+      "Many servers",
+      "Status code",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try this tonight",
+     "say": "Try three things. Hash the same password twice with bcrypt, and compare the hashes. Decode a token's payload, forge the subject, and watch verification fail. Then write the bucket, and send fifteen requests at once.",
+     "heads": [
+      "Exercise",
+      "What you'll see"
+     ],
+     "rows": [
+      [
+       "bcrypt `hunter2`, cost 12, twice",
+       "two different hashes, both verify"
+      ],
+      [
+       "Decode a JWT, forge `sub`",
+       "signature check fails"
+      ],
+      [
+       "Bucket: 10 tokens, +1 per second",
+       "15 at once: 10 pass, 5 get 429"
+      ]
+     ],
+     "cues": [
+      "Hash the same password",
+      "Decode a token",
+      "write the bucket"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Store passwords as slow salted hashes. A J W T is signed, not secret, and sessions revoke faster. Rate limit with a token bucket per user: capacity is the burst.",
+     "lines": [
+      "Passwords: slow, salted hash. Never store them.",
+      "A JWT is signed, not secret. Sessions revoke fast.",
+      "One bucket per user: capacity = burst."
+     ],
+     "cues": [
+      "Store passwords",
+      "A J W T",
+      "Rate limit"
+     ]
+    }
+   ]
+  }
+ ]
+}
