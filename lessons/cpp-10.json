@@ -1,0 +1,2020 @@
+{
+ "id": "cpp-10",
+ "track": "C++",
+ "num": 10,
+ "title": "Object Lifetime & Move Semantics",
+ "covers": [
+  "q61",
+  "q62",
+  "q63",
+  "q64",
+  "q65",
+  "q66",
+  "q67",
+  "q68",
+  "q69",
+  "q70"
+ ],
+ "caps": [
+  [
+   "s t d move",
+   "std::move"
+  ],
+  [
+   "std move",
+   "std::move"
+  ],
+  [
+   "std forward",
+   "std::forward"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "T and and",
+   "T&&"
+  ],
+  [
+   "NRVO",
+   "NRVO"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Three ways to be born",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Every object is born by a constructor and dies by a destructor. Soon you'll explain move semantics in one picture. And why s t d move doesn't move anything.",
+     "lines": [
+      {
+       "text": "Born: a constructor",
+       "cue": "born by a constructor"
+      },
+      {
+       "text": "Dies: a destructor",
+       "cue": "dies by a destructor"
+      },
+      {
+       "text": "Move semantics, one picture",
+       "cue": "move semantics"
+      },
+      {
+       "text": "std::move moves nothing.",
+       "cue": "doesn't move anything",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Interviewers hand you a class that prints in every constructor. Today you trace its births and deaths. Then you see a move steal instead of copy. Then references and forwarding decide which one runs.",
+     "lines": [
+      "Trace every construction and destruction",
+      "See a move steal instead of copy",
+      "Forward, elide and block conversions"
+     ],
+     "cues": [
+      "prints in every constructor",
+      "see a move steal",
+      "forwarding decide"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "What does this print?",
+     "statement": "A class prints a word in every constructor and in its destructor. Predict the full output for three objects.",
+     "example": {
+      "input": "T a; T b(7); T c = b;",
+      "output": "default param7 copy7 dtor7 dtor7 dtor0"
+     },
+     "say": "Here is the problem. Each constructor and destructor prints a word. For example, three objects: a, b with seven, and c copied from b. Six words come out.",
+     "cues": {
+      "example": "For example",
+      "output": "Six words"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Three ways to be born",
+     "say": "Think of ordering coffee. A plain coffee is the default constructor. Your own order is parameterized. And same as his is the copy constructor.",
+     "items": [
+      {
+       "label": "plain coffee",
+       "text": "T a;",
+       "cue": "plain coffee",
+       "sub": "default"
+      },
+      {
+       "label": "your order",
+       "text": "T b(7);",
+       "cue": "Your own order",
+       "sub": "parameterized"
+      },
+      {
+       "label": "same as his",
+       "text": "T c = b;",
+       "cue": "same as his",
+       "sub": "copy"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Trace the three births",
+     "say": "Here is the class. Each constructor prints its own name. Now three objects. A is plain, so default. B passes seven, so param seven. C copies b, so copy seven. Then they die in reverse: c, b, a.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T { int id;\n  T() : id(0) { cout << \"default \"; }\n  T(int i) : id(i) { cout << \"param\" << i << \" \"; }\n  T(const T& o) : id(o.id) { cout << \"copy\" << id << \" \"; }\n  ~T() { cout << \"dtor\" << id << \" \"; } };\nT a;\nT b(7);\nT c = b;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        6
+       ],
+       "cue": "A is plain"
+      },
+      {
+       "lines": [
+        3,
+        7
+       ],
+       "cue": "B passes seven"
+      },
+      {
+       "lines": [
+        4,
+        8
+       ],
+       "cue": "C copies b"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "die in reverse"
+      }
+     ],
+     "output": {
+      "cmd": "./trace",
+      "text": "default param7 copy7 dtor7 dtor7 dtor0",
+      "cue": "die in reverse",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Add a fourth object, d, made plain. Then assign d equals c. How many times does copy print in total? Pause and predict.",
+     "q": "`T b(7); T c = b; T d; d = c;` How many `copy` words print?",
+     "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "compare",
+     "head": "Copy constructor or assignment?",
+     "say": "It's one. Only c equals b builds a new object. Passing b by value copies into the parameter too. But d equals c, with d alive, is assignment, and prints nothing. Declare any constructor, and the plain one is gone. A copy constructor takes a reference, or it would copy forever.",
+     "heads": [
+      "You write",
+      "What runs"
+     ],
+     "rows": [
+      [
+       "`T c = b;`",
+       "copy constructor: a new object"
+      ],
+      [
+       "`show(b)` by value",
+       "copy constructor, into the parameter"
+      ],
+      [
+       "`d = c;`",
+       "copy assignment: d already exists"
+      ],
+      [
+       "`T(int)` declared",
+       "no plain `T()` unless `= default`"
+      ],
+      [
+       "`T(T o)`",
+       "illegal: it would copy forever"
+      ]
+     ],
+     "cues": [
+      "c equals b",
+      "Passing b by value",
+      "d equals c",
+      "Declare any constructor",
+      "takes a reference"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Last built, first destroyed",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "When does each object die?",
+     "statement": "A class prints plus when built and minus when destroyed. Predict the output for a local, an inner scope and a heap object.",
+     "example": {
+      "input": "T a; { T b; } T* h = new T; delete h;",
+      "output": "+a +b -b +h -h -a"
+     },
+     "say": "Next problem. Who dies when? For example, a local a, an inner scope with b, and a heap object h. In what order?",
+     "cues": {
+      "example": "For example",
+      "output": "In what order"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Last built, first destroyed",
+     "say": "Think of a stack of plates: last on, first off. A is built, plus a. B is built inside its braces. The brace closes, and b dies first. Now h is built on the heap. It dies only at delete. Finally main ends, and a dies.",
+     "items": [
+      {
+       "id": "a",
+       "x": 330,
+       "y": 450,
+       "w": 300,
+       "h": 160,
+       "text": "+a",
+       "cue": "A is built",
+       "label": "local",
+       "size": 56
+      },
+      {
+       "id": "b",
+       "x": 810,
+       "y": 450,
+       "w": 300,
+       "h": 160,
+       "text": "+b",
+       "cue": "B is built",
+       "label": "inner scope",
+       "size": 56
+      },
+      {
+       "id": "h",
+       "x": 1290,
+       "y": 450,
+       "w": 300,
+       "h": 160,
+       "text": "+h",
+       "cue": "h is built",
+       "label": "heap",
+       "tone": "warn",
+       "size": 56
+      }
+     ],
+     "changes": [
+      {
+       "id": "b",
+       "kill": true,
+       "cue": "b dies first"
+      },
+      {
+       "id": "h",
+       "kill": true,
+       "cue": "only at delete"
+      },
+      {
+       "id": "a",
+       "kill": true,
+       "cue": "a dies"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The same program, with output",
+     "say": "Same program, inside main. The constructor prints plus, the destructor prints minus. Plus a, plus b. The closing brace gives minus b. Plus h, and delete gives minus h. Then main ends: minus a.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T { char n;\n  T(char c) : n(c) { cout << '+' << n << ' '; }\n  ~T() { cout << '-' << n << ' '; } };\nT a('a');\n{ T b('b'); }\nT* h = new T('h');\ndelete h;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "constructor prints plus"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Plus a"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "closing brace"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Plus h"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "delete gives"
+      }
+     ],
+     "output": {
+      "cmd": "./life",
+      "text": "+a +b -b +h -h -a",
+      "cue": "Then main ends",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Three locals in one scope: a, then b, then c. In what order do they die? Pause and predict.",
+     "q": "Scope holds T a, T b, T c, in that order. Destroyed in?",
+     "options": [
+      "a b c",
+      "c b a",
+      "b c a",
+      "unspecified"
+     ],
+     "answer": "c b a"
+    },
+    {
+     "type": "compare",
+     "head": "When each kind of object dies",
+     "say": "It's c, b, a. Last built, first destroyed. A local dies at its closing brace. A heap object, only at delete. A temporary, at its semicolon. Globals, after main returns. An exception unwinds the locals. Inside one object: body, members reversed, then base.",
+     "heads": [
+      "Object",
+      "Dies when"
+     ],
+     "rows": [
+      [
+       "local",
+       "closing brace, reverse order"
+      ],
+      [
+       "heap, `new`",
+       "only at `delete`; never if forgotten"
+      ],
+      [
+       "temporary",
+       "end of the full expression"
+      ],
+      [
+       "global or static",
+       "after `main` returns"
+      ],
+      [
+       "exception passes",
+       "stack unwinding destroys locals"
+      ],
+      [
+       "inside one object",
+       "body, members reversed, then base"
+      ]
+     ],
+     "cues": [
+      "A local dies",
+      "A heap object",
+      "A temporary",
+      "Globals",
+      "An exception",
+      "Inside one object"
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Why no virtual constructor?",
+     "say": "Can a constructor be virtual? No: G C C says constructors cannot be declared virtual. Virtual calls use a hidden v pointer in the object. Derived is built in layers, base first. While Base runs, the v pointer points at the Base table, so hello prints Base. Then Derived starts, and the pointer switches.",
+     "items": [
+      {
+       "id": "bp",
+       "x": 1050,
+       "y": 300,
+       "w": 360,
+       "h": 120,
+       "text": "Base part",
+       "cue": "base first",
+       "size": 40
+      },
+      {
+       "id": "vp",
+       "x": 1050,
+       "y": 560,
+       "w": 360,
+       "h": 120,
+       "text": "Base table",
+       "cue": "points at the Base table",
+       "label": "v pointer",
+       "tone": "warn",
+       "size": 40
+      },
+      {
+       "id": "dp",
+       "x": 1450,
+       "y": 300,
+       "w": 330,
+       "h": 120,
+       "text": "Derived part",
+       "cue": "Then Derived starts",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "vp",
+       "text": "Derived table",
+       "tone": "good",
+       "cue": "pointer switches"
+      }
+     ],
+     "panels": [
+      {
+       "file": "vptr.cpp",
+       "code": "struct Base {\n  Base() { hello(); }\n  virtual void hello()\n    { cout << \"Base\\n\"; }\n};\nstruct Derived : Base {\n  void hello() override\n    { cout << \"Derived\\n\"; }\n};\nDerived d;   // prints Base"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "hidden v pointer"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "in layers"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "While Base runs"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "hello prints Base"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1050,
+       "y": 780,
+       "text": "no virtual constructors",
+       "tone": "bad",
+       "cue": "cannot be declared virtual"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Want one anyway? Clone",
+     "say": "Need the effect? Write an ordinary virtual function that constructs. Each class overrides clone, calling its own copy constructor. Copy any shape through a base reference, and you get the right type. Destructors, unlike constructors, should be virtual.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Shape {\n    virtual ~Shape() = default;\n    virtual unique_ptr<Shape> clone() const = 0;\n};\nstruct Circle : Shape {\n    unique_ptr<Shape> clone() const override {\n        return make_unique<Circle>(*this);\n    }\n};\nvoid copyAny(const Shape& s) {\n    auto copy = s.clone();   // a Circle\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "ordinary virtual function"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "overrides clone"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "own copy constructor"
+      },
+      {
+       "lines": [
+        10,
+        11
+       ],
+       "cue": "Copy any shape"
+      },
+      {
+       "lines": [
+        11
+       ],
+       "cue": "right type"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "should be virtual"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Steal, don't copy",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Push a megabyte string",
+     "statement": "A vector of strings receives one string holding a megabyte of text. Get it in without duplicating the megabyte.",
+     "example": {
+      "input": "one 1 MB string into a vector",
+      "output": "no 1 MB copy"
+     },
+     "say": "Next problem. A vector of strings and one megabyte string. For example, we push it in. Copying makes a second megabyte. We want none.",
+     "cues": {
+      "example": "For example",
+      "output": "We want none"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Copy duplicates, move hands over keys",
+     "say": "Think of moving house. Copying builds a second house and carries everything over. Moving hands over the keys. Here, a points to a one megabyte block. A move copies the pointer and size to b. Then a becomes null, so only b owns the block.",
+     "items": [
+      {
+       "id": "a",
+       "x": 250,
+       "y": 260,
+       "w": 320,
+       "h": 140,
+       "text": "ptr, size",
+       "cue": "Here, a",
+       "label": "a"
+      },
+      {
+       "id": "blk",
+       "x": 760,
+       "y": 560,
+       "w": 420,
+       "h": 150,
+       "text": "1 MB of text",
+       "cue": "megabyte block",
+       "label": "heap"
+      },
+      {
+       "id": "b",
+       "x": 1320,
+       "y": 260,
+       "w": 320,
+       "h": 140,
+       "text": "empty",
+       "label": "b",
+       "tone": "ghost"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "a",
+       "to": "blk",
+       "cue": "points to"
+      },
+      {
+       "from": "b",
+       "to": "blk",
+       "tone": "good",
+       "cue": "the pointer and size"
+      }
+     ],
+     "changes": [
+      {
+       "id": "b",
+       "text": "ptr, size",
+       "tone": "good",
+       "cue": "size to b"
+      },
+      {
+       "id": "a",
+       "text": "null",
+       "tone": "dim",
+       "cue": "becomes null"
+      },
+      {
+       "id": "a0",
+       "tone": "dim",
+       "cue": "only b owns"
+      }
+     ],
+     "notes": [
+      {
+       "x": 150,
+       "y": 770,
+       "text": "copy: a second house",
+       "tone": "bad",
+       "cue": "second house"
+      },
+      {
+       "x": 1260,
+       "y": 770,
+       "text": "move: hand over the keys",
+       "tone": "good",
+       "cue": "hands over the keys"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A move constructor",
+     "say": "A move constructor takes an rvalue reference, two ampersands. It binds only to things about to be discarded. We copy the pointer and size, then empty the source. Mark it noexcept, or vector copies when it grows. A thousand ints moved, and a is empty.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Buf { int* d; size_t n;\n  Buf(size_t k) : d(new int[k]), n(k) {}\n  Buf(Buf&& o) noexcept : d(o.d), n(o.n) {\n    o.d = nullptr;\n    o.n = 0; }\n  ~Buf() { delete[] d; } };\nBuf a(1000);\nBuf c = std::move(a);\ncout << c.n << ' ' << a.n;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "takes an rvalue"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "binds only"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "copy the pointer"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "empty the source"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Mark it noexcept"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "A thousand ints"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "source left empty",
+       "tone": "good",
+       "cue": "empty the source"
+      }
+     ],
+     "output": {
+      "cmd": "./buf",
+      "text": "1000 0",
+      "cue": "a is empty",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "What std::move really does",
+     "say": "So what does s t d move do? Take your variable s. Wrap it: one cast to an rvalue reference, and no code runs. Overload resolution now picks the move constructor. And the move constructor steals the buffer.",
+     "items": [
+      {
+       "label": "your variable",
+       "text": "s",
+       "cue": "your variable"
+      },
+      {
+       "label": "just a cast",
+       "text": "string&&",
+       "cue": "one cast"
+      },
+      {
+       "label": "overload picks",
+       "text": "move ctor",
+       "cue": "picks the move"
+      },
+      {
+       "label": "the real work",
+       "text": "buffer stolen",
+       "cue": "steals the buffer",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A constant string k, and we write t equals s t d move of k. Does anything get stolen? Pause and predict.",
+     "q": "`const string k = ...; string t = std::move(k);` What runs?",
+     "options": [
+      "move constructor",
+      "copy constructor",
+      "compile error",
+      "k is emptied"
+     ],
+     "answer": "copy constructor"
+    },
+    {
+     "type": "code",
+     "head": "Three traps",
+     "say": "A copy. A constant can't be stolen from, so it silently copies. Trap two: return s t d move of a local. It blocks building in place, and G C C warns. Just return s. Trap three: after a move, the value is unspecified.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "string s = \"hello\";\nstring&& r = std::move(s);\ncout << s;\nconst string k = \"text\";\nstring t = std::move(k);\nstring make() {\n    string x = \"result\";\n    return std::move(x);\n}\nstring u = std::move(t);\ncout << t;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "A constant"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "return s t d move"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "blocks building"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Just return s"
+      },
+      {
+       "lines": [
+        10,
+        11
+       ],
+       "cue": "Trap three"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "const: copies",
+       "tone": "bad",
+       "cue": "silently copies"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "blocks NRVO",
+       "tone": "bad",
+       "cue": "blocks building"
+      },
+      {
+       "line": 11,
+       "inside": true,
+       "text": "unspecified value",
+       "tone": "warn",
+       "cue": "is unspecified"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Is it a house or a pizza?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Can I take its address?",
+     "statement": "Every expression has a category. It says whether you may take its address, assign to it, or steal from it.",
+     "example": {
+      "input": "x, 5, x + 1",
+      "output": "only x has a lasting address"
+     },
+     "say": "Next problem. Every expression has a category. For example, x, five, and x plus one. Which has an address? Only x.",
+     "cues": {
+      "example": "For example",
+      "output": "Only x"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A house and a pizza",
+     "say": "Think of a house and a pizza delivery. A house has an address and stays put: an lvalue, like x. A pizza in the bag has no address: an rvalue, like x plus one. S t d move makes an xvalue: a house treated as the pizza.",
+     "items": [
+      {
+       "label": "lvalue: a house",
+       "text": "x",
+       "cue": "A house has",
+       "sub": "has an address"
+      },
+      {
+       "label": "rvalue: pizza",
+       "text": "x + 1",
+       "cue": "A pizza in the bag",
+       "sub": "temporary"
+      },
+      {
+       "label": "xvalue",
+       "text": "move(x)",
+       "cue": "S t d move",
+       "sub": "steal me",
+       "tone": "warn"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "What references can bind to",
+     "say": "References pick sides. An lvalue reference, one ampersand, binds only lvalues. A const reference binds anything. An rvalue reference, two ampersands, binds only rvalues. Nobody else can see a temporary, so it's safe to steal. And s t d move turns x into an rvalue.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int x = 5;\nint& a = x;\nint& b = 5;\nconst int& c = 5;\nint&& d = 5;\nint&& e = x;\nint&& f = std::move(x);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "An lvalue reference"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "A const reference"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "An rvalue reference"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "safe to steal"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "turns x"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "error: 5 is a temporary",
+       "tone": "bad",
+       "cue": "binds only lvalues"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "error: x is an lvalue",
+       "tone": "bad",
+       "cue": "binds only rvalues"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Inside take, s has type rvalue reference to string. We write string a equals s. Copy or move? Pause and predict.",
+     "q": "`void take(string&& s) { string a = s; }` Copy or move?",
+     "options": [
+      "move",
+      "copy",
+      "compile error",
+      "depends on caller"
+     ],
+     "answer": "copy"
+    },
+    {
+     "type": "code",
+     "head": "A named rvalue reference is an lvalue",
+     "say": "Copy. The type of s is an rvalue reference. But the expression s has a name, so it's an lvalue. Type and category are different things. To move, say s t d move again.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void take(string&& s) {\n    string a = s;             // copies\n    string b = std::move(s);  // moves\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "But the expression"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "has a name"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "say s t d move"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "has a name",
+       "tone": "bad",
+       "cue": "has a name"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "now an rvalue",
+       "tone": "good",
+       "cue": "say s t d move"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Passing it on unchanged",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Pass it on unchanged",
+     "statement": "A wrapper hands its argument to another function. A named object must arrive as a copy, a temporary as a move.",
+     "example": {
+      "input": "wrap(t) and wrap(T())",
+      "output": "copy, then move"
+     },
+     "say": "Next problem. A wrapper passes its argument along. For example, wrap of a named t, then wrap of a temporary. We want copy first, then move.",
+     "cues": {
+      "example": "For example",
+      "output": "copy first"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The wrapper loses the rvalue",
+     "say": "Two overloads of take. One copies, one moves. The wrapper passes its argument along. A named t copies, correct. But a temporary should move, and it prints copy again. Inside the wrapper, a has a name, so it's an lvalue.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void take(const T&) { cout << \"copy\\n\"; }\nvoid take(T&&)      { cout << \"move\\n\"; }\ntemplate <class X>\nvoid wrap(X&& a) { take(a); }\nT t;\nwrap(t);\nwrap(T());"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Two overloads"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "passes its argument"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "A named t"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "a temporary"
+      }
+     ],
+     "output": {
+      "cmd": "./wrap",
+      "text": "copy\ncopy",
+      "cue": "prints copy again",
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "How X remembers",
+     "say": "How does X remember? Pass the named t: X is deduced as T ampersand. The ampersands collapse to one, so forward keeps an lvalue: copy. Pass a temporary: X is plain T, and forward casts back to an rvalue: move.",
+     "items": [
+      {
+       "id": "c1",
+       "x": 150,
+       "y": 400,
+       "w": 380,
+       "h": 130,
+       "text": "wrap(t)",
+       "cue": "Pass the named t",
+       "label": "you call"
+      },
+      {
+       "id": "x1",
+       "x": 700,
+       "y": 400,
+       "w": 380,
+       "h": 130,
+       "text": "X = T&",
+       "cue": "X is deduced",
+       "label": "X becomes"
+      },
+      {
+       "id": "r1",
+       "x": 1250,
+       "y": 400,
+       "w": 470,
+       "h": 130,
+       "text": "lvalue: copy",
+       "cue": "keeps an lvalue",
+       "label": "forward gives",
+       "tone": "bad"
+      },
+      {
+       "id": "c2",
+       "x": 150,
+       "y": 660,
+       "w": 380,
+       "h": 130,
+       "text": "wrap(T())",
+       "cue": "Pass a temporary"
+      },
+      {
+       "id": "x2",
+       "x": 700,
+       "y": 660,
+       "w": 380,
+       "h": 130,
+       "text": "X = T",
+       "cue": "X is plain T"
+      },
+      {
+       "id": "r2",
+       "x": 1250,
+       "y": 660,
+       "w": 470,
+       "h": 130,
+       "text": "rvalue: move",
+       "cue": "casts back",
+       "label": "",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "c1",
+       "to": "x1",
+       "cue": "Pass the named t"
+      },
+      {
+       "from": "x1",
+       "to": "r1",
+       "cue": "keeps an lvalue"
+      },
+      {
+       "from": "c2",
+       "to": "x2",
+       "cue": "Pass a temporary"
+      },
+      {
+       "from": "x2",
+       "to": "r2",
+       "cue": "casts back"
+      }
+     ],
+     "notes": [
+      {
+       "x": 600,
+       "y": 835,
+       "text": "T& and && collapse to T&",
+       "tone": "warn",
+       "cue": "collapse to one"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The fix: std::forward",
+     "say": "Two ingredients. First, a parameter X and and, with X deduced: a forwarding reference. It accepts anything. Second, s t d forward of X. It casts back to an rvalue only if one came in. Now it prints copy, then move.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "template <class X>\nvoid wrap(X&& a) {\n    take(std::forward<X>(a));\n}\nT t;\nwrap(t);\nwrap(T());"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "X and and"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "It accepts"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "s t d forward"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "casts back"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "copy, then move"
+      }
+     ],
+     "output": {
+      "cmd": "./wrap",
+      "text": "copy\nmove",
+      "cue": "copy, then move",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same wrapper, with forward. We call wrap with s t d move of t. What prints? Pause and predict.",
+     "q": "With `std::forward`, what does `wrap(std::move(t))` print?",
+     "options": [
+      "copy",
+      "move",
+      "copy then move",
+      "nothing"
+     ],
+     "answer": "move"
+    },
+    {
+     "type": "code",
+     "head": "Where it's used, and the traps",
+     "say": "Move: the argument is an rvalue, so forward casts. This is how make unique and emplace back pass arguments on. Trap: only X and and with X deduced is a forwarding reference. A vector of int and and is not. Forward each argument once.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "template <class T, class... A>\nunique_ptr<T> my_make_unique(A&&... a) {\n    return unique_ptr<T>(\n        new T(std::forward<A>(a)...));\n}\nvoid f(vector<int>&& v);\ntemplate <class T> void g(const T&& x);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "This is how make unique"
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "pass arguments on"
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "Trap"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "rvalue ref, not forwarding",
+       "tone": "bad",
+       "cue": "A vector of int"
+      },
+      {
+       "line": 7,
+       "inside": true,
+       "text": "not forwarding",
+       "tone": "bad",
+       "cue": "is not"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Returned for free",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "How many constructors?",
+     "statement": "A function returns an object by value. Count how many constructor calls the compiler really makes.",
+     "example": {
+      "input": "T a = make(); T b = named();",
+      "output": "2 constructions, 0 copies, 0 moves"
+     },
+     "say": "Next problem. Functions return objects by value. For example, make and named, one temporary, one local. How many constructors run? Two.",
+     "cues": {
+      "example": "For example",
+      "output": "Two"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Count the constructor calls",
+     "say": "T announces every constructor. Make returns a temporary. Named returns a local variable. Naively each could build an object, then copy or move it out. But the output is just ctor, ctor. Both calls were elided.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T {\n  T()         { cout << \"ctor\\n\"; }\n  T(const T&) { cout << \"copy\\n\"; }\n  T(T&&)      { cout << \"move\\n\"; } };\nT make()  { return T(); }\nT named() { T t; return t; }\nT a = make();\nT b = named();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "announces every"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Make returns"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Named returns"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Naively each could"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "copy or move it out"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -std=c++17 e.cpp && ./a.out",
+      "text": "ctor\nctor",
+      "cue": "ctor, ctor",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "NRVO: build it where it ends up",
+     "say": "Naively, t is built inside named, then moved out into b. With N R V O, named return value optimization, the caller hands over the address of b's slot. Then t is built right there, and there's nothing to move. A returned temporary is plain R V O.",
+     "items": [
+      {
+       "id": "t",
+       "x": 300,
+       "y": 470,
+       "w": 260,
+       "h": 140,
+       "text": "t",
+       "cue": "Naively, t"
+      },
+      {
+       "id": "slot",
+       "region": true,
+       "x": 1250,
+       "y": 420,
+       "w": 460,
+       "h": 240,
+       "label": "caller's b",
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "t",
+       "to": "slot",
+       "label": "move?",
+       "cue": "moved out"
+      }
+     ],
+     "changes": [
+      {
+       "id": "slot",
+       "glow": true,
+       "tone": "good",
+       "cue": "hands over the address"
+      },
+      {
+       "id": "t",
+       "move": [
+        1350,
+        500
+       ],
+       "cue": "Then t is built"
+      },
+      {
+       "id": "t",
+       "text": "t is b",
+       "tone": "good",
+       "cue": "right there"
+      },
+      {
+       "id": "a0",
+       "fade": true,
+       "cue": "nothing to move"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A function declares two locals, x and y, and returns one or the other by a flag. Can the compiler build both in the caller's slot? Pause and predict.",
+     "q": "`T pick(bool c)` returns local x or y by flag. What runs?",
+     "options": [
+      "both elided",
+      "a move runs",
+      "a copy runs",
+      "compile error"
+     ],
+     "answer": "a move runs"
+    },
+    {
+     "type": "code",
+     "head": "Two objects, one slot",
+     "say": "A move runs. Two different objects can't both live in one slot, so no N R V O. But a returned local still moves, never copies. Here pick prints move.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct T { T() {}\n  T(T&&) { cout << \"move\"; } };\nT pick(bool c) {\n    T x, y;\n    if (c) return x;\n    return y;\n}\npick(true);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A move runs"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Two different"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "no N R V O"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "still moves"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "pick prints"
+      }
+     ],
+     "output": {
+      "cmd": "./pick",
+      "text": "move",
+      "cue": "pick prints move",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Guaranteed versus allowed",
+     "say": "Since C plus plus seventeen, returning a temporary is guaranteed elided. So f compiles, even for a type that can't move. N R V O is only allowed, so g fails. And return s t d move of a local blocks it.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct NoMove {\n    NoMove() = default;\n    NoMove(NoMove&&) = delete;\n};\nNoMove f() { return NoMove(); }\nNoMove g() { NoMove n; return n; }\nT bad() { T t; return std::move(t); }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "Since C plus plus seventeen"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "returning a temporary"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "f compiles"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "only allowed"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "so g fails"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "return s t d move"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "C++17: guaranteed",
+       "tone": "good",
+       "cue": "f compiles"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "error: move deleted",
+       "tone": "bad",
+       "cue": "so g fails"
+      },
+      {
+       "line": 7,
+       "inside": true,
+       "text": "blocks NRVO",
+       "tone": "bad",
+       "cue": "a local blocks it"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Stop silent conversions",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why did print(10) compile?",
+     "statement": "A function takes an Array. Calling it with the plain number ten silently builds an Array. Make that an error.",
+     "example": {
+      "input": "print(10); Array a = 5;",
+      "output": "both should fail to compile"
+     },
+     "say": "Last problem. A function takes an Array. For example, print of ten compiles, and builds an Array. We want both lines to fail.",
+     "cues": {
+      "example": "For example",
+      "output": "both lines"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Implicit, then explicit",
+     "say": "A constructor with one argument is also a conversion. On the left, print of ten compiles, and so does a equals five. Both build a temporary array. Mark it explicit on the right, and both fail. Array b with parentheses still works.",
+     "panels": [
+      {
+       "file": "implicit.cpp",
+       "label": "implicit",
+       "tone": "warn",
+       "code": "class Array {\npublic:\n  Array(int size);\n};\nprint(10);     // compiles\nArray a = 5;   // compiles"
+      },
+      {
+       "file": "explicit.cpp",
+       "label": "explicit",
+       "tone": "good",
+       "code": "class Array {\npublic:\n  explicit Array(int size);\n};\nprint(10);     // error\nArray a = 5;   // error\nArray b(5);    // ok"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "is also a conversion",
+       "panel": 0
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "print of ten",
+       "panel": 0
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "temporary array",
+       "panel": 0
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "explicit on the right",
+       "panel": 1
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "both fail",
+       "panel": 1
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "parentheses still works",
+       "panel": 1
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. With explicit on, one of these four lines still compiles. Which one? Pause and predict.",
+     "q": "With `explicit Array(int)`, which line still compiles?",
+     "options": [
+      "print(10)",
+      "Array a = 5",
+      "Array b(5)",
+      "Array c = {5}"
+     ],
+     "answer": "Array b(5)"
+    },
+    {
+     "type": "compare",
+     "head": "You already use both",
+     "say": "Parentheses, since they name the type. The library uses both kinds. A string from a literal is implicit, a natural conversion. A vector from an int is explicit: a size is not a value. Unique pointer from a raw pointer is explicit: ownership stays visible. Default to explicit.",
+     "heads": [
+      "You write",
+      "Result"
+     ],
+     "rows": [
+      [
+       "`string s = \"hi\";`",
+       "implicit: natural conversion"
+      ],
+      [
+       "`vector<int> v = 10;`",
+       "error: explicit, a size isn't a value"
+      ],
+      [
+       "`unique_ptr<int> p = new int;`",
+       "error: ownership must be visible"
+      ]
+     ],
+     "cues": [
+      "A string from a literal",
+      "A vector from an int",
+      "Unique pointer from"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Three constructors? Default takes nothing, parameterized takes values, copy takes a const reference. Is c equals b a copy? Only if c is new. Default constructor? Gone once you declare any other.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Three constructors?",
+       "default: none; parameterized: values; copy: `const T&`"
+      ],
+      [
+       "`c = b` a copy?",
+       "only if `c` is new; else assignment"
+      ],
+      [
+       "Default constructor?",
+       "gone once you declare any other"
+      ]
+     ],
+     "cues": [
+      "Three constructors",
+      "Is c equals b",
+      "Default constructor"
+     ],
+     "covers": [
+      "q61"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "When is a destructor called? Locals at the brace, in reverse. Heap objects at delete. Temporaries? At the semicolon. After an exception? Unwinding destroys the locals.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "When is it called?",
+       "locals at the brace, reversed; heap at `delete`"
+      ],
+      [
+       "Temporaries?",
+       "at the semicolon"
+      ],
+      [
+       "After an exception?",
+       "unwinding destroys locals"
+      ]
+     ],
+     "cues": [
+      "When is a destructor",
+      "Temporaries",
+      "After an exception"
+     ],
+     "covers": [
+      "q62"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Can a constructor be virtual? No: no object, no v pointer yet. Need the effect? A virtual clone. Destructors should be virtual.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Virtual constructor?",
+       "no: no object or vptr yet"
+      ],
+      [
+       "Need the effect?",
+       "virtual `clone()` or a factory"
+      ],
+      [
+       "Virtual destructor?",
+       "yes, in any polymorphic base"
+      ]
+     ],
+     "cues": [
+      "Can a constructor",
+      "Need the effect",
+      "Destructors should"
+     ],
+     "covers": [
+      "q63"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is a move constructor? It steals the pointers and empties the source. Why noexcept? Otherwise vector copies on growth. Generated? Only if you declare no copy operations.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Move constructor?",
+       "`T(T&&)`: steal pointers, empty the source"
+      ],
+      [
+       "Why `noexcept`?",
+       "else `vector` copies on growth"
+      ],
+      [
+       "Generated?",
+       "only if no copy operations declared"
+      ]
+     ],
+     "cues": [
+      "What is a move",
+      "Why noexcept",
+      "Generated"
+     ],
+     "covers": [
+      "q64"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Copy versus move? A copy duplicates, O of n. A move transfers, O of one. After a move, the source is valid but unspecified. Moving a const object copies.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Copy versus move?",
+       "copy duplicates, O(n); move transfers, O(1)"
+      ],
+      [
+       "After a move?",
+       "valid but unspecified"
+      ],
+      [
+       "Move a `const`?",
+       "silently copies"
+      ]
+     ],
+     "cues": [
+      "Copy versus move",
+      "After a move",
+      "Moving a const"
+     ],
+     "covers": [
+      "q65"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What does s t d move do? A cast to an rvalue reference. Nothing runs. Return s t d move of a local? No, it blocks elision.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What does `std::move` do?",
+       "casts to rvalue reference; no code runs"
+      ],
+      [
+       "`return std::move(local)`?",
+       "no: it blocks NRVO"
+      ]
+     ],
+     "cues": [
+      "What does s t d",
+      "Return s t d move"
+     ],
+     "covers": [
+      "q66"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Lvalues and rvalues? An lvalue has a name and address. An rvalue is a temporary, or marked with s t d move. A named rvalue reference is itself an lvalue.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "lvalue and rvalue?",
+       "lvalue: named, has an address"
+      ],
+      [
+       "rvalue?",
+       "temporary, or cast by `std::move`"
+      ],
+      [
+       "Named `T&&`?",
+       "an lvalue: move it again"
+      ]
+     ],
+     "cues": [
+      "Lvalues and rvalues",
+      "An rvalue is",
+      "A named"
+     ],
+     "covers": [
+      "q67"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Perfect forwarding? Passing an argument on with its category intact. It needs a forwarding reference, plus std forward. It powers make unique and emplace back.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Perfect forwarding?",
+       "pass lvalues as lvalues, rvalues as rvalues"
+      ],
+      [
+       "What's needed?",
+       "`T&&` with T deduced, plus `std::forward<T>`"
+      ],
+      [
+       "Where is it used?",
+       "`make_unique`, `emplace_back`"
+      ]
+     ],
+     "cues": [
+      "Perfect forwarding",
+      "It needs",
+      "It powers"
+     ],
+     "covers": [
+      "q68"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Copy elision? The compiler builds the result in the caller's slot, no copy or move. A returned temporary: guaranteed since C plus plus seventeen. Named local: optional. Return by name.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Copy elision?",
+       "build the result in place; no copy or move"
+      ],
+      [
+       "RVO versus NRVO?",
+       "temporary: guaranteed in C++17; named: optional"
+      ],
+      [
+       "Best practice?",
+       "return the local by name"
+      ]
+     ],
+     "cues": [
+      "Copy elision",
+      "A returned temporary",
+      "Return by name"
+     ],
+     "covers": [
+      "q69"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Explicit versus implicit? A one argument constructor is also a silent conversion. Explicit forbids it. Prefer explicit, unless the conversion is natural, like string from a literal.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`explicit`?",
+       "runs only when you name the type"
+      ],
+      [
+       "Why use it?",
+       "stops `print(10)` building an `Array`"
+      ],
+      [
+       "When implicit?",
+       "only natural conversions, like `string`"
+      ]
+     ],
+     "cues": [
+      "Explicit versus implicit",
+      "Prefer explicit",
+      "like string"
+     ],
+     "covers": [
+      "q70"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Do these next. One: write a class that prints in all five special members. Predict every line first. Two: add a Buffer move constructor, and watch vector copy until noexcept. Three: write a forwarding wrapper. Count copies with and without forward.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Tracer with all five special members",
+       "predict every print before running"
+      ],
+      [
+       "`Buffer` with `noexcept` move",
+       "watch `vector` stop copying"
+      ],
+      [
+       "Forwarding wrapper, with and without `forward`",
+       "see the lost rvalue"
+      ]
+     ],
+     "cues": [
+      "One:",
+      "Two:",
+      "Three:"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A move steals the pointers and leaves the source empty. S t d move is only a cast. The move constructor steals. The compiler elides copies on return. So return by name.",
+     "lines": [
+      "A move steals; the source stays valid.",
+      "`std::move` is a cast. Nothing runs.",
+      "Return by name. Elision beats moving."
+     ],
+     "cues": [
+      "move steals",
+      "only a cast",
+      "return by name"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
