@@ -3,7 +3,7 @@ import fs from "node:fs";
 
 let bad = 0;
 const err = (f, m) => { bad++; console.log(`${f}: ${m}`); };
-const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take"]);
+const TYPES = new Set(["title", "code", "compare", "diagram", "flow", "take", "hook", "quiz", "chart", "chapter"]);
 const SPOKEN_BAN = [/C\+\+/, /std::/, /->/, /::/, /[{}<>;`]/, /\bnullptr\b(?! t)/i, /\bRAII\b/, /\bSTL\b/];
 
 for (const f of process.argv.slice(2)) {
@@ -12,11 +12,12 @@ for (const f of process.argv.slice(2)) {
   const exp = f.match(/([a-z]+)(\d+)\.json$/);
   if (!f.startsWith("build/") && (!exp || s.id !== exp[1] + exp[2] || s.num !== +exp[2])) err(f, "id/num must match filename (id 'q16', num 16; or 'be03', num 3)");
   for (const k of ["short", "question", "scenes"]) if (!s[k]) err(f, `missing ${k}`);
-  if (s.scenes?.[0]?.type !== "title") err(f, "first scene must be title");
+  if (!(s.chapters ? ["chapter", "hook"] : ["title"]).includes(s.scenes?.[0]?.type)) err(f, s.chapters ? "first scene must be chapter or hook" : "first scene must be title");
   if (s.scenes?.at(-1)?.type !== "take") err(f, "last scene must be take");
   (s.scenes || []).forEach((sc, i) => {
     const at = `${f} scene ${i} (${sc.type})`;
     if (!TYPES.has(sc.type)) return err(at, "unknown type");
+    if (sc.type === "chapter") return sc.say === undefined ? undefined : err(at, "chapter card must have no say");
     if (!sc.say) return err(at, "missing say");
     for (const re of SPOKEN_BAN) if (re.test(sc.say)) err(at, `say contains ${re} — write it as spoken words`);
     const words = sc.say.split(/\s+/).length;

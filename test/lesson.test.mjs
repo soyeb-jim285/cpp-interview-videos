@@ -50,3 +50,10 @@ test("intro line when a scene precedes chapter 1", () => {
   assert.match(lines[0], /^0:00:00 Intro$/);
   assert.equal(lines.length, 3);
 });
+
+test("validate accepts flattened lesson and legacy script; flatten rejects no chapters", () => {
+  run("validate.mjs", "build/fx-01.json");
+  execFileSync("node", [path.join(ROOT, "validate.mjs"), path.join(ROOT, "scripts/q01.json")]);
+  fs.writeFileSync(path.join(tmp, "lessons/nc-01.json"), JSON.stringify({ id: "nc-01", track: "X", num: 1, title: "t" }));
+  assert.throws(() => execFileSync("node", [path.join(ROOT, "flatten.mjs"), "lessons/nc-01.json"], { cwd: tmp, stdio: "pipe" }));
+});

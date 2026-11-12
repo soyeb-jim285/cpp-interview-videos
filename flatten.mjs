@@ -6,6 +6,7 @@ const f = process.argv[2];
 const L = JSON.parse(fs.readFileSync(f, "utf8"));
 const stem = path.basename(f, ".json");
 if (L.id !== stem) { console.error(`${f}: id '${L.id}' must equal filename '${stem}'`); process.exit(1); }
+if (!Array.isArray(L.chapters) || !L.chapters.length) { console.error(`${f}: lesson needs a non-empty "chapters" array`); process.exit(1); }
 const scenes = [], chapters = [];
 L.chapters.forEach((c, k) => {
   chapters.push({ title: c.title, start: scenes.length });
