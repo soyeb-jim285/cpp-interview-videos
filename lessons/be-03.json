@@ -35,6 +35,18 @@
   [
    "a commit",
    "a COMMIT"
+  ],
+  [
+   "Begin starts",
+   "BEGIN starts"
+  ],
+  [
+   "commit saves",
+   "COMMIT saves"
+  ],
+  [
+   "select for update",
+   "SELECT ... FOR UPDATE"
   ]
  ],
  "chapters": [
@@ -98,7 +110,7 @@
        "label": "step 1",
        "text": "Alice -100",
        "sub": "debit",
-       "cue": "take it from Alice"
+       "cue": "Move one hundred"
       },
       {
        "label": "step 2",
@@ -268,15 +280,16 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Alice started at five hundred. What does she show after the restart? Pause and predict.",
+     "say": "Your turn. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Begin starts a transaction, and commit saves it. Alice started at five hundred. What does she show after the restart? Pause and predict.",
      "q": "BEGIN; debit Alice 100; crash before COMMIT. Alice started at 500: now?",
      "options": [
       "400",
+      "450",
       "500",
-      "600",
-      "unknown"
+      "500 only if COMMIT ran"
      ],
-     "answer": "500"
+     "answer": "500",
+     "pause": 5
     },
     {
      "type": "code",
@@ -390,10 +403,10 @@
       "input": "balance 100, withdraw 30 and 20",
       "output": "final balance 50, every time"
      },
-     "say": "Next problem. Two requests withdraw thirty and twenty from a balance of one hundred. For example, both start together. It should end at fifty, but does it?",
+     "say": "Picture a balance of one hundred dollars. Two requests arrive at once: one withdraws thirty, one withdraws twenty. The balance should end at fifty. Does it?",
      "cues": {
-      "example": "For example",
-      "output": "It should end"
+      "example": "Two requests arrive",
+      "output": "should end at fifty"
      }
     },
     {
@@ -598,25 +611,26 @@
       "80",
       "100"
      ],
-     "answer": "70"
+     "answer": "70",
+     "pause": 5
     },
     {
      "type": "chart",
      "head": "Same requests, different timing",
      "unit": "balance",
-     "say": "Seventy. A wrote last, so A's seventy erased B's write. If B wrote last, eighty. The result depends on timing. That's a race condition. The correct answer is fifty.",
+     "say": "Here is the final balance for each order of the same two writes. Seventy, if A wrote last: A's seventy erased B's write. If B wrote last, eighty. The result depends on timing. That's a race condition. The correct answer is fifty.",
      "bars": [
       {
-       "label": "A last",
+       "label": "A wrote last",
        "value": 70,
        "tone": "warn",
-       "cue": "A wrote last"
+       "cue": "if A wrote last"
       },
       {
-       "label": "B last",
+       "label": "B wrote last",
        "value": 80,
        "tone": "bad",
-       "cue": "eighty"
+       "cue": "If B wrote last"
       },
       {
        "label": "Correct",
@@ -629,7 +643,7 @@
     {
      "type": "compare",
      "head": "Two fixes that don't work",
-     "say": "Two tempting fixes fail. First, wrapping the read and write in begin and commit. Both read one hundred. Second, a lock inside your app code. It breaks with many servers.",
+     "say": "Two tempting fixes fail. First, wrapping the read and write in begin and commit. Both still read one hundred, because a plain read takes no lock. Second, a lock inside your app code. It breaks with many servers.",
      "heads": [
       "Tempting fix",
       "Why it fails"
@@ -637,7 +651,11 @@
      "rows": [
       [
        "Wrap in `BEGIN` / `COMMIT`",
-       "both still read 100 at read committed"
+       "both still read 100"
+      ],
+      [
+       "Why?",
+       "a plain read takes no lock"
       ],
       [
        "Lock in app code",
@@ -646,6 +664,7 @@
      ],
      "cues": [
       "wrapping the read",
+      "because a plain",
       "a lock inside"
      ]
     },
@@ -673,10 +692,10 @@
       "input": "the same race: 30 and 20 from 100",
       "output": "50 every time, no lost update"
      },
-     "say": "Now the fix. We need both withdrawals to count. For example, the same race, thirty and twenty from one hundred. We want fifty, every time. There are three ways.",
+     "say": "Now the fix. Same race: thirty and twenty from one hundred. The goal is fifty, every single time, and there are three ways to get there.",
      "cues": {
-      "example": "For example",
-      "output": "We want fifty"
+      "example": "Same race",
+      "output": "The goal is fifty"
      }
     },
     {
@@ -840,6 +859,12 @@
      "steps": [
       {
        "lines": [
+        1
+       ],
+       "cue": "bathroom door"
+      },
+      {
+       "lines": [
         2,
         3
        ],
@@ -865,6 +890,13 @@
       }
      ],
      "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "bathroom door = row lock",
+       "tone": "info",
+       "cue": "bathroom door"
+      },
       {
        "line": 3,
        "inside": true,
@@ -936,7 +968,8 @@
       "1",
       "2"
      ],
-     "answer": "1"
+     "answer": "1",
+     "pause": 5
     },
     {
      "type": "code",
@@ -986,7 +1019,7 @@
     {
      "type": "compare",
      "head": "Optimistic or pessimistic?",
-     "say": "Which one? Try the atomic update first, since it needs no locking. Optimistic checks a version, retries on conflict. Pessimistic locks the row. The cost? Retries, or waiting. Best when? Rare conflicts: optimistic. Constant conflicts, like a hot counter: pessimistic.",
+     "say": "Which one? Try the atomic update first, since it needs no extra locking. Optimistic checks a version, retries on conflict. Pessimistic locks the row. The cost? Retries, or waiting. Best when? Rare conflicts: optimistic. Constant conflicts, like a hot counter: pessimistic.",
      "heads": [
       "",
       "Optimistic (version)",
@@ -1037,13 +1070,15 @@
      "statement": "Transactions run at the same time. What may one see of another's work, and what if they wait on each other?",
      "example": {
       "input": "T1 reads twice, T2 commits between",
-      "output": "know what each level allows"
+      "output": "know what each level shows T1"
      },
-     "say": "Last problem. Transactions run at the same time. For example, T1 reads twice, and T2 commits in between. We want to know what each isolation level allows, and what a deadlock is.",
+     "say": "Last question: what can you see? Say T1 reads twice, and T2 commits between. Does T1 notice? Each isolation level answers differently. And sometimes two transactions wait on each other forever.",
      "cues": {
-      "example": "For example",
-      "output": "We want to know"
-     }
+      "example": "Say T1 reads",
+      "output": "Does T1 notice",
+      "note": "And sometimes"
+     },
+     "note": "and a deadlock: two wait on each other"
     },
     {
      "type": "flow",
@@ -1085,64 +1120,9 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Isolation levels: what can go wrong",
-     "say": "Four levels trade safety for speed. Read uncommitted allows all three problems. Read committed stops dirty reads: the Postgres default. Repeatable read also stops a row changing between two reads: the MySQL default. Serializable acts like one at a time: safest, slower, more retries.",
-     "heads": [
-      "Dirty read",
-      "Non-repeatable",
-      "Phantom row"
-     ],
-     "rowHeads": [
-      "Read uncommitted",
-      "Read committed",
-      "Repeatable read",
-      "Serializable"
-     ],
-     "rows": [
-      [
-       "possible",
-       "possible",
-       "possible"
-      ],
-      [
-       "prevented",
-       "possible",
-       "possible"
-      ],
-      [
-       "prevented",
-       "prevented",
-       "possible"
-      ],
-      [
-       "prevented",
-       "prevented",
-       "prevented"
-      ]
-     ],
-     "cues": [
-      "Read uncommitted",
-      "Read committed",
-      "Repeatable read",
-      "Serializable"
-     ]
-    },
-    {
-     "type": "quiz",
-     "say": "Your turn. You're at the Postgres default, read committed. T1 reads the balance twice. In between, T2 commits a change. Do both reads match? Pause and predict.",
-     "q": "Read committed. T2 commits between T1's two reads. Do T1's reads match?",
-     "options": [
-      "Yes, always the same",
-      "No: second read is new",
-      "Error"
-     ],
-     "answer": 1
-    },
-    {
      "type": "diagram",
      "head": "A non-repeatable read",
-     "say": "No. T1 reads one hundred. T2 updates the row to seventy and commits. T1 reads again and gets seventy. Same query, two answers, inside one transaction. That's a non-repeatable read. Repeatable read keeps showing one hundred. A phantom is the same trick with rows: a new row appears.",
+     "say": "Second problem. T1 reads the balance: one hundred. Then T2 updates the row to seventy and commits. T1 reads again and gets seventy. Same query, two answers, inside one transaction. That's a non-repeatable read. A phantom is the same trick with rows: a new row appears.",
      "items": [
       {
        "id": "t1",
@@ -1217,8 +1197,14 @@
       },
       {
        "from": "t2",
-       "to": "row",
+       "to": "cm",
        "cue": "T2 updates"
+      },
+      {
+       "from": "cm",
+       "to": "row",
+       "label": "70",
+       "cue": "and commits"
       },
       {
        "from": "row",
@@ -1252,13 +1238,199 @@
        "id": "row",
        "text": "70",
        "tone": "warn",
-       "cue": "to seventy"
+       "cue": "and commits"
       },
       {
        "id": "r2",
        "text": "70",
        "tone": "bad",
        "cue": "gets seventy"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Isolation levels: what can go wrong",
+     "say": "Now the four levels. They trade safety for speed, per the S Q L standard. Read uncommitted allows all three problems, though Postgres silently upgrades it. Read committed stops dirty reads, and it's the Postgres default. Repeatable read also stops a row changing between reads: the MySQL default. Serializable acts like one at a time: safest, slower, more retries.",
+     "heads": [
+      "Dirty read",
+      "Non-repeatable",
+      "Phantom row"
+     ],
+     "rowHeads": [
+      "Read uncommitted",
+      "Read committed",
+      "Repeatable read",
+      "Serializable"
+     ],
+     "rows": [
+      [
+       "possible",
+       "possible",
+       "possible"
+      ],
+      [
+       "prevented",
+       "possible",
+       "possible"
+      ],
+      [
+       "prevented",
+       "prevented",
+       "possible"
+      ],
+      [
+       "prevented",
+       "prevented",
+       "prevented"
+      ]
+     ],
+     "cues": [
+      "Read uncommitted",
+      "Read committed",
+      "Repeatable read",
+      "Serializable"
+     ]
+    },
+    {
+     "type": "quiz",
+     "pause": 5,
+     "say": "Your turn. Same story, but T1 runs at repeatable read. T2 still commits seventy between T1's two reads. What does T1's second read show? Pause and predict.",
+     "q": "Repeatable read. T2 commits 70 between T1's reads. T1's 2nd read?",
+     "options": [
+      "100",
+      "70",
+      "An error",
+      "Nothing, it waits"
+     ],
+     "answer": "100"
+    },
+    {
+     "type": "diagram",
+     "head": "Repeatable read: a steady view",
+     "say": "One hundred. At repeatable read, T1 keeps the view from its first read. T2 still commits seventy to the row. But T1's second read keeps showing one hundred. That's why begin alone failed earlier: at read committed, a plain read takes no lock.",
+     "items": [
+      {
+       "id": "t1",
+       "x": 140,
+       "y": 280,
+       "w": 380,
+       "h": 110,
+       "text": "T1 reads twice",
+       "tone": "blue",
+       "cue": "T1 keeps the view"
+      },
+      {
+       "id": "r1",
+       "x": 140,
+       "y": 480,
+       "w": 380,
+       "h": 120,
+       "label": "1st read",
+       "text": "?",
+       "size": 52,
+       "cue": "T1 keeps the view"
+      },
+      {
+       "id": "r2",
+       "x": 140,
+       "y": 680,
+       "w": 380,
+       "h": 120,
+       "label": "2nd read",
+       "text": "?",
+       "size": 52,
+       "cue": "T1 keeps the view"
+      },
+      {
+       "id": "row",
+       "x": 760,
+       "y": 560,
+       "w": 400,
+       "h": 130,
+       "label": "balance",
+       "text": "100",
+       "size": 56,
+       "cue": "T1 keeps the view"
+      },
+      {
+       "id": "t2",
+       "x": 1380,
+       "y": 280,
+       "w": 360,
+       "h": 110,
+       "text": "T2 updates",
+       "tone": "blue",
+       "cue": "T2 still commits"
+      },
+      {
+       "id": "cm",
+       "x": 1380,
+       "y": 560,
+       "w": 360,
+       "h": 130,
+       "text": "COMMIT",
+       "tone": "good",
+       "size": 44,
+       "cue": "T2 still commits"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "row",
+       "to": "r1",
+       "cue": "T1 keeps the view"
+      },
+      {
+       "from": "t2",
+       "to": "cm",
+       "cue": "T2 still commits"
+      },
+      {
+       "from": "cm",
+       "to": "row",
+       "label": "70",
+       "cue": "to the row"
+      },
+      {
+       "from": "row",
+       "to": "r2",
+       "cue": "second read"
+      }
+     ],
+     "notes": [
+      {
+       "x": 640,
+       "y": 300,
+       "text": "T1 at repeatable read",
+       "tone": "good",
+       "cue": "At repeatable read"
+      },
+      {
+       "x": 760,
+       "y": 840,
+       "text": "read committed: no read lock",
+       "tone": "warn",
+       "cue": "why begin alone"
+      }
+     ],
+     "changes": [
+      {
+       "id": "r1",
+       "text": "100",
+       "cue": "One hundred"
+      },
+      {
+       "id": "row",
+       "text": "70",
+       "tone": "warn",
+       "cue": "commits seventy"
+      },
+      {
+       "id": "r2",
+       "text": "100",
+       "tone": "good",
+       "cue": "keeps showing one hundred"
       }
      ]
     },
@@ -1345,9 +1517,16 @@
        "cue": "Now T1 wants"
       },
       {
+       "x": 1460,
+       "y": 630,
+       "text": "T2 aborted",
+       "tone": "bad",
+       "cue": "aborts one transaction"
+      },
+      {
        "x": 1290,
        "y": 770,
-       "text": "aborted: code retries",
+       "text": "your code retries",
        "tone": "warn",
        "cue": "must retry it"
       },
@@ -1368,7 +1547,7 @@
       },
       {
        "id": "t2",
-       "kill": true,
+       "tone": "dim",
        "cue": "aborts one transaction"
       }
      ]
@@ -1378,10 +1557,12 @@
      "kicker": "Solved",
      "say": "That answers it. Isolation levels say what a transaction sees, and deadlocks get retried.",
      "lines": [
-      "Levels set what you can see"
+      "Levels set what you can see",
+      "Deadlock: abort one, retry"
      ],
      "cues": [
-      "Isolation levels"
+      "Isolation levels",
+      "deadlocks get retried"
      ]
     }
    ]
@@ -1400,35 +1581,102 @@
       "They ask",
       "You say"
      ],
-     "say": "Transaction? Statements that all happen or none. ACID? Atomic, consistent, isolated, durable. Lost update? Two requests read one hundred, write seventy and eighty, and one vanishes. Isolation? Read committed blocks dirty reads. Deadlock? Two wait on each other. One aborts, you retry.",
+     "say": "What's a transaction? Statements that all happen or none do, like a transfer. What does ACID mean? Atomic is all or nothing. Consistent means rules like no negative balance still hold. Isolated means nobody sees half-done work. Durable means a commit survives a crash.",
      "rows": [
       [
        "What is a transaction?",
-       "Statements that all happen, or none"
+       "Statements that all happen, or none do"
       ],
       [
        "What is ACID?",
-       "Atomic, consistent, isolated, durable"
+       "Atomic: all or nothing"
       ],
       [
-       "Give a lost update",
-       "Both read 100, write 70 then 80: 80"
+       "Consistent?",
+       "Rules like balance >= 0 still hold"
       ],
       [
-       "Isolation levels?",
-       "Read committed blocks dirty reads"
-      ],
-      [
-       "What is a deadlock?",
-       "Two wait on each other: one aborts, retry"
+       "Isolated? Durable?",
+       "No peeking. Commits survive a crash"
       ]
      ],
      "cues": [
-      "Transaction",
-      "ACID",
-      "Lost update",
-      "Isolation",
-      "Deadlock"
+      "What's a transaction",
+      "What does ACID",
+      "Consistent means",
+      "Isolated means"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Name the isolation levels",
+     "covers": [
+      "be04"
+     ],
+     "say": "Name the isolation levels. There are four, weakest first. Read uncommitted allows dirty reads. Read committed blocks them, and it's the Postgres default. Repeatable read keeps a row steady between reads, the MySQL default. Serializable acts one at a time. Each step up costs speed and retries.",
+     "items": [
+      {
+       "label": "weakest",
+       "text": "uncommitted",
+       "sub": "dirty reads",
+       "tone": "bad",
+       "cue": "Read uncommitted allows"
+      },
+      {
+       "label": "Postgres default",
+       "text": "read committed",
+       "sub": "no dirty reads",
+       "cue": "Read committed blocks"
+      },
+      {
+       "label": "MySQL default",
+       "text": "repeatable read",
+       "sub": "rows hold still",
+       "cue": "Repeatable read keeps"
+      },
+      {
+       "label": "strongest",
+       "text": "serializable",
+       "sub": "slower, retries",
+       "tone": "good",
+       "cue": "Serializable acts"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Lost updates and deadlocks",
+     "covers": [
+      "be04"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Give a lost update. Both read one hundred, write seventy and eighty, and thirty vanishes. What's a deadlock? Two transactions each wait for a row the other holds. Then what? The database aborts one, and you retry. How do you avoid it? Lock rows in one order, and keep transactions short.",
+     "rows": [
+      [
+       "Give a lost update",
+       "Both read 100, write 70 then 80: 80 wins"
+      ],
+      [
+       "What is a deadlock?",
+       "Each waits for a row the other holds"
+      ],
+      [
+       "Then what?",
+       "The DB aborts one; you retry it"
+      ],
+      [
+       "How do you avoid it?",
+       "Same lock order, short transactions"
+      ]
+     ],
+     "cues": [
+      "Give a lost update",
+      "What's a deadlock",
+      "Then what",
+      "How do you avoid"
      ]
     },
     {
@@ -1441,35 +1689,107 @@
       "They ask",
       "You say"
      ],
-     "say": "Race condition? A gap between read and write where another request sneaks in. Best fix? One atomic update. Otherwise? A version column and retry, or select for update. Optimistic when? Conflicts are rare. Lock in app code? Breaks with many servers.",
+     "say": "What's a race condition? Another request sneaks in between your read and write. What's the best fix? One atomic update, so there's no gap. And otherwise? Add a version column, and retry on zero rows. Or lock the row with select for update.",
      "rows": [
       [
        "What is a race condition?",
-       "Read, think, write: someone sneaks in"
+       "Someone sneaks in between read and write"
       ],
       [
        "Best fix?",
-       "One atomic `UPDATE`"
+       "One atomic `UPDATE`: no gap at all"
       ],
       [
        "Otherwise?",
-       "Version column + retry, or `FOR UPDATE`"
+       "Version column, retry on 0 rows"
       ],
       [
-       "Optimistic locking, when?",
-       "Conflicts are rare"
+       "Or?",
+       "`SELECT ... FOR UPDATE` locks the row"
+      ]
+     ],
+     "cues": [
+      "What's a race condition",
+      "the best fix",
+      "And otherwise",
+      "Or lock the row"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Follow-up: is BEGIN enough?",
+     "covers": [
+      "be13"
+     ],
+     "say": "Follow-up: does begin alone fix it? No, not at read committed. The plain select takes no lock, so both requests still read one hundred. Add for update to that select, or use one atomic update.",
+     "panels": [
+      {
+       "file": "bank.sql",
+       "label": "not enough",
+       "tone": "bad",
+       "code": "BEGIN;\nSELECT balance FROM accounts\n  WHERE id = 1;\nUPDATE accounts SET balance = 70\n  WHERE id = 1;\nCOMMIT;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        6
+       ],
+       "cue": "does begin alone"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "plain select"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "no lock: both read 100",
+       "tone": "bad",
+       "cue": "still read one hundred"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Pick the right lock",
+     "covers": [
+      "be13"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "When is optimistic locking best? When conflicts are rare, like profile edits. And pessimistic locking? When conflicts are frequent, like one hot counter. Why not a lock in app code? It breaks once you run many servers, so let the database lock.",
+     "rows": [
+      [
+       "Optimistic, when?",
+       "Conflicts are rare, like profile edits"
+      ],
+      [
+       "Pessimistic, when?",
+       "Conflicts are frequent, like a hot counter"
       ],
       [
        "Lock in app code?",
        "Breaks with many servers"
+      ],
+      [
+       "So what instead?",
+       "Let the database lock the row"
       ]
      ],
      "cues": [
-      "Race condition",
-      "Best fix",
-      "Otherwise",
-      "Optimistic when",
-      "Lock in app code"
+      "When is optimistic",
+      "And pessimistic",
+      "Why not a lock",
+      "so let the database"
      ]
     }
    ]
@@ -1508,16 +1828,16 @@
     },
     {
      "type": "take",
-     "say": "So say this. A transaction is all or nothing, and ACID keeps it safe. A lost update is read, think, write, with a gap. Fix it with one atomic update, a row lock, or a version column.",
+     "say": "So say this. A transaction is all or nothing, and ACID keeps it safe. Fix a lost update with one atomic update, a row lock, or a version column. Isolation levels say what a transaction can see, and a deadlock gets retried.",
      "lines": [
       "A transaction: all or nothing. ACID keeps it safe.",
-      "Lost update: read, think, write, with a gap.",
-      "Fix: one atomic UPDATE, a row lock, or a version."
+      "Lost update: atomic UPDATE, row lock, or version.",
+      "Levels set what you see; deadlocks get retried."
      ],
      "cues": [
       "A transaction",
-      "A lost update",
-      "Fix it"
+      "Fix a lost update",
+      "Isolation levels say"
      ]
     }
    ]
