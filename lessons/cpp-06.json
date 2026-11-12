@@ -81,11 +81,11 @@
       "output": "sizeof is 12, and 1,000 waste 4 KB"
      },
      "note": "typical 64-bit platform, int is 4 bytes",
-     "say": "Here is the problem. For example, this struct: a char, an int, another char. Size of it? Twelve. Assume a typical platform, where an int is four bytes.",
+     "say": "A char, an int, a char: six bytes of data. Ask size of, and it says twelve. Nothing in the code mentions padding, so who added six bytes? Typical platform: an int is four bytes.",
      "cues": {
-      "example": "For example",
-      "output": "Twelve",
-      "note": "typical platform"
+      "example": "A char, an int",
+      "output": "says twelve",
+      "note": "Typical platform"
      }
     },
     {
@@ -277,11 +277,11 @@
       "output": "{ int b; char a; char c; } is 8 bytes"
      },
      "note": "a million structs: 4 MB saved",
-     "say": "Here is the problem. For example, take our twelve byte struct. Same three fields, different order. Eight bytes. Do that on a million structs, and you save four megabytes for free.",
+     "say": "Same three fields, different order, and the struct drops to eight bytes. Picture a game with a million of these: four megabytes saved for free. How?",
      "cues": {
-      "example": "For example",
-      "output": "Eight bytes",
-      "note": "you save four"
+      "example": "Same three fields",
+      "output": "eight bytes",
+      "note": "million of these"
      }
     },
     {
@@ -477,10 +477,10 @@
       "output": "Point{1, 2} living in buf"
      },
      "note": "no heap, no delete",
-     "say": "Here is the problem. For example, a buffer of eight raw bytes on the stack. We want a Point, one and two, living inside it. And no heap allocation at all.",
+     "say": "You already own eight raw bytes on the stack. Can you build a Point, one and two, right inside them? With no heap allocation at all.",
      "cues": {
-      "example": "For example",
-      "output": "one and two",
+      "example": "eight raw bytes",
+      "output": "build a Point",
       "note": "no heap"
      }
     },

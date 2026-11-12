@@ -73,9 +73,9 @@
       "input": "Shape, Circle (r = 2), Square (s = 3)",
       "output": "areas 12.57 and 9"
      },
-     "say": "Here is the problem. For example, a Circle of radius two, and a Square of side three. Areas: twelve point five seven, and nine. Name four pillars with this.",
+     "say": "A Circle of radius two, a Square of side three. Areas: twelve point five seven, and nine. Name the four pillars.",
      "cues": {
-      "example": "For example",
+      "example": "A Circle",
       "output": "Areas"
      }
     },
@@ -231,10 +231,10 @@
       "input": "private balance vs Storage::save()",
       "output": "guard the inside vs simplify the outside"
      },
-     "say": "Here is the problem. For example, a private balance, and a Storage with save. Both hide something. What is the difference?",
+     "say": "A private balance, and a Storage with save. Both hide something. So what is the difference?",
      "cues": {
-      "example": "For example",
-      "output": "What is the difference"
+      "example": "A private balance",
+      "output": "what is the difference"
      }
     },
     {
@@ -352,10 +352,10 @@
       "input": "class Dog : public Animal",
       "output": "Dog gets eat(); age is protected"
      },
-     "say": "Here is the problem. For example, Dog derives from Animal. What does Dog get for free? What kinds of inheritance exist? And what goes wrong when two bases share a base?",
+     "say": "Dog derives from Animal. What does Dog get for free? How many kinds exist? And what breaks when two bases share a base?",
      "cues": {
-      "example": "For example",
-      "output": "What kinds"
+      "example": "Dog derives",
+      "output": "How many kinds"
      }
     },
     {
@@ -567,9 +567,9 @@
       "input": "Animal* a = new Dog; a->speak();",
       "output": "Woof, chosen at runtime"
      },
-     "say": "Here is the problem. For example, an Animal pointer holding a Dog. We call speak. Which version runs, and when is that decided? One keyword decides.",
+     "say": "An Animal pointer holds a Dog, and we call speak. Which version runs, and when is that decided?",
      "cues": {
-      "example": "For example",
+      "example": "An Animal pointer",
       "output": "when is that decided"
      }
     },
@@ -827,10 +827,10 @@
       "input": "add(1, 2) vs a->speak()",
       "output": "decided by the compiler vs by the object"
      },
-     "say": "Here is the problem. For example, add with ints, and speak through an Animal pointer. One is settled before the program runs. The other, while it runs.",
+     "say": "Add of one and two, versus speak through an Animal pointer. Both are polymorphism. One settled before the program runs, one while it runs.",
      "cues": {
-      "example": "For example",
-      "output": "settled before"
+      "example": "Add of one",
+      "output": "Both are"
      }
     },
     {
@@ -974,10 +974,10 @@
       "input": "virtual double area() const = 0;",
       "output": "Shape s; is an error"
      },
-     "say": "Here is the problem. For example, area with equals zero. A plain Shape can't compute it, so creating one is an error.",
+     "say": "A Shape knows every shape has an area, not how to compute it. Can the compiler refuse to create a bare Shape?",
      "cues": {
-      "example": "For example",
-      "output": "creating one"
+      "example": "A Shape knows",
+      "output": "Can the compiler"
      }
     },
     {

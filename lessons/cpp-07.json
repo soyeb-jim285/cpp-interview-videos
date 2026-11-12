@@ -79,9 +79,9 @@
       "input": "int a[4] = {10, 20, 30, 40}; q = p + 2",
       "output": "*q is 30, and q - p is 2"
      },
-     "say": "Here is the problem. For example, four ints, and a pointer p at the first. Add two. Where do we land? Eight bytes along, not two.",
+     "say": "Four ints in a row, and a pointer p on the first. Add two. Where does it land? Eight bytes along, not two.",
      "cues": {
-      "example": "For example",
+      "example": "Four ints",
       "output": "Add two"
      },
      "note": "int is 4 bytes here"
@@ -354,10 +354,10 @@
       "input": "int* p, int& r, int&& rr",
       "output": "p holds an address; r aliases; rr grabs"
      },
-     "say": "Here is the problem. For example, three kinds of ampersand, star, and double ampersand. They look alike. Interviewers love asking which does what.",
+     "say": "Star, ampersand, double ampersand. Three symbols on the same int, and interviewers love asking which does what.",
      "cues": {
-      "example": "For example",
-      "output": "Interviewers love"
+      "example": "Star, ampersand",
+      "output": "interviewers love"
      }
     },
     {
@@ -657,9 +657,9 @@
       "input": "void* v = &x;   make(&p)",
       "output": "v holds any address; p gets a new target"
      },
-     "say": "Here is the problem. For example, a pointer that can hold the address of any object. And a function that re-points the caller's own pointer. Two tools, two kinds of star.",
+     "say": "Two puzzles. One pointer that can hold the address of anything. And a function that points the caller's own pointer somewhere new.",
      "cues": {
-      "example": "For example",
+      "example": "Two puzzles",
       "output": "And a function"
      }
     },
@@ -894,10 +894,10 @@
       "input": "const int* p; int* const p;",
       "output": "value locked; pointer locked"
      },
-     "say": "Here is the problem. For example, two pointers, with const on different sides of the star. A famous interview trap. Say each one aloud, and say what it locks.",
+     "say": "Where does const go? Left of the star, or right? Same words, different locks. Say each aloud, and say what it locks.",
      "cues": {
-      "example": "For example",
-      "output": "A famous"
+      "example": "Where does const go",
+      "output": "Same words"
      }
     },
     {
@@ -1134,10 +1134,10 @@
       "input": "int* bad() { int x = 42; return &x; }",
       "output": "no: the pointer dangles"
      },
-     "say": "Here is the problem. For example, a function makes x, and returns its address. It compiles. Candidates say it works because they tried it once. Let's see why that is luck.",
+     "say": "Your function builds a local, returns its address, and compiles cleanly. Candidates answer that it works, because they tried it once. Does it?",
      "cues": {
-      "example": "For example",
-      "output": "Candidates say"
+      "example": "builds a local",
+      "output": "Candidates answer"
      }
     },
     {
@@ -1402,9 +1402,9 @@
       "input": "int arr[4]; int* p = arr;",
       "output": "sizeof(arr) is 16, sizeof(p) is 8"
      },
-     "say": "Here is the problem. For example, four ints, and a pointer to them. Same thing? Ask size of each. Most candidates get the function case wrong.",
+     "say": "Four ints, and a pointer to them. Same thing? Ask size of about each. Most candidates get the function case wrong.",
      "cues": {
-      "example": "For example",
+      "example": "Four ints",
       "output": "Most candidates"
      }
     },
