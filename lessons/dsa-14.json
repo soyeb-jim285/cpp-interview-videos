@@ -47,7 +47,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Compute three to the thirteen mod seven in five multiplications. Then answer range sums while values keep changing, in log n. By the end you'll do both, with number theory and trees.",
+     "say": "Contest answers are too big, so we print them mod one billion seven. Compute three to the thirteen mod seven in five multiplications. Then answer range sums while values change, in log n. By the end you'll do both.",
      "lines": [
       {
        "text": "3^13 mod 7 in 5 multiplications",
@@ -81,16 +81,16 @@
     },
     {
      "type": "problem",
-     "title": "Huge answer, small remainder",
-     "statement": "Contest answers are astronomically large. Print them modulo 1,000,000,007.",
+     "title": "Ten o'clock plus five hours",
+     "statement": "A twelve-hour clock wraps around. Find the hour five hours after ten o'clock.",
      "example": {
-      "input": "2^100 mod 1,000,000,007",
-      "output": "976371285"
+      "input": "10 o'clock + 5 hours, mod 12",
+      "output": "3 o'clock"
      },
-     "say": "Imagine a thirty one digit answer. Contests want its remainder mod one billion seven. For two to the hundredth: nine seven six, three seven one, two eight five.",
+     "say": "Ten o'clock, and five hours pass. What hour does the clock show? Three o'clock.",
      "cues": {
-      "example": "For two to",
-      "output": "nine seven six"
+      "example": "Ten o'clock",
+      "output": "Three o'clock"
      }
     },
     {
@@ -266,6 +266,20 @@
    "scenes": [
     {
      "type": "problem",
+     "title": "Huge answer, small remainder",
+     "statement": "Contest answers are astronomically large. Print them modulo 1,000,000,007.",
+     "example": {
+      "input": "2^100 mod 1,000,000,007",
+      "output": "976371285"
+     },
+     "say": "Imagine a thirty one digit answer. Contests want its remainder mod one billion seven. Fast power gets two to the hundredth: nine seven six, three seven one, two eight five.",
+     "cues": {
+      "example": "Fast power gets",
+      "output": "nine seven six"
+     }
+    },
+    {
+     "type": "problem",
      "title": "Fast power",
      "statement": "Compute a big power modulo m without multiplying e times.",
      "example": {
@@ -406,11 +420,11 @@
     {
      "type": "code",
      "head": "Fast power in code",
-     "say": "The loop in code. If the lowest bit of e is set, multiply the result. Always square the base, and shift e right. That's O of log e multiplications, not e. It prints three.",
+     "say": "The loop in code. If the lowest bit of e is set, multiply the result. Always square the base, and shift e right. That's O of log e multiplications, not e. It prints three, then two to the hundredth mod one billion seven.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "long long power(long long b, long long e, long long m) {\n    long long r = 1; b %= m;\n    while (e > 0) {\n        if (e & 1) r = r * b % m;\n        b = b * b % m; e >>= 1;\n    }\n    return r;\n}\nint main() { cout << power(3, 13, 7); }"
+       "code": "long long power(long long b, long long e, long long m) {\n    long long r = 1; b %= m;\n    while (e > 0) {\n        if (e & 1) r = r * b % m;\n        b = b * b % m; e >>= 1;\n    }\n    return r;\n}\nint main() { cout << power(3,13,7) << ' ' << power(2,100,1000000007); }"
       }
      ],
      "steps": [
@@ -444,7 +458,7 @@
      ],
      "output": {
       "cmd": "./sol",
-      "text": "3",
+      "text": "3 976371285",
       "cue": "prints three",
       "setup": {
        "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"
@@ -885,8 +899,8 @@
      ],
      "notes": [
       {
-       "x": 300,
-       "y": 830,
+       "x": 510,
+       "y": 870,
        "text": "stop: 7² = 49 > 30",
        "tone": "warn",
        "cue": "past thirty"
@@ -1161,7 +1175,7 @@
     {
      "type": "compare",
      "head": "Sieve follow-ups",
-     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i needs a long long. So the sieve lists ten primes.",
+     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i is fine as an int here. So the sieve lists ten primes.",
      "heads": [
       "Question",
       "Answer"
@@ -1177,7 +1191,7 @@
       ],
       [
        "`i * i <= n` with int i",
-       "can overflow: use long long"
+       "fine for n up to 10^7; overflows only past about 2 billion"
       ]
      ],
      "cues": [
@@ -1245,18 +1259,64 @@
      "say": "Here are five values. The tree stores subtotals. T one holds the first value, five. T three holds nine, and t five holds seven. T two covers two values: seven. T four covers four: seventeen. The sum of the first four is just t four: seventeen. One step, not four.",
      "items": [
       {
-       "array": {
-        "id": "c",
-        "values": [
-         5,
-         2,
-         9,
-         1,
-         7
-        ],
-        "y": 250,
-        "cue": "five values"
-       }
+       "id": "c0",
+       "x": 520,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "cue": "five values",
+       "text": "5",
+       "label": "1",
+       "size": 56
+      },
+      {
+       "id": "c1",
+       "x": 700,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "cue": "five values",
+       "text": "2",
+       "label": "2",
+       "size": 56
+      },
+      {
+       "id": "c2",
+       "x": 880,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "cue": "five values",
+       "text": "9",
+       "label": "3",
+       "size": 56
+      },
+      {
+       "id": "c3",
+       "x": 1060,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "cue": "five values",
+       "text": "1",
+       "label": "4",
+       "size": 56
+      },
+      {
+       "id": "c4",
+       "x": 1240,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "cue": "five values",
+       "text": "7",
+       "label": "5",
+       "size": 56
       },
       {
        "id": "t1",
@@ -1329,17 +1389,59 @@
      "say": "Now add three at index two. Which subtotals contain index two? T two, then t four. Add three to each: ten, then twenty. The sum of the first four is now twenty.",
      "items": [
       {
-       "array": {
-        "id": "c",
-        "values": [
-         5,
-         2,
-         9,
-         1,
-         7
-        ],
-        "y": 250
-       }
+       "id": "c0",
+       "x": 520,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "text": "5",
+       "label": "1",
+       "size": 56
+      },
+      {
+       "id": "c1",
+       "x": 700,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "text": "2",
+       "label": "2",
+       "size": 56
+      },
+      {
+       "id": "c2",
+       "x": 880,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "text": "9",
+       "label": "3",
+       "size": 56
+      },
+      {
+       "id": "c3",
+       "x": 1060,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "text": "1",
+       "label": "4",
+       "size": 56
+      },
+      {
+       "id": "c4",
+       "x": 1240,
+       "y": 250,
+       "w": 160,
+       "h": 160,
+       "tone": "blue",
+       "text": "7",
+       "label": "5",
+       "size": 56
       },
       {
        "id": "t1",
@@ -1434,7 +1536,7 @@
     {
      "type": "code",
      "head": "Fenwick tree in code",
-     "say": "Query goes down: subtract the lowest bit each time, adding subtotals. Update goes up: add the lowest bit each time, fixing every subtotal that covers i. Both loops run at most log n times. A range sum is sum of r minus sum of l minus one.",
+     "say": "Query goes down: subtract the lowest bit each time, adding subtotals. Lowbit is the value of the lowest one bit: lowbit of six is two. Update goes up: add the lowest bit each time, fixing every subtotal that covers i. Both loops run at most log n times. A range sum is sum of r minus sum of l minus one.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1453,26 +1555,35 @@
       },
       {
        "lines": [
+        7
+       ],
+       "cue": "Lowbit is"
+      },
+      {
+       "lines": [
         2,
         3
        ],
        "cue": "Update goes up"
       },
       {
-       "lines": [],
+       "lines": [
+        3,
+        7
+       ],
        "cue": "Both loops run"
       }
      ],
      "notes": [
       {
-       "line": 6,
+       "line": 7,
        "inside": true,
        "text": "down: i −= lowbit",
        "tone": "info",
        "cue": "subtract the lowest bit"
       },
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "up: i += lowbit",
        "tone": "good",
@@ -1702,6 +1813,24 @@
        "glow": true,
        "tone": "good",
        "cue": "the smallest of everything"
+      },
+      {
+       "id": "t1",
+       "text": "7",
+       "tone": "good",
+       "cue": "Swap min for plus"
+      },
+      {
+       "id": "t4",
+       "text": "10",
+       "tone": "good",
+       "cue": "Swap min for plus"
+      },
+      {
+       "id": "t0",
+       "text": "17",
+       "tone": "good",
+       "cue": "Swap min for plus"
       }
      ]
     },
@@ -1833,7 +1962,7 @@
     {
      "type": "code",
      "head": "Query in code",
-     "say": "For a query over the half open range l to r, start at both leaves and walk inward. If l is a right child, take it and step right. If r is a right edge, step left and take it. Only whole blocks: O of log n.",
+     "say": "For a query over the half open range l to r, where l is in and r is out, start at both leaves and walk inward. If l is a right child, take it and step right. If r is a right edge, step left and take it. Only whole blocks: O of log n.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1851,7 +1980,7 @@
        "lines": [
         3
        ],
-       "cue": "walk inward"
+       "cue": "start at both leaves"
       },
       {
        "lines": [
@@ -1977,7 +2106,7 @@
     {
      "type": "compare",
      "head": "Segment tree vs Fenwick",
-     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building a segment tree is linear. And the query range is half open: r is excluded. That's how the tree finds the minimum.",
+     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building either one is linear, built bottom up. And the query range is half open: r is excluded. That's how the tree finds the minimum.",
      "heads": [
       "Question",
       "Answer"
@@ -1993,7 +2122,7 @@
       ],
       [
        "Build time?",
-       "segment tree O(n); Fenwick n log n"
+       "O(n) for both, built bottom up"
       ],
       [
        "Query range",
@@ -2023,7 +2152,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Why mod one billion seven? Prime, and products fit in sixty four bits. Fast power? O of log e. Inverse? Fermat, prime modulus only. Sieve? n log log n. Mistake? Overflow before the mod.",
+     "say": "Why mod one billion seven? Prime, and products fit in sixty four bits. Fast power? O of log e. Inverse? Fermat, prime modulus only. GCD? Euclid: the pair becomes the second number and the remainder, O of log n. Sieve? n log log n. Mistake? Overflow before the mod.",
      "rows": [
       [
        "Why mod 1e9+7?",
@@ -2038,6 +2167,10 @@
        "Fermat: a^(p−2), prime p only"
       ],
       [
+       "GCD?",
+       "Euclid: gcd(a, b) = gcd(b, a mod b), O(log n)"
+      ],
+      [
        "Sieve time? Mistake?",
        "n log log n; overflow before mod"
       ]
@@ -2046,6 +2179,7 @@
       "Why mod",
       "Fast power",
       "Inverse",
+      "GCD",
       "Sieve"
      ]
     },
@@ -2123,13 +2257,13 @@
      "type": "take",
      "say": "So say this. Reduce mod after every step. Fast power takes log e multiplications. A sieve lists primes in n log log n. Fenwick and segment trees take log n.",
      "lines": [
-      "Mod after every step; fast power: O(log e).",
-      "Sieve: all primes up to n in O(n log log n).",
-      "Fenwick or segment tree: O(log n) per query."
+      "Mod after every step.",
+      "Fast power: O(log e). Sieve: O(n log log n).",
+      "Fenwick or segment tree: O(log n)."
      ],
      "cues": [
       "Reduce mod",
-      "A sieve",
+      "Fast power takes",
       "Fenwick and segment"
      ]
     }
