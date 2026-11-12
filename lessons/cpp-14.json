@@ -1,0 +1,1072 @@
+{
+ "id": "cpp-14",
+ "track": "C++",
+ "num": 14,
+ "title": "Reading Real Code: Five Classic Bugs",
+ "covers": [
+  "q96",
+  "q97",
+  "q98",
+  "q99",
+  "q100"
+ ],
+ "caps": [
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "Rule of Three",
+   "Rule of Three"
+  ],
+  [
+   "Rule of Zero",
+   "Rule of Zero"
+  ],
+  [
+   "Address Sanitizer",
+   "AddressSanitizer"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Bug 1: a pointer to a dead local",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "An interviewer slides five short snippets across the table. Each hides one classic bug. By the end, you'll spot all five, and explain each like a senior engineer.",
+     "lines": [
+      {
+       "text": "5 snippets. 5 classic bugs.",
+       "cue": "five short snippets"
+      },
+      {
+       "text": "Spot the bug.",
+       "cue": "spot all five"
+      },
+      {
+       "text": "Explain it like a senior.",
+       "cue": "senior engineer",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Read each snippet like a compiler, then like a memory diagram. Four bug families. Dangling pointers, hidden copies, vector growth, and a double delete.",
+     "lines": [
+      "Dangling pointers: a local, a freed int",
+      "Hidden copies: count the prints",
+      "Vector growth, and the double delete"
+     ],
+     "cues": [
+      "Dangling pointers",
+      "hidden copies",
+      "vector growth"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Snippet one: what is wrong?",
+     "statement": "getValue returns the address of its own local int. It compiles, and it might even print ten.",
+     "example": {
+      "input": "int* p = getValue(); cout << *p;",
+      "output": "undefined behavior"
+     },
+     "say": "First snippet, and it looks innocent. getValue returns the address of its own local int. For example, we call it and print through the pointer. Undefined behavior, even if it prints ten.",
+     "cues": {
+      "example": "For example",
+      "output": "Undefined behavior"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and decide. The function returns the address of x. Is that pointer safe to use after the call?",
+     "q": "`int x = 10; return &x;` Is `*p` safe after the call?",
+     "options": [
+      "yes, it prints 10",
+      "no, x is gone",
+      "only with -O2",
+      "only for ints"
+     ],
+     "answer": "no, x is gone"
+    },
+    {
+     "type": "diagram",
+     "head": "Watch the stack",
+     "say": "No: x is gone. Here's why. main calls getValue. A new stack frame appears, with x holding ten. getValue returns its address, and p stores it. But the frame is popped the moment it returns. The next call reuses that memory. Reading star p is undefined: ten, garbage, or a crash.",
+     "items": [
+      {
+       "id": "m",
+       "x": 250,
+       "y": 260,
+       "w": 420,
+       "h": 140,
+       "text": "p = ?",
+       "cue": "main calls",
+       "label": "main",
+       "size": 48
+      },
+      {
+       "id": "g",
+       "x": 250,
+       "y": 520,
+       "w": 420,
+       "h": 140,
+       "text": "x = 10",
+       "cue": "new stack frame",
+       "label": "getValue",
+       "tone": "good",
+       "size": 48
+      }
+     ],
+     "arrows": [
+      {
+       "from": "m",
+       "to": "g",
+       "tone": "warn",
+       "label": "p = &x",
+       "cue": "stores it"
+      }
+     ],
+     "changes": [
+      {
+       "id": "g",
+       "kill": true,
+       "cue": "the frame is popped"
+      },
+      {
+       "id": "m",
+       "text": "dangling",
+       "tone": "bad",
+       "cue": "the frame is popped"
+      },
+      {
+       "id": "g",
+       "text": "other()",
+       "tone": "warn",
+       "cue": "reuses that memory"
+      },
+      {
+       "id": "m",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Reading star p"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The compiler warns, and two fixes",
+     "say": "Good news: the compiler warns. Read it. Fix one: return the int by value. Copying an int is free. Fix two: if it must outlive the call, build it on the heap, and return a unique pointer.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int* getValue() { int x = 10; return &x; }\n\nint getValue() { int x = 10; return x; }\n\nunique_ptr<int> makeValue() {\n    return make_unique<int>(10);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "compiler warns"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "return the int by value"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "is free"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "build it on the heap"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "unique pointer"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -Wall value.cpp",
+      "text": "warning: address of local variable 'x' returned",
+      "cue": "Read it",
+      "tone": "bad"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Bug 2: use after free",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Snippet two: what prints?",
+     "statement": "Allocate an int holding five, delete it, then print through the pointer.",
+     "example": {
+      "input": "p = new int(5); delete p; cout << *p;",
+      "output": "use after free: undefined"
+     },
+     "say": "Three short lines. New int of five, delete p, then print star p. For example, five, zero, or a crash? Use after free.",
+     "cues": {
+      "example": "For example",
+      "output": "Use after free"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and decide. What does the program print? Pause and predict.",
+     "q": "`int* p = new int(5); delete p; cout << *p;` Prints?",
+     "options": [
+      "5",
+      "0",
+      "a crash",
+      "anything: UB"
+     ],
+     "answer": "anything: UB"
+    },
+    {
+     "type": "diagram",
+     "head": "Delete does not touch p",
+     "say": "Anything. Look at the heap. New makes a block holding five, and p holds its address. Delete hands the block back to the allocator. But p is unchanged: it still holds that address. The allocator may reuse the block, or write its own notes into it. Printing five proves nothing.",
+     "items": [
+      {
+       "id": "p",
+       "x": 250,
+       "y": 300,
+       "w": 360,
+       "h": 140,
+       "text": "0x1000",
+       "cue": "p holds its address",
+       "label": "p",
+       "size": 44
+      },
+      {
+       "id": "b",
+       "x": 900,
+       "y": 300,
+       "w": 360,
+       "h": 140,
+       "text": "5",
+       "cue": "a block holding five",
+       "label": "heap",
+       "tone": "good",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "b",
+       "cue": "p holds its address"
+      }
+     ],
+     "changes": [
+      {
+       "id": "b",
+       "kill": true,
+       "cue": "hands the block back"
+      },
+      {
+       "id": "p",
+       "text": "still 0x1000",
+       "tone": "warn",
+       "cue": "p is unchanged"
+      },
+      {
+       "id": "b",
+       "text": "allocator's",
+       "tone": "warn",
+       "cue": "write its own notes"
+      },
+      {
+       "id": "p",
+       "glow": true,
+       "tone": "bad",
+       "cue": "proves nothing"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Catch it, then make it impossible",
+     "say": "Address Sanitizer catches it at once, and names it: heap use after free. A band aid: null the pointer after delete, so a later star p fails fast. But other copies still dangle. The real fix: make unique. No manual delete, and no way to touch freed memory.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "delete p;\np = nullptr;       // band-aid: fails fast\n\nauto q = make_unique<int>(5);\ncout << *q;        // freed at scope end"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "names it"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "null the pointer"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "fails fast"
+      },
+      {
+       "lines": [],
+       "cue": "still dangle"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "make unique"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -fsanitize=address main.cpp && ./a.out",
+      "text": "ERROR: AddressSanitizer: heap-use-after-free",
+      "cue": "heap use after free",
+      "tone": "bad"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Bug 3: count the prints",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Snippet three: count the prints",
+     "statement": "A class prints in its constructor and its destructor. main makes a, then b from a. Count each line.",
+     "example": {
+      "input": "Test a; Test b = a;",
+      "output": "1 Constructor, 2 Destructor"
+     },
+     "say": "A counting puzzle. Test prints in its constructor and destructor. For example, a is made, then b from a. How many of each? One constructor, two destructors.",
+     "cues": {
+      "example": "For example",
+      "output": "One constructor"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and count. Two objects. How many Constructor lines, and how many Destructor lines? Pause and predict.",
+     "q": "`Test a; Test b = a;` Constructor / Destructor lines?",
+     "options": [
+      "1 and 1",
+      "2 and 2",
+      "1 and 2",
+      "2 and 1"
+     ],
+     "answer": "1 and 2"
+    },
+    {
+     "type": "diagram",
+     "head": "Count them live",
+     "say": "One and two. Watch. Test a runs the default constructor: one Constructor line. Test b equals a is not your constructor. It's the copy constructor, which the compiler wrote, and it prints nothing. At the brace, b dies first, then a. Two objects, two destructors.",
+     "items": [
+      {
+       "id": "a",
+       "x": 250,
+       "y": 300,
+       "w": 300,
+       "h": 140,
+       "text": "a",
+       "cue": "Test a runs",
+       "label": "object",
+       "size": 56
+      },
+      {
+       "id": "b",
+       "x": 700,
+       "y": 300,
+       "w": 300,
+       "h": 140,
+       "text": "b",
+       "cue": "copy constructor",
+       "label": "object",
+       "tone": "blue",
+       "size": 56
+      },
+      {
+       "id": "c1",
+       "x": 1250,
+       "y": 260,
+       "w": 420,
+       "h": 120,
+       "text": "0",
+       "cue": "default constructor",
+       "label": "prints",
+       "tone": "info",
+       "size": 56
+      },
+      {
+       "id": "c2",
+       "x": 1250,
+       "y": 500,
+       "w": 420,
+       "h": 120,
+       "text": "0",
+       "cue": "At the brace",
+       "label": "prints",
+       "tone": "warn",
+       "size": 56
+      }
+     ],
+     "changes": [
+      {
+       "id": "c1",
+       "count": [
+        0,
+        1
+       ],
+       "cue": "one Constructor line"
+      },
+      {
+       "id": "b",
+       "glow": true,
+       "tone": "good",
+       "cue": "prints nothing"
+      },
+      {
+       "id": "b",
+       "kill": true,
+       "cue": "b dies first"
+      },
+      {
+       "id": "c2",
+       "count": [
+        0,
+        1
+       ],
+       "cue": "b dies first"
+      },
+      {
+       "id": "a",
+       "kill": true,
+       "cue": "then a"
+      },
+      {
+       "id": "c2",
+       "count": [
+        1,
+        2
+       ],
+       "cue": "two destructors"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Make the copy visible",
+     "say": "To see it, write the copy constructor yourself. Now the output shows every life: constructed, copied, and two destructions. Every object is destroyed once. Not every creation uses your constructor. And equals on an existing object is assignment.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "class Test {\npublic:\n  Test() { cout << \"Constructor \"; }\n  Test(const Test&) { cout << \"Copy constructor \"; }\n  ~Test() { cout << \"Destructor \"; }\n};\nTest a;\nTest b = a;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "copy constructor yourself"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "every life"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "two destructions"
+      },
+      {
+       "lines": [],
+       "cue": "destroyed once"
+      },
+      {
+       "lines": [],
+       "cue": "is assignment"
+      }
+     ],
+     "output": {
+      "cmd": "./fixed",
+      "text": "Constructor Copy constructor Destructor Destructor",
+      "cue": "two destructions",
+      "tone": "good"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Bug 4: the moving vector",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Snippet four: is p still valid?",
+     "statement": "Reserve room for two ints, push ten and twenty, and take a pointer to the first. Then push thirty.",
+     "example": {
+      "input": "p = &v[0]; v.push_back(30);",
+      "output": "no: p dangles"
+     },
+     "say": "A vector has room for two ints. For example, ten and twenty are in, p points at ten. Push thirty. Valid? No.",
+     "cues": {
+      "example": "For example",
+      "output": "No."
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and decide. The vector is full, and we push one more. Does p still point at ten? Pause and predict.",
+     "q": "Capacity 2, size 2, `int* p = &v[0]; v.push_back(30);` p valid?",
+     "options": [
+      "yes",
+      "no: it dangles",
+      "only if sorted",
+      "compile error"
+     ],
+     "answer": "no: it dangles"
+    },
+    {
+     "type": "diagram",
+     "head": "The block moves",
+     "say": "No. The vector is full, so push back allocates a bigger block, usually double. It moves ten and twenty across, adds thirty, and frees the old block. But p still holds the old address. It dangles.",
+     "items": [
+      {
+       "array": {
+        "id": "o",
+        "values": [
+         10,
+         20
+        ],
+        "y": 260,
+        "cue": "The vector is full"
+       }
+      },
+      {
+       "id": "p",
+       "x": 810,
+       "y": 450,
+       "w": 200,
+       "h": 100,
+       "text": "p",
+       "cue": "still holds",
+       "tone": "warn",
+       "size": 40
+      },
+      {
+       "array": {
+        "id": "n",
+        "values": [
+         "·",
+         "·",
+         "·",
+         "·"
+        ],
+        "y": 600,
+        "cue": "bigger block"
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "text": "10",
+       "cue": "moves ten and twenty"
+      },
+      {
+       "id": "n1",
+       "text": "20",
+       "cue": "moves ten and twenty"
+      },
+      {
+       "id": "n2",
+       "text": "30",
+       "tone": "good",
+       "cue": "adds thirty"
+      },
+      {
+       "id": "o0",
+       "kill": true,
+       "cue": "frees the old block"
+      },
+      {
+       "id": "o1",
+       "kill": true,
+       "cue": "frees the old block"
+      },
+      {
+       "id": "p",
+       "text": "dangling",
+       "tone": "bad",
+       "cue": "It dangles"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The rule, and three fixes",
+     "say": "The rule: if size would exceed capacity, every pointer, reference and iterator is invalidated. With spare room, only end is. Fix one: reserve enough before taking pointers. Fix two: keep an index, which survives growth. Fix three: take the pointer after the last push back.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "v.reserve(3);       // fix 1: room first\n\nsize_t i = 0;       // fix 2: v[i] survives\n\nv.push_back(30);\nint* p = &v[0];     // fix 3: take it last"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [],
+       "cue": "The rule"
+      },
+      {
+       "lines": [],
+       "cue": "every pointer"
+      },
+      {
+       "lines": [],
+       "cue": "only end is"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "reserve enough"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "keep an index"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "after the last push back"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Bug 5: the double delete",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Snippet five: the memory bug",
+     "statement": "User allocates an int in its constructor, and deletes it in its destructor. main copies a into b.",
+     "example": {
+      "input": "User a; User b = a;",
+      "output": "double free: crash"
+     },
+     "say": "User allocates an int, and deletes it. Looks careful. For example, a is copied into b. What goes wrong? A double free.",
+     "cues": {
+      "example": "For example",
+      "output": "A double free"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Pause and think. Both objects are destroyed. How many times is the same int deleted? Pause and predict.",
+     "q": "`User a; User b = a;` raw pointer member. Deletes of the int?",
+     "options": [
+      "none",
+      "once",
+      "twice",
+      "three times"
+     ],
+     "answer": "twice"
+    },
+    {
+     "type": "diagram",
+     "head": "A shallow copy",
+     "say": "Twice. We never wrote a copy constructor, so the compiler's copies each member. It copies the pointer, not the int. Two objects now own one int. At the end, b is destroyed and deletes it. Then a deletes the same address again. A double delete, and glibc aborts.",
+     "items": [
+      {
+       "id": "a",
+       "x": 250,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "text": "data",
+       "cue": "Two objects",
+       "label": "a",
+       "size": 48
+      },
+      {
+       "id": "b",
+       "x": 1370,
+       "y": 260,
+       "w": 300,
+       "h": 130,
+       "text": "data",
+       "cue": "copies the pointer",
+       "label": "b",
+       "tone": "blue",
+       "size": 48
+      },
+      {
+       "id": "blk",
+       "x": 810,
+       "y": 560,
+       "w": 300,
+       "h": 140,
+       "text": "10",
+       "cue": "one int",
+       "label": "heap",
+       "tone": "good",
+       "size": 56
+      }
+     ],
+     "arrows": [
+      {
+       "from": "a",
+       "to": "blk",
+       "cue": "Two objects"
+      },
+      {
+       "from": "b",
+       "to": "blk",
+       "cue": "copies the pointer"
+      }
+     ],
+     "changes": [
+      {
+       "id": "blk",
+       "kill": true,
+       "cue": "b is destroyed"
+      },
+      {
+       "id": "a",
+       "text": "delete again",
+       "tone": "bad",
+       "cue": "deletes the same address again"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix one: the Rule of Three",
+     "say": "The classic fix is the Rule of Three. A class that needs a destructor needs a copy constructor and copy assignment too. The copy constructor allocates its own int, a deep copy. Assignment copies the value into the int it owns. Now each deletes its own.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "class User {\npublic:\n  int* data;\n  User() : data(new int(10)) {}\n  User(const User& o) : data(new int(*o.data)) {}\n  User& operator=(const User& o) {\n    *data = *o.data;\n    return *this;\n  }\n  ~User() { delete data; }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [],
+       "cue": "Rule of Three"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "needs a destructor"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "allocates its own int"
+      },
+      {
+       "lines": [
+        6,
+        7,
+        8
+       ],
+       "cue": "Assignment copies"
+      },
+      {
+       "lines": [
+        10
+       ],
+       "cue": "each deletes its own"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix two: own nothing raw",
+     "say": "Even better: avoid it. Here a plain int does the job, and the compiler's copy is correct. That's the Rule of Zero. If you truly need the heap, use unique pointer. Then the accidental copy won't compile. A compile error beats a crash.",
+     "panels": [
+      {
+       "file": "zero.cpp",
+       "label": "Rule of Zero",
+       "tone": "good",
+       "code": "class User {\npublic:\n  int data = 10;\n};\nUser a;\nUser b = a;   // copies"
+      },
+      {
+       "file": "unique.cpp",
+       "label": "unique_ptr",
+       "tone": "good",
+       "code": "class User {\npublic:\n  unique_ptr<int> data =\n    make_unique<int>(10);\n};\nUser a;\nUser b = a;   // error"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "plain int",
+       "panel": 0
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "copy is correct",
+       "panel": 0
+      },
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "unique pointer",
+       "panel": 1
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "won't compile",
+       "panel": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Returning a local's address? The local dies at return, so the pointer dangles. Fix? Return by value, or unique pointer.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What's wrong?",
+       "`x` dies at return: the pointer dangles"
+      ],
+      [
+       "Fix?",
+       "return by value, or `unique_ptr`"
+      ]
+     ],
+     "cues": [
+      "Returning a local",
+      "Fix?"
+     ],
+     "covers": [
+      "q96"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "New, delete, dereference? Use after free: undefined, even if it prints five. Why? Delete frees, but p keeps the address. Prevent? Unique pointer, and Address Sanitizer.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What happens?",
+       "use after free: undefined, even if it prints 5"
+      ],
+      [
+       "Why?",
+       "`delete` frees; `p` still holds the address"
+      ],
+      [
+       "Prevent it?",
+       "`unique_ptr`; test with `-fsanitize=address`"
+      ]
+     ],
+     "cues": [
+      "New, delete",
+      "Why?",
+      "Prevent?"
+     ],
+     "covers": [
+      "q97"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "How many prints? One Constructor, two Destructors. Why? B equals a is the silent copy constructor. Order? B dies first, then a.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "How many prints?",
+       "1 Constructor, 2 Destructor"
+      ],
+      [
+       "Why?",
+       "`b = a` is the silent copy constructor"
+      ],
+      [
+       "Order?",
+       "b is destroyed first, then a"
+      ]
+     ],
+     "cues": [
+      "How many prints",
+      "Why?",
+      "Order?"
+     ],
+     "covers": [
+      "q98"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Pointers after a reallocation? They dangle. Why? Elements move to a new block, and the old one is freed. Fix? Reserve first, or keep an index.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Still valid?",
+       "no: realloc invalidates all of them"
+      ],
+      [
+       "Why?",
+       "elements move to a new block; the old is freed"
+      ],
+      [
+       "Fix?",
+       "`reserve` first, or keep an index"
+      ]
+     ],
+     "cues": [
+      "Pointers after",
+      "Why?",
+      "Fix?"
+     ],
+     "covers": [
+      "q99"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "The memory bug? Shallow copy: both destructors delete the same int. Fix one? Rule of Three, a deep copy. Better? Rule of Zero.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What's the bug?",
+       "shallow copy: both delete the same int"
+      ],
+      [
+       "Fix one?",
+       "Rule of Three: deep copy, own destructor"
+      ],
+      [
+       "Better?",
+       "Rule of Zero: plain members or `unique_ptr`"
+      ]
+     ],
+     "cues": [
+      "The memory bug",
+      "Fix one?",
+      "Better?"
+     ],
+     "covers": [
+      "q100"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Do these next. One: compile snippet one with dash W all. Read the warning. Two: run snippets two, four, five under Address Sanitizer. Three: rewrite User with unique pointer, and watch the copy fail.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Compile snippet 1 with `-Wall`",
+       "the compiler already warns"
+      ],
+      [
+       "Run snippets 2, 4, 5 with `-fsanitize=address`",
+       "learn each report by sight"
+      ],
+      [
+       "Rewrite `User` with `unique_ptr`",
+       "a compile error beats a crash"
+      ]
+     ],
+     "cues": [
+      "One:",
+      "Two:",
+      "Three:"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. A pointer to something dead is undefined: a local, a freed int, a moved vector. Count constructors, and remember the silent copy. A raw owner needs the Rule of Three, or better, the Rule of Zero.",
+     "lines": [
+      "Dead target: local, freed, or moved vector.",
+      "Count objects: the copy constructor is silent.",
+      "Raw owner? Rule of Three. Better: Rule of Zero."
+     ],
+     "cues": [
+      "A pointer to something dead",
+      "Count constructors",
+      "a raw owner"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}

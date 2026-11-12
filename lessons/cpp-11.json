@@ -97,7 +97,7 @@
       "input": "array<int,4> a; vector<int> v(4);",
       "output": "sizeof 16 and 24; stack and heap"
      },
-     "say": "Here is the problem. Two containers, four ints each. For example, an array and a vector. How big is each object, and where is the data?",
+     "say": "Two containers, four ints each. For example, an array and a vector. How big is each object, and where is the data?",
      "cues": {
       "example": "For example",
       "output": "How big"
@@ -384,7 +384,7 @@
       "input": "push_back 1 to 9, keep a pointer",
       "output": "capacity 1 2 4 4 8 8 8 8 16"
      },
-     "say": "Next problem. Push one to nine into an empty vector. For example, watch the capacity after every push. Then ask: does a saved pointer survive?",
+     "say": "Push one to nine into an empty vector. For example, watch the capacity after every push. And does a saved pointer survive?",
      "cues": {
       "example": "For example",
       "output": "survive"
@@ -691,7 +691,7 @@
       "input": "map or unordered_map, 1,000,000 keys",
       "output": "about 20 steps, or one hash"
      },
-     "say": "Next problem. A million keys. For example, names mapped to scores. We want fast lookups, and sometimes sorted order. Which container?",
+     "say": "You have a million keys. For example, names mapped to scores. You want fast lookups, and sometimes sorted order. Which container?",
      "cues": {
       "example": "For example",
       "output": "Which container"
@@ -962,7 +962,7 @@
       "input": "set<int> s = {5, 1, 4, 1, 3};",
       "output": "1 3 4 5, duplicate dropped"
      },
-     "say": "Last problem. A set keeps unique keys. For example, five, one, four, one, three. The second one is dropped. What order comes out?",
+     "say": "A set keeps unique keys. Feed it, for example, five, one, four, one, three. The second one is dropped. What order comes out?",
      "cues": {
       "example": "For example",
       "output": "What order"

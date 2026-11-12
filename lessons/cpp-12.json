@@ -112,7 +112,7 @@
       "input": "push_back(P(1,2)) vs emplace_back(1,2)",
       "output": "ctor + move, against one ctor"
      },
-     "say": "Here is the problem. Add a point to a vector two ways. For example, push back of a finished point, and emplace back of two numbers. Count the calls.",
+     "say": "Two lines add a point to a vector. For example, push back of a finished point, and emplace back of two numbers. Count the calls.",
      "cues": {
       "example": "For example",
       "output": "Count the calls"
@@ -370,7 +370,7 @@
       "input": "vector, deque or list?",
       "output": "vector by default"
      },
-     "say": "Next problem. Vector, deque, or list. For example, a job queue, and a list you splice. Which layout fits? Mostly, vector.",
+     "say": "Vector, deque, or list? For example, a job queue, and a list you splice. Which layout fits? Mostly, vector.",
      "cues": {
       "example": "For example",
       "output": "Mostly, vector"
@@ -525,7 +525,7 @@
       "input": "Ann 90, Bob 85, Cid 90, Dan 85",
       "output": "Ann, Cid, Bob, Dan"
      },
-     "say": "Here is the problem. Four students. For example, Ann and Cid tie at ninety. Bob and Dan tie at eighty five. Who comes first in a tie?",
+     "say": "Four students need ranking. For example, Ann and Cid tie at ninety. Bob and Dan tie at eighty five. Who comes first in a tie?",
      "cues": {
       "example": "For example",
       "output": "Who comes first"
@@ -860,7 +860,7 @@
       "input": "push 5, 1, 8, 3; top()",
       "output": "8, in O(1)"
      },
-     "say": "Next problem. A priority queue. For example, push five, one, eight, three. Top is the biggest, instantly. How does it store them?",
+     "say": "How does top return the biggest instantly? For example, push five, one, eight, three. How does it store them?",
      "cues": {
       "example": "For example",
       "output": "How does it"
@@ -1148,7 +1148,7 @@
       "input": "{1, 2, 3, 2, 4}, remove 2",
       "output": "{1, 3, 4}"
      },
-     "say": "Last problem. Delete from a vector. For example, one, two, three, two, four. Remove the twos. Result: one, three, four.",
+     "say": "Deleting from a vector, the right way. For example, one, two, three, two, four. Remove the twos. Result: one, three, four.",
      "cues": {
       "example": "For example",
       "output": "Result"

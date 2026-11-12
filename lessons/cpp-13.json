@@ -87,7 +87,7 @@
       "input": "auto it = m.begin();",
       "output": "map<string,int>::iterator"
      },
-     "say": "Here is the problem. A map's begin returns a long iterator type. For example, auto it equals m dot begin. Which type does auto pick?",
+     "say": "A map's begin returns a mouthful of a type. For example, auto it equals m dot begin. Which type does auto pick?",
      "cues": {
       "example": "For example",
       "output": "Which type"
@@ -271,7 +271,7 @@
       "input": "banana, fig, apple, kiwi",
       "output": "fig, kiwi, apple, banana"
      },
-     "say": "Next problem. Four words. For example, banana, fig, apple, kiwi. Sort them by length, and write the rule inline.",
+     "say": "Sort four words by length. For example, banana, fig, apple, kiwi. And write the rule inline, right where you call sort.",
      "cues": {
       "example": "For example",
       "output": "write the rule"
@@ -551,7 +551,7 @@
       "input": "maxOf(3, 7), maxOf(2.5, 1.5)",
       "output": "7 and 2.5"
      },
-     "say": "Next problem. A max function for every type. For example, three and seven. Or two point five and one point five. Write it once.",
+     "say": "One max function, any type. For example, three and seven. Or two point five and one point five. Write it once.",
      "cues": {
       "example": "For example",
       "output": "Write it once"
@@ -746,7 +746,7 @@
       "input": "2 threads × 100,000 ++counter",
       "output": "expect 200000; one run: 125574"
      },
-     "say": "Now the real problem. Two threads, one counter. For example, a hundred thousand adds each. We expect two hundred thousand. One run printed one hundred twenty five thousand.",
+     "say": "Now for the bug in the hook. Two threads, one counter. For example, a hundred thousand adds each. We expect two hundred thousand. One run printed one hundred twenty five thousand.",
      "cues": {
       "example": "For example",
       "output": "One run printed"
@@ -1066,7 +1066,7 @@
       "input": "compute() on a worker",
       "output": "thread, or async + future"
      },
-     "say": "Last problem. Run a function on another thread. For example, compute returns forty two. We want the answer back. Which tool?",
+     "say": "How do you get an answer back from another thread? For example, compute returns forty two. We want the answer. Which tool?",
      "cues": {
       "example": "For example",
       "output": "We want the answer"

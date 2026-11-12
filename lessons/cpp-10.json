@@ -95,7 +95,7 @@
       "input": "T a; T b(7); T c = b;",
       "output": "default param7 copy7 dtor7 dtor7 dtor0"
      },
-     "say": "Here is the problem. Each constructor and destructor prints a word. For example, three objects: a, b with seven, and c copied from b. Six words come out.",
+     "say": "Can you trace a class that talks? Each constructor and destructor prints a word. For example, three objects: a, b with seven, and c copied from b. Six words come out.",
      "cues": {
       "example": "For example",
       "output": "Six words"
@@ -235,7 +235,7 @@
       "input": "T a; { T b; } T* h = new T; delete h;",
       "output": "+a +b -b +h -h -a"
      },
-     "say": "Next problem. Who dies when? For example, a local a, an inner scope with b, and a heap object h. In what order?",
+     "say": "Who dies first? For example, a local a, an inner scope with b, and a heap object h. In what order?",
      "cues": {
       "example": "For example",
       "output": "In what order"
@@ -556,7 +556,7 @@
       "input": "one 1 MB string into a vector",
       "output": "no 1 MB copy"
      },
-     "say": "Next problem. A vector of strings and one megabyte string. For example, we push it in. Copying makes a second megabyte. We want none.",
+     "say": "Picture a vector of strings, and a string holding a megabyte. For example, we push it in. Copying makes a second megabyte. We want none.",
      "cues": {
       "example": "For example",
       "output": "We want none"
@@ -834,7 +834,7 @@
       "input": "x, 5, x + 1",
       "output": "only x has a lasting address"
      },
-     "say": "Next problem. Every expression has a category. For example, x, five, and x plus one. Which has an address? Only x.",
+     "say": "Every expression has a category. Which of these has an address? For example, x, five, and x plus one. Only x.",
      "cues": {
       "example": "For example",
       "output": "Only x"
@@ -999,7 +999,7 @@
       "input": "wrap(t) and wrap(T())",
       "output": "copy, then move"
      },
-     "say": "Next problem. A wrapper passes its argument along. For example, wrap of a named t, then wrap of a temporary. We want copy first, then move.",
+     "say": "A wrapper hands its argument on. For example, wrap of a named t, then wrap of a temporary. What should arrive? Copy first, then move.",
      "cues": {
       "example": "For example",
       "output": "copy first"
@@ -1272,7 +1272,7 @@
       "input": "T a = make(); T b = named();",
       "output": "2 constructions, 0 copies, 0 moves"
      },
-     "say": "Next problem. Functions return objects by value. For example, make and named, one temporary, one local. How many constructors run? Two.",
+     "say": "Return an object by value: how much work is that? For example, make and named, one temporary, one local. Only two constructors.",
      "cues": {
       "example": "For example",
       "output": "Two"
@@ -1543,7 +1543,7 @@
       "input": "print(10); Array a = 5;",
       "output": "both should fail to compile"
      },
-     "say": "Last problem. A function takes an Array. For example, print of ten compiles, and builds an Array. We want both lines to fail.",
+     "say": "Here's a small surprise. A function takes an Array. For example, print of ten compiles, and builds an Array. We want both lines to fail.",
      "cues": {
       "example": "For example",
       "output": "both lines"
