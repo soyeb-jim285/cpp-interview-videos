@@ -19,20 +19,20 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Five, or six? Take i equal to five. What does a equals i plus plus store? And some code has no right answer at all. By the end, you'll know exactly why.",
+     "say": "Take i equal to five. Then a gets i plus plus, and b gets plus plus i. By the end, you'll predict a and b, and say why.",
      "lines": [
       {
-       "text": "i = 5;  a = i++;",
+       "text": "i = 5",
        "cue": "Take i equal"
       },
       {
-       "text": "a is 5? or 6?",
-       "cue": "What does a equals"
+       "text": "a = i++;   b = ++i;",
+       "cue": "Then a gets"
       },
       {
-       "text": "Some code has no answer.",
-       "cue": "no right answer",
-       "accent": "no answer"
+       "text": "Predict a and b, and why.",
+       "cue": "you'll predict",
+       "accent": "Predict"
       }
      ]
     },
@@ -68,7 +68,7 @@
     {
      "type": "flow",
      "head": "Two cities, one Main Street",
-     "say": "Think of two cities. Both have a Main Street. Say Main Street, and nobody knows which one. Add the city name, and the address is unique. A namespace is that city name, and the double colon joins it to the name.",
+     "say": "Consider two cities. Both have a Main Street. Say Main Street, and nobody knows which one. Add the city name, and the address is unique. A namespace is that city name, and the double colon joins it to the name.",
      "items": [
       {
        "label": "Springfield",
@@ -501,7 +501,8 @@
       "setup": {
        "main.cpp": "#include <iostream>\n"
       }
-     }
+     },
+     "hold": 3
     },
     {
      "type": "quiz",
@@ -635,7 +636,7 @@
     {
      "type": "flow",
      "head": "A receptionist who reads",
-     "say": "Think of a receptionist. One desk, one name on the door. You hand over a form, and she reads what kind it is, then sends you to the right office. The compiler is that receptionist. The form is the argument type.",
+     "say": "Meet a receptionist. One desk, one name on the door. You hand over a form, and she reads what kind it is, then sends you to the right office. The compiler is that receptionist. The form is the argument type.",
      "items": [
       {
        "label": "you hand over",
@@ -703,7 +704,7 @@
      "output": {
       "cmd": "./app",
       "text": "int: 42\ndouble: 3.14\nstring: hi",
-      "cue": "decided at compile",
+      "cue": "A string picks the third",
       "setup": {
        "main.cpp": "#include <iostream>\n#include <string>\n"
       }
@@ -1097,7 +1098,7 @@
     {
      "type": "diagram",
      "head": "A hint, not a command",
-     "say": "No, it is a hint. The compiler decides, with or without the keyword. When it pastes, sq of five becomes five times five, and a good compiler folds it to 25. Some functions are inline for free: members defined in a class body, and constexpr functions, which can run at compile time. C plus plus seventeen adds inline variables.",
+     "say": "No, it is a hint. The compiler decides, with or without the keyword. When it pastes, sq of five becomes five times five, and a good compiler folds it to 25. Some functions are inline for free: members defined in a class body, and constexpr functions, which can run at compile time. C plus plus seventeen adds inline variables, one shared copy for every file.",
      "items": [
       {
        "id": "c",
@@ -1163,7 +1164,7 @@
       {
        "x": 300,
        "y": 700,
-       "text": "C++17: inline variables",
+       "text": "C++17: one shared copy",
        "tone": "good",
        "cue": "inline variables"
       }
@@ -1191,7 +1192,7 @@
     {
      "type": "flow",
      "head": "A timeline of mistakes",
-     "say": "Think of an airport. Problems are cheapest at check in. Compile is check in: syntax and types. Link is customs: all parts must be present. Run is the flight: bad input crashes. Logic errors land in the wrong city: no crash, wrong answer.",
+     "say": "Imagine an airport. Problems are cheapest at check in. Compile is check in: syntax and types. Link is customs: all parts must be present. Run is the flight: bad input crashes. Logic errors land in the wrong city: no crash, wrong answer.",
      "items": [
       {
        "label": "compile",
@@ -1429,20 +1430,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. The code writes to arr index five, but arr has only three slots. What does the standard guarantee? Pause and predict.",
-     "q": "int arr[3]; arr[5] = 1; What does the standard guarantee?",
+     "say": "Your turn. Line six adds one to the largest int. What does the standard say happens? Pause and predict.",
+     "q": "big is INT_MAX. Then big = big + 1. What does the standard say?",
      "options": [
-      "a compile error",
-      "a crash",
-      "an exception",
-      "nothing at all"
+      "INT_MIN, by wrapping",
+      "still INT_MAX",
+      "zero",
+      "undefined behavior"
      ],
-     "answer": "nothing at all"
+     "answer": "undefined behavior"
     },
     {
      "type": "diagram",
      "head": "Anything can happen",
-     "say": "Nothing at all. The code may work today. It may print garbage tomorrow. It may crash on another compiler. And the optimizer may assume U B never happens, and delete your safety check.",
+     "say": "Undefined behavior, so the standard promises nothing. The code may work today. It may print garbage tomorrow. It may crash on another compiler. And the optimizer may assume U B never happens, and delete your safety check.",
      "items": [
       {
        "id": "w",
@@ -1551,7 +1552,7 @@
     {
      "type": "flow",
      "head": "Three ways to hand over nothing",
-     "say": "Think of a form with a pointer box. Zero is a plain number that can slide in. NULL is a macro: an implementation-defined null pointer constant. Null p t r is a stamp made only for pointer boxes.",
+     "say": "Take a form with a pointer box. Zero is a plain number that can slide in. NULL is a macro: an implementation-defined null pointer constant. Null p t r is a stamp made only for pointer boxes.",
      "items": [
       {
        "label": "0",
