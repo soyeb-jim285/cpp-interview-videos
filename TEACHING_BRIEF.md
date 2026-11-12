@@ -486,7 +486,8 @@ go in a temp dir).
       an empty chart; diagram labels never overlap (shorten labels, bend arrows, widen gaps); every panel
       labelled "run.sh"/"main.py" is genuinely runnable as shown; numbers spoken unambiguously ("ninety
       nine commits back", not "the one ninety nine back"); each chapter ends by saying how it answered its
-      problem card.
+      problem card; problem-card `say` openings vary (not "New problem... For example... We want..." every
+      time); no scene holds >6 s without a new reveal; diagram nodes appear on their spoken beat, not all at once.
 
 ## 13. Complete example lesson (passes the lint)
 

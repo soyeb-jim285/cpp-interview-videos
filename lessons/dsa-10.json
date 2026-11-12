@@ -167,8 +167,8 @@
      ],
      "notes": [
       {
-       "x": 1150,
-       "y": 720,
+       "x": 1000,
+       "y": 740,
        "text": "count minutes, not roads",
        "tone": "warn",
        "cue": "We count minutes"
@@ -853,7 +853,7 @@
     {
      "type": "compare",
      "head": "What they ask next",
-     "say": "Four follow ups. Negative weights? A settled time could still improve, so Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow.",
+     "say": "Four follow ups. Negative weights? Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow.",
      "heads": [
       "They ask",
       "You say"
@@ -902,7 +902,7 @@
       "output": "Here, four",
       "note": "already connected"
      },
-     "say": "Last problem. Eight people, four friendships arriving one at a time. After each, how many groups remain? Here, four. A friendship inside a group changes nothing, because they're already connected."
+     "say": "Last problem. Eight people, four friendships arriving one at a time. How many groups? Here, four. A friendship inside a group changes nothing: they're already connected."
     },
     {
      "type": "flow",
@@ -1306,51 +1306,51 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "DSU d(8);  int groups = 8;\nfor (auto [a, b] : vector<pair<int,int>>{{0,1},{2,3},{1,2},{5,6}})\n    if (d.unite(a, b)) groups--;\ncout << groups << '\\n';\ncout << boolalpha << d.unite(0, 3) << '\\n';\ncout << groups;"
+       "code": "int main() {\n    DSU d(8);  int groups = 8;\n    for (auto [a, b] : vector<pair<int,int>>{{0,1},{2,3},{1,2},{5,6}})\n        if (d.unite(a, b)) groups--;\n    cout << groups << '\\n';\n    cout << boolalpha << d.unite(0, 3) << '\\n';\n    cout << groups;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        4
        ],
        "cue": "already one club"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "nothing merges"
       },
       {
        "lines": [
-        2,
-        3
+        3,
+        4
        ],
        "cue": "Here it runs"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "four clubs, then"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "unite zero three"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "still four"
       }
      ],
      "notes": [
       {
-       "line": 5,
+       "line": 6,
        "inside": true,
        "text": "false = already joined",
        "tone": "warn",
@@ -1358,7 +1358,10 @@
       }
      ],
      "output": {
-      "cmd": "./sol",
+      "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct DSU {\n    vector<int> p, sz;\n    DSU(int n) : p(n), sz(n, 1) { iota(p.begin(), p.end(), 0); }\n    int find(int x) {\n        if (p[x] != x) p[x] = find(p[x]);\n        return p[x];\n    }\n    bool unite(int a, int b) {\n        a = find(a);  b = find(b);\n        if (a == b) return false;\n        if (sz[a] < sz[b]) swap(a, b);\n        p[b] = a;  sz[a] += sz[b];\n        return true;\n    }\n};\n"
+      },
       "text": "4\nfalse\n4",
       "cue": "still four"
      }
@@ -1515,7 +1518,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Dijkstra settles the closest town, then relaxes its roads. A min heap makes it O of E log V, for non negative weights. Union Find: follow parents to a root. Both tricks make it nearly constant.",
+     "say": "So say this. Dijkstra settles the closest town, relaxes its roads. A min heap: O of E log V, non negative weights. Union Find follows parents to a root. Both tricks: nearly constant.",
      "lines": [
       "Dijkstra: settle the closest, relax its roads.",
       "Min-heap, O(E log V), no negative weights.",
@@ -1524,7 +1527,7 @@
      "cues": [
       "Dijkstra settles",
       "A min heap",
-      "Union Find"
+      "Union Find follows"
      ]
     }
    ]

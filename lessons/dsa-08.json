@@ -439,7 +439,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "void walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}"
+       "code": "void walk(Node* n) {\n    if (!n) return;\n    walk(n->left);\n    cout << n->val << ' ';\n    walk(n->right);\n}\nint main() { walk(bst); }"
       }
      ],
      "steps": [
@@ -490,7 +490,10 @@
       }
      ],
      "output": {
-      "cmd": "./sol",
+      "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* insert(Node* n, int x) { if (!n) return new Node{x}; if (x < n->val) n->left = insert(n->left, x); else n->right = insert(n->right, x); return n; }\nNode* build(vector<int> v) { Node* r = nullptr; for (int x : v) r = insert(r, x); return r; }\nNode* bst = build({8, 3, 10, 1, 6, 14});\nNode* chain = build({1, 2, 3, 4, 5});\nvoid walk(Node* n);\n"
+      },
       "text": "1 3 6 8 10 14",
       "cue": "On our tree"
      }
@@ -1271,7 +1274,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int depth(Node* n) {\n    if (!n) return 0;\n    return 1 + max(depth(n->left), depth(n->right));\n}\ncout << depth(bst) << ' ' << depth(chain);"
+       "code": "int depth(Node* n) {\n    if (!n) return 0;\n    return 1 + max(depth(n->left), depth(n->right));\n}\nint main() {\n    cout << depth(bst) << ' ' << depth(chain);\n}"
       }
      ],
      "steps": [
@@ -1289,7 +1292,7 @@
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "On our six node"
       },
@@ -1314,7 +1317,10 @@
       }
      ],
      "output": {
-      "cmd": "./sol",
+      "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Node { int val; Node *left = nullptr, *right = nullptr; };\nNode* insert(Node* n, int x) { if (!n) return new Node{x}; if (x < n->val) n->left = insert(n->left, x); else n->right = insert(n->right, x); return n; }\nNode* build(vector<int> v) { Node* r = nullptr; for (int x : v) r = insert(r, x); return r; }\nNode* bst = build({8, 3, 10, 1, 6, 14});\nNode* chain = build({1, 2, 3, 4, 5});\n"
+      },
       "text": "3 5",
       "cue": "that's three"
      }
@@ -1692,32 +1698,32 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "Trie t;\nt.insert(\"car\"); t.insert(\"cat\"); t.insert(\"care\");\ncout << boolalpha << t.search(\"ca\") << ' '\n     << t.startsWith(\"ca\") << ' ' << t.search(\"car\");"
+       "code": "int main() {\n    Trie t;\n    t.insert(\"car\"); t.insert(\"cat\"); t.insert(\"care\");\n    cout << boolalpha << t.search(\"ca\") << ' '\n         << t.startsWith(\"ca\") << ' ' << t.search(\"car\");\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        4
        ],
        "cue": "every prefix looks"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "Search c a, false"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Starts with c a, true"
       }
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "no end flag at ca",
        "tone": "warn",
@@ -1725,7 +1731,10 @@
       }
      ],
      "output": {
-      "cmd": "./sol",
+      "cmd": "g++ -std=c++17 sol.cpp -o sol && ./sol",
+      "setup": {
+       "sol.cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstruct Trie {\n    Trie* kid[26] = {};\n    bool end = false;\n    void insert(const string& w) { Trie* u = this; for (char ch : w) { int c = ch - 'a'; if (!u->kid[c]) u->kid[c] = new Trie(); u = u->kid[c]; } u->end = true; }\n    Trie* walk(const string& s) { Trie* u = this; for (char ch : s) { u = u->kid[ch - 'a']; if (!u) return nullptr; } return u; }\n    bool search(const string& w) { Trie* u = walk(w); return u && u->end; }\n    bool startsWith(const string& p) { return walk(p) != nullptr; }\n};\n"
+      },
       "text": "false true true",
       "cue": "Here it runs"
      }

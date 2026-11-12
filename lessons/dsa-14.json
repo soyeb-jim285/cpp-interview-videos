@@ -125,10 +125,10 @@
     {
      "type": "code",
      "head": "Mod rules, gcd and lcm",
-     "say": "The constant is one billion seven, a prime. Reduce mod after every add and multiply. Both inputs below it, so a product fits in sixty four bits. Subtraction needs the plus M fix. Gcd is a library call. Lcm divides first so it can't overflow.",
+     "say": "The constant is one billion seven, a prime. Reduce mod after every add and multiply. Both inputs below it, so a product fits in sixty four bits. Subtraction needs the plus M fix. Gcd, the greatest common divisor, is a library call. Lcm divides first so it can't overflow.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "const long long M = 1'000'000'007;\nlong long a = 5, b = 8;\ncout << (a + b) % M << ' ' << a * b % M << ' ';\ncout << ((a - b) % M + M) % M << '\\n';\ncout << gcd(48, 18) << ' ' << 48 / gcd(48, 18) * 18;"
       }
      ],
@@ -155,7 +155,7 @@
        "lines": [
         5
        ],
-       "cue": "Gcd is a library"
+       "cue": "greatest common divisor"
       }
      ],
      "notes": [
@@ -170,7 +170,10 @@
      "output": {
       "cmd": "./sol",
       "text": "13 40 1000000004\n6 144",
-      "cue": "divides first"
+      "cue": "divides first",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -192,7 +195,7 @@
      "say": "Negative two. C plus plus keeps the sign of the left side, so the remainder can be negative. Add seven and take mod again: five, the true clock answer. That's why subtraction needs plus M.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "cout << (3 - 5) % 7 << ' ';\ncout << ((3 - 5) % 7 + 7) % 7;"
       }
      ],
@@ -222,13 +225,16 @@
      "output": {
       "cmd": "./sol",
       "text": "-2 5",
-      "cue": "the true clock answer"
+      "cue": "the true clock answer",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
      "type": "flow",
      "head": "Euclid: gcd(48, 18)",
-     "say": "How does gcd work? Replace the pair with the second number and the remainder. Forty eight mod eighteen is twelve. Eighteen mod twelve is six. Twelve mod six is zero. When the remainder is zero, the other number is the answer: six.",
+     "say": "How does gcd work? Replace the pair with the second number and the remainder. Forty eight mod eighteen is twelve. Eighteen mod twelve is six. Twelve mod six is zero. When the remainder is zero, that's the answer: six. So huge answers stay small.",
      "items": [
       {
        "label": "start",
@@ -439,7 +445,10 @@
      "output": {
       "cmd": "./sol",
       "text": "3",
-      "cue": "prints three"
+      "cue": "prints three",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -461,7 +470,7 @@
      "say": "Five. Three to the fifth is two forty three, which is five mod seven. And three times five is fifteen, which is one mod seven. So dividing by three means multiplying by five.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "cout << power(3, 7 - 2, 7) << ' ';\ncout << 3 * 5 % 7;"
       }
      ],
@@ -482,13 +491,16 @@
      "output": {
       "cmd": "./sol",
       "text": "5 1",
-      "cue": "is one mod seven"
+      "cue": "is one mod seven",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nlong long power(long long b, long long e, long long m) {\n    long long r = 1; b %= m;\n    while (e > 0) {\n        if (e & 1) r = r * b % m;\n        b = b * b % m; e >>= 1;\n    }\n    return r;\n}\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
      "type": "compare",
      "head": "Three modular traps",
-     "say": "Three traps. Fermat's inverse needs a prime modulus. Otherwise use extended Euclid. Multiply three numbers and the product overflows before the mod: reduce after every times. And plain power loops e times, too slow for big e.",
+     "say": "Three traps. Fermat's inverse needs a prime modulus. Otherwise use extended Euclid. Multiply three numbers and the product overflows before the mod: reduce after every times. And plain power loops e times, too slow. So the answer is three.",
      "heads": [
       "Trap",
       "Fix"
@@ -1048,7 +1060,7 @@
      "say": "Assume everything is prime, except zero and one. For each surviving i, start crossing at i squared, since smaller multiples were crossed by smaller primes. Stop when i squared passes n. Count the survivors: ten. Time is O of n log log n, nearly linear.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "int n = 30;\nvector<bool> is(n + 1, true);\nis[0] = is[1] = false;\nfor (long long i = 2; i * i <= n; i++)\n    if (is[i])\n        for (long long j = i * i; j <= n; j += i)\n            is[j] = false;\ncout << count(is.begin(), is.end(), true);"
       }
      ],
@@ -1092,7 +1104,10 @@
      "output": {
       "cmd": "./sol",
       "text": "10",
-      "cue": "ten. Time"
+      "cue": "ten. Time",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -1145,7 +1160,7 @@
     {
      "type": "compare",
      "head": "Sieve follow-ups",
-     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i needs a long long, or it overflows.",
+     "say": "Sieve time is n log log n. To test one number, trial division up to its square root is enough. And i times i needs a long long. So the sieve lists ten primes.",
      "heads": [
       "Question",
       "Answer"
@@ -1504,7 +1519,10 @@
      "output": {
       "cmd": "./sol",
       "text": "17 20",
-      "cue": "twenty"
+      "cue": "twenty",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nlong long t[6]; int n = 5;\nvoid add(int i, long long v) {\n    for (; i <= n; i += i & -i) t[i] += v;\n}\nlong long sum(int i) {\n    long long s = 0;\n    for (; i > 0; i -= i & -i) s += t[i];\n    return s;\n}\n"
+      }
      }
     },
     {
@@ -1552,7 +1570,7 @@
     {
      "type": "compare",
      "head": "Fenwick traps",
-     "say": "Index zero is the classic bug: the loop never moves. Fenwick needs an operation you can subtract, like sums. For min or max, use a segment tree.",
+     "say": "Index zero is the classic bug: the loop never moves. Fenwick needs an operation you can subtract, like sums. For min or max, use a segment tree. That's how Fenwick answers seventeen, then twenty.",
      "heads": [
       "Trap",
       "Why"
@@ -1768,7 +1786,7 @@
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int n = 4, t[8] = {0, 1, 2, 1, 5, 2, 9, 1};\nvoid set(int i, int v) {\n    i += n;\n    t[i] = v;\n    for (; i > 1; i >>= 1)\n        t[i >> 1] = min(t[i], t[i ^ 1]);\n}\nint main() { set(1, 8); cout << t[2] << ' ' << t[1]; }"
+       "code": "int n = 4, t[8] = {0, 1, 2, 1, 5, 2, 9, 1};\nvoid update(int i, int v) {\n    i += n;\n    t[i] = v;\n    for (; i > 1; i >>= 1)\n        t[i >> 1] = min(t[i], t[i ^ 1]);\n}\nint main() { update(1, 8); cout << t[2] << ' ' << t[1]; }"
       }
      ],
      "steps": [
@@ -1805,7 +1823,10 @@
      "output": {
       "cmd": "./sol",
       "text": "5 1",
-      "cue": "the parent at five"
+      "cue": "the parent at five",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -1861,7 +1882,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Set position one to eight, so the array is five, eight, nine, one. What is the min of positions zero and one? Pause and predict.",
-     "q": "After set(1, 8): min of positions 0 and 1?",
+     "q": "After update(1, 8): min of positions 0 and 1?",
      "options": [
       "1",
       "2",
@@ -1955,7 +1976,7 @@
     {
      "type": "compare",
      "head": "Segment tree vs Fenwick",
-     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building a segment tree is linear. And the query range is half open: r is excluded.",
+     "say": "Fenwick for sums, short code. Segment tree for min, max, and lazy range updates. Building a segment tree is linear. And the query range is half open: r is excluded. That's how the tree finds the minimum.",
      "heads": [
       "Question",
       "Answer"

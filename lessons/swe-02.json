@@ -241,7 +241,7 @@
     {
      "type": "code",
      "head": "Same global, two answers",
-     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory.",
+     "say": "A thread shares the heap, so main sees ninety nine. A process got its own copy of memory, so main still sees zero. Same line, different memory. That answers what each shares. Async comes next.",
      "panels": [
       {
        "file": "app.py",
@@ -268,6 +268,9 @@
      ],
      "output": {
       "cmd": "python app.py",
+      "setup": {
+       "app.py": "from threading import Thread\nimport multiprocessing as mp\nfrom multiprocessing import Process\nmp.set_start_method(\"fork\")\n\ndef bump():\n    global x\n    x = 99\n\n"
+      },
       "text": "Thread 99\nProcess 0",
       "cue": "still sees zero"
      }
@@ -413,7 +416,7 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "async def afetch(url):\n    await asyncio.sleep(1)\n\nasync def main():\n    await asyncio.gather(\n        *(afetch(u) for u in urls))\n\nasyncio.run(main())"
+       "code": "async def afetch(url):\n    await asyncio.sleep(1)\nasync def main():\n    await asyncio.gather(\n        *(afetch(u) for u in urls))\nt = time.perf_counter()\nasyncio.run(main())\nprint(round(time.perf_counter() - t), \"s\")"
       }
      ],
      "steps": [
@@ -426,21 +429,25 @@
       },
       {
        "lines": [
-        5,
-        6
+        4,
+        5
        ],
        "cue": "Gather starts"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "on a single thread"
       }
      ],
      "output": {
-      "cmd": "python dl.py",
-      "text": "sequential 100 s\n10 threads 10 s\nasyncio    1 s",
+      "cmd": "python app.py",
+      "approx": true,
+      "setup": {
+       "app.py": "import asyncio, time\nurls = [f\"page{i}\" for i in range(100)]\n\n"
+      },
+      "text": "1 s",
       "cue": "about a second"
      }
     },
@@ -532,7 +539,7 @@
     {
      "type": "code",
      "head": "One blocking call ruins it",
-     "say": "The mistake: calling async multithreading. It's one thread. So a task that never awaits blocks everyone. Both of these run two tasks. The good one awaits sleep. The bad one calls time sleep, and the tasks queue up.",
+     "say": "The mistake: calling async multithreading. It's one thread. So a task that never awaits blocks everyone. Both of these run two tasks. The good one awaits sleep. The bad one calls time sleep, and the tasks queue up. Async wins, if nothing blocks.",
      "panels": [
       {
        "file": "app.py",
@@ -571,7 +578,12 @@
       }
      ],
      "output": {
-      "cmd": "python block.py",
+      "cmd": "python run.py",
+      "approx": true,
+      "setup": {
+       "app.py": "import asyncio, time\n\n",
+       "run.py": "import asyncio, time\nfrom app import good, bad\n\nasync def run(fn):\n    t = time.perf_counter()\n    await asyncio.gather(fn(), fn())\n    print(fn.__name__, round(time.perf_counter() - t), \"s\")\n\nasyncio.run(run(good))\nasyncio.run(run(bad))\n"
+      },
       "text": "good 1 s\nbad 2 s",
       "cue": "tasks queue up"
      }
@@ -586,11 +598,11 @@
      "title": "Why are threads no faster?",
      "statement": "Four CPU-heavy jobs on four threads take as long as one by one. Why, and what works?",
      "example": {
-      "input": "4 jobs × 5M squares, 4 threads",
-      "output": "about 10 s; processes are faster"
+      "input": "4 jobs × 1M squares, 4 threads",
+      "output": "about 2 s; processes are faster"
      },
      "note": "Pure number crunching",
-     "say": "Here's the problem. Four jobs that crunch numbers, run on four threads. For example, five million squares each. It takes as long as one by one. Why, and what works?",
+     "say": "Here's the problem. Four jobs that crunch numbers, run on four threads. For example, one million squares each. It takes as long as one by one. Why, and what works?",
      "cues": {
       "example": "For example",
       "output": "It takes as long",
@@ -681,56 +693,71 @@
     {
      "type": "code",
      "head": "Four CPU-heavy jobs",
-     "say": "Test it. Four jobs, each crunching five million squares. One by one takes about ten seconds. Four threads: no faster, they just share the mic. Four processes each get their own interpreter, and finish much sooner.",
+     "say": "Test it. Four jobs, each crunching one million squares. One by one takes about two seconds. Four threads: no faster, they just share the mic. Four processes each get their own interpreter, and finish much sooner.",
      "panels": [
       {
        "file": "app.py",
-       "code": "def crunch(n):\n    return sum(i * i for i in range(n))\n\nfor _ in range(4): crunch(5_000_000)\nThreadPoolExecutor(4).map(crunch, jobs)\nProcessPoolExecutor(4).map(crunch, jobs)"
+       "code": "def crunch(n):\n    return sum(i * i for i in range(n))\n\ndef run(how):\n    t = time.perf_counter()\n    how(crunch, [1_000_000] * 4)\n    print(how.__name__, round(\n        time.perf_counter() - t, 1), \"s\")"
       }
      ],
      "steps": [
       {
        "lines": [
-        4
+        1,
+        2
+       ],
+       "cue": "Four jobs"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
        ],
        "cue": "One by one"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Four threads"
       },
       {
        "lines": [
-        6
+        7,
+        8
        ],
        "cue": "Four processes"
       }
      ],
      "output": {
-      "cmd": "python cpu.py",
-      "text": "one by one 10.1 s\n4 threads  10.5 s\n4 processes 4.4 s",
-      "cue": "about ten seconds"
+      "cmd": "python run.py",
+      "approx": true,
+      "setup": {
+       "app.py": "import time\n\n",
+       "run.py": "import multiprocessing as mp\nmp.set_start_method(\"fork\")\nfrom concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor\nimport app\n\ndef sequential(f, jobs):\n    for j in jobs: f(j)\ndef threads(f, jobs):\n    with ThreadPoolExecutor(4) as p: list(p.map(f, jobs))\ndef processes(f, jobs):\n    with ProcessPoolExecutor(4) as p: list(p.map(f, jobs))\n\nfor how in (sequential, threads, processes):\n    app.run(how)\n"
+      },
+      "text": "sequential 1.8 s\nthreads 2.2 s\nprocesses 1.0 s",
+      "cue": "about two seconds"
      }
     },
     {
      "type": "quiz",
-     "say": "Your turn. You resize five hundred photos on an eight core laptop. It is pure number crunching. Which tool actually makes it faster?",
-     "q": "Resizing 500 photos on 8 cores (pure CPU). Best tool?",
+     "say": "Your turn. Two jobs. Resize five hundred photos on an eight core laptop, pure crunching. Then download five hundred more photos. Which tool for each?",
+     "q": "Resize 500 photos, then download 500. Best tool for each?",
      "options": [
-      "asyncio",
-      "threads",
-      "processes",
-      "more await"
+      "processes, then async",
+      "async, then processes",
+      "threads for both",
+      "processes for both"
      ],
-     "answer": 2,
+     "answer": 0,
      "pause": 5
     },
     {
      "type": "compare",
      "head": "Which one do I pick?",
-     "say": "Processes. Pure crunching needs real parallel cores, and each process has its own GIL. Waiting on network or disk? Async or threads: cheap, thousands can wait. Need separate memory for safety? Processes again.",
+     "say": "Processes, then async. Pure crunching needs real parallel cores, and each process has its own GIL. Waiting on network or disk? Async or threads: cheap, thousands can wait. Need separate memory for safety? Processes again. That's why threads failed.",
      "heads": [
       "Your work",
       "Use"
@@ -750,7 +777,7 @@
       ]
      ],
      "cues": [
-      "Processes. Pure",
+      "Pure crunching",
       "Waiting on network",
       "separate memory"
      ]
@@ -888,7 +915,11 @@
       }
      ],
      "output": {
-      "cmd": "python lock.py",
+      "cmd": "python run.py",
+      "setup": {
+       "app.py": "import threading\ncount = 0\n\n",
+       "run.py": "import threading, app\nts = [threading.Thread(target=app.add) for _ in range(2)]\nfor t in ts: t.start()\nfor t in ts: t.join()\nprint(app.count)\n"
+      },
       "text": "200000",
       "cue": "two hundred thousand"
      }
@@ -909,7 +940,7 @@
     {
      "type": "diagram",
      "head": "Deadlock",
-     "say": "Deadlock. Each thread waits for the lock the other one holds, so neither ever moves. No error, the program just hangs. The usual fix: every thread takes the locks in the same order.",
+     "say": "Deadlock. Each thread waits for the lock the other one holds, so neither ever moves. No error, the program just hangs. The fix: take the locks in the same order. Locks fix the counter, and order avoids deadlock.",
      "items": [
       {
        "id": "d1",
@@ -1248,7 +1279,7 @@
     {
      "type": "compare",
      "head": "is versus ==",
-     "say": "One more. Equals asks: same value? Is asks: same object? Two separate lists with the same items are equal, but not the same object. Use is for None, and equals for everything else.",
+     "say": "One more. Equals asks: same value? Is asks: same object? Two separate lists with the same items are equal, but not the same object. Use is for None, equals for the rest. That answers it.",
      "heads": [
       "Operator",
       "Asks"
@@ -1397,6 +1428,9 @@
      ],
      "output": {
       "cmd": "python deco.py",
+      "setup": {
+       "deco.py": "import functools\n"
+      },
       "text": "calling work\n42 work",
       "cue": "original name"
      }
@@ -1417,7 +1451,7 @@
     {
      "type": "compare",
      "head": "Why people forget wraps",
-     "say": "Wrapper. Without wraps, it wears the wrapper's name. That breaks debuggers. With wraps, it stays work.",
+     "say": "Wrapper. Without wraps, it wears the wrapper's name. That breaks debuggers. With wraps, it stays work. That answers it.",
      "heads": [
       "",
       "Name you see"
@@ -1453,27 +1487,27 @@
       "They ask",
       "You say"
      ],
-     "say": "Process, thread, async? Own memory, shared memory, one thread yielding. Race condition? Timing decides the result. Lock it. GIL? One thread runs Python at a time. Deadlock? Each waits for the other's lock. Pick? Waiting, async. Crunching, processes.",
+     "say": "Process, thread, async? A process owns memory, a thread shares it, async is one thread. Race condition? Timing decides the result, so I use a lock. GIL? One thread runs Python at a time. Deadlock? Two threads wait on each other. Pick? Async for waiting, processes for crunching.",
      "rows": [
       [
        "Process, thread, async?",
-       "own memory / shared / one thread, yields"
+       "Own memory, shared, one thread."
       ],
       [
        "Race condition?",
-       "timing decides the result; use a lock"
+       "Timing decides; I use a lock."
       ],
       [
        "The GIL?",
-       "one thread runs Python at a time"
+       "One thread runs Python at a time."
       ],
       [
        "Deadlock?",
-       "each waits for the other's lock"
+       "Two threads wait on each other."
       ],
       [
        "Which to pick?",
-       "waiting: async. crunching: processes"
+       "Async to wait, processes to crunch."
       ]
      ],
      "cues": [
@@ -1485,44 +1519,36 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 25 seconds",
+     "type": "flow",
+     "head": "Python gotchas, aloud",
      "covers": [
       "sw09"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "say": "Mutable default? Built once at definition, so default to None. Does assignment copy? No, names share objects. GIL and threads? Fine for waiting, use processes for crunching. List versus generator? A generator makes values on demand. Decorators? A function wrapping a function.",
-     "rows": [
-      [
-       "Mutable default?",
-       "built once; default to None"
-      ],
-      [
-       "Does assignment copy?",
-       "no: names share objects"
-      ],
-      [
-       "GIL kills threads?",
-       "not for I/O; CPU: processes"
-      ],
-      [
-       "List vs generator?",
-       "generator: values on demand"
-      ],
-      [
-       "What is a decorator?",
-       "a function that wraps a function"
-      ]
-     ],
-     "cues": [
-      "Mutable default",
-      "Does assignment",
-      "GIL and threads",
-      "List versus",
-      "Decorators"
+     "say": "Assignment never copies, names share objects. A default list is built once, so I default to None. The GIL hurts threads on crunching but not waiting, so processes for crunching. A generator makes values on demand, and a decorator is a function wrapping a function.",
+     "items": [
+      {
+       "label": "names",
+       "text": "no copy",
+       "cue": "Assignment never"
+      },
+      {
+       "label": "default",
+       "text": "None",
+       "sub": "built once",
+       "cue": "A default list"
+      },
+      {
+       "label": "GIL",
+       "text": "processes",
+       "sub": "for CPU work",
+       "cue": "The GIL"
+      },
+      {
+       "label": "lazy",
+       "text": "generator",
+       "sub": "on demand",
+       "cue": "A generator"
+      }
      ]
     }
    ]

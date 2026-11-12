@@ -240,7 +240,7 @@
      "say": "In code, one array over capacity. For each item, loop capacity from the top down, and ask: better to leave the item, or take it plus the best of what's left? It prints thirty five. Cost is items times capacity: pseudo-polynomial, since capacity is a value.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "int w[] = {1, 3, 4}, v[] = {15, 20, 30}, cap = 4;\nvector<int> dp(cap + 1, 0);\nfor (int i = 0; i < 3; i++)\n    for (int c = cap; c >= w[i]; c--)\n        dp[c] = max(dp[c], dp[c - w[i]] + v[i]);\ncout << dp[cap];"
       }
      ],
@@ -283,7 +283,10 @@
      "output": {
       "cmd": "./sol",
       "text": "35",
-      "cue": "prints thirty five"
+      "cue": "prints thirty five",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -302,10 +305,10 @@
     {
      "type": "code",
      "head": "Trap: capacity loop upward",
-     "say": "Sixty. Upward, dp of one is fifteen. Then dp of two reuses that cell: thirty. Then forty five, then sixty. One item, used four times. Downward avoids it.",
+     "say": "Sixty. Upward, dp of one is fifteen. Then dp of two reuses that cell: thirty. Then forty five, then sixty. One item, used four times. Downward avoids it. That's how the knapsack reaches thirty five.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "label": "bug",
        "tone": "bad",
        "code": "int w = 1, v = 15, cap = 4;\nvector<int> dp(cap + 1, 0);\nfor (int c = w; c <= cap; c++)\n    dp[c] = max(dp[c], dp[c - w] + v);\ncout << dp[cap];"
@@ -338,7 +341,10 @@
       "cmd": "./sol",
       "text": "60",
       "tone": "bad",
-      "cue": "then sixty"
+      "cue": "then sixty",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     }
    ]
@@ -727,7 +733,10 @@
      "output": {
       "cmd": "./sol",
       "text": "4",
-      "cue": "prints four"
+      "cue": "prints four",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -779,7 +788,7 @@
     {
      "type": "compare",
      "head": "Three LIS traps",
-     "say": "Tails isn't the run. For three, five, one it ends as one, five. Only its length is real. Equal values? Lower bound is strict, upper bound allows equals. The simple table is O of n squared.",
+     "say": "Tails isn't the run. For three, five, one it ends as one, five. Only its length is real. Equal values? Lower bound is strict, upper bound allows equals. The simple table is O of n squared. That's our answer: a run of length four.",
      "heads": [
       "Trap",
       "Fact"
@@ -1726,7 +1735,7 @@
      "say": "Same rule in code, with a zero border. If the letters match, take the diagonal plus one. Otherwise take the better of above and left. The corner prints four. Cost: n times m.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "string s = \"ABCBDAB\", t = \"BDCABA\";\nvector<vector<int>> dp(8, vector<int>(7, 0));\nfor (int i = 1; i <= 7; i++)\n    for (int j = 1; j <= 6; j++)\n        if (s[i-1] == t[j-1])\n            dp[i][j] = dp[i-1][j-1] + 1;\n        else\n            dp[i][j] = max(dp[i-1][j], dp[i][j-1]);\ncout << dp[7][6];"
       }
      ],
@@ -1761,7 +1770,10 @@
      "output": {
       "cmd": "./sol",
       "text": "4",
-      "cue": "prints four"
+      "cue": "prints four",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -3443,7 +3455,7 @@
     {
      "type": "compare",
      "head": "Three LCS follow-ups",
-     "say": "Memory: keep two rows. Off by one: cell i j compares letters i minus one and j minus one. Substring can't skip letters, subsequence can.",
+     "say": "Memory: keep two rows. Off by one: cell i j compares letters i minus one and j minus one. Substring can't skip letters, subsequence can. That's our answer: length four.",
      "heads": [
       "Follow-up",
       "Answer"

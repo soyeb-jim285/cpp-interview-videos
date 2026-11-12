@@ -312,7 +312,10 @@
      "output": {
       "cmd": "./sol",
       "text": "[] [1] [12] [123] [13] [2] [23] [3]",
-      "cue": "Empty, one"
+      "cue": "Empty, one",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nvector<vector<int>> res;\nvector<int> cur;\nvoid go(vector<int>& a, int i) {\n    res.push_back(cur);\n    for (int j = i; j < (int)a.size(); j++) {\n        cur.push_back(a[j]);\n        go(a, j + 1);\n        cur.pop_back();\n    }\n}\n"
+      }
      }
     },
     {
@@ -360,7 +363,7 @@
     {
      "type": "compare",
      "head": "The forgotten undo",
-     "say": "The classic trap. Delete the pop line and cur never shrinks. It writes one two three three, then one two three three two. Still eight boxes, but garbage inside. Every push needs a pop, right after the recursive call.",
+     "say": "The classic trap. Delete the pop line and cur never shrinks. It writes one two three three, then one two three three two. Still eight boxes, but garbage inside. Every push needs a pop. That's how we list all eight subsets.",
      "heads": [
       "What you do",
       "What happens"
@@ -816,7 +819,7 @@
     {
      "type": "compare",
      "head": "The two used-flag traps",
-     "say": "Two traps. No used reset: every item stays used, so one permutation, not six. No used check: items repeat, like one one one. The fix: undo everything you did before recursing.",
+     "say": "Two traps. No used reset: every item stays used, so one permutation, not six. No used check: items repeat, like one one one. The fix: undo everything you did before recursing. That's how we list all six orderings.",
      "heads": [
       "Mistake",
       "What you get"
@@ -1117,7 +1120,7 @@
     {
      "type": "compare",
      "head": "Break assumes sorted input",
-     "say": "The trap: break assumes sorted input. Sorted two, three, six, target five: finds two and three. Unsorted six, two, three: break fires at six, and nothing is found. Sort first, or use continue.",
+     "say": "The trap: break assumes sorted input. Sorted two, three, six, target five: finds two and three. Unsorted six, two, three: break fires at six, and nothing is found. Sort first, or use continue. That's how we find both combinations.",
      "heads": [
       "Input, target 5",
       "Result"
@@ -1317,7 +1320,7 @@
      "say": "One shifted left by n is two to the n, the number of masks. Loop mask over all of them. For each, test every bit: shift the mask right by i, and with one, and you read bit i. If it's on, add that item. We count subsets summing to forty. Only ten plus thirty works, so it prints one.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "int a[] = {10, 20, 30}, n = 3, cnt = 0;\nfor (int mask = 0; mask < (1 << n); mask++) {\n    int sum = 0;\n    for (int i = 0; i < n; i++)\n        if ((mask >> i) & 1) sum += a[i];\n    if (sum == 40) cnt++;\n}\ncout << cnt;"
       }
      ],
@@ -1361,7 +1364,10 @@
      "output": {
       "cmd": "./sol",
       "text": "1",
-      "cue": "prints one"
+      "cue": "prints one",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -1504,7 +1510,7 @@
      "type": "chart",
      "head": "Why bitmasks stop near 20 items",
      "unit": "steps",
-     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million. So bitmasks stop near twenty.",
+     "say": "How big can n get? The loop does n times two to the n steps. Sixteen items: about a million. Twenty: twenty one million. Twenty four: four hundred million. So masks count subsets, up to twenty items.",
      "bars": [
       {
        "label": "n = 16",
@@ -1640,7 +1646,7 @@
       {
        "from": "m",
        "to": "r",
-       "label": "AND n",
+       "label": "&",
        "cue": "and them together"
       }
      ],
@@ -1735,7 +1741,10 @@
      "output": {
       "cmd": "./sol",
       "text": "1 0\n4 2",
-      "cue": "Twelve gives four"
+      "cue": "Twelve gives four",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"
+      }
      }
     },
     {
@@ -1834,7 +1843,7 @@
      "say": "Xor is the star. X xor x is zero, and zero xor x is x, so xoring a whole array cancels every pair. Four, one, two, one, two leaves four. And a trap: one shifted by forty overflows an int. Write one L L, and you get a long long.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "vector<int> v = {4, 1, 2, 1, 2};\nint r = 0;\nfor (int x : v) r ^= x;\ncout << r << ' ';\ncout << (1LL << 40);"
       }
      ],
@@ -1879,7 +1888,10 @@
      "output": {
       "cmd": "./sol",
       "text": "4 1099511627776",
-      "cue": "leaves four"
+      "cue": "leaves four",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
@@ -1888,7 +1900,7 @@
      "say": "Last trick: every submask of m, biggest first. Start at m. Subtract one, then and with m, to skip patterns outside m. Mask five, one zero one, gives five, four, one. Then the empty set, zero, by hand.",
      "panels": [
       {
-       "file": "sol.cpp",
+       "file": "main.cpp",
        "code": "int m = 5;\nfor (int s = m; s > 0; s = (s - 1) & m)\n    cout << s << ' ';\ncout << 0;"
       }
      ],
@@ -1918,13 +1930,16 @@
      "output": {
       "cmd": "./sol",
       "text": "5 4 1 0",
-      "cue": "gives five, four, one"
+      "cue": "gives five, four, one",
+      "setup": {
+       "sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\nint main() {\n#include \"main.cpp\"\n}\n"
+      }
      }
     },
     {
      "type": "compare",
      "head": "Precedence and shift traps",
-     "say": "Last trap: precedence. Comparison binds tighter than bitwise and, so n and one equals zero is always false. Wrap the and in parentheses. And a plain int shifted by thirty two or more is undefined: use one L L.",
+     "say": "Last trap: precedence. Comparison binds tighter than bitwise and, so n and one equals zero is always false. Wrap the and in parentheses. And a plain int shifted by thirty two or more is undefined: use one L L. That's xor, done safely.",
      "heads": [
       "Code",
       "Problem"

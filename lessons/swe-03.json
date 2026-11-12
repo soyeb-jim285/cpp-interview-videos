@@ -302,7 +302,7 @@
     {
      "type": "diagram",
      "head": "Open to extension",
-     "say": "Nothing. Crypto just plugs into the same socket, and checkout runs it unchanged. That is open closed: open to extension, closed to modification. You add code instead of editing code that already works.",
+     "say": "Nothing. Crypto just plugs into the same socket, and checkout runs it unchanged. That is open closed: open to extension, closed to modification. That answers our problem: add code, edit nothing.",
      "items": [
       {
        "id": "co",
@@ -366,7 +366,7 @@
        "y": 700,
        "text": "+1 class, 0 edits",
        "tone": "good",
-       "cue": "add code instead"
+       "cue": "add code, edit nothing"
       }
      ],
      "changes": [
@@ -492,7 +492,7 @@
       }
      ],
      "output": {
-      "cmd": "python app.py",
+      "cmd": "python app.py 2>&1 | tail -1",
       "text": "NotImplementedError",
       "tone": "bad",
       "cue": "promise breaks"
@@ -607,7 +607,7 @@
     {
      "type": "compare",
      "head": "Judgment calls",
-     "say": "Inheritance or composition? Prefer composition: hold a part instead of being one. When to inherit? Only for a true is a relationship. Is SOLID always right? No. Wait for the second case before abstracting.",
+     "say": "Inheritance or composition? Prefer composition: hold a part instead of being one. When to inherit? Only for a true is a relationship. Is SOLID always right? No. Wait for a second case. That answers it.",
      "heads": [
       "They ask",
       "You say"
@@ -715,6 +715,9 @@
      ],
      "output": {
       "cmd": "python app.py",
+      "setup": {
+       "app.py": "from abc import ABC, abstractmethod\n\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\"\n\ndef checkout(strategy, amount):\n    return strategy.pay(amount)\n\n"
+      },
       "text": "paypal 50",
       "cue": "one place"
      }
@@ -735,7 +738,7 @@
     {
      "type": "code",
      "head": "Fail loudly",
-     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, catch it and raise a ValueError with a friendlier message.",
+     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, raise a friendlier ValueError. That's who picks: the factory.",
      "panels": [
       {
        "file": "app.py",
@@ -762,6 +765,9 @@
      ],
      "output": {
       "cmd": "python app.py 2>&1 | tail -1",
+      "setup": {
+       "app.py": "from abc import ABC, abstractmethod\n\nclass PaymentStrategy(ABC):\n    @abstractmethod\n    def pay(self, amount): ...\n\nclass Card(PaymentStrategy):\n    def pay(self, amount):\n        return f\"card {amount}\"\n\nclass PayPal(PaymentStrategy):\n    def pay(self, amount):\n        return f\"paypal {amount}\"\n\ndef checkout(strategy, amount):\n    return strategy.pay(amount)\n\n"
+      },
       "text": "KeyError: 'bitcoin'",
       "tone": "bad",
       "cue": "A KeyError"
@@ -1057,7 +1063,7 @@
     {
      "type": "code",
      "head": "Why inject? Speed and safety",
-     "say": "Run the same checkout twice. The real gateway sleeps half a second, standing in for a network call, and it would charge a real card. The fake answers in no time. Same code, fast and safe.",
+     "say": "Run the same checkout twice. The real gateway sleeps half a second, standing in for a network call, and it would charge a real card. The fake answers in no time. Same code, fast and safe. That answers both problems.",
      "panels": [
       {
        "file": "app.py",
@@ -1090,6 +1096,10 @@
      ],
      "output": {
       "cmd": "python app.py",
+      "approx": true,
+      "setup": {
+       "app.py": "import time\n\nclass Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\n\nclass RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\n        return \"ok\"\n\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\"\n\n"
+      },
       "text": "RealGateway 0.5 s\nFakeGateway 0.0 s",
       "cue": "answers in no time"
      }
@@ -1110,27 +1120,27 @@
       "They ask",
       "You say"
      ],
-     "say": "SOLID, with an example? An if chain becomes one class per rule. Liskov? A subclass works wherever its parent does. Inherit or compose? Compose unless truly is a. Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Always right? No. Wait for a second case.",
+     "say": "SOLID, with an example? An if chain becomes one class per rule. Liskov? A subclass works wherever its parent does. Inherit or compose? I compose, unless it's truly an is a. Four pillars? Encapsulation, abstraction, inheritance, polymorphism. Always right? No, I wait for a second case.",
      "rows": [
       [
        "SOLID, with an example?",
-       "if chain → class per rule"
+       "An if chain becomes a class per rule."
       ],
       [
        "Liskov in one line?",
-       "subclass works wherever parent does"
+       "A subclass works wherever its parent does."
       ],
       [
        "Inheritance or composition?",
-       "compose; inherit for true is-a"
+       "I compose, unless it is truly is-a."
       ],
       [
        "Four pillars?",
-       "encapsulation, abstraction, inheritance, polymorphism"
+       "Encapsulation, abstraction, inheritance, polymorphism."
       ],
       [
        "Is SOLID always right?",
-       "no: wait for the 2nd case"
+       "No, I wait for a second case."
       ]
      ],
      "cues": [
@@ -1142,39 +1152,42 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 25 seconds",
+     "type": "flow",
+     "head": "Four patterns, aloud",
      "covers": [
       "sw04"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "say": "Strategy versus an if chain? Swap behavior without editing old code. Why a factory? Creation logic lives in one place. Observer risk? Hidden coupling, forgotten unsubscribes. Why inject? A fake makes tests fast and safe. And say where you used one.",
-     "rows": [
-      [
-       "Strategy vs if chain?",
-       "swap behavior, edit nothing old"
-      ],
-      [
-       "Why a factory?",
-       "creation logic in one place"
-      ],
-      [
-       "Observer risk?",
-       "hidden coupling, forgotten unsubscribes"
-      ],
-      [
-       "Why inject?",
-       "fake dependency: fast, safe tests"
-      ]
-     ],
-     "cues": [
-      "Strategy versus",
-      "Why a factory",
-      "Observer risk",
-      "Why inject"
+     "say": "Strategy lets me swap behavior without editing old code. A factory keeps creation logic in one place. Observer lets many listeners react to one event, but it hides coupling and forgotten unsubscribes. Injection hands in a fake, so tests are fast and safe. And I always name where I used one.",
+     "items": [
+      {
+       "label": "swap",
+       "text": "strategy",
+       "cue": "Strategy lets"
+      },
+      {
+       "label": "pick",
+       "text": "factory",
+       "cue": "A factory"
+      },
+      {
+       "label": "react",
+       "text": "observer",
+       "sub": "hides coupling",
+       "cue": "Observer lets"
+      },
+      {
+       "label": "hand in",
+       "text": "injection",
+       "sub": "fakes in tests",
+       "cue": "Injection hands"
+      },
+      {
+       "label": "always",
+       "text": "example",
+       "sub": "say where",
+       "tone": "good",
+       "cue": "name where"
+      }
      ]
     }
    ]
