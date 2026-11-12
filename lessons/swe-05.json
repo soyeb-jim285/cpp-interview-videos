@@ -358,20 +358,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Now a hundred commits, with only the first and last known. In the worst case, how many tests does bisect need? Pause and predict.",
-     "q": "100 commits, bug somewhere. Worst-case bisect tests?",
+     "say": "Your turn. Now a thousand commits, with only the first and last known. In the worst case, how many tests does bisect need? Pause and predict.",
+     "q": "1,000 commits, bug somewhere. Worst-case bisect tests?",
      "options": [
       "7",
       "10",
-      "50",
-      "98"
+      "100",
+      "500"
      ],
-     "answer": 0
+     "answer": 1
     },
     {
      "type": "code",
      "head": "Let git do the halving",
-     "say": "Seven. Two to the seventh is one twenty eight, more than a hundred. Tell git the current commit is bad, and the one ninety nine back is good. Bisect run feeds it a test script. Exit zero means good. It ran seven tests, and names the culprit.",
+     "say": "Ten, because two to the tenth is one thousand twenty four. For our hundred, seven halvings are enough. Tell git the current commit is bad, and the commit ninety nine back is good. Bisect run feeds it a test script. Exit zero means good. This run took seven tests, and names the culprit.",
      "panels": [
       {
        "file": "run.sh",
@@ -379,6 +379,10 @@
       }
      ],
      "steps": [
+      {
+       "lines": [],
+       "cue": "For our hundred"
+      },
       {
        "lines": [
         1
@@ -419,7 +423,7 @@
      "output": {
       "cmd": "sh run.sh",
       "text": "7\norder id from seconds",
-      "cue": "It ran seven"
+      "cue": "This run took"
      }
     }
    ]
@@ -429,13 +433,13 @@
    "scenes": [
     {
      "type": "problem",
-     "title": "A bug that fails only sometimes",
-     "statement": "A test fails now and then with no code change. Make it fail on demand, then shrink it.",
+     "title": "Make a bug show itself",
+     "statement": "A job fails on a big file, and a test fails now and then. Make each fail on demand, then shrink it.",
      "example": {
-      "input": "flaky test: ids built from the clock",
-      "output": "fails every run, then a fix"
+      "input": "a 10,000-row file; a flaky test",
+      "output": "a tiny repro that fails every run"
      },
-     "say": "Here's the problem. A test fails now and then, with no code change. For example, a flaky test whose ids come from the clock. We want it to fail every run, so we can fix it.",
+     "say": "Here's the problem. A job and a test fail, and they're hard to catch. For example, a ten thousand row file. We want a tiny repro that fails every run.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -443,8 +447,8 @@
     },
     {
      "type": "code",
-     "head": "Shrink the input by halves",
-     "say": "A job fails on a file with ten thousand rows. Don't read them all. Keep the first five thousand: still fails. The first three: passes. The first four: fails. So row four is the culprit, and you hold a tiny repro that becomes your regression test.",
+     "head": "Shrink the input until it stops failing",
+     "say": "A job fails on a file with ten thousand rows. Don't read them all. Keep the first five thousand: still fails. The first three: passes. The first four: fails. So row four is the culprit, and you hold a tiny repro that becomes your regression test, a test that fails if the bug ever returns.",
      "panels": [
       {
        "file": "shrink.py",
@@ -485,7 +489,7 @@
     {
      "type": "code",
      "head": "A flaky test: ids from the clock",
-     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. Two orders in the same second share an id. The second overwrites the first. The test passes only when the clock ticks between them. Don't wait for luck. Pass the time in, and it fails every run.",
+     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. The test passes only when the clock ticks between two orders. Don't wait for luck. Pass the time in, and it fails every run.",
      "panels": [
       {
        "file": "orders.py",
@@ -498,19 +502,6 @@
         3
        ],
        "cue": "whole seconds"
-      },
-      {
-       "lines": [
-        4,
-        5
-       ],
-       "cue": "same second"
-      },
-      {
-       "lines": [
-        3
-       ],
-       "cue": "overwrites the first"
       },
       {
        "lines": [
@@ -943,7 +934,7 @@
     {
      "type": "code",
      "head": "One conflict, resolved",
-     "say": "Both sides changed one line, so git stops and asks. Merging your branch into main, the top half is main's version. The bottom half is yours. Edit the file to the final result, here sixty, and delete the three marker lines. Then git add the file and commit. A rebase shows the same markers.",
+     "say": "Both sides changed one line, so git stops and asks. Merging your branch into main, the top half is main's version. The bottom half is yours. Edit the file to the final result, here sixty, and delete the three marker lines. Then git add the file and commit.",
      "panels": [
       {
        "file": "config.py",
@@ -1004,7 +995,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same branch, but now we rebase it onto M three instead. How many new commits does git create? Pause and predict.",
+     "say": "Your turn. Rebase is the other way to combine: it copies your commits onto the tip of main. Same branch, rebased onto M three. How many new commits does git create? Pause and predict.",
      "q": "Rebase F1, F2 onto M3. New commits created?",
      "options": [
       "0",
@@ -1259,17 +1250,17 @@
      "say": "Your turn. Four ways to say the action part. Which one lands the offer? Pause and predict.",
      "q": "Which Action line lands the offer?",
      "options": [
-      "We debugged it a lot",
-      "I bisected 100 commits",
-      "The team fixed it",
-      "It just went away"
+      "We debugged a lot",
+      "I looked at commits",
+      "Bisected in 7 runs",
+      "The team fixed it"
      ],
-     "answer": 1
+     "answer": 2
     },
     {
      "type": "compare",
      "head": "Weak line, strong line",
-     "say": "The second one. It says I, and names the method. Weak lines say we, and stay vague. Name the real cause: ids from whole seconds. End on a count: seven runs, plus a test.",
+     "say": "The third one. It names the method and a count. Weak lines say we, and stay vague. Name the real cause: ids from whole seconds. End on a count: seven runs, plus a test.",
      "heads": [
       "Weak",
       "Strong"
@@ -1293,7 +1284,7 @@
       ]
      ],
      "cues": [
-      "The second one",
+      "The third one",
       "Weak lines",
       "Name the real",
       "End on a count"
@@ -1381,34 +1372,21 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
+     "kicker": "Say it",
      "covers": [
       "sw10"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "say": "Merge versus rebase? Merge: two parents. Rebase: straight line, new hashes. Conflicts? Edit, delete markers, add, continue. Mistake: rebasing what others pulled.",
-     "rows": [
-      [
-       "Merge vs rebase?",
-       "Two-parent commit vs replayed straight line"
-      ],
-      [
-       "Resolve a conflict?",
-       "Edit, delete markers, add, continue"
-      ],
-      [
-       "Common mistake?",
-       "Rebasing what others already pulled"
-      ]
+     "say": "Merge versus rebase? Merge: a commit with two parents. Rebase: replay, new hashes. Conflicts? Edit, delete markers, add, continue. Which one? Rebase mine, merge shared, then force with lease.",
+     "lines": [
+      "Merge: two parents. Rebase: replay, new hashes.",
+      "Conflict: edit, delete markers, add, continue.",
+      "Rebase mine, merge shared. Then force-with-lease."
      ],
      "cues": [
       "Merge versus",
       "Conflicts",
-      "Mistake"
+      "Which one"
      ]
     },
     {

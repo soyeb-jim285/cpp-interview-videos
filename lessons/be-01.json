@@ -71,7 +71,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "You click, and a database row shows on screen. What happened in between? You'll trace every hop, and design an API that survives a retry.",
+     "say": "You click, and a database row shows up in about a quarter of a second. Where did it go? You'll trace every hop, and design an API that survives a retry.",
      "lines": [
       {
        "text": "One click.",
@@ -79,7 +79,7 @@
       },
       {
        "text": "Six hops to the database.",
-       "cue": "What happened in between"
+       "cue": "Where did it go"
       },
       {
        "text": "Retry? No double charge.",
@@ -106,7 +106,7 @@
     {
      "type": "problem",
      "title": "What happens when you call an API?",
-     "statement": "A browser calls an endpoint and gets JSON back. Name every hop in between, and find where the time goes.",
+     "statement": "A browser calls an endpoint and gets JSON back. Name every stop (hop) the request makes, and find where the time goes.",
      "example": {
       "input": "GET https://example.com/users/42",
       "output": "DNS, TLS, balancer, app, DB, 200"
@@ -151,7 +151,7 @@
     {
      "type": "diagram",
      "head": "GET /users/42, hop by hop",
-     "say": "Now the real steps for get slash users slash forty two. The browser asks DNS for the address behind the name, like a phone book. Then it opens a TCP connection and does a TLS handshake, so everything is encrypted. The load balancer picks one healthy server. The app runs your handler, and sends one SQL query. The database returns the row, and the app answers two hundred with JSON.",
+     "say": "Now the real steps for get slash users slash forty two. The browser asks DNS for the address behind the name, like a phone book. Then it opens a TCP connection and does a TLS handshake, so everything is encrypted. The load balancer picks one healthy server. The app runs your handler, and sends one SQL query. The database returns the row, and the app answers two hundred with JSON. Same journey as the restaurant: diner, host desk, kitchen, pantry.",
      "items": [
       {
        "id": "cl",
@@ -175,7 +175,7 @@
       },
       {
        "id": "lb",
-       "x": 560,
+       "x": 660,
        "y": 480,
        "w": 280,
        "h": 130,
@@ -185,7 +185,7 @@
       },
       {
        "id": "app",
-       "x": 1000,
+       "x": 1080,
        "y": 480,
        "w": 280,
        "h": 130,
@@ -194,7 +194,7 @@
       },
       {
        "id": "db",
-       "x": 1440,
+       "x": 1480,
        "y": 480,
        "w": 280,
        "h": 130,
@@ -203,7 +203,7 @@
       },
       {
        "id": "res",
-       "x": 1000,
+       "x": 1080,
        "y": 730,
        "w": 280,
        "h": 120,
@@ -222,7 +222,7 @@
       {
        "from": "cl",
        "to": "lb",
-       "label": "TCP + TLS",
+       "label": "TLS",
        "cue": "TLS handshake"
       },
       {
@@ -263,45 +263,57 @@
      "say": "Time each stage with curl. Put three timers in a format file, then run curl with it. Each number is cumulative, in seconds. DNS was done at twenty milliseconds. TLS was done at one fifty five. The first byte arrived at two forty. The gap between two numbers is what that stage cost.",
      "panels": [
       {
+       "file": "fmt.txt",
+       "code": "dns   %{time_namelookup}\\n\ntls   %{time_appconnect}\\n\nfirst %{time_starttransfer}\\n"
+      },
+      {
        "file": "run.sh",
-       "code": "# fmt.txt\ndns   %{time_namelookup}\\n\ntls   %{time_appconnect}\\n\nfirst %{time_starttransfer}\\n\ncurl -s -o /dev/null -w @fmt.txt https://example.com"
+       "code": "curl -s -o /dev/null \\\n  -w @fmt.txt \\\n  https://example.com"
       }
      ],
      "steps": [
       {
        "lines": [
+        1,
         2,
-        3,
-        4
+        3
        ],
+       "panel": 0,
        "cue": "three timers"
       },
       {
        "lines": [
-        5
+        1,
+        2,
+        3
        ],
+       "panel": 1,
        "cue": "run curl"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 0,
+       "cue": "DNS was done"
       },
       {
        "lines": [
         2
        ],
-       "cue": "DNS was done"
+       "panel": 0,
+       "cue": "TLS was done"
       },
       {
        "lines": [
         3
        ],
-       "cue": "TLS was done"
-      },
-      {
-       "lines": [
-        4
-       ],
+       "panel": 0,
        "cue": "first byte"
       },
       {
        "lines": [],
+       "panel": 0,
        "cue": "The gap"
       }
      ],
@@ -327,7 +339,7 @@
      "type": "chart",
      "head": "Where 240 ms went",
      "unit": "ms",
-     "say": "Eighty five: two forty minus one fifty five. This chart splits the time by stage. DNS cost twenty. Connecting and encrypting cost a hundred thirty five, the biggest slice. The server needed eighty five. Blame the network or the code? Now you know.",
+     "say": "Eighty five: two forty minus one fifty five. This chart splits the time by stage. DNS cost twenty. Connecting and encrypting cost a hundred thirty five, the biggest slice. The wait for the first byte, mostly server, was eighty five.",
      "bars": [
       {
        "label": "DNS",
@@ -341,10 +353,10 @@
        "cue": "Connecting and encrypting"
       },
       {
-       "label": "Server",
+       "label": "Wait",
        "value": 85,
        "tone": "good",
-       "cue": "The server needed"
+       "cue": "The wait for"
       }
      ]
     },
@@ -396,7 +408,7 @@
     {
      "type": "compare",
      "head": "Follow-ups on the journey",
-     "say": "Follow ups. Why a load balancer? To spread traffic and survive a dead server. Why TLS? It encrypts, and proves who the server is. It's slow? Time each hop, then fix the biggest. The mistake: skipping DNS and TLS, and saying only that the server returns JSON.",
+     "say": "That answers the problem: every hop named, and where the time goes. Follow ups. Why a load balancer? To spread traffic and survive a dead server. Why TLS? It encrypts, and proves who the server is. It's slow? Time each hop, then fix the biggest. The mistake: skipping DNS and TLS, and saying only that the server returns JSON.",
      "heads": [
       "They ask",
       "You say"
@@ -439,7 +451,7 @@
       "input": "create, read, replace, delete an order",
       "output": "nouns in paths, honest status codes"
      },
-     "say": "Here's the problem. Design the URLs, methods and codes for an orders service. For example, create, read, replace, delete. We want nouns in paths and honest codes.",
+     "say": "Say we build the orders service. The problem: design the URLs, methods and codes. For example, create, read, replace, delete. We want nouns in paths and honest codes.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -614,20 +626,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A client reads slash orders slash nine ninety nine, and no such order exists. Which status comes back? Pause and predict.",
-     "q": "`GET /orders/999`, and no such order exists. Status?",
+     "say": "Your turn. A client posts an order that already exists. Which status comes back? Pause and predict.",
+     "q": "`POST /orders` with an item that already exists. Status?",
      "options": [
-      "200",
+      "201",
       "400",
       "404",
-      "500"
+      "409"
      ],
-     "answer": 2
+     "answer": 3
     },
     {
      "type": "diagram",
      "head": "Codes on the request path",
-     "say": "Four oh four. The path is fine, but the thing isn't there. Four hundreds mean the caller was wrong. Here are all four on one picture. Two oh one: the post worked. Four hundred: bad input. Four oh four: missing. Four oh nine: a duplicate or a version clash.",
+     "say": "Four oh nine: it already exists, a clash. Four hundreds mean the caller was wrong. Here are all four on one picture. Two oh one: the post worked. Four hundred: bad input. Four oh four: missing, the path is fine but the thing isn't there.",
      "items": [
       {
        "id": "cl",
@@ -636,7 +648,7 @@
        "w": 420,
        "h": 140,
        "text": "client call",
-       "cue": "The path is fine",
+       "cue": "Four oh nine",
        "label": "request"
       },
       {
@@ -679,7 +691,7 @@
        "w": 720,
        "h": 120,
        "text": "409 Conflict",
-       "cue": "Four oh nine",
+       "cue": "already exists",
        "tone": "bad",
        "sub": "duplicate or version clash"
       }
@@ -703,7 +715,7 @@
       {
        "from": "cl",
        "to": "c409",
-       "cue": "Four oh nine"
+       "cue": "a clash"
       }
      ],
      "notes": [
@@ -717,6 +729,12 @@
      ],
      "changes": [
       {
+       "id": "c409",
+       "glow": true,
+       "tone": "bad",
+       "cue": "already exists"
+      },
+      {
        "id": "c404",
        "glow": true,
        "tone": "warn",
@@ -727,7 +745,7 @@
     {
      "type": "compare",
      "head": "Follow-ups on REST design",
-     "say": "Follow ups. Four oh one or four oh three? Not logged in, versus not allowed. Five hundreds? Our fault. Put or patch? Put replaces everything, patch only the fields sent. Versioning? A v one prefix, and never break old clients. Mistake: verbs in paths, two hundred for everything.",
+     "say": "That is the orders API: nouns in paths, honest codes. Follow ups. Four oh one or four oh three? Not logged in, versus not allowed. Put or patch? Put replaces everything, patch only the fields sent. Versioning? A v one prefix, and never break old clients. Mistake: verbs in paths, two hundred for everything.",
      "heads": [
       "They ask",
       "You say"
@@ -736,10 +754,6 @@
       [
        "401 or 403?",
        "Not logged in vs. not allowed"
-      ],
-      [
-       "What are 5xx codes?",
-       "Our fault, not the caller's"
       ],
       [
        "PUT or PATCH?",
@@ -756,7 +770,6 @@
      ],
      "cues": [
       "Four oh one",
-      "Five hundreds",
       "Put or patch",
       "Versioning",
       "Mistake"
@@ -775,7 +788,7 @@
       "input": "POST /orders twice, one purchase",
       "output": "exactly one order"
      },
-     "say": "Here's the problem. A client times out, and retries a post that actually worked. For example, post orders twice for one purchase. We want exactly one order.",
+     "say": "Now the nasty one. A client times out, and retries a post that actually worked. For example, post orders twice for one purchase. We want exactly one order.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -790,14 +803,14 @@
        "id": "cl",
        "x": 120,
        "y": 450,
-       "w": 300,
+       "w": 260,
        "h": 140,
        "text": "client",
        "cue": "The client"
       },
       {
        "id": "api",
-       "x": 780,
+       "x": 860,
        "y": 450,
        "w": 300,
        "h": 140,
@@ -833,14 +846,14 @@
        "from": "api",
        "to": "cl",
        "tone": "bad",
-       "bend": -90,
-       "label": "201 lost",
+       "bend": -170,
+       "label": "lost",
        "cue": "answer is lost"
       },
       {
        "from": "cl",
        "to": "api",
-       "bend": 100,
+       "bend": -210,
        "label": "retry",
        "cue": "it retries"
       }
@@ -1125,7 +1138,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What is idempotent? Repeating leaves the same end state. Get, put, delete yes. Post no. A retried post? Send an idempotency key, and the server replays the first result.",
+     "say": "What is idempotent? Repeating leaves the same end state. Get, put, delete yes. Post no. A retried post? Send an idempotency key. Put or patch? Replace all, or only fields sent. Versioning? A v one prefix.",
      "rows": [
       [
        "What is idempotent?",
@@ -1138,12 +1151,22 @@
       [
        "A retried POST?",
        "Idempotency-Key: replay the first result"
+      ],
+      [
+       "PUT or PATCH?",
+       "PUT replaces all; PATCH only fields sent"
+      ],
+      [
+       "Versioning?",
+       "`/v1` prefix; never break clients"
       ]
      ],
      "cues": [
       "What is idempotent",
       "Get, put",
-      "A retried post"
+      "A retried post",
+      "Put or patch",
+      "Versioning"
      ]
     }
    ]
