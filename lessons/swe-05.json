@@ -375,7 +375,7 @@
      "panels": [
       {
        "file": "run.sh",
-       "code": "git bisect start\ngit bisect bad HEAD\ngit bisect good HEAD~99\ngit bisect run ./test.sh | grep -c running\ngit log -1 --format=%s refs/bisect/bad\ngit bisect reset"
+       "code": "git bisect start HEAD HEAD~99 > /dev/null\ngit bisect run ./test.sh | grep -c running\ngit log -1 --format=%s refs/bisect/bad\ngit bisect reset 2>/dev/null"
       }
      ],
      "steps": [
@@ -391,37 +391,40 @@
       },
       {
        "lines": [
-        2
+        1
        ],
        "cue": "current commit is bad"
       },
       {
        "lines": [
-        3
+        1
        ],
        "cue": "ninety nine back"
       },
       {
        "lines": [
-        4
+        2
        ],
        "cue": "Bisect run"
       },
       {
        "lines": [
-        4
+        2
        ],
        "cue": "Exit zero"
       },
       {
        "lines": [
-        5
+        3
        ],
        "cue": "names the culprit"
       }
      ],
      "output": {
       "cmd": "sh run.sh",
+      "setup": {
+       "run.sh": "git init -q -b main\ngit config user.email a@b.c\ngit config user.name t\nfor i in $(seq 1 100); do\n  if [ $i -ge 64 ]; then echo bad > state.txt; else echo ok > state.txt; fi\n  echo $i > n.txt\n  git add -A\n  if [ $i = 64 ]; then m=\"order id from seconds\"; else m=\"c$i\"; fi\n  git commit -qm \"$m\"\ndone\nprintf '#!/bin/sh\\ngrep -q ok state.txt\\n' > test.sh\nchmod +x test.sh"
+      },
       "text": "7\norder id from seconds",
       "cue": "This run took"
      }
@@ -909,9 +912,9 @@
      ],
      "notes": [
       {
-       "x": 1300,
+       "x": 1250,
        "y": 640,
-       "text": "cost: a tangled graph",
+       "text": "cost: tangles",
        "tone": "warn",
        "cue": "graph that can tangle"
       }

@@ -246,6 +246,9 @@
      ],
      "output": {
       "cmd": "python3 test_app.py",
+      "setup": {
+       "test_app.py": "def calc_invoice(amount, gold=False):\n    total = amount * 1.08\n    if gold:\n        total = total * 0.9\n    if total < 50:\n        total += 4.99\n    return round(total, 2)"
+      },
       "text": "pinned",
       "tone": "good",
       "cue": "Pinned"
@@ -722,7 +725,7 @@
      "panels": [
       {
        "file": "test_app.py",
-       "code": "def checkout(mailer, total):\n    mailer.send(\"receipt\")\n    mailer.send(\"receipt\")\n    return total\n\n# same Mock test as before"
+       "code": "def checkout(mailer):\n    mailer.send(\"receipt\")\n    mailer.send(\"receipt\")\nmailer = Mock()\ncheckout(mailer)\ntry:\n    mailer.send.assert_called_once_with(\"receipt\")\nexcept AssertionError as e:\n    print(e)"
       }
      ],
      "steps": [
@@ -745,7 +748,10 @@
      ],
      "output": {
       "cmd": "python3 test_app.py",
-      "text": "AssertionError: Expected 'send' to be called once. Called 2 times.",
+      "setup": {
+       "test_app.py": "from unittest.mock import Mock"
+      },
+      "text": "Expected 'send' to be called once. Called 2 times.\nCalls: [call('receipt'), call('receipt')].",
       "tone": "bad",
       "cue": "It fails"
      }
@@ -1076,6 +1082,9 @@
      ],
      "output": {
       "cmd": "python3 grade.py",
+      "setup": {
+       "grade.py": "import random\n\ndef reference(iv):\n    out = []\n    for s, e in sorted(iv):\n        if out and s <= out[-1][1]:\n            out[-1][1] = max(out[-1][1], e)\n        else:\n            out.append([s, e])\n    return out\n\ndef make_case(seed):\n    rng = random.Random(seed)\n    case = []\n    for _ in range(rng.randint(0, 8)):\n        a = rng.randint(0, 20)\n        case.append([a, a + rng.randint(1, 5)])\n    return case\ndef cheat(iv):\n    if iv == [[1,3],[2,6],[8,10]]:\n        return [[1, 6], [8, 10]]\n    return []"
+      },
       "text": "PASS 50 of 50\nFAIL seed 0",
       "cue": "passes all fifty"
      }

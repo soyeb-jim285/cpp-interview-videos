@@ -318,7 +318,7 @@
       }
      ],
      "output": {
-      "cmd": "sh run.sh",
+      "cmd": "curl -s -o /dev/null -w @fmt.txt https://example.com",
       "text": "dns   0.019986\ntls   0.155366\nfirst 0.240485",
       "cue": "Each number"
      }
@@ -401,6 +401,9 @@
      ],
      "output": {
       "cmd": "python3 app.py",
+      "setup": {
+       "app.py": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.execute(\"create table users(id integer, name text)\")\ndb.execute(\"insert into users values (42, 'Ada')\")"
+      },
       "text": "(200, {'id': 42, 'name': 'Ada'}) (404, {'error': 'not found'})",
       "cue": "Seven doesn't"
      }
@@ -515,7 +518,7 @@
      ],
      "notes": [
       {
-       "x": 960,
+       "x": 900,
        "y": 790,
        "text": "nouns in paths, verbs in methods",
        "tone": "info",
