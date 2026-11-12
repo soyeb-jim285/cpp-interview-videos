@@ -126,7 +126,7 @@
     {
      "type": "flow",
      "head": "A detective, not a gambler",
-     "say": "Interviewers test your method, not your luck. A detective doesn't guess. First, reproduce: make it fail on demand. Second, minimize: shrink the failing input. Third, bisect: halve the history. Fourth, fix it, and add a test.",
+     "say": "Interviewers test your method, not your luck. A detective doesn't guess. First, reproduce: make it fail on demand. Second, minimize: shrink the failing input. Third, bisect: halve the history. Fourth, fix it, and add a test. Today we start at step three.",
      "items": [
       {
        "label": "one",
@@ -143,14 +143,15 @@
       {
        "label": "three",
        "text": "Bisect",
-       "sub": "halve the history",
-       "cue": "Third, bisect"
+       "sub": "start here",
+       "cue": "Third, bisect",
+       "tone": "warn"
       },
       {
        "label": "four",
        "text": "Fix + test",
        "sub": "lock it in",
-       "cue": "Fourth, fix"
+       "cue": "and add a test"
       }
      ]
     },
@@ -366,7 +367,8 @@
       "100",
       "500"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "how many tests"
     },
     {
      "type": "code",
@@ -457,7 +459,7 @@
     {
      "type": "code",
      "head": "Shrink the input until it stops failing",
-     "say": "A job fails on a file with ten thousand rows. Don't read them all. Keep the first five thousand: still fails. The first three: passes. The first four: fails. So row four is the culprit, and you hold a tiny repro that becomes your regression test, a test that fails if the bug ever returns.",
+     "say": "A job fails on a file with ten thousand rows. Don't read them all. Keep cutting it down. The first five thousand: still fails. Cut to the first three: passes. The first four: fails. So row four is the culprit, and you hold a tiny repro that becomes your regression test, a test that fails if the bug ever returns.",
      "panels": [
       {
        "file": "shrink.py",
@@ -498,7 +500,7 @@
     {
      "type": "code",
      "head": "A flaky test: ids from the clock",
-     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. A real test reads the clock itself, and passes only when it ticks between two orders. Here we pass the time in, so we control it, and the bug shows every run.",
+     "say": "Now a flaky test: it passes some runs, fails others. Orders get an id from the clock, in whole seconds. A real test reads the clock itself, so it passes only when it ticks between two orders. Here we pass the time in, so we control it, and the bug shows every run.",
      "panels": [
       {
        "file": "orders.py",
@@ -539,6 +541,13 @@
        "cue": "from the clock"
       },
       {
+       "line": 5,
+       "inside": true,
+       "text": "same second as 100.2",
+       "tone": "warn",
+       "cue": "passes only when"
+      },
+      {
        "line": 2,
        "inside": true,
        "text": "now = parameter",
@@ -557,7 +566,8 @@
       "3",
       "0"
      ],
-     "answer": 1
+     "answer": 1,
+     "optCue": "How many orders"
     },
     {
      "type": "diagram",
@@ -1024,7 +1034,8 @@
       "2",
       "3"
      ],
-     "answer": 2
+     "answer": 2,
+     "optCue": "How many new commits"
     },
     {
      "type": "diagram",
@@ -1284,32 +1295,33 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Four ways to say the action part. Which one lands the offer? Pause and predict.",
-     "q": "Which Action line lands the offer?",
+     "say": "Your turn. Four ways to say the action part. Which one gives the interviewer a fact they can check? Pause and predict.",
+     "q": "Which Action line gives the interviewer a checkable fact?",
      "options": [
       "I debugged it two days",
       "I read recent commits",
       "Bisected in 7 runs",
       "I added some logging"
      ],
-     "answer": 2
+     "answer": 2,
+     "optCue": "a fact they can check"
     },
     {
      "type": "compare",
      "head": "Weak line, strong line",
-     "say": "The third one. It names the method and a count. Weak lines say we, and stay vague. Name the real cause: ids from whole seconds. End on a count: seven runs, plus a test.",
+     "say": "The third one names a method and a count. Two days is effort. Reading commits or logging gives no count. Weak lines say we. Name the real cause: ids from whole seconds. End on a count: seven runs, plus a test.",
      "heads": [
       "Weak",
       "Strong"
      ],
      "rows": [
       [
-       "We looked into it",
-       "I froze the clock, then bisected"
+       "I debugged it two days",
+       "I bisected in 7 runs"
       ],
       [
-       "It was a team effort",
-       "I wrote the fix and the test"
+       "We looked into it",
+       "I froze the clock, then bisected"
       ],
       [
        "It got fixed",
@@ -1321,8 +1333,8 @@
       ]
      ],
      "cues": [
-      "The third one",
-      "Weak lines",
+      "Two days",
+      "say we",
       "Name the real",
       "End on a count"
      ]
@@ -1382,11 +1394,15 @@
       "They ask",
       "You say"
      ],
-     "say": "A bug that only happens sometimes? Reproduce, shrink, bisect, fix, add a test. Can't reproduce it? Add logging. What does bisect need? A good commit and an automatic test. Mistake: changing code first.",
+     "say": "A bug that happens sometimes? I reproduce, shrink, then bisect to the first bad commit. Then I fix it and add a test. Can't reproduce it? I add logging and capture the real input. What does bisect need? A known good commit and an automatic test. The common mistake is changing code first.",
      "rows": [
       [
        "A bug that appears sometimes?",
-       "Reproduce, shrink, bisect, fix + test"
+       "Reproduce, shrink, bisect the first bad commit"
+      ],
+      [
+       "Then?",
+       "Fix it, add a regression test"
       ],
       [
        "Can't reproduce it?",
@@ -1403,27 +1419,51 @@
      ],
      "cues": [
       "A bug that",
+      "Then I fix",
       "Can't reproduce",
       "What does bisect",
-      "Mistake"
+      "common mistake"
      ]
     },
     {
-     "type": "take",
-     "kicker": "Say it",
+     "type": "flow",
+     "head": "Say it in 20 seconds",
      "covers": [
       "sw10"
      ],
-     "say": "Merge versus rebase? Merge: a commit with two parents. Rebase: replay, new hashes. Conflicts? Edit, add, then commit, or continue in a rebase. Which one? Rebase mine, merge shared, then force with lease.",
-     "lines": [
-      "Merge: two parents. Rebase: replay, new hashes.",
-      "Conflict: edit, add, commit (rebase: --continue).",
-      "Rebase mine, merge shared. Then force-with-lease."
-     ],
-     "cues": [
-      "Merge versus",
-      "Conflicts",
-      "Which one"
+     "say": "Merge versus rebase? A merge keeps the true history, with a commit that has two parents. A rebase replays my commits into a straight line, with new hashes. Conflicts? I edit, add, and commit, or continue the rebase. If it goes wrong, rebase abort puts me back. Which one? I rebase mine, merge shared ones, and push with force with lease.",
+     "items": [
+      {
+       "label": "merge",
+       "text": "Two parents",
+       "sub": "true history",
+       "cue": "A merge keeps"
+      },
+      {
+       "label": "rebase",
+       "text": "Replay",
+       "sub": "straight line, new hashes",
+       "cue": "A rebase replays"
+      },
+      {
+       "label": "conflict",
+       "text": "Edit, add",
+       "sub": "commit or --continue",
+       "cue": "Conflicts"
+      },
+      {
+       "label": "gone wrong",
+       "text": "--abort",
+       "sub": "back to the start",
+       "cue": "If it goes wrong"
+      },
+      {
+       "label": "which?",
+       "text": "Rebase mine",
+       "sub": "merge shared, lease",
+       "tone": "good",
+       "cue": "Which one"
+      }
      ]
     },
     {
@@ -1436,11 +1476,15 @@
       "They ask",
       "You say"
      ],
-     "say": "A hard bug you fixed? Situation, task, action, result, about ninety seconds. Do differently? Add monitoring earlier. How did you know? A measurement and a test. Mistake: we, long background, no result.",
+     "say": "A hard bug you fixed? I use situation, task, action, result, in about ninety seconds. I always name the root cause. What would you do differently? I'd add monitoring earlier. How did you know it worked? A before and after number, plus a test. The common mistake is saying we, and never giving a result.",
      "rows": [
       [
        "A hard bug you fixed?",
-       "STAR, ~90 seconds, name the root cause"
+       "STAR, ~90 seconds"
+      ],
+      [
+       "What matters most?",
+       "Name the root cause"
       ],
       [
        "Do differently?",
@@ -1457,9 +1501,10 @@
      ],
      "cues": [
       "A hard bug",
-      "Do differently",
+      "I always name",
+      "do differently",
       "How did you",
-      "Mistake"
+      "common mistake"
      ]
     }
    ]
