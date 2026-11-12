@@ -55,7 +55,7 @@ test("quiz: countdown ring, duration includes pause", () => {
   assert.match(html, /class="quiz"/);
   assert.match(html, /class="ring"/);
   assert.match(html, /id="s7-cd-fg"/);
-  assert.equal(attr(sec(7), "data-duration"), 0.45 + 4 + 3 + 0.8);
+  assert.equal(attr(sec(7), "data-duration"), 0.45 + 4 + 3 + 3);
   assert.equal((html.match(/class="cn"/g) || []).length, 3);
 });
 
@@ -100,4 +100,19 @@ test("all on-screen text styles >= 32px (chip exempt)", () => {
     for (const m of body.matchAll(/font-size:(\d+(?:\.\d+)?)px/g)) if (Number(m[1]) < 32) bad.push(`${sel.trim()} ${m[1]}`);
   }
   assert.deepEqual(bad, []);
+});
+
+test("chart labels/readouts fade in at their bar's cue", () => {
+  for (let i = 0; i < 3; i++) {
+    const m = html.match(new RegExp(`fromTo\\("#s5-b${i}-v,#s5-x${i}",\\{opacity:0\\},\\{opacity:1,duration:0.4\\},([\\d.]+)\\)`));
+    const g = html.match(new RegExp(`fromTo\\("#s5-b${i}",\\{height:0\\},\\{[^}]*\\},([\\d.]+)\\)`));
+    assert.ok(m && g && m[1] === g[1], `bar ${i}`);
+  }
+});
+
+test("auto-zoom bbox includes move targets and stays above captions", () => {
+  const m = html.match(/fromTo\("#s2-stage",[^;]*?scale:([\d.]+),transformOrigin[^;]*?\{x:([\d.-]+),y:([\d.-]+),scale:([\d.]+)/);
+  const [k, tx, ty] = [m[4], m[2], m[3]].map(Number);
+  // moved window box bottom (y=900+100) in screen space
+  assert.ok(ty + 1000 * k <= 930, `bottom ${ty + 1000 * k}`);
 });

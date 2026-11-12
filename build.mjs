@@ -231,12 +231,12 @@ function sceneDiagram(sc, sid, sfx) {
   }
   const n = notesHtml(sc, sid, sc.panels || [], sc.notes, sfx);
   // auto-zoom: scale the diagram so it fills its area, with a slow push-in
-  const its = (sc.items || []);
+  const its = [...(sc.items || []), ...(sc.changes || []).filter((c) => c.move && boxes[c.id]).map((c) => ({ ...boxes[c.id], x: c.move[0], y: c.move[1] }))]; // include move targets
   let stageOpen = "", stageClose = "";
   if (its.length && !sc.noZoom) {
     const x0 = Math.min(...its.map((b) => b.x)) - 20, x1 = Math.max(...its.map((b) => b.x + b.w)) + 20;
     const y0 = Math.min(...its.map((b) => b.y - (b.label && !b.region ? 50 : b.region ? 30 : 0))) - 10, y1 = Math.max(...its.map((b) => b.y + b.h + (b.sub ? 10 : 0))) + 30;
-    const A = sc.panels ? { x: 120 + (sc.area?.w ?? 840) + 50, y: 180, w: 1800 - (120 + (sc.area?.w ?? 840) + 50), h: 740 } : { x: 110, y: 180, w: 1700, h: 760 };
+    const A = sc.panels ? { x: 120 + (sc.area?.w ?? 840) + 50, y: 180, w: 1800 - (120 + (sc.area?.w ?? 840) + 50), h: 730 } : { x: 110, y: 180, w: 1700, h: 740 };
     const k = Math.max(1, Math.min(A.w / (x1 - x0), A.h / (y1 - y0), sc.panels ? 1.35 : 1.6));
     const tx = A.x + (A.w - (x1 - x0) * k) / 2 - x0 * k, ty = A.y + (A.h - (y1 - y0) * k) / 2 - y0 * k;
     stageOpen = `<div class="stage" id="${sid}-stage">`; stageClose = "</div>";
@@ -291,7 +291,7 @@ function build(specPath) {
   spec.scenes.forEach((sc, i) => {
     if (sc.say === undefined && sc.type !== "chapter") throw new Error(`scene ${i} (${sc.type}) needs "say"`);
     sc.vo = sc.say === undefined ? 0 : durs[`s${i}`].dur; sc.t0 = t;
-    const dur = sc.type === "chapter" ? 2.5 : r3(LEAD + sc.vo + (sc.type === "quiz" ? sc.pause ?? 3 : 0) + (sc.hold ?? TAIL));
+    const dur = sc.type === "chapter" ? 2.5 : r3(LEAD + sc.vo + (sc.type === "quiz" ? (sc.pause ?? 3) + (sc.hold ?? 3) : sc.hold ?? TAIL));
     const sid = `s${i}`;
     const r = { title: () => sceneTitle(sc, sid, spec), code: () => sceneCode(sc, sid, sfx), compare: () => sceneCompare(sc, sid, sfx), diagram: () => sceneDiagram(sc, sid, sfx), flow: () => sceneFlow(sc, sid, sfx), take: () => sceneTake(sc, sid, sfx), hook: () => sceneHook(sc, sid, sfx), quiz: () => sceneQuiz(sc, sid, sfx), chapter: () => sceneChapter(sc, sid, sfx), chart: () => sceneChart(sc, sid, sfx) }[sc.type]();
     const head = sc.head ? `<div class="head" id="${sid}-head">${hlInline(sc.head)}</div>` : "";
