@@ -47,20 +47,20 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Contest answers are too big, so we print them mod one billion seven. Compute three to the thirteen mod seven in five multiplications. Then answer range sums while values change, in log n. By the end you'll do both.",
+     "say": "Contest answers are too big. Compute three to the thirteen mod seven in five multiplications. By the end you'll do both. Then answer range sums while values change, in log n.",
      "lines": [
       {
        "text": "3^13 mod 7 in 5 multiplications",
        "cue": "Compute three"
       },
       {
-       "text": "Range sums while values change",
-       "cue": "range sums"
-      },
-      {
-       "text": "Both in log n",
+       "text": "Do both",
        "cue": "do both",
        "accent": true
+      },
+      {
+       "text": "Range sums while values change, in log n",
+       "cue": "range sums"
       }
      ]
     },
@@ -125,11 +125,11 @@
     {
      "type": "code",
      "head": "Mod rules, gcd and lcm",
-     "say": "The constant is one billion seven, a prime. Reduce mod after every add and multiply. Both inputs below it, so a product fits in sixty four bits. Subtraction needs the plus M fix. Gcd, the greatest common divisor, is a library call. Lcm divides first so it can't overflow.",
+     "say": "The constant is one billion seven, a prime. Reduce mod after every add and multiply. Both inputs below it, so a product fits in sixty four bits. Subtraction needs the plus M fix. Gcd, the greatest common divisor, is a library call. Lcm, the least common multiple, divides first so it can't overflow.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "const long long M = 1'000'000'007;\nlong long a = 5, b = 8;\ncout << (a + b) % M << ' ' << a * b % M << ' ';\ncout << ((a - b) % M + M) % M << '\\n';\ncout << gcd(48, 18) << ' ' << 48 / gcd(48, 18) * 18;"
+       "code": "const long long M = 1'000'000'007;\nlong long a = 5, b = 8;\ncout << (a + b) % M << ' ' << a * b % M << ' ';\ncout << ((a - b) % M + M) % M << '\\n';\ncout << gcd(48, 18) << ' ';\ncout << 48 / gcd(48, 18) * 18;"
       }
      ],
      "steps": [
@@ -165,6 +165,13 @@
        "text": "+ M keeps it positive",
        "tone": "warn",
        "cue": "plus M fix"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "lcm = a*b / gcd",
+       "tone": "info",
+       "cue": "least common multiple"
       }
      ],
      "output": {
@@ -295,7 +302,7 @@
     {
      "type": "flow",
      "head": "13 in binary: 1101",
-     "say": "Thirteen in binary is one one zero one: eight plus four plus one. So three to the thirteen is three to the eight, times three to the four, times three to the one. Squaring builds each power. Three squarings, two real multiplies. The first bit just sets it.",
+     "say": "Thirteen in binary is one one zero one: eight plus four plus one. So three to the thirteen is three to the eight, times three to the four, times three to the one. Squaring builds each power. Four squarings, the last one unused. Two real multiplies, so five that matter. The first bit just sets it.",
      "items": [
       {
        "label": "13 in binary",
@@ -318,6 +325,12 @@
        "sub": "not 12",
        "tone": "good",
        "cue": "Squaring builds each"
+      },
+      {
+       "label": "result",
+       "text": "r = 3",
+       "tone": "good",
+       "cue": "Two real multiplies"
       }
      ]
     },
@@ -1133,7 +1146,7 @@
       "5",
       "7",
       "11",
-      "97"
+      "9"
      ],
      "answer": 1,
      "pause": 6
@@ -1974,7 +1987,7 @@
     {
      "type": "code",
      "head": "Query in code",
-     "say": "Half open means start included, end excluded, so l is in and r is out. Start at both leaves and walk inward. If l is odd, take it and step right. If r is odd, step left and take it. Only whole blocks: O of log n.",
+     "say": "Half open: l is in, r is out. Start at both leaves and walk inward. If l is odd, take it and step right. If r is odd, step left and take it. Only whole blocks: O of log n.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1986,7 +1999,7 @@
        "lines": [
         1
        ],
-       "cue": "Half open means"
+       "cue": "Half open"
       },
       {
        "lines": [
