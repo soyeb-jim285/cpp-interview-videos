@@ -1,0 +1,809 @@
+{
+ "id": "swe-01",
+ "track": "SWE",
+ "num": 1,
+ "title": "Big-O Out Loud & Making Code Fast",
+ "covers": [
+  "sw01",
+  "sw08"
+ ],
+ "caps": [
+  [
+   "O of n log n",
+   "O(n log n)"
+  ],
+  [
+   "O of n squared",
+   "O(n²)"
+  ],
+  [
+   "O of n times m",
+   "O(n·m)"
+  ],
+  [
+   "O of log n",
+   "O(log n)"
+  ],
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "Big O",
+   "Big-O"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Count the loops",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Someone hands you a loop and asks for the Big O. By the end you'll answer in ten seconds, then make slow code fast without guessing. First: a loop that runs ten times for five items.",
+     "lines": [
+      {
+       "text": "A loop. 5 items. 10 steps.",
+       "cue": "A loop"
+      },
+      {
+       "text": "Big-O in 10 seconds",
+       "cue": "answer in ten seconds",
+       "accent": "10 seconds"
+      },
+      {
+       "text": "Then fix it. No guessing.",
+       "cue": "without guessing"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Phone book: a million pages",
+     "say": "Why Big O exists. Find a name in a million-page phone book. Read every page: a million steps. Open the middle and discard half, again and again: twenty steps. Jump through an index: one step. Big O names that growth.",
+     "items": [
+      {
+       "label": "read every page",
+       "text": "1,000,000",
+       "tone": "bad",
+       "sub": "O(n)",
+       "cue": "Read every page"
+      },
+      {
+       "label": "halve it",
+       "text": "20",
+       "sub": "O(log n)",
+       "cue": "Open the middle"
+      },
+      {
+       "label": "use an index",
+       "text": "1",
+       "tone": "good",
+       "sub": "O(1)",
+       "cue": "Jump through"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it the same way, every time",
+     "say": "Interviewers don't want a memorized table. They want to hear you count. Name n, the input size. Count the loops. Multiply nested ones, add sequential ones. Keep the biggest term and drop constants.",
+     "heads": [
+      "Step",
+      "You say"
+     ],
+     "rows": [
+      [
+       "1. Name n",
+       "n is the length of the list"
+      ],
+      [
+       "2. Count loops",
+       "outer n times, inner up to n"
+      ],
+      [
+       "3. Nested: multiply",
+       "n × n"
+      ],
+      [
+       "4. Keep the biggest",
+       "drop constants and small terms"
+      ]
+     ],
+     "cues": [
+      "Name n",
+      "Count the loops",
+      "Multiply nested",
+      "Keep the biggest"
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Trace it: n = 5",
+     "say": "Let's trace the nested loop. Five items, so n is five. The inner loop runs i times. When i is zero, it runs zero times. When i is one, once. Then twice. Then three. Then four. Add them up: zero, one, three, six, ten. That is n times n minus one, over two.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         "?",
+         "?",
+         "?",
+         "?",
+         "?"
+        ],
+        "y": 380,
+        "cue": "Five items"
+       }
+      },
+      {
+       "id": "tot",
+       "x": 760,
+       "y": 720,
+       "w": 400,
+       "h": 130,
+       "label": "steps so far",
+       "text": "0",
+       "size": 60,
+       "tone": "warn",
+       "cue": "The inner loop"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1200,
+       "y": 740,
+       "text": "n(n-1)/2 = 10 steps",
+       "tone": "good",
+       "cue": "n times n minus one"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": "0",
+       "cue": "zero times"
+      },
+      {
+       "id": "c1",
+       "text": "1",
+       "cue": "once"
+      },
+      {
+       "id": "c2",
+       "text": "2",
+       "cue": "twice"
+      },
+      {
+       "id": "c3",
+       "text": "3",
+       "cue": "Then three"
+      },
+      {
+       "id": "c4",
+       "text": "4",
+       "cue": "Then four"
+      },
+      {
+       "id": "tot",
+       "count": [
+        0,
+        10
+       ],
+       "dur": 1.5,
+       "tone": "good",
+       "cue": "Add them up"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The same loop in Python",
+     "say": "Here is that loop. Steps starts at zero. The outer loop runs five times. The inner loop runs up to i times. Each pass adds one. It prints ten. For a thousand items it would be near half a million. Drop the one half: constants don't change how cost scales. So O of n squared.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "n = 5\nsteps = 0\nfor i in range(n):\n    for j in range(i):\n        steps += 1\nprint(steps)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "starts at zero"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "outer loop"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "inner loop"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "adds one"
+      },
+      {
+       "lines": [],
+       "cue": "Drop the one half"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "runs i times",
+       "tone": "warn",
+       "cue": "inner loop runs up"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "10 = 5·4/2",
+       "tone": "good",
+       "cue": "near half a million"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "O(n²)",
+       "tone": "bad",
+       "cue": "So O of n squared"
+      }
+     ],
+     "output": {
+      "cmd": "python app.py",
+      "text": "10",
+      "cue": "prints ten"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Two loops, one after the other. Each runs n times, with no nesting. What is the Big O? Pause and predict.",
+     "q": "Two separate loops, each n times, one after the other. Big-O?",
+     "options": [
+      "O(n)",
+      "O(n²)",
+      "O(2ⁿ)",
+      "O(log n)"
+     ],
+     "answer": 0,
+     "pause": 4
+    },
+    {
+     "type": "compare",
+     "head": "Add sequential, multiply nested",
+     "say": "O of n. Sequential loops add: n plus n is two n. Drop the two. Nested loops multiply: n times n. A loop that halves its range is O of log n.",
+     "heads": [
+      "Shape",
+      "Cost"
+     ],
+     "rows": [
+      [
+       "loop, then loop",
+       "n + n = 2n → O(n)"
+      ],
+      [
+       "loop inside loop",
+       "n × n → O(n²)"
+      ],
+      [
+       "range halves each pass",
+       "O(log n)"
+      ]
+     ],
+     "cues": [
+      "Sequential loops add",
+      "Nested loops multiply",
+      "halves its range"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The loop that lies",
+   "scenes": [
+    {
+     "type": "code",
+     "head": "Looks linear. Is it?",
+     "say": "Here's a trap that sinks candidates. One loop over items, so they say O of n. The interviewer asks where the second loop is. It hides in the word in. On a list, in scans every element, up to m of them. The real cost is O of n times m.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "for x in items:\n    if x in big_list:\n        count += 1"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "One loop"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "hides in the word"
+      },
+      {
+       "lines": [],
+       "cue": "The real cost"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "candidate: O(n)",
+       "tone": "warn",
+       "cue": "so they say"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "hidden O(m) scan",
+       "tone": "bad",
+       "cue": "scans every element"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Hidden costs to know",
+     "say": "Learn these four by heart. Sorting costs O of n log n. Inserting at the front of a list shifts everything: O of n. Append is amortized O of one: rare resizes, averaged out. A set lookup is O of one on average.",
+     "heads": [
+      "Call",
+      "Cost"
+     ],
+     "rows": [
+      [
+       "items.sort()",
+       "O(n log n)"
+      ],
+      [
+       "lst.insert(0, x)",
+       "O(n): shifts everything"
+      ],
+      [
+       "lst.append(x)",
+       "amortized O(1)"
+      ],
+      [
+       "x in my_set",
+       "O(1) average"
+      ]
+     ],
+     "cues": [
+      "Sorting costs",
+      "Inserting at the front",
+      "Append is amortized",
+      "A set lookup"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Predict. Ten thousand ids, zero up. We look for the last one, first in a list, then in a set. How many comparisons each?",
+     "q": "Checking 9999 in 10,000 ids: comparisons for list vs set?",
+     "options": [
+      "1 vs 1",
+      "10,000 vs 1",
+      "10,000 vs 10,000",
+      "14 vs 1"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "chart",
+     "head": "One lookup, worst case",
+     "unit": "comparisons",
+     "say": "The list scans from the front, all ten thousand, because the match is last. The set hashes and jumps to its bucket: one. Ten thousand times less work.",
+     "bars": [
+      {
+       "label": "list",
+       "value": 10000,
+       "tone": "bad",
+       "cue": "The list scans"
+      },
+      {
+       "label": "set",
+       "value": 1,
+       "tone": "good",
+       "cue": "The set hashes"
+      }
+     ],
+     "hold": 0
+    },
+    {
+     "type": "chart",
+     "head": "How fast each class blows up",
+     "unit": "steps",
+     "say": "Same n, a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That jump is why nested loops fail on big inputs.",
+     "bars": [
+      {
+       "label": "O(log n)",
+       "value": 10,
+       "tone": "good",
+       "cue": "Logarithmic"
+      },
+      {
+       "label": "O(n)",
+       "value": 1000,
+       "cue": "Linear"
+      },
+      {
+       "label": "n log n",
+       "value": 10000,
+       "tone": "warn",
+       "cue": "Sorting"
+      },
+      {
+       "label": "O(n²)",
+       "value": 1000000,
+       "tone": "bad",
+       "cue": "Quadratic"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Measure, then fix",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A slow commute",
+     "say": "Your commute takes an hour. You time each part. Walking, five minutes. Traffic, fifty. Parking, two. Buying a faster car won't help. You fix the traffic. A profiler is that stopwatch for code.",
+     "items": [
+      {
+       "label": "walking",
+       "text": "5 min",
+       "cue": "Walking"
+      },
+      {
+       "label": "traffic",
+       "text": "50 min",
+       "tone": "bad",
+       "cue": "Traffic"
+      },
+      {
+       "label": "parking",
+       "text": "2 min",
+       "cue": "Parking"
+      },
+      {
+       "label": "the fix",
+       "text": "fix traffic",
+       "tone": "good",
+       "cue": "You fix the traffic"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Ask the profiler",
+     "say": "Here is a script that takes half a second. Don't guess. Run it under c Profile, sorted by time. The report says hits owns almost all of it. Load costs nothing. So hits is the only place worth touching.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def load():\n    return list(range(10_000))\n\ndef hits(ids, seen):\n    return [x for x in ids if x in seen]\n\nids = load()\nprint(len(hits(ids, ids)))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Here is a script"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Run it under"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "hits owns"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Load costs"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "only place worth"
+      }
+     ],
+     "output": {
+      "cmd": "python -m cProfile -s tottime app.py | grep -E 'hits|load'",
+      "text": "1    0.437    0.437    0.437    0.437 app.py:4(hits)\n1    0.000    0.000    0.000    0.000 app.py:1(load)",
+      "cue": "The report says"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Fix: list to set",
+     "say": "The cause: seen is a list, so every x in scans it. That's O of n squared overall. Build a set once, and each check is O of one on average. Same answer. Half a second becomes under two thousandths. The price: the set takes O of n extra memory. Say both time and space.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "def hits(ids, seen):\n    return [x for x in ids\n            if x in seen]",
+       "label": "before",
+       "tone": "bad"
+      },
+      {
+       "file": "app.py",
+       "code": "def hits(ids, seen):\n    seen = set(seen)\n    return [x for x in ids\n            if x in seen]",
+       "label": "after",
+       "tone": "good"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "panel": 0,
+       "cue": "every x in scans"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "Build a set once"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 1,
+       "cue": "each check"
+      },
+      {
+       "lines": [],
+       "panel": 1,
+       "cue": "The price"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "panel": 1,
+       "cue": "Say both"
+      }
+     ],
+     "output": {
+      "cmd": "python bench.py",
+      "text": "hits_list 0.5563 s\nhits_set 0.0017 s",
+      "cue": "Half a second"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "One more. Hits owns nearly all the time. A teammate makes load ten times faster. How long does the script take now?",
+     "q": "hits takes ~99% of the time. You make load 10× faster. Total time?",
+     "options": [
+      "10× faster",
+      "About the same",
+      "2× faster",
+      "Slower"
+     ],
+     "answer": 1,
+     "pause": 5
+    },
+    {
+     "type": "chart",
+     "head": "Speed up the wrong part",
+     "unit": "ms",
+     "say": "About the same. Load was nothing, so ten times faster saves nothing. Fixing hits drops it to under two.",
+     "bars": [
+      {
+       "label": "before",
+       "value": 556,
+       "tone": "bad",
+       "cue": "About the same"
+      },
+      {
+       "label": "load 10×",
+       "value": 556,
+       "tone": "bad",
+       "cue": "ten times faster"
+      },
+      {
+       "label": "set fix",
+       "value": 1.7,
+       "tone": "good",
+       "cue": "Fixing hits"
+      }
+     ],
+     "hold": 0
+    },
+    {
+     "type": "flow",
+     "head": "The loop to repeat",
+     "say": "So the loop is: measure on realistic input. Fix the biggest cost, algorithm first. Measure again. After algorithms, look at I O: fewer database calls, caching, batching.",
+     "items": [
+      {
+       "label": "1",
+       "text": "measure",
+       "cue": "measure on realistic"
+      },
+      {
+       "label": "2",
+       "text": "fix biggest",
+       "cue": "Fix the biggest"
+      },
+      {
+       "label": "3",
+       "text": "measure again",
+       "tone": "good",
+       "cue": "Measure again"
+      },
+      {
+       "label": "then",
+       "text": "cut I/O",
+       "sub": "cache, batch",
+       "cue": "look at I O"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw01"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Big O of this code? I name n, count loops, multiply nested, keep the biggest. Best or worst case? Worst by default. Why drop constants? They don't change the scaling. Amortized? Average over many calls. Better? Trade space for time.",
+     "rows": [
+      [
+       "Big-O of this code?",
+       "name n, count loops, multiply nested, keep the biggest"
+      ],
+      [
+       "Best or worst case?",
+       "worst by default, mention best"
+      ],
+      [
+       "Why drop constants?",
+       "they don't change how cost scales"
+      ],
+      [
+       "Amortized?",
+       "average over many calls"
+      ],
+      [
+       "Can you do better?",
+       "trade space for time: a set"
+      ]
+     ],
+     "cues": [
+      "Big O of this",
+      "Best or worst",
+      "Why drop",
+      "Amortized",
+      "Better"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 25 seconds",
+     "covers": [
+      "sw08"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you optimize slow code? Measure first, with a profiler, on realistic input. Loop tweaks or algorithm? Algorithm first. Tweaks give maybe two times. After that? I O: fewer database calls, caching. Biggest mistake? Guessing, or tuning two percent of the runtime.",
+     "rows": [
+      [
+       "Where do you start?",
+       "profiler, realistic input"
+      ],
+      [
+       "Tweaks or algorithm?",
+       "algorithm first, tweaks ~2×"
+      ],
+      [
+       "After that?",
+       "I/O: fewer DB calls, caching"
+      ],
+      [
+       "Biggest mistake?",
+       "guessing; tuning a 2% part"
+      ]
+     ],
+     "cues": [
+      "How do you optimize",
+      "Loop tweaks",
+      "After that",
+      "Biggest mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these this week",
+     "say": "Three exercises. Time a nested loop at n of one thousand and two thousand, and watch it quadruple. Profile one of your own scripts. Swap a list lookup for a set and measure.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Time a nested loop at n = 1000, 2000",
+       "see O(n²) quadruple"
+      ],
+      [
+       "Run `python -m cProfile` on your own script",
+       "find the real hot spot"
+      ],
+      [
+       "Replace `x in list` with a set, re-time",
+       "feel O(n) vs O(1)"
+      ]
+     ],
+     "cues": [
+      "nested loop",
+      "Profile one",
+      "Swap a list"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Name n, count loops, keep the biggest. State space too. Watch for hidden costs, like in on a list. Measure before you fix.",
+     "lines": [
+      "Name n, count loops, keep the biggest term.",
+      "Hidden costs: in on a list, sort, insert.",
+      "Measure first. Fix the biggest cost."
+     ],
+     "cues": [
+      "Name n",
+      "hidden costs",
+      "Measure before"
+     ]
+    }
+   ]
+  }
+ ]
+}
