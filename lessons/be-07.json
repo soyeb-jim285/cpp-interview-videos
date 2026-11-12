@@ -154,7 +154,7 @@
     {
      "type": "quiz",
      "say": "Your turn. Step one is numbers. A hundred million new links a month, and a month has about two and a half million seconds. About how many writes per second? Pause and predict.",
-     "q": "100M links a month ÷ 2.6M seconds. Writes per second?",
+     "q": "100M links a month ÷ 2.5M seconds. Writes per second?",
      "options": [
       "4",
       "40",
@@ -212,6 +212,7 @@
        "h": 150,
        "label": "5 years, TB",
        "text": "0",
+       "sub": "6 billion links",
        "size": 56,
        "tone": "blue",
        "cue": "Five years"
@@ -265,7 +266,7 @@
     {
      "type": "compare",
      "head": "Numbers make decisions",
-     "say": "These numbers make the decisions. Forty writes a second? One primary is plenty. Four thousand reads? Cache the hot links, add replicas. Three terabytes? One database to start. Sharding before doing this math is the classic mistake.",
+     "say": "These numbers make the decisions. Forty writes a second? One primary, the single copy that takes writes, is plenty. Four thousand reads? Cache the hot links, and add replicas, read-only copies. Three terabytes? One database. Sharding early is the classic mistake. Numbers shape the design.",
      "heads": [
       "Number",
       "Decision"
@@ -451,31 +452,31 @@
      "panels": [
       {
        "file": "short.py",
-       "code": "ALPHABET = string.digits + string.ascii_letters\ndef encode(n):\n    s = \"\"\n    while n:\n        n, r = divmod(n, 62)\n        s = ALPHABET[r] + s\n    return s or \"0\"\nprint(encode(125), encode(62**7 - 1))"
+       "code": "import string\nALPHABET = string.digits + string.ascii_letters\ndef encode(n):\n    s = \"\"\n    while n:\n        n, r = divmod(n, 62)\n        s = ALPHABET[r] + s\n    return s or \"0\"\nprint(encode(125), encode(62**7 - 1))"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "the alphabet is"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Divmod gives"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "put in front"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "One twenty five"
       }
@@ -501,7 +502,7 @@
     {
      "type": "compare",
      "head": "Counter or random code?",
-     "say": "About fifty seven billion. Seven characters leaves room to spare. Counter or random? Collisions: a counter never collides, random needs a check and retry. Guessable: counter codes are sequential, random ones are not. The catch: one counter is a bottleneck, so hand each server a range of ids.",
+     "say": "Sixty two to the sixth is fifty seven billion. Seven leaves room. Counter or random? Collisions: a counter never collides, random needs a check and retry. Guessable: counter codes are sequential, random ones are not. The catch: one counter is a bottleneck, so hand out id ranges. That solves it.",
      "heads": [
       "Counter + base 62",
       "Random code"
@@ -554,9 +555,9 @@
     },
     {
      "type": "chart",
-     "head": "Database reads per second",
+     "head": "Where 4,000 reads a second go",
      "unit": "reads/s",
-     "say": "Reads outnumber writes a hundred to one. That's four thousand reads a second. Popular links repeat, so assume nine in ten are cache hits. Only four hundred reach the database.",
+     "say": "Here is where reads are served. Reads outnumber writes a hundred to one. That's four thousand reads a second. Popular links repeat, so assume nine in ten are cache hits. Only four hundred reach the database.",
      "bars": [
       {
        "label": "All reads",
@@ -580,7 +581,7 @@
     },
     {
      "type": "diagram",
-     "head": "The read path",
+     "head": "Steps 3 and 4: boxes, read path",
      "say": "The browser asks the app servers for slash twenty one. The server checks the cache first. Most reads hit there. On a miss, it reads the database, indexed by code. Then it replies with a redirect to the long U R L.",
      "items": [
       {
@@ -672,13 +673,13 @@
      "panels": [
       {
        "file": "server.py",
-       "code": "LONG = \"https://example.com/a/very/long/path\"\nclass H(BaseHTTPRequestHandler):\n    def do_GET(self):\n        self.send_response(302)\n        self.send_header(\"Location\", LONG)\n        self.end_headers()"
+       "code": "from http.server import *\nclass H(BaseHTTPRequestHandler):\n    def do_GET(self):\n        self.send_response(302)\n        self.send_header(\"Location\", \"https://example.com/a/long/path\")\n        self.end_headers()\nHTTPServer((\"\", 8000), H).serve_forever()"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        5
        ],
        "cue": "Here the URL is fixed"
       },
@@ -696,8 +697,8 @@
       }
      ],
      "output": {
-      "cmd": "curl -si localhost:8000/21",
-      "text": "HTTP/1.0 302 Found\nLocation: https://example.com/a/very/long/path",
+      "cmd": "curl -si localhost:8000/21 | grep -E \"^(HTTP|Location)\"",
+      "text": "HTTP/1.0 302 Found\nLocation: https://example.com/a/long/path",
       "cue": "Curl shows"
      }
     },
@@ -749,7 +750,7 @@
     {
      "type": "flow",
      "head": "Step 5: when it grows",
-     "say": "Now scale. Reads dominate, so cache and add replicas. If one database gets too big, shard by a hash of the code. If the counter is busy, hand out id ranges. Abuse? Rate limit and expire old links.",
+     "say": "Now scale. Reads dominate, so cache and add replicas. Too big? Shard: split rows across databases by a hash of the code. Counter busy? Hand out id ranges. Abuse? Rate limit and expire old links.",
      "items": [
       {
        "label": "reads dominate",
@@ -761,13 +762,13 @@
        "label": "database too big",
        "text": "shard by hash",
        "tone": "blue",
-       "cue": "too big"
+       "cue": "Too big"
       },
       {
        "label": "counter busy",
        "text": "id ranges",
        "tone": "warn",
-       "cue": "counter is busy"
+       "cue": "Counter busy"
       },
       {
        "label": "abuse",
@@ -781,7 +782,7 @@
     {
      "type": "compare",
      "head": "Follow-ups they ask",
-     "say": "Same long U R L twice? Store both, or look up and reuse the code. Custom alias? The unique index rejects a clash. Click analytics? Log each click to a queue, and count it asynchronously.",
+     "say": "Same long U R L twice? Store both, or look up and reuse the code. Custom alias? The unique index rejects a clash. Click analytics? Log each click to a queue, and count later. That solves the redirect.",
      "heads": [
       "They ask",
       "You say"
@@ -820,7 +821,7 @@
       "output": "cause found, p99 back to 150 ms"
      },
      "note": "the dashboard average looks fine",
-     "say": "New problem. It's two in the morning and checkout is slow. For example, p ninety nine is two seconds. We want the cause, and p ninety nine back to a hundred fifty milliseconds. The average looks fine.",
+     "say": "New problem. It's two in the morning and checkout is slow. For example, one in a hundred requests takes two seconds, our p ninety nine. We want the cause, and a hundred fifty milliseconds. The average looks fine.",
      "cues": {
       "example": "For example",
       "output": "We want the cause",
@@ -908,7 +909,7 @@
      "type": "chart",
      "head": "Same data, three numbers",
      "unit": "ms",
-     "say": "Look at all three. The median is one twenty. The average is one fifty eight. The p ninety nine is two thousand. So alert on percentiles.",
+     "say": "Look at all three. The median is one twenty. The average is one fifty eight. The p ninety nine is two thousand. So alert on percentiles. That finds the problem.",
      "bars": [
       {
        "label": "Median",
@@ -1031,13 +1032,13 @@
      "say": "Ask the database to explain its plan. Before: SCAN. It reads every row to find one user. An index works like a book's index: jump to the page, don't read every page. After creating one, the plan says SEARCH using the index.",
      "panels": [
       {
-       "file": "plan.sql",
+       "file": "before.sql",
        "label": "before",
        "tone": "bad",
-       "code": "EXPLAIN QUERY PLAN\nSELECT * FROM orders\nWHERE user_id = 42;"
+       "code": "CREATE TABLE orders(\n  id INTEGER PRIMARY KEY,\n  user_id INT,\n  total INT);\nEXPLAIN QUERY PLAN\nSELECT * FROM orders\nWHERE user_id = 42;"
       },
       {
-       "file": "plan.sql",
+       "file": "after.sql",
        "label": "after",
        "tone": "good",
        "code": "CREATE INDEX idx_user\n  ON orders(user_id);\nEXPLAIN QUERY PLAN\nSELECT * FROM orders\nWHERE user_id = 42;"
@@ -1047,9 +1048,9 @@
       {
        "panel": 0,
        "lines": [
-        1,
-        2,
-        3
+        5,
+        6,
+        7
        ],
        "cue": "Before"
       },
@@ -1072,7 +1073,7 @@
       }
      ],
      "output": {
-      "cmd": "sqlite3 shop.db < plan.sql",
+      "cmd": "cat before.sql after.sql | sqlite3 shop.db | grep -oE \"(SCAN|SEARCH).*\"",
       "text": "SCAN orders\nSEARCH orders USING INDEX idx_user (user_id=?)",
       "cue": "SEARCH using the index"
      }
@@ -1194,7 +1195,7 @@
      "type": "chart",
      "head": "/checkout p99 after the index",
      "unit": "ms",
-     "say": "We added the index. The p ninety nine falls from two thousand milliseconds to one fifty. Verified in the metrics, not guessed.",
+     "say": "We added the index. The p ninety nine falls from two thousand milliseconds to one fifty. Verified in the metrics, not guessed. That answers the problem.",
      "bars": [
       {
        "label": "Before",
@@ -1222,7 +1223,7 @@
      "covers": [
       "be14"
      ],
-     "say": "Design bit dot ly. Numbers first, base sixty two counter, database and cache. Why three oh two? Browsers cache three oh one, so you miss clicks. Analytics? Log clicks to a queue.",
+     "say": "Design bit dot ly. Numbers first, base sixty two counter, database and cache. What numbers? Forty writes, four thousand reads, three terabytes. Why three oh two? Browsers cache three oh one, so you miss clicks. Analytics? Log clicks to a queue.",
      "heads": [
       "They ask",
       "You say"
@@ -1231,6 +1232,10 @@
       [
        "Design bit.ly",
        "numbers, base 62 counter, DB + cache"
+      ],
+      [
+       "What numbers?",
+       "40 writes/s, 4,000 reads/s, 3 TB"
       ],
       [
        "Why 302?",
@@ -1243,6 +1248,7 @@
      ],
      "cues": [
       "Design bit",
+      "What numbers",
       "Why three oh two",
       "Analytics"
      ]
@@ -1253,7 +1259,7 @@
      "covers": [
       "be15"
      ],
-     "say": "Slow endpoint? Confirm with p ninety nine, trace, read the plan, fix, verify. Can't reproduce it? Use production traces and a request id. Mitigate? Roll back, cache, or scale.",
+     "say": "Slow endpoint? Confirm with p ninety nine, trace, plan, fix, verify. Why percentiles? Averages hide the slow tail. Many small queries? That's N plus one: join or batch. Can't reproduce it? Use production traces and a request id. Quick relief? Roll back, cache, or scale.",
      "heads": [
       "They ask",
       "You say"
@@ -1262,6 +1268,14 @@
       [
        "Slow endpoint?",
        "metrics, trace, logs/plan, fix one, verify"
+      ],
+      [
+       "Why percentiles?",
+       "averages hide the slow tail"
+      ],
+      [
+       "Many small queries?",
+       "N+1: join or batch"
       ],
       [
        "Can't reproduce?",
@@ -1274,8 +1288,10 @@
      ],
      "cues": [
       "Slow endpoint",
+      "Why percentiles",
+      "Many small",
       "Can't reproduce",
-      "Mitigate"
+      "Quick relief"
      ]
     }
    ]

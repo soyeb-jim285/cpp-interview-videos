@@ -75,7 +75,7 @@
      "type": "chart",
      "head": "One product page read",
      "unit": "ms",
-     "say": "Here's why this matters. One product page reads from the database in two hundred milliseconds. Redis, which keeps data in memory, answers in about two. That's a hundred times faster, and every hit spares your database.",
+     "say": "Here's why this matters. One product page reads from the database in two hundred milliseconds. Redis, which keeps data in memory, answers in about two. That's a hundred times faster.",
      "bars": [
       {
        "label": "Postgres",
@@ -126,7 +126,7 @@
     {
      "type": "diagram",
      "head": "Cache-aside: check, miss, fill",
-     "say": "The app asks Redis first. Redis is empty, so that's a miss. The app reads the database, which costs two hundred milliseconds. Then it saves a copy in Redis, with a sixty second T T L. The next request finds the copy: a hit, two milliseconds. This is cache-aside: the app manages the cache itself.",
+     "say": "The app asks Redis first. Redis is empty, so that's a miss. The app reads the database, which costs two hundred milliseconds. Then it saves a copy in Redis, with a sixty second expiry timer, a T T L, short for time to live. The next request finds the copy: a hit, two milliseconds. This is cache-aside: the app manages the cache itself.",
      "items": [
       {
        "id": "app",
@@ -221,6 +221,12 @@
        "cue": "saves a copy"
       },
       {
+       "id": "rd",
+       "glow": true,
+       "tone": "warn",
+       "cue": "short for time"
+      },
+      {
        "id": "ms",
        "text": "2",
        "tone": "good",
@@ -235,7 +241,8 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "def get_product(pid):\n    key = f\"product:{pid}\"\n    price = r.get(key)\n    if price:\n        return \"hit 2 ms\", price\n    price = db_read(pid)\n    r.setex(key, 60, price)\n    return \"miss 200 ms\", price\nfor _ in range(2): print(*get_product(7))"
+       "label": "excerpt",
+       "code": "def get_product(pid):\n    price = r.get(f\"product:{pid}\")\n    if price:\n        return \"hit 2 ms\", price\n    price = db_read(pid)\n    r.setex(f\"product:{pid}\", 60, price)\n    return \"miss 200 ms\", price\nfor _ in range(2): print(*get_product(7))"
       }
      ],
      "steps": [
@@ -247,39 +254,39 @@
       },
       {
        "lines": [
-        3
+        2
        ],
        "cue": "Ask Redis"
       },
       {
        "lines": [
-        4,
-        5
+        3,
+        4
        ],
        "cue": "On a hit"
       },
       {
        "lines": [
-        6
+        5
        ],
        "cue": "read the database"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "set e x"
       },
       {
        "lines": [
-        9
+        8
        ],
        "cue": "The loop"
       }
      ],
      "notes": [
       {
-       "line": 7,
+       "line": 6,
        "inside": true,
        "text": "expires in 60 s",
        "tone": "warn",
@@ -288,14 +295,17 @@
      ],
      "output": {
       "cmd": "python app.py",
+      "setup": {
+       "app.py": "import time\nclass Redis:\n    def __init__(s): s.d = {}\n    def get(s, k):\n        v = s.d.get(k)\n        return v[0] if v and v[1] > time.time() else None\n    def setex(s, k, t, v): s.d[k] = (v, time.time() + t)\n    def delete(s, k): s.d.pop(k, None)\nr = Redis()\nDB = {7: \"$100\"}\ndef db_read(pid): return DB[pid]\ndef db_write(pid, p): DB[pid] = p"
+      },
       "text": "miss 200 ms $100\nhit 2 ms $100",
       "cue": "a miss, then a hit"
      }
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same product, cold cache. Three requests arrive within ten seconds. How many of them read the database? Pause and predict.",
-     "q": "Cold cache, 3 requests in 10 s. Database reads?",
+     "say": "Your turn. Same product, cold cache. Three requests arrive one after another. How many of them read the database? Pause and predict.",
+     "q": "Cold cache, 3 requests one after another. DB reads?",
      "options": [
       "0",
       "1",
@@ -333,7 +343,7 @@
     {
      "type": "diagram",
      "head": "The catch: stale data",
-     "say": "Now the catch. Someone changes the price in the database to ninety dollars. Redis still holds one hundred. The next user hits the cache and sees the old price. That's stale data. It lasts until the T T L expires, at most sixty seconds.",
+     "say": "Now the catch. Someone changes the price in the database to ninety dollars. Redis still holds one hundred. The next user hits the cache and sees the old price. That's stale data. It lasts until the T T L expires, at most sixty seconds. Cache-aside answers the slow page.",
      "items": [
       {
        "id": "app",
@@ -474,11 +484,12 @@
     {
      "type": "code",
      "head": "Invalidation in code",
-     "say": "Here's invalidation. Write the new price to the database first. Then delete the cached key. We read before the change and get a hit with the old price. After set price, the next read misses, reloads, and shows ninety dollars.",
+     "say": "Here's invalidation. Write the new price to the database first. Then delete the cached key. We warm the cache, and read a hit with the old price. After set price, the next read misses, reloads, and shows ninety dollars.",
      "panels": [
       {
        "file": "app.py",
-       "code": "def set_price(pid, price):\n    db_write(pid, price)\n    r.delete(f\"product:{pid}\")\n\nprint(*get_product(7))\nset_price(7, \"$90\")\nprint(*get_product(7))"
+       "label": "excerpt",
+       "code": "def set_price(pid, price):\n    db_write(pid, price)\n    r.delete(f\"product:{pid}\")\nget_product(7)\nprint(*get_product(7))\nset_price(7, \"$90\")\nprint(*get_product(7))"
       }
      ],
      "steps": [
@@ -496,9 +507,10 @@
       },
       {
        "lines": [
+        4,
         5
        ],
-       "cue": "read before"
+       "cue": "warm the cache"
       },
       {
        "lines": [
@@ -524,13 +536,16 @@
      ],
      "output": {
       "cmd": "python app.py",
+      "setup": {
+       "app.py": "import time\nclass Redis:\n    def __init__(s): s.d = {}\n    def get(s, k):\n        v = s.d.get(k)\n        return v[0] if v and v[1] > time.time() else None\n    def setex(s, k, t, v): s.d[k] = (v, time.time() + t)\n    def delete(s, k): s.d.pop(k, None)\nr = Redis()\nDB = {7: \"$100\"}\ndef db_read(pid): return DB[pid]\ndef db_write(pid, p): DB[pid] = p\ndef get_product(pid):\n    price = r.get(f\"product:{pid}\")\n    if price:\n        return \"hit 2 ms\", price\n    price = db_read(pid)\n    r.setex(f\"product:{pid}\", 60, price)\n    return \"miss 200 ms\", price"
+      },
       "text": "hit 2 ms $100\nmiss 200 ms $90",
       "cue": "shows ninety dollars"
      }
     },
     {
      "type": "quiz",
-     "say": "Your turn. A hot product's key expires at noon. Refilling takes two hundred milliseconds, and one thousand requests arrive in that window. How many reach the database? Pause and predict.",
+     "say": "Your turn. A hot key expires. Refilling takes two hundred milliseconds, and a thousand requests arrive meanwhile. How many reach the database? Pause and predict.",
      "q": "Hot key expires; 1,000 requests in 200 ms. DB reads?",
      "options": [
       "1",
@@ -640,7 +655,7 @@
     {
      "type": "compare",
      "head": "More cache questions",
-     "say": "Four quick ones. No T T L and no delete? Stale forever. If Redis goes down, fall back to the database. What to cache? Slow, popular, rarely changing data. Data that must be exact, read from the database.",
+     "say": "Four quick ones. No T T L and no delete? Stale forever. If Redis goes down, fall back to the database. What to cache? Slow, popular, rarely changing data. Data that must be exact, read from the database. That answers the stale price.",
      "heads": [
       "Question",
       "Answer"
@@ -806,10 +821,8 @@
       },
       {
        "id": "qu",
-       "count": [
-        1,
-        5
-       ],
+       "text": "6",
+       "tone": "bad",
        "cue": "queue longer"
       },
       {
@@ -819,10 +832,8 @@
       },
       {
        "id": "qu",
-       "count": [
-        5,
-        0
-       ],
+       "text": "0",
+       "tone": "good",
        "cue": "backlog drains"
       }
      ]
@@ -830,40 +841,39 @@
     {
      "type": "code",
      "head": "Respond now, work later",
-     "say": "In code, a real broker, a separate service, holds the queue. This in-memory one stands in for it. Checkout puts the order on the queue and returns two oh two Accepted. The worker runs later and sends the email.",
+     "say": "In code, a real broker, a separate service, holds the queue. This in-memory one stands in for it. Checkout puts the order on the queue and returns two oh two Accepted: got it, not done yet. Later a worker takes the order off the queue and sends the email.",
      "panels": [
       {
        "file": "app.py",
-       "code": "q = Queue()\ndef checkout(order):\n    q.put(order)\n    return \"202 Accepted\"\ndef worker():\n    order = q.get()\n    print(\"emailing\", order)\nprint(checkout(42))\nworker()"
+       "code": "from queue import Queue\nq = Queue()\ndef checkout(order):\n    q.put(order)\n    return \"202 Accepted\"\nprint(checkout(42))\nprint(\"emailing\", q.get())"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        1,
+        2
        ],
        "cue": "in-memory one"
       },
       {
        "lines": [
-        2,
-        3
+        3,
+        4
        ],
        "cue": "puts the order"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "two oh two Accepted"
       },
       {
        "lines": [
-        5,
-        6,
         7
        ],
-       "cue": "worker runs later"
+       "cue": "Later a worker"
       }
      ],
      "output": {
@@ -874,8 +884,8 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Every worker crashes for an hour, and orders keep arriving. The queue is durable, so it stores jobs safely. What happens to the jobs? Pause and predict.",
-     "q": "All workers down for an hour. What happens to jobs?",
+     "say": "Your turn. Every worker crashes for an hour, and orders keep arriving. What happens to the jobs? Pause and predict.",
+     "q": "All workers down for an hour. Orders keep coming. Jobs?",
      "options": [
       "They are lost",
       "They wait in queue",
@@ -887,7 +897,7 @@
     {
      "type": "diagram",
      "head": "Workers down: jobs wait",
-     "say": "They wait. The queue keeps every job while the workers are down. Six hundred pile up, and the API never slows. Workers return, and the backlog drains to zero. Nothing was lost. But a job can now run more than once.",
+     "say": "They wait. A durable queue stores every job safely while the workers are down. Six hundred pile up, and the API never slows. Workers return, and the backlog drains to zero. Nothing was lost. The queue answers the hang, but a job can now run twice.",
      "items": [
       {
        "id": "api",
@@ -987,6 +997,12 @@
        ],
        "dur": 1.5,
        "cue": "drains to zero"
+      },
+      {
+       "id": "api",
+       "glow": true,
+       "tone": "good",
+       "cue": "answers the hang"
       }
      ]
     }
@@ -1118,6 +1134,7 @@
      "panels": [
       {
        "file": "worker.py",
+       "label": "excerpt",
        "code": "SQL = \"INSERT INTO processed(id) VALUES (?) ON CONFLICT DO NOTHING\"\ndef handle(msg):\n    with db:\n        n = db.execute(SQL, (msg[\"id\"],)).rowcount\n        if n == 1:\n            print(\"charge\", msg[\"order\"])\n    ack(msg)\nhandle(evt)\nhandle(evt)"
       }
      ],
@@ -1173,6 +1190,9 @@
      ],
      "output": {
       "cmd": "python worker.py",
+      "setup": {
+       "worker.py": "import sqlite3\ndb = sqlite3.connect(\":memory:\")\ndb.execute(\"CREATE TABLE processed(id TEXT PRIMARY KEY)\")\ndef ack(m): pass\nevt = {\"id\": \"evt_9\", \"order\": 42}"
+      },
       "text": "charge 42",
       "cue": "charge prints once"
      }
@@ -1287,7 +1307,7 @@
     {
      "type": "compare",
      "head": "Delivery guarantees",
-     "say": "At most once: ack first, and a crash loses the job. At least once: ack after the work, and a crash means a duplicate. Exactly once across systems is not possible. It's at least once, plus dedupe.",
+     "say": "At most once: ack first, and a crash loses the job. At least once: ack after the work, and a crash means a duplicate. Exactly once across systems is hard. In practice it's at least once, plus dedupe.",
      "heads": [
       "Crash means",
       "Use it for"
@@ -1320,7 +1340,7 @@
     {
      "type": "compare",
      "head": "Dedupe in three places",
-     "say": "Three places to defend. Your own database: a processed table, in one transaction. An outside payment provider: send the event id as an idempotency key. A message that keeps failing: retry with growing waits, then park it in a dead letter queue.",
+     "say": "Three places to defend. Your own database: a processed table, in one transaction. A payment provider: send an idempotency key, a label so it ignores a repeat. A message that keeps failing: retry with growing waits, called backoff, then park it in a dead letter queue, a side queue. That is how a payment is charged once.",
      "heads": [
       "Where",
       "Defend with"
@@ -1335,14 +1355,19 @@
        "idempotency key = event id"
       ],
       [
-       "Message that keeps failing",
-       "backoff, then dead letter queue"
+       "Message keeps failing",
+       "retry with backoff"
+      ],
+      [
+       "Still failing",
+       "dead letter queue"
       ]
      ],
      "cues": [
-      "Your own database",
-      "outside payment provider",
-      "keeps failing"
+      "processed table",
+      "idempotency key",
+      "keeps failing",
+      "dead letter queue"
      ]
     }
    ]
@@ -1357,14 +1382,18 @@
      "covers": [
       "be07"
      ],
-     "say": "How does caching work? Check Redis, fill on a miss, set a T T L. Stale data? Delete the key on every update. Stampede? Let one request refill, and add random jitter.",
+     "say": "Why cache? Skip the slow database on repeat reads. How does it work? Check Redis, fill on a miss, set a T T L. Stale data? Delete the key on update. Stampede? One request refills, plus jitter.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
       [
-       "How does caching work?",
+       "Why cache?",
+       "skip the slow database on repeat reads"
+      ],
+      [
+       "How does it work?",
        "Cache-aside: check Redis, on a miss fill it, with a TTL"
       ],
       [
@@ -1377,7 +1406,8 @@
       ]
      ],
      "cues": [
-      "How does caching",
+      "Why cache",
+      "How does it",
       "Stale data",
       "Stampede"
      ]
@@ -1388,7 +1418,7 @@
      "covers": [
       "be10"
      ],
-     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? Delivery is at least once, so dedupe on event id in a processed table. Exactly once? Not across systems. Ack after the work.",
+     "say": "Why a queue? The API answers fast, and workers do slow work later. Duplicates? At least once: a missing ack means a retry. Dedupe on event id. Exactly once? Not across systems. Ack after the work.",
      "heads": [
       "They ask",
       "You say"

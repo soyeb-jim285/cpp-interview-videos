@@ -76,7 +76,7 @@
      "type": "chart",
      "head": "One server vs the traffic",
      "unit": "req/s",
-     "say": "Here's why this matters. Interviewers love scaling, because it tests whether you measure first. One server tops out near a thousand requests a second. Your traffic is a hundred thousand. The order you fix things in is the answer.",
+     "say": "These bars show requests per second. One server tops out near a thousand. Your traffic is a hundred thousand. Interviewers love this: it tests whether you measure first.",
      "bars": [
       {
        "label": "One server",
@@ -129,7 +129,7 @@
     {
      "type": "compare",
      "head": "Vertical vs horizontal",
-     "say": "Vertical means a bigger machine, horizontal means more machines. Good: vertical is simple, horizontal has no single point of failure. Limit: vertical hits a hardware ceiling, horizontal adds moving parts. Needs: horizontal needs a stateless app behind a load balancer.",
+     "say": "Vertical means a bigger machine, horizontal means more machines. Good: vertical is simple, horizontal has no single point of failure. Limit: vertical hits a hardware ceiling, horizontal adds moving parts. Needs: horizontal needs a stateless app, and a front door that spreads requests.",
      "heads": [
       "Vertical: bigger box",
       "Horizontal: more boxes"
@@ -150,7 +150,7 @@
       ],
       [
        "nothing",
-       "stateless app + load balancer"
+       "stateless app + a front door"
       ]
      ],
      "cues": [
@@ -257,13 +257,19 @@
        "id": "p2",
        "kill": true,
        "cue": "copy dies"
+      },
+      {
+       "id": "cap",
+       "text": "2000",
+       "tone": "bad",
+       "cue": "simply goes"
       }
      ]
     },
     {
      "type": "code",
      "head": "Why stateless matters",
-     "say": "Here's stateless, by breaking it. Each server keeps sessions in its own memory. Ana logs in on server A. The balancer sends her next request to server B. B has never heard of her. She's logged out.",
+     "say": "Stateless means a server keeps no user data between requests. Here it is, by breaking it. Each server keeps sessions in its own memory. Ana logs in on server A. The balancer sends her next request to server B. B has never heard of her. She's logged out.",
      "panels": [
       {
        "file": "app.py",
@@ -271,6 +277,12 @@
       }
      ],
      "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Here it is"
+      },
       {
        "lines": [
         3
@@ -312,7 +324,7 @@
     {
      "type": "diagram",
      "head": "State lives outside the app",
-     "say": "A shared store, like Redis. Now any server can read Ana's session. Sessions and cache live in Redis, durable data lives in the database. Kill a server and nobody is logged out.",
+     "say": "A shared store, like Redis. Now any server can read Ana's session. Sessions and cache live in Redis, durable data lives in the database. Kill a server and nobody is logged out. That is how one server becomes many.",
      "items": [
       {
        "id": "lb",
@@ -501,16 +513,16 @@
      ],
      "notes": [
       {
-       "x": 1250,
+       "x": 1220,
        "y": 680,
-       "text": "lag: a moment behind",
+       "text": "lagging",
        "tone": "bad",
        "cue": "replica lag"
       },
       {
-       "x": 1250,
+       "x": 1220,
        "y": 290,
-       "text": "fresh? read from primary",
+       "text": "primary",
        "tone": "good",
        "cue": "read from the primary"
       }
@@ -599,7 +611,7 @@
      "type": "chart",
      "head": "Adding one shard",
      "unit": "%",
-     "say": "About twenty percent. The chart counts users who stay on their shard. The other eighty percent move. That's why shard counts are painful. Consistent hashing moves fewer.",
+     "say": "About twenty percent. The chart counts users that keep their shard. The other eighty percent move. Consistent hashing, a later topic, moves fewer.",
      "bars": [
       {
        "label": "Stay",
@@ -612,6 +624,38 @@
        "value": 80,
        "tone": "bad",
        "cue": "other eighty percent"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Why four in twenty",
+     "say": "Why twenty? Take ids zero to nineteen. Only ids zero to three have the same remainder under four and five. That's four of twenty. The other sixteen move.",
+     "items": [
+      {
+       "label": "ids 0 to 19",
+       "text": "20 users",
+       "tone": "blue",
+       "cue": "ids zero to nineteen"
+      },
+      {
+       "label": "same remainder",
+       "text": "ids 0, 1, 2, 3",
+       "sub": "mod 4 = mod 5",
+       "tone": "warn",
+       "cue": "Only ids zero"
+      },
+      {
+       "label": "they stay",
+       "text": "4 of 20",
+       "tone": "good",
+       "cue": "four of twenty"
+      },
+      {
+       "label": "the rest move",
+       "text": "16 of 20",
+       "tone": "bad",
+       "cue": "other sixteen"
       }
      ]
     },
@@ -656,7 +700,7 @@
     {
      "type": "compare",
      "head": "Whiteboard math",
-     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache absorbs ninety percent. Of the rest, eight thousand are reads, spread over four replicas. Two thousand writes hit the primary. Past that, shard four ways.",
+     "say": "Assume a thousand requests a second per app server. A hundred servers take the whole load. A cache absorbs ninety percent. Say eight in ten are reads: eight thousand, over four replicas. Two thousand writes hit the primary. Past that, shard four ways.",
      "heads": [
       "Layer",
       "100,000 req/s"
@@ -764,6 +808,7 @@
      "panels": [
       {
        "file": "order.sql",
+       "label": "excerpt",
        "code": "SELECT o.id, i.sku, i.qty\nFROM orders o\nJOIN order_items i\n  ON i.order_id = o.id\nWHERE o.id = 7;"
       },
       {
@@ -809,6 +854,9 @@
      ],
      "output": {
       "cmd": "sqlite3 shop.db < order.sql",
+      "setup": {
+       "order.sql": "CREATE TABLE orders(id INT, user_id INT);\nCREATE TABLE order_items(order_id INT, sku TEXT, qty INT);\nINSERT INTO orders VALUES (7, 3);\nINSERT INTO order_items VALUES (7, 'A1', 2), (7, 'B9', 1);"
+      },
       "text": "7|A1|2\n7|B9|1",
       "cue": "one row per item"
      }
@@ -860,20 +908,20 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A bank moves fifty dollars from one account to another. Both changes happen, or neither. Which store is the best default? Pause and predict.",
-     "q": "Money moves between accounts, all or nothing. Best default?",
+     "say": "Your turn. Billions of log lines arrive, and you only ever read them by key, never joined. Which store fits best? Pause and predict.",
+     "q": "Billions of log lines, read by key, never joined. Best store?",
      "options": [
       "Postgres",
       "Document store",
       "Redis cache",
       "Log files"
      ],
-     "answer": "Postgres"
+     "answer": "Document store"
     },
     {
      "type": "compare",
      "head": "Match data to store",
-     "say": "Postgres. Money needs all or nothing transactions. Event logs, billions of rows read by key, fit a document or wide column store. Carts and sessions are one lookup by key. Odd extra fields beside normal tables? Postgres has a JSONB type.",
+     "say": "A document store. Event logs are huge, appended, and read by key. Money needs Postgres, with all or nothing transactions. Carts and sessions are one lookup by key. Odd extra fields? Postgres has a JSONB type. That defends each pick.",
      "heads": [
       "Data",
       "Pick",
@@ -881,14 +929,14 @@
      ],
      "rows": [
       [
-       "Orders, payments",
-       "Postgres",
-       "joins, transactions"
-      ],
-      [
        "Event logs",
        "Document store",
        "append, huge, key access"
+      ],
+      [
+       "Orders, payments",
+       "Postgres",
+       "joins, transactions"
       ],
       [
        "Carts, sessions",
@@ -902,8 +950,8 @@
       ]
      ],
      "cues": [
-      "Postgres.",
-      "Event logs",
+      "A document store",
+      "Money needs",
       "Carts and sessions",
       "Odd extra"
      ]
@@ -1146,7 +1194,7 @@
      "panels": [
       {
        "file": "merge.py",
-       "code": "def merge(p, q):\n    return max(p, q, key=lambda v: v[1])\na, b = (1, 0), (1, 0)\na = (2, 5)\nprint(\"B says\", b[0])\nm = merge(a, b)\na, b = m, m\nprint(\"healed\", a[0], b[0])"
+       "code": "def merge(p, q):\n    return max(p, q, key=lambda v: v[1])\na, b = (1, 0), (1, 0)\na = (2, 5)\nprint(\"B says\", b[0])\na = b = merge(a, b)\nprint(\"healed\", a[0], b[0])"
       }
      ],
      "steps": [
@@ -1165,14 +1213,13 @@
       },
       {
        "lines": [
-        6,
-        7
+        6
        ],
        "cue": "merge keeps"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "Both now say two"
       }
@@ -1195,7 +1242,7 @@
     {
      "type": "compare",
      "head": "CAP myths in interviews",
-     "say": "Pick any two of three? No. In a partition you choose consistency or availability. Is eventual consistency bad? Fine for feeds, not balances. Conflicting writes? Last write wins can drop one. Version vectors detect it.",
+     "say": "Pick any two of three? No. That answers the split: choose consistency or availability. Is eventual consistency bad? Fine for feeds, not balances. Conflicting writes? Last write wins can drop one. Version vectors keep a counter per replica.",
      "heads": [
       "Myth or question",
       "Truth"
@@ -1232,7 +1279,7 @@
      "covers": [
       "be11"
      ],
-     "say": "How do you scale a service? Measure, cache, go stateless, add replicas. Shard last. Why stateless? Any server can serve any request. Shard key? Many values, even spread, like user id.",
+     "say": "How do you scale a service? Measure, cache, go stateless, add replicas. Shard last. Why stateless? Any server can serve any request. Replica lag? Read your own writes from the primary. Common mistake? Scaling before measuring.",
      "heads": [
       "They ask",
       "You say"
@@ -1247,45 +1294,57 @@
        "Any server can serve any request"
       ],
       [
-       "Shard key?",
-       "Many values, even spread: user id"
+       "Replica lag?",
+       "Read your own writes from the primary"
+      ],
+      [
+       "Common mistake?",
+       "Scaling before measuring"
       ]
      ],
      "cues": [
       "How do you scale",
       "Why stateless",
-      "Shard key"
+      "Replica lag",
+      "Common mistake"
      ]
     },
     {
-     "type": "compare",
+     "type": "flow",
      "head": "Say it in 20 seconds",
      "covers": [
       "be05"
      ],
-     "say": "Which database? Postgres first. Move to No S Q L for scale or key access. Can Postgres store J S O N? Yes, JSONB. The mistake: choosing No S Q L because it's trendy.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Which database?",
-       "Postgres first; NoSQL for scale, key access"
-      ],
-      [
-       "JSON in Postgres?",
-       "Yes, the JSONB type"
-      ],
-      [
-       "Common mistake?",
-       "NoSQL because it's trendy"
-      ]
-     ],
-     "cues": [
-      "Which database",
-      "Can Postgres",
-      "The mistake"
+     "say": "S Q L or No S Q L? Postgres first, because of joins and transactions. No S Q L for huge scale or simple key access. Odd extra fields? Postgres has JSONB. The mistake is choosing No S Q L because it's trendy.",
+     "items": [
+      {
+       "label": "which database?",
+       "text": "Postgres first",
+       "sub": "joins, transactions",
+       "tone": "blue",
+       "cue": "Postgres first"
+      },
+      {
+       "label": "then NoSQL for",
+       "text": "scale, keys",
+       "sub": "huge, key access",
+       "tone": "warn",
+       "cue": "No S Q L for huge"
+      },
+      {
+       "label": "odd fields?",
+       "text": "JSONB",
+       "sub": "inside Postgres",
+       "tone": "good",
+       "cue": "Odd extra"
+      },
+      {
+       "label": "the mistake",
+       "text": "trendy",
+       "sub": "pick by access pattern",
+       "tone": "bad",
+       "cue": "The mistake"
+      }
      ]
     },
     {
@@ -1294,7 +1353,7 @@
      "covers": [
       "be12"
      ],
-     "say": "Explain C A P. Partitions happen, so during one you choose consistency or availability. Eventual consistency? Replicas converge once writes stop. Fine for likes, not balances. Conflicting writes? Last write wins, or version vectors.",
+     "say": "Explain C A P. In a partition you choose consistency or availability. Pick any two? No, partitions are not optional. Eventual consistency? Replicas converge, fine for likes. Conflicting writes? Last write wins, or version vectors.",
      "heads": [
       "They ask",
       "You say"
@@ -1303,6 +1362,10 @@
       [
        "Explain CAP.",
        "In a partition: consistent or available"
+      ],
+      [
+       "Pick any two?",
+       "No, partitions are not optional"
       ],
       [
        "Eventual consistency?",
@@ -1315,6 +1378,7 @@
      ],
      "cues": [
       "Explain C A P",
+      "Pick any two",
       "Eventual consistency",
       "Conflicting writes"
      ]
