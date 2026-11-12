@@ -495,14 +495,14 @@
       "about 57 million",
       "about 57 billion",
       "about 3.5 trillion",
-      "about 3,800"
+      "about 372"
      ],
      "answer": "about 57 billion"
     },
     {
      "type": "compare",
      "head": "Counter or random code?",
-     "say": "Sixty two to the sixth is fifty seven billion. Seven leaves room. Counter or random? Collisions: a counter never collides, random needs a check and retry. Guessable: counter codes are sequential, random ones are not. The catch: one counter is a bottleneck, so hand out id ranges. That solves it.",
+     "say": "Six characters give fifty seven billion, plenty for six billion links. Counter or random? Collisions: a counter never collides, random needs a check and retry. Guessable: counter codes are sequential, random ones are not. The catch: one counter is a bottleneck, so hand out id ranges. That solves it.",
      "heads": [
       "Counter + base 62",
       "Random code"
@@ -817,11 +817,11 @@
      "title": "Checkout is slow",
      "statement": "The pager says checkout is slow. Find the cause with evidence, not guesses.",
      "example": {
-      "input": "p99 of POST /checkout is 2 s",
+      "input": "2 in 100 requests take 2 s: p99 = 2 s",
       "output": "cause found, p99 back to 150 ms"
      },
      "note": "the dashboard average looks fine",
-     "say": "New problem. It's two in the morning and checkout is slow. For example, one in a hundred requests takes two seconds, our p ninety nine. We want the cause, and a hundred fifty milliseconds. The average looks fine.",
+     "say": "New problem. It's two in the morning and checkout is slow. For example, two in a hundred requests take two seconds. That's our p ninety nine. We want the cause, and a hundred fifty milliseconds. The average looks fine.",
      "cues": {
       "example": "For example",
       "output": "We want the cause",
@@ -909,7 +909,7 @@
      "type": "chart",
      "head": "Same data, three numbers",
      "unit": "ms",
-     "say": "Look at all three. The median is one twenty. The average is one fifty eight. The p ninety nine is two thousand. So alert on percentiles. That finds the problem.",
+     "say": "Same hundred requests, three summaries. The median is one twenty. The average is one fifty eight. The p ninety nine is two thousand. So alert on percentiles. That finds the problem.",
      "bars": [
       {
        "label": "Median",
@@ -984,7 +984,7 @@
        "id": "sq",
        "x": 380,
        "y": 400,
-       "w": 1000,
+       "w": 900,
        "h": 120,
        "text": "SQL: orders by user",
        "sub": "1800 ms",
@@ -994,7 +994,7 @@
       },
       {
        "id": "js",
-       "x": 1400,
+       "x": 1300,
        "y": 400,
        "w": 200,
        "h": 120,
@@ -1006,12 +1006,12 @@
       },
       {
        "id": "ot",
-       "x": 1620,
+       "x": 1520,
        "y": 400,
-       "w": 100,
+       "w": 200,
        "h": 120,
-       "text": "...",
-       "sub": "80",
+       "text": "other",
+       "sub": "80 ms",
        "size": 32,
        "tone": "dim",
        "cue": "J S O N takes"
@@ -1126,7 +1126,7 @@
     {
      "type": "flow",
      "head": "The method, in order",
-     "say": "So the method. Confirm with metrics: p ninety nine, when it started, what changed. Locate with a trace. Explain with logs, tied together by a request id, and the query plan. Fix with one change. Verify the p ninety nine really dropped.",
+     "say": "So the method. Confirm with metrics: p ninety nine, when it started, what changed. Locate with a trace. Explain with logs, stamped with a request id, and the plan. Fix with one change. Verify the p ninety nine really dropped.",
      "items": [
       {
        "label": "1",
@@ -1223,7 +1223,7 @@
      "covers": [
       "be14"
      ],
-     "say": "Design bit dot ly. Numbers first, base sixty two counter, database and cache. What numbers? Forty writes, four thousand reads, three terabytes. Why three oh two? Browsers cache three oh one, so you miss clicks. Analytics? Log clicks to a queue.",
+     "say": "Design bit dot ly. Base sixty two counter, unique index, cache, three oh two. What numbers? Forty writes, four thousand reads, three terabytes. Why three oh two? Browsers cache three oh one, so you miss clicks. Analytics? Log clicks to a queue.",
      "heads": [
       "They ask",
       "You say"
@@ -1231,7 +1231,7 @@
      "rows": [
       [
        "Design bit.ly",
-       "numbers, base 62 counter, DB + cache"
+       "numbers, base 62 counter, unique index, cache, 302"
       ],
       [
        "What numbers?",
