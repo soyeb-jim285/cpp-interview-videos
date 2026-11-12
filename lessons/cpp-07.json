@@ -1,0 +1,1907 @@
+{
+ "id": "cpp-07",
+ "track": "C++",
+ "num": 7,
+ "title": "Pointers in Depth: Arithmetic, const, Arrays & References",
+ "covers": [
+  "q36",
+  "q37",
+  "q38",
+  "q39",
+  "q40",
+  "q41",
+  "q42",
+  "q43",
+  "q44",
+  "q45"
+ ],
+ "caps": [
+  [
+   "l value",
+   "lvalue"
+  ],
+  [
+   "r value",
+   "rvalue"
+  ],
+  [
+   "static cast",
+   "static_cast"
+  ],
+  [
+   "unique pointer",
+   "unique_ptr"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Walk an array with a pointer",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Add one to a pointer and it moves four bytes, or eight. By the end, you'll read const int star const aloud, and know why sizeof lies in a function.",
+     "lines": [
+      {
+       "text": "p + 1 moves 4 bytes. Or 8.",
+       "cue": "Add one"
+      },
+      {
+       "text": "const int* const, out loud",
+       "cue": "By the end"
+      },
+      {
+       "text": "sizeof lies in a function",
+       "cue": "sizeof lies",
+       "accent": "lies"
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Walk an array using pointer arithmetic. Tell pointers, references and arrays apart, with their const rules. And spot the pointer bugs that crash programs.",
+     "lines": [
+      "Walk an array with pointer arithmetic",
+      "Tell pointers, references, arrays apart",
+      "Spot the bugs that crash programs"
+     ],
+     "cues": [
+      "Walk an array",
+      "Tell pointers",
+      "spot the pointer"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Where does p + 2 land?",
+     "statement": "An int pointer points at the first of four ints. Where does p plus two point, and what is q minus p?",
+     "example": {
+      "input": "int a[4] = {10, 20, 30, 40}; q = p + 2",
+      "output": "*q is 30, and q - p is 2"
+     },
+     "say": "Here is the problem. For example, four ints, and a pointer p at the first. Add two. Where do we land? Eight bytes along, not two.",
+     "cues": {
+      "example": "For example",
+      "output": "Add two"
+     },
+     "note": "int is 4 bytes here"
+    },
+    {
+     "type": "diagram",
+     "head": "p + 2 means two ints, not two bytes",
+     "say": "An int array at hex one thousand. Four bytes each. P points at the first. Now q is p plus two. Q lands on the third, thirty. Subtract: q minus p is two elements, not eight bytes.",
+     "items": [
+      {
+       "id": "e0",
+       "x": 610,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1000",
+       "text": "10",
+       "size": 44,
+       "tone": "blue",
+       "cue": "int array"
+      },
+      {
+       "id": "e1",
+       "x": 790,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1004",
+       "text": "20",
+       "size": 44,
+       "tone": "blue",
+       "cue": "int array"
+      },
+      {
+       "id": "e2",
+       "x": 970,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1008",
+       "text": "30",
+       "size": 44,
+       "tone": "blue",
+       "cue": "int array"
+      },
+      {
+       "id": "e3",
+       "x": 1150,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x100c",
+       "text": "40",
+       "size": 44,
+       "tone": "blue",
+       "cue": "int array"
+      },
+      {
+       "id": "p",
+       "x": 630,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "p",
+       "tone": "warn",
+       "cue": "P points"
+      },
+      {
+       "id": "q",
+       "x": 990,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "q",
+       "tone": "good",
+       "cue": "q is p plus two"
+      },
+      {
+       "id": "d",
+       "x": 830,
+       "y": 780,
+       "w": 440,
+       "h": 110,
+       "label": "distance",
+       "text": "q - p = 2",
+       "size": 48,
+       "tone": "info",
+       "cue": "q minus p"
+      }
+     ],
+     "changes": [
+      {
+       "id": "e2",
+       "glow": true,
+       "tone": "good",
+       "cue": "third, thirty"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The step size comes from the type",
+     "say": "An int pointer steps four bytes. A double pointer, eight. A void pointer has no step size, so no arithmetic. And a of two is star of a plus two: subscripting is pointer arithmetic.",
+     "panels": [
+      {
+       "file": "step.cpp",
+       "code": "int a[4] = {10, 20, 30, 40};\ndouble d[4];\nint* p = a;\ndouble* pd = d;\ncout << (char*)(p + 1) - (char*)p << ' ';\ncout << (char*)(pd + 1) - (char*)pd << '\\n';\ncout << *(a + 2) << ' ' << a[2] << '\\n';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "steps four bytes"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "A double pointer"
+      },
+      {
+       "lines": [],
+       "cue": "A void pointer"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "star of a plus two"
+      }
+     ],
+     "output": {
+      "cmd": "./step",
+      "text": "4 8\n30 30",
+      "cue": "subscripting is"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Start the pointer at the second element, then step two. Which value do you read? Pause and predict.",
+     "q": "With `a = {10, 20, 30, 40}` and `p = a + 1`, what is `*(p + 2)`?",
+     "options": [
+      "20",
+      "30",
+      "40",
+      "a crash"
+     ],
+     "answer": "40"
+    },
+    {
+     "type": "diagram",
+     "head": "p + 2 means two ints, not two bytes",
+     "say": "Forty. P starts at the second element. Two steps on is the fourth, forty. Now the edge. One past the last is legal to hold and compare, but never to read. Anything further is undefined. So is subtracting pointers from different objects.",
+     "items": [
+      {
+       "id": "e0",
+       "x": 610,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1000",
+       "text": "10",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "e1",
+       "x": 790,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1004",
+       "text": "20",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "e2",
+       "x": 970,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1008",
+       "text": "30",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "e3",
+       "x": 1150,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x100c",
+       "text": "40",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "p",
+       "x": 810,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "p",
+       "tone": "warn"
+      },
+      {
+       "id": "t",
+       "x": 1170,
+       "y": 620,
+       "w": 120,
+       "h": 70,
+       "text": "p+2",
+       "tone": "good",
+       "cue": "Two steps on"
+      },
+      {
+       "id": "e4",
+       "x": 1330,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1010",
+       "text": "end",
+       "size": 44,
+       "tone": "ghost",
+       "cue": "One past the last"
+      },
+      {
+       "id": "e5",
+       "x": 1510,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "0x1014",
+       "text": "UB",
+       "size": 44,
+       "tone": "bad",
+       "cue": "Anything further"
+      }
+     ],
+     "changes": [
+      {
+       "id": "e3",
+       "glow": true,
+       "tone": "good",
+       "cue": "fourth, forty"
+      },
+      {
+       "id": "e4",
+       "glow": true,
+       "tone": "good",
+       "cue": "hold and compare"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Pointer, reference, rvalue ref",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Pointer, reference, or both?",
+     "statement": "Three declarations bind to an int. Which one can be null, which one is just another name, and which one grabs a temporary?",
+     "example": {
+      "input": "int* p, int& r, int&& rr",
+      "output": "p holds an address; r aliases; rr grabs"
+     },
+     "say": "Here is the problem. For example, three kinds of ampersand, star, and double ampersand. They look alike. Interviewers love asking which does what.",
+     "cues": {
+      "example": "For example",
+      "output": "Interviewers love"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "What each one binds to",
+     "say": "Here is x, holding five. P is its own variable, holding x's address. It can be null, and re-pointed. R is not a new variable, just another name for x. That is an l value reference. And rr binds to the temporary ten, keeping it alive as long as rr lives.",
+     "items": [
+      {
+       "id": "x",
+       "x": 1100,
+       "y": 430,
+       "w": 300,
+       "h": 150,
+       "label": "x",
+       "text": "5",
+       "size": 56,
+       "tone": "blue",
+       "cue": "Here is x"
+      },
+      {
+       "id": "p",
+       "x": 300,
+       "y": 260,
+       "w": 300,
+       "h": 110,
+       "label": "int* p",
+       "text": "&x",
+       "tone": "warn",
+       "cue": "P is its own"
+      },
+      {
+       "id": "r",
+       "x": 300,
+       "y": 470,
+       "w": 300,
+       "h": 110,
+       "label": "int& r",
+       "text": "alias",
+       "tone": "good",
+       "cue": "R is not"
+      },
+      {
+       "id": "rr",
+       "x": 300,
+       "y": 680,
+       "w": 300,
+       "h": 110,
+       "label": "int&& rr",
+       "text": "temp",
+       "tone": "info",
+       "cue": "rr binds"
+      },
+      {
+       "id": "t",
+       "x": 1100,
+       "y": 680,
+       "w": 300,
+       "h": 110,
+       "text": "10",
+       "size": 56,
+       "tone": "ghost",
+       "cue": "temporary ten"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "x",
+       "label": "address",
+       "cue": "holding x's address"
+      },
+      {
+       "from": "r",
+       "to": "x",
+       "label": "same object",
+       "cue": "another name"
+      },
+      {
+       "from": "rr",
+       "to": "t",
+       "cue": "keeping it alive"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Why double ampersand exists",
+     "say": "Why does the r value reference exist? Overloading. F of x picks the l value version. F of forty two picks the r value one. S t d colon colon move casts x to an r value. Moves rely on this to steal.",
+     "panels": [
+      {
+       "file": "ref.cpp",
+       "code": "void f(int&)  { cout << \"lvalue \"; }\nvoid f(int&&) { cout << \"rvalue \"; }\n\nint x = 1;\nf(x);\nf(42);\nf(std::move(x));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "F of x"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "F of forty two"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "casts x"
+      }
+     ],
+     "output": {
+      "cmd": "./ref",
+      "text": "lvalue rvalue rvalue",
+      "cue": "Moves rely"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We declare rr as an r value reference to five. Then we call f of rr. Which overload runs? Pause and predict.",
+     "q": "After `int&& rr = 5;`, which overload does `f(rr)` call?",
+     "options": [
+      "int&",
+      "int&&",
+      "ambiguous",
+      "compile error"
+     ],
+     "answer": "int&"
+    },
+    {
+     "type": "code",
+     "head": "A name is always an l value",
+     "say": "The l value one. Rr has type r value reference, but it has a name, so the expression rr is an l value. You can take its address. To pass it on as a temporary, cast it again with move.",
+     "panels": [
+      {
+       "file": "ref.cpp",
+       "code": "void f(int&)  { cout << \"lvalue \"; }\nvoid f(int&&) { cout << \"rvalue \"; }\n\nint&& rr = 5;\nf(rr);\nf(std::move(rr));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        5
+       ],
+       "cue": "l value one"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "cast it again"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "a name is an l value",
+       "tone": "warn",
+       "cue": "has a name"
+      }
+     ],
+     "output": {
+      "cmd": "./ref",
+      "text": "lvalue rvalue",
+      "cue": "take its address"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Pointer, l value ref, r value ref",
+     "say": "A pointer is an object holding an address. Null? Only the pointer. Re-pointing? Only the pointer. Typical use? Optional access, passing without copying, and moves.",
+     "heads": [
+      "`int* p`",
+      "`int& r`",
+      "`int&& rr`"
+     ],
+     "rows": [
+      [
+       "holds an address",
+       "alias of an l value",
+       "alias of a temporary"
+      ],
+      [
+       "can be null",
+       "never null",
+       "never null"
+      ],
+      [
+       "can be re-pointed",
+       "fixed forever",
+       "fixed forever"
+      ],
+      [
+       "optional access",
+       "pass without copying",
+       "move semantics"
+      ]
+     ],
+     "cues": [
+      "A pointer is",
+      "Null",
+      "Re-pointing",
+      "Typical use"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "A reference, a pointer: same machine code",
+     "say": "Two functions. One takes a reference, one a constant pointer. Compile both, and the machine code is identical. A stored reference is a hidden pointer, dereferenced for you.",
+     "panels": [
+      {
+       "file": "ref.cpp",
+       "label": "reference",
+       "code": "void set(int& r) {\n    r = 7;\n}"
+      },
+      {
+       "file": "ptr.cpp",
+       "label": "pointer",
+       "code": "void set(int* const p) {\n    *p = 7;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "panel": 0,
+       "cue": "takes a reference"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "panel": 1,
+       "cue": "constant pointer"
+      },
+      {
+       "lines": [],
+       "cue": "machine code is identical"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "You can only observe the object",
+     "say": "Four. Everything you observe goes to the referred object. Size of r is the size of an int. Address of r is x's address. A struct holding a reference is usually pointer sized, here eight, but the standard does not promise it.",
+     "panels": [
+      {
+       "file": "obs.cpp",
+       "code": "struct Holder { int& r; };\n\nint x = 5;\nint& r = x;\nr = 7;\ncout << x << ' ' << sizeof(r) << ' ';\ncout << (&r == &x) << ' ';\ncout << sizeof(Holder) << '\\n';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Size of r"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "Address of r"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "usually pointer sized"
+      }
+     ],
+     "output": {
+      "cmd": "./obs",
+      "text": "7 4 1 8",
+      "cue": "does not promise"
+     }
+    }
+   ]
+  },
+  {
+   "title": "void star and star star",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Hold any address, or change a pointer",
+     "statement": "Two puzzles. Store the address of any object in one pointer type. And let a function change the caller's pointer.",
+     "example": {
+      "input": "void* v = &x;   make(&p)",
+      "output": "v holds any address; p gets a new target"
+     },
+     "say": "Here is the problem. For example, a pointer that can hold the address of any object. And a function that re-points the caller's own pointer. Two tools, two kinds of star.",
+     "cues": {
+      "example": "For example",
+      "output": "And a function"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "A void pointer: an address, type erased",
+     "say": "X holds forty two. Any object pointer converts to void star automatically. V now holds x's address. But it forgets the type. So you can't dereference it, and you can't add to it. To use the data, cast back with static cast to the real type.",
+     "items": [
+      {
+       "id": "x",
+       "x": 1100,
+       "y": 430,
+       "w": 300,
+       "h": 150,
+       "label": "x",
+       "text": "42",
+       "size": 56,
+       "tone": "blue",
+       "cue": "X holds"
+      },
+      {
+       "id": "v",
+       "x": 300,
+       "y": 430,
+       "w": 300,
+       "h": 150,
+       "label": "void* v",
+       "text": "&x",
+       "tone": "warn",
+       "cue": "V now holds"
+      },
+      {
+       "id": "no",
+       "x": 300,
+       "y": 680,
+       "w": 520,
+       "h": 110,
+       "text": "*v, v + 1: errors",
+       "size": 40,
+       "tone": "bad",
+       "cue": "can't dereference"
+      },
+      {
+       "id": "ip",
+       "x": 300,
+       "y": 240,
+       "w": 300,
+       "h": 110,
+       "label": "int* p",
+       "text": "&x",
+       "tone": "good",
+       "cue": "cast back"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "v",
+       "to": "x",
+       "cue": "x's address"
+      },
+      {
+       "from": "ip",
+       "to": "x",
+       "tone": "good",
+       "cue": "cast back"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Two classic interview points",
+     "say": "First, in C plus plus a void pointer needs an explicit cast to become an int pointer. C allows it silently. That is why malloc's result needs a cast. Second, the compiler trusts you. Cast to double and it compiles, but using it is undefined behavior.",
+     "panels": [
+      {
+       "file": "void.cpp",
+       "code": "void* raw = malloc(sizeof(int));\n// int* a = raw;            error in C++\nint* a = static_cast<int*>(raw);\n\ndouble* d = static_cast<double*>(raw);\n*d = 3.14;\n\nfree(raw);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "explicit cast"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "malloc's result"
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "compiler trusts you"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "UB: wrong type",
+       "tone": "bad",
+       "cue": "undefined behavior"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A pointer to a pointer: follow the arrows",
+     "say": "Now two stars. X is forty two. P is an int star holding x's address. Pp is an int star star holding p's address. Each star follows one arrow. Star pp is p. Star star pp is forty two. So assigning ninety nine through it changes x itself.",
+     "items": [
+      {
+       "id": "x",
+       "x": 1400,
+       "y": 430,
+       "w": 280,
+       "h": 150,
+       "label": "x",
+       "text": "42",
+       "size": 56,
+       "tone": "blue",
+       "cue": "X is forty two"
+      },
+      {
+       "id": "p",
+       "x": 850,
+       "y": 430,
+       "w": 280,
+       "h": 150,
+       "label": "int* p",
+       "text": "&x",
+       "tone": "warn",
+       "cue": "P is an int star"
+      },
+      {
+       "id": "pp",
+       "x": 300,
+       "y": 430,
+       "w": 280,
+       "h": 150,
+       "label": "int** pp",
+       "text": "&p",
+       "tone": "info",
+       "cue": "Pp is an int star star"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "x",
+       "cue": "holding x's address"
+      },
+      {
+       "from": "pp",
+       "to": "p",
+       "cue": "holding p's address"
+      }
+     ],
+     "changes": [
+      {
+       "id": "p",
+       "glow": true,
+       "tone": "good",
+       "cue": "Star pp is p"
+      },
+      {
+       "id": "x",
+       "text": "99",
+       "tone": "good",
+       "cue": "ninety nine"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. This function takes a plain int pointer and assigns it a new heap int. We call it with our null pointer. Afterwards, what is our pointer? Pause and predict.",
+     "q": "`void make(int* p) { p = new int(7); }` After `make(q)`, `q` is...",
+     "options": [
+      "points to 7",
+      "still null",
+      "a crash",
+      "dangling"
+     ],
+     "answer": "still null"
+    },
+    {
+     "type": "code",
+     "head": "Pointer to pointer, or reference to pointer",
+     "say": "Still null. The function changed its own copy, and leaked the int. Pass the address of q, and it writes into q itself. In C plus plus, a reference to a pointer does the same, more cleanly.",
+     "panels": [
+      {
+       "file": "make.cpp",
+       "code": "void make(int** out) { *out = new int(7); }\nvoid make2(int*& out) { out = new int(7); }\nint* p = nullptr;\nmake(&p);\ncout << *p << ' ';\ndelete p;\nmake2(p);\ncout << *p;\ndelete p;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        3,
+        4
+       ],
+       "cue": "address of q"
+      },
+      {
+       "lines": [
+        2,
+        7
+       ],
+       "cue": "reference to a pointer"
+      }
+     ],
+     "output": {
+      "cmd": "./make",
+      "text": "7",
+      "cue": "more cleanly"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Which const locks what",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Which const locks what?",
+     "statement": "Three declarations differ only in where const sits. Read each aloud, and say what you may change.",
+     "example": {
+      "input": "const int* p; int* const p;",
+      "output": "value locked; pointer locked"
+     },
+     "say": "Here is the problem. For example, two pointers, with const on different sides of the star. A famous interview trap. Say each one aloud, and say what it locks.",
+     "cues": {
+      "example": "For example",
+      "output": "A famous"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Three declarations, three locks",
+     "say": "Read right to left. P1 is a pointer to a const int: re-point it, but never write through it. P2 is a const pointer to an int: write through it, but never re-point. P3 locks both. And a const pointer must be initialized.",
+     "panels": [
+      {
+       "file": "const.cpp",
+       "code": "int a = 1, b = 2;\nconst int* p1 = &a;\np1 = &b;\n*p1 = 5;\nint* const p2 = &a;\n*p2 = 5;\np2 = &b;\nconst int* const p3 = &a;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "P1 is"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "P2 is"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "locks both"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "value locked",
+       "tone": "bad",
+       "cue": "never write"
+      },
+      {
+       "line": 7,
+       "inside": true,
+       "text": "pointer locked",
+       "tone": "bad",
+       "cue": "never re-point"
+      },
+      {
+       "line": 8,
+       "inside": true,
+       "text": "both locked",
+       "tone": "warn",
+       "cue": "locks both"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Here is p2, an int star const. Which statement compiles? Pause and predict.",
+     "q": "For `int* const p = &a;` which line compiles?",
+     "options": [
+      "`*p = 3;`",
+      "`p = &b;`",
+      "both",
+      "neither"
+     ],
+     "answer": "`*p = 3;`"
+    },
+    {
+     "type": "diagram",
+     "head": "Two things to lock",
+     "say": "Only the second. P2 locks the pointer, not the int. Each declaration has two things to lock: the pointer, and the int. Const left of the star locks the int. Const right of it locks the pointer. So p1 locks the value. P2, the pointer. P3, both.",
+     "items": [
+      {
+       "id": "dec",
+       "x": 330,
+       "y": 240,
+       "w": 600,
+       "h": 110,
+       "text": "const int* p1",
+       "size": 44,
+       "tone": "info"
+      },
+      {
+       "id": "ptr",
+       "x": 330,
+       "y": 470,
+       "w": 420,
+       "h": 150,
+       "label": "the pointer",
+       "text": "p",
+       "size": 56,
+       "tone": "blue",
+       "cue": "two things to lock"
+      },
+      {
+       "id": "val",
+       "x": 1170,
+       "y": 470,
+       "w": 420,
+       "h": 150,
+       "label": "the int",
+       "text": "a",
+       "size": 56,
+       "tone": "blue",
+       "cue": "and the int"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "ptr",
+       "to": "val",
+       "cue": "and the int"
+      }
+     ],
+     "changes": [
+      {
+       "id": "val",
+       "glow": true,
+       "cue": "Const left"
+      },
+      {
+       "id": "ptr",
+       "glow": true,
+       "cue": "Const right"
+      },
+      {
+       "id": "val",
+       "tone": "bad",
+       "text": "a (locked)",
+       "cue": "So p1 locks"
+      },
+      {
+       "id": "dec",
+       "text": "int* const p2",
+       "cue": "P2, the pointer"
+      },
+      {
+       "id": "val",
+       "tone": "good",
+       "text": "a",
+       "cue": "P2, the pointer"
+      },
+      {
+       "id": "ptr",
+       "tone": "bad",
+       "text": "p (locked)",
+       "cue": "P2, the pointer"
+      },
+      {
+       "id": "dec",
+       "text": "const int* const p3",
+       "cue": "P3, both"
+      },
+      {
+       "id": "val",
+       "tone": "bad",
+       "text": "a (locked)",
+       "cue": "P3, both"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The trap: pointer to const isn't const",
+     "say": "The classic trap. A pointer to const only blocks writes through that pointer. The int itself isn't const. A can still change, and star p sees ten. That's why parameters use const int star: a promise to only read.",
+     "panels": [
+      {
+       "file": "trap.cpp",
+       "code": "int a = 1;\nconst int* p = &a;\na = 10;\ncout << *p;\n\nvoid print(const int* data, int n);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "pointer to const"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "The int itself"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "can still change"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "sees ten"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "only read"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "a is not const",
+       "tone": "warn",
+       "cue": "can still change"
+      }
+     ],
+     "output": {
+      "cmd": "./trap",
+      "text": "10",
+      "cue": "promise to only read"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Dangling pointers and null",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Return the address of a local?",
+     "statement": "A function builds a local int and returns its address. It compiles. Is the pointer safe to use afterwards?",
+     "example": {
+      "input": "int* bad() { int x = 42; return &x; }",
+      "output": "no: the pointer dangles"
+     },
+     "say": "Here is the problem. For example, a function makes x, and returns its address. It compiles. Candidates say it works because they tried it once. Let's see why that is luck.",
+     "cues": {
+      "example": "For example",
+      "output": "Candidates say"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "The frame is gone, the address isn't",
+     "say": "Bad gets a stack frame, and x lives in it. It returns x's address, and p holds it. Then bad returns, and the frame is gone. P still points there. Next, other reuses those bytes. Star p might print seven.",
+     "items": [
+      {
+       "id": "fr",
+       "x": 300,
+       "y": 470,
+       "w": 520,
+       "h": 150,
+       "label": "stack frame",
+       "text": "bad(): x = 42",
+       "tone": "blue",
+       "cue": "Bad gets"
+      },
+      {
+       "id": "p",
+       "x": 1200,
+       "y": 470,
+       "w": 300,
+       "h": 150,
+       "label": "main",
+       "text": "p",
+       "size": 56,
+       "tone": "warn",
+       "cue": "p holds it"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "fr",
+       "label": "&x",
+       "cue": "returns x's address"
+      }
+     ],
+     "changes": [
+      {
+       "id": "fr",
+       "kill": true,
+       "cue": "frame is gone"
+      },
+      {
+       "id": "fr",
+       "text": "other(): y = 7",
+       "tone": "warn",
+       "cue": "reuses those bytes"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Compilers catch the simple case",
+     "say": "Compilers warn on the simple case, for pointers, and for references, which are addresses underneath, so they dangle too. Pass the address through another variable, and the warning can vanish. Treat warnings as errors, and run Address Sanitizer.",
+     "panels": [
+      {
+       "file": "bad.cpp",
+       "label": "two bugs",
+       "tone": "bad",
+       "code": "int* bad() {\n    int x = 42;\n    return &x;\n}\nint& badRef() {\n    int x = 42;\n    return x;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "for pointers"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "for references"
+      },
+      {
+       "lines": [],
+       "cue": "another variable"
+      }
+     ],
+     "output": {
+      "cmd": "g++ -Wall -c bad.cpp",
+      "text": "warning: address of local variable ‘x’ returned\nwarning: reference to local variable ‘x’ returned",
+      "tone": "bad",
+      "cue": "treat warnings"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Four functions each return something. Which result is still valid after the function ends? Pause and predict.",
+     "q": "Which returned value is still valid after the function ends?",
+     "options": [
+      "address of a local",
+      "reference to a local",
+      "a string literal",
+      "address of a parameter"
+     ],
+     "answer": "a string literal"
+    },
+    {
+     "type": "code",
+     "head": "What to return instead",
+     "say": "A string literal. Literals live in static storage, so that is safe. Otherwise, return by value, which is cheap. A static local lives forever, but it is shared state. Or return a unique pointer, so the caller owns it.",
+     "panels": [
+      {
+       "file": "safe.cpp",
+       "code": "const char* literal() { return \"hi\"; }\n\nint byValue() { int x = 42; return x; }\n\nint* fromStatic() {\n    static int x = 42;\n    return &x;\n}\nunique_ptr<int> fromHeap() {\n    return make_unique<int>(42);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "static storage"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "by value"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "A static local"
+      },
+      {
+       "lines": [
+        9,
+        10,
+        11
+       ],
+       "cue": "unique pointer"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "From star p to segmentation fault",
+     "say": "Null is address zero, and the page at zero is never mapped. So star p makes the processor fault. The operating system sends S I G S E G V: segmentation fault. On Windows, an access violation.",
+     "items": [
+      {
+       "label": "p",
+       "text": "nullptr",
+       "sub": "address 0",
+       "cue": "Null is address"
+      },
+      {
+       "label": "read",
+       "text": "page 0 unmapped",
+       "tone": "warn",
+       "cue": "never mapped"
+      },
+      {
+       "label": "CPU",
+       "text": "fault",
+       "tone": "bad",
+       "cue": "processor fault"
+      },
+      {
+       "label": "OS",
+       "text": "SIGSEGV",
+       "tone": "bad",
+       "sub": "segfault",
+       "cue": "S I G S E G V"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Not an exception, and not always a crash",
+     "say": "No. It is a signal, not an exception. And it is undefined behavior, so a crash is not even guaranteed. Since p was dereferenced, the optimizer may assume p is not null, and delete the check. Linux had this very bug.",
+     "panels": [
+      {
+       "file": "null.cpp",
+       "code": "void f(int* p) {\n    try {\n        int v = *p;           // UB if null\n        if (p == nullptr)     // so p is not null\n            return;           // may be deleted\n        cout << v;\n    } catch (...) { }         // never runs\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7
+       ],
+       "cue": "signal, not an exception"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "may assume p is not null"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "UB",
+       "tone": "bad",
+       "cue": "undefined behavior"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Four ways to avoid it",
+     "say": "Check pointers that may legitimately be null, before using them. If a value must exist, take a reference. For maybe a value, optional is clearer than null. And in testing, the undefined behavior sanitizer reports a null dereference with file and line.",
+     "heads": [
+      "Situation",
+      "Use"
+     ],
+     "rows": [
+      [
+       "may be null",
+       "`if (!p) return;` first"
+      ],
+      [
+       "must exist",
+       "take `T&`: never null"
+      ],
+      [
+       "maybe a value",
+       "`std::optional<T>`"
+      ],
+      [
+       "testing",
+       "UBSan: file and line"
+      ]
+     ],
+     "cues": [
+      "Check pointers",
+      "must exist",
+      "For maybe",
+      "in testing"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Arrays that turn into pointers",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Array or pointer?",
+     "statement": "An array name looks like a pointer. Are they the same? What does sizeof say about each, inside and outside a function?",
+     "example": {
+      "input": "int arr[4]; int* p = arr;",
+      "output": "sizeof(arr) is 16, sizeof(p) is 8"
+     },
+     "say": "Here is the problem. For example, four ints, and a pointer to them. Same thing? Ask size of each. Most candidates get the function case wrong.",
+     "cues": {
+      "example": "For example",
+      "output": "Most candidates"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Storage versus an address",
+     "say": "An array is the elements themselves: four ints, side by side, sixteen bytes. No address is stored anywhere. A pointer is a separate variable holding an address, eight bytes. Write p equals arr, and the array decays to a pointer to its first element. Size of arr is sixteen. Size of p is eight.",
+     "items": [
+      {
+       "id": "e0",
+       "x": 610,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "arr[0]",
+       "text": "10",
+       "size": 44,
+       "tone": "blue",
+       "cue": "four ints"
+      },
+      {
+       "id": "e1",
+       "x": 790,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "arr[1]",
+       "text": "20",
+       "size": 44,
+       "tone": "blue",
+       "cue": "four ints"
+      },
+      {
+       "id": "e2",
+       "x": 970,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "arr[2]",
+       "text": "30",
+       "size": 44,
+       "tone": "blue",
+       "cue": "four ints"
+      },
+      {
+       "id": "e3",
+       "x": 1150,
+       "y": 430,
+       "w": 160,
+       "h": 140,
+       "label": "arr[3]",
+       "text": "40",
+       "size": 44,
+       "tone": "blue",
+       "cue": "four ints"
+      },
+      {
+       "id": "sa",
+       "x": 610,
+       "y": 640,
+       "w": 700,
+       "h": 100,
+       "text": "sizeof(arr) = 16",
+       "size": 44,
+       "tone": "good",
+       "cue": "sixteen bytes"
+      },
+      {
+       "id": "p",
+       "x": 1400,
+       "y": 260,
+       "w": 260,
+       "h": 110,
+       "label": "int* p",
+       "text": "&arr[0]",
+       "size": 36,
+       "tone": "warn",
+       "cue": "separate variable"
+      },
+      {
+       "id": "sp",
+       "x": 1400,
+       "y": 640,
+       "w": 330,
+       "h": 100,
+       "text": "sizeof(p) = 8",
+       "size": 44,
+       "tone": "bad",
+       "cue": "Size of p"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "e0",
+       "cue": "decays to a pointer"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A function takes a parameter written as int a of four, and prints size of a. What does it print on a sixty four bit machine? Pause and predict.",
+     "q": "`void print(int a[4])` prints `sizeof(a)`. On 64-bit?",
+     "options": [
+      "16",
+      "4",
+      "8",
+      "1"
+     ],
+     "answer": "8"
+    },
+    {
+     "type": "code",
+     "head": "Where decay bites: parameters",
+     "say": "Eight. The array decays at the call, and the four in brackets is ignored. The parameter is really an int pointer. So inside print, size of is the pointer size. In main, sixteen. That's why C style functions pass the length separately.",
+     "panels": [
+      {
+       "file": "decay.cpp",
+       "code": "void print(int a[4]) {\n    cout << sizeof(a);\n}\n\nint arr[4] = {10, 20, 30, 40};\ncout << sizeof(arr) << ' ';\nprint(arr);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        7
+       ],
+       "cue": "decays at the call"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "really an int pointer"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "inside print"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "In main"
+      }
+     ],
+     "output": {
+      "cmd": "./decay",
+      "text": "16 8",
+      "cue": "pass the length"
+     }
+    },
+    {
+     "type": "code",
+     "head": "When it doesn't decay, and the fix",
+     "say": "Decay isn't everywhere. Size of and ampersand see the real array, and a reference keeps the full type. So a template can take the array by reference and deduce N as four. Modern code uses array, which never decays, or span.",
+     "panels": [
+      {
+       "file": "nodecay.cpp",
+       "code": "auto  q = &arr;       // int(*)[4]\nauto& r = arr;        // int(&)[4]\n\ntemplate <size_t N>\nvoid show(int (&a)[N]);   // N is 4\n\nvoid show(span<int> s);   // C++20\narray<int, 4> safe{};     // never decays"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "real array"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "keeps the full type"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "deduce N"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Modern code uses"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Array versus pointer",
+     "say": "An array is storage. A pointer is an address. Size of an array gives all its bytes, a pointer just eight. Arrays cannot be assigned. The address of an array is a pointer to the whole array. And an array knows its size, a pointer does not.",
+     "heads": [
+      "Array",
+      "Pointer"
+     ],
+     "rows": [
+      [
+       "the elements themselves",
+       "a variable holding an address"
+      ],
+      [
+       "sizeof is 16 for `int[4]`",
+       "sizeof is 8 on 64-bit"
+      ],
+      [
+       "not assignable",
+       "re-point any time"
+      ],
+      [
+       "`&arr` is `int(*)[4]`",
+       "`&p` is `int**`"
+      ],
+      [
+       "size is in the type",
+       "just a start address"
+      ]
+     ],
+     "cues": [
+      "An array is",
+      "Size of an array",
+      "Arrays cannot",
+      "The address of",
+      "And an array"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is pointer arithmetic? Adding n moves n elements, not n bytes. Example? Plus two on an int pointer is eight bytes. Valid where? Inside one array, or one past its end.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is pointer arithmetic?",
+       "p + n moves n elements, not n bytes"
+      ],
+      [
+       "Example?",
+       "int*: p + 2 is 8 bytes on"
+      ],
+      [
+       "Valid where?",
+       "inside one array or one past its end"
+      ]
+     ],
+     "cues": [
+      "What is pointer",
+      "Example",
+      "Valid where"
+     ],
+     "covers": [
+      "q36"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Pointer versus reference? A pointer holds an address. A reference is an alias. And double ampersand? An alias of a temporary. How is a reference stored? Usually a hidden const pointer, not guaranteed. Trap? A named r value reference is an l value.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Pointer vs reference?",
+       "address, can be null vs alias"
+      ],
+      [
+       "And `&&`?",
+       "alias of a temporary"
+      ],
+      [
+       "How is a reference stored?",
+       "hidden const pointer; not guaranteed"
+      ],
+      [
+       "Trap?",
+       "a named `&&` is an l value"
+      ]
+     ],
+     "cues": [
+      "Pointer versus",
+      "And double",
+      "How is a reference",
+      "Trap"
+     ],
+     "covers": [
+      "q37",
+      "q45"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is a void pointer? An address with no type. How do you use it? Cast back with static cast. Pointer to pointer? One more arrow. Why? To change the caller's pointer, or for argv.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is `void*`?",
+       "address with no type: no `*`, no `+`"
+      ],
+      [
+       "How do you use it?",
+       "cast back with `static_cast`"
+      ],
+      [
+       "Pointer to pointer?",
+       "one more arrow: `**pp` is the value"
+      ],
+      [
+       "Why?",
+       "change caller's pointer, `argv`"
+      ]
+     ],
+     "cues": [
+      "What is a void",
+      "How do you",
+      "Pointer to pointer",
+      "Why"
+     ],
+     "covers": [
+      "q38",
+      "q39"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Const int star, int star const, const int star const? Read right to left. Const left of the star locks the value. Const right of it locks the pointer. And pointer to const does not make the object const.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`const int*`",
+       "pointer to const: value locked"
+      ],
+      [
+       "`int* const`",
+       "const pointer: pointer locked"
+      ],
+      [
+       "Trap?",
+       "the object itself can still change"
+      ]
+     ],
+     "cues": [
+      "Const int star,",
+      "Const left",
+      "And pointer to const"
+     ],
+     "covers": [
+      "q40"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Return a pointer to a local? The frame dies, so it dangles: undefined behavior. Instead? By value, a static, or a unique pointer. Dereference null? Undefined, usually a segfault, not an exception. Prevent it? Check, or use a reference.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Return `&local`?",
+       "frame dies: dangling, UB"
+      ],
+      [
+       "Instead?",
+       "by value, static, `unique_ptr`"
+      ],
+      [
+       "Dereference null?",
+       "UB: usually segfault, no exception"
+      ],
+      [
+       "Prevent it?",
+       "check, or take a reference"
+      ]
+     ],
+     "cues": [
+      "Return a pointer",
+      "Instead",
+      "Dereference null",
+      "Prevent it"
+     ],
+     "covers": [
+      "q41",
+      "q42"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Array versus pointer? Elements versus an address. Array decay? It converts to a pointer to element zero, losing the length. When not? Size of, ampersand, references. Fix? Array or span.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Array vs pointer?",
+       "elements vs an address"
+      ],
+      [
+       "Array decay?",
+       "becomes `&a[0]`, length lost"
+      ],
+      [
+       "When not?",
+       "`sizeof`, `&`, references"
+      ],
+      [
+       "Fix?",
+       "`std::array`, `std::span`"
+      ]
+     ],
+     "cues": [
+      "Array versus",
+      "Array decay",
+      "When not",
+      "Fix"
+     ],
+     "covers": [
+      "q43",
+      "q44"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these three next. LeetCode two oh six, reverse linked list, is pointer re-pointing in a loop. LeetCode one forty one, linked list cycle, uses two pointers on a chain. LeetCode nineteen, remove nth node from end, needs a pointer to the link you edit.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 206 · Reverse Linked List",
+       "re-point `next` safely"
+      ],
+      [
+       "LeetCode 141 · Linked List Cycle",
+       "two pointers, null check"
+      ],
+      [
+       "LeetCode 19 · Remove Nth Node From End of List",
+       "a pointer to the link you edit"
+      ]
+     ],
+     "cues": [
+      "two oh six",
+      "one forty one",
+      "nineteen"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Adding n to a pointer moves n elements, only inside one array. Read const right to left. And never return a local's address, dereference null, or trust sizeof on a decayed array.",
+     "lines": [
+      "p + n moves n elements, inside one array.",
+      "Read const right to left: star splits it.",
+      "No local addresses, no null, no decayed sizeof."
+     ],
+     "cues": [
+      "Adding n",
+      "Read const",
+      "never return"
+     ]
+    }
+   ]
+  }
+ ]
+}
