@@ -31,14 +31,14 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Two numbers in a sorted list must add up to ten. Which two? Two loops work, but slowly. By the end you'll find them in one pass, then slide a window over strings.",
+     "say": "Two numbers in a sorted list must add up to ten. Which two? Two loops mean billions of checks. By the end you'll find them in one pass, then slide a window over strings.",
      "lines": [
       {
        "text": "Which two add up to 10?",
        "cue": "Two numbers"
       },
       {
-       "text": "Two loops: slow",
+       "text": "Two loops: billions of checks",
        "cue": "Two loops"
       },
       {
@@ -208,7 +208,7 @@
       {
        "id": "c5",
        "tone": "dim",
-       "cue": "R moves left"
+       "cue": "fits nobody"
       },
       {
        "id": "sum",
@@ -510,8 +510,8 @@
     },
     {
      "type": "code",
-     "head": "Slow and fast, on sorted input",
-     "say": "The second flavor: slow and fast pointers. On sorted input, equal values sit side by side. Slow w marks where the next kept value goes. The loop is the fast pointer. A new value gets copied to w. One, one, two, two, two, three becomes one, two, three. Same family: three sum, container with most water.",
+     "head": "Remove duplicates in place",
+     "say": "New problem: remove duplicates from a sorted array, in place. Slow and fast pointers. On sorted input, equal values sit side by side. Slow w marks where the next kept value goes. The loop is the fast pointer. A new value gets copied to w. One, one, two, two, two, three becomes one, two, three. Same family: three sum, container with most water.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -519,6 +519,12 @@
       }
      ],
      "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "New problem"
+      },
       {
        "lines": [
         1
@@ -897,7 +903,7 @@
      "type": "chart",
      "head": "100,000 numbers, window of 1,000",
      "unit": "ops",
-     "say": "Recounting: ninety nine million additions. Sliding: two hundred thousand. Five hundred times less.",
+     "say": "A hundred thousand numbers, window of a thousand. Count the additions. Recounting: ninety nine million additions. Sliding: two hundred thousand. Five hundred times less.",
      "bars": [
       {
        "label": "Recount",
@@ -1474,7 +1480,7 @@
       {
        "id": "best",
        "text": "3",
-       "cue": "three too"
+       "cue": "is three"
       },
       {
        "id": "pr",
@@ -1528,7 +1534,7 @@
     {
      "type": "code",
      "head": "Shrink while the rule holds",
-     "say": "Interviewers love the twist: shortest run with a sum of at least seven. Same trick. R adds a number. While the sum is at least seven, record the length, then subtract the number at L. On two, three, one, two, four, three, the answer is two.",
+     "say": "Interviewers love the twist: shortest run with a sum of at least seven. Same grow-and-shrink trick as the string. R adds a number. While the sum is at least seven, record the length, then subtract the number at L. On two, three, one, two, four, three, the answer is two.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -1540,7 +1546,7 @@
        "lines": [
         1
        ],
-       "cue": "Same trick"
+       "cue": "Same grow-and-shrink"
       },
       {
        "lines": [
@@ -1714,7 +1720,7 @@
       "They ask",
       "You say"
      ],
-     "say": "When do you use two pointers? Sorted data with a pair rule, like sum ten. Why drop an end? Too high even with its best partner. Unsorted? Sort first, O of n log n, or use a hash map. Complexity? O of n after that. Mistake? L less than or equal to R.",
+     "say": "When do you use it? Sorted data and a pair rule, like sum ten. Why drop an end? Too high even with its best partner. Unsorted? Sort first, O of n log n, or use a hash map. Complexity? O of n after that. Mistake? L less than or equal to R.",
      "rows": [
       [
        "When do you use two pointers?",
@@ -1755,11 +1761,11 @@
       "They ask",
       "You say"
      ],
-     "say": "How does a sliding window work? Add what enters, subtract what leaves: O of n. When do you use it? A contiguous range asking longest, shortest or best. Fixed or variable? Variable grows right, shrinks left. Negatives in a sum window? Shrinking breaks, so use prefix sums with a deque.",
+     "say": "Sliding window? Add what enters, subtract what leaves. Each element once: O of n. When do you use it? A contiguous range asking longest, shortest or best. Fixed or variable? Variable grows right, shrinks left. Negatives in a sum window? Shrinking breaks, so use prefix sums with a deque.",
      "rows": [
       [
        "How does a sliding window work?",
-       "Add what enters, subtract what leaves"
+       "Add what enters, subtract what leaves: each element in and out once, O(n)"
       ],
       [
        "When do you use it?",
@@ -1775,7 +1781,7 @@
       ]
      ],
      "cues": [
-      "How does a sliding",
+      "Sliding window",
       "When do you use",
       "Fixed or variable",
       "Negatives"
