@@ -1,0 +1,1315 @@
+{
+ "id": "cpp-05",
+ "track": "C++",
+ "num": 5,
+ "title": "RAII & Smart Pointers",
+ "covers": [
+  "q28",
+  "q29",
+  "q30",
+  "q31",
+  "q32"
+ ],
+ "caps": [],
+ "chapters": [
+  {
+   "title": "Cleanup that can't be skipped",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Throw an exception in the middle of a function, and your cleanup line never runs. By the end, you'll write C plus plus that can't leak, even when exceptions fly, and pick the right smart pointer in one sentence.",
+     "lines": [
+      {
+       "text": "throw 1;  // cleanup skipped",
+       "cue": "Throw an exception"
+      },
+      {
+       "text": "Cleanup never runs.",
+       "cue": "never runs"
+      },
+      {
+       "text": "Write code that can't leak.",
+       "cue": "can't leak"
+      },
+      {
+       "text": "Pick the pointer in one sentence.",
+       "cue": "one sentence",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Tie cleanup to a destructor, so exceptions cannot skip it. Pick between unique, shared and weak pointers. And break the cycle that leaks even smart pointers.",
+     "lines": [
+      "Tie cleanup to a destructor (RAII)",
+      "Pick unique, shared or weak",
+      "Break the cycle that leaks shared_ptr"
+     ],
+     "cues": [
+      "Tie cleanup",
+      "Pick between",
+      "break the cycle"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Close the file, even on a throw",
+     "statement": "A function opens a file, then something throws. The close call after the throw never runs.",
+     "example": {
+      "input": "open; throw; fclose",
+      "output": "the file closes anyway"
+     },
+     "say": "Here is the problem. A function opens a file, then something throws. The close call below it never runs. We want the file closed anyway.",
+     "cues": {
+      "example": "then something throws",
+      "output": "We want the file"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "A self-closing door",
+     "say": "Think of a self closing door. Walking in opens it. However you leave, it closes behind you. The constructor is the opening. The destructor is the closing, and it always runs.",
+     "items": [
+      {
+       "label": "walk in",
+       "text": "door opens",
+       "sub": "constructor acquires",
+       "cue": "Walking in opens it"
+      },
+      {
+       "label": "leave any way",
+       "text": "return or throw",
+       "tone": "warn",
+       "cue": "However you leave"
+      },
+      {
+       "label": "closes itself",
+       "text": "door shuts",
+       "sub": "destructor releases",
+       "tone": "good",
+       "cue": "The destructor is the closing"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The bug: close is skipped",
+     "say": "Here is the bug. We open a file, print open, then throw. The close call is never reached, and main just catches. The output shows open, then caught. Nothing closed the file.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void work() {\n    FILE* f = fopen(\"log.txt\", \"w\");\n    puts(\"open\");\n    throw 1;\n    fclose(f);\n}\nint main() {\n    try { work(); } catch (int) { puts(\"caught\"); }\n}",
+       "label": "bug",
+       "tone": "bad"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "We open a file"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "then throw"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "never reached"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "skipped",
+       "tone": "bad",
+       "cue": "never reached"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "open\ncaught",
+      "cue": "The output shows",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\n"
+      },
+      "tone": "bad"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The fix: a File class",
+     "say": "The fix is a class. The constructor opens the file. The destructor closes it. Copying is deleted, so two objects never close one file. Now work just makes a File and throws. Open, then close, then caught.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "class File {\n    FILE* f;\npublic:\n    File(const char* n) : f(fopen(n, \"w\")) { puts(\"open\"); }\n    ~File() { fclose(f); puts(\"close\"); }\n    File(const File&) = delete;\n};\nvoid work() { File log(\"log.txt\"); throw 1; }"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        4
+       ],
+       "cue": "The constructor opens"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The destructor closes"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Copying is deleted"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Now work just makes"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "open\nclose\ncaught",
+      "cue": "Open, then close"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Three Files, a, b and c, are built in that order. Then a throw. Which one closes first? Pause and predict.",
+     "q": "Files a, b, c built in that order, then a throw. Which closes first?",
+     "options": [
+      "a",
+      "b",
+      "c",
+      "any order"
+     ],
+     "answer": "c"
+    },
+    {
+     "type": "diagram",
+     "head": "Unwinding: reverse order",
+     "say": "c closes first. Work builds a, b and c in that order, then throws. The stack unwinds, and every finished local is destroyed in reverse: c, then b, then a. No try, no catch, no cleanup code. One fine print: if nothing catches the exception, unwinding is not guaranteed.",
+     "items": [
+      {
+       "id": "a",
+       "x": 1050,
+       "y": 600,
+       "w": 600,
+       "h": 100,
+       "text": "a: File",
+       "cue": "builds a, b and c",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "b",
+       "x": 1050,
+       "y": 440,
+       "w": 600,
+       "h": 100,
+       "text": "b: File",
+       "cue": "builds a, b and c",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "c",
+       "x": 1050,
+       "y": 280,
+       "w": 600,
+       "h": 100,
+       "text": "c: File",
+       "cue": "builds a, b and c",
+       "tone": "blue",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "c",
+       "kill": true,
+       "cue": "in reverse"
+      },
+      {
+       "id": "b",
+       "kill": true,
+       "cue": "c, then b"
+      },
+      {
+       "id": "a",
+       "kill": true,
+       "cue": "then a"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void work() {\n    File a(\"a\");\n    File b(\"b\");\n    File c(\"c\");\n    throw 1;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "builds a, b and c"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "then throws"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1050,
+       "y": 760,
+       "text": "uncaught: no unwinding promise",
+       "tone": "warn",
+       "cue": "One fine print"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "RAII is everywhere",
+     "say": "You already use it. Heap memory: unique pointer, vector, string. Files: fstream. Locks: lock guard. Threads: j thread joins for you, in C plus plus twenty.",
+     "heads": [
+      "Resource",
+      "RAII owner"
+     ],
+     "rows": [
+      [
+       "heap memory",
+       "`unique_ptr`, `vector`, `string`"
+      ],
+      [
+       "files",
+       "`fstream`"
+      ],
+      [
+       "mutex locks",
+       "`lock_guard`"
+      ],
+      [
+       "thread joins",
+       "`jthread` (C++20)"
+      ]
+     ],
+     "cues": [
+      "Heap memory",
+      "Files:",
+      "Locks:",
+      "Threads:"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Smart pointers: who owns it",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Own a Widget, never delete it",
+     "statement": "Make a Widget on the heap with no delete to forget, no leak and no double free. Then hand it to someone else.",
+     "example": {
+      "input": "make_unique<Widget>(3)",
+      "output": "freed once, automatically"
+     },
+     "say": "Here is the problem. We need a Widget on the heap. No delete to forget, no leak, no double free. And we can hand it to someone else.",
+     "cues": {
+      "example": "No delete to forget",
+      "output": "And we can hand"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Keys to a room",
+     "say": "Think of keys to a room. A unique pointer is the only key. Hand it over, never copy it. A shared pointer is many keys, and the last one out turns off the light. A weak pointer is a note with the room number, no key.",
+     "items": [
+      {
+       "label": "unique_ptr",
+       "text": "one key",
+       "sub": "hand over, no copies",
+       "cue": "the only key"
+      },
+      {
+       "label": "shared_ptr",
+       "text": "many keys",
+       "sub": "last one out cleans up",
+       "cue": "many keys"
+      },
+      {
+       "label": "weak_ptr",
+       "text": "a note",
+       "sub": "room number, no key",
+       "tone": "warn",
+       "cue": "a note with"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "unique_ptr: one owner",
+     "say": "Make unique builds a Widget owned by p. You cannot copy a unique pointer: that line would not compile, since two owners would both delete it. You can move it. Now p is null, and r owns the Widget. At the end, r deletes it once.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    auto p = make_unique<Widget>(3);\n    // auto q = p;   copy: error\n    auto r = move(p);\n    cout << (p == nullptr) << ' ' << r->v << '\\n';\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "builds a Widget"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "cannot copy"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "move it"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "p is null"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "does not compile",
+       "tone": "bad",
+       "cue": "That line would not compile"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "1 3\n~Widget",
+      "cue": "At the end",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\nstruct Widget {\n    int v;\n    Widget(int x) : v(x) {}\n    ~Widget() { cout << \"~Widget\\n\"; }\n};\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A raw pointer is eight bytes on this machine. How big are a unique pointer and a shared pointer? Pause and predict.",
+     "q": "sizeof of unique_ptr<int> and shared_ptr<int>, 64-bit?",
+     "options": [
+      "8 and 8",
+      "8 and 16",
+      "16 and 16",
+      "8 and 24"
+     ],
+     "answer": "8 and 16"
+    },
+    {
+     "type": "code",
+     "head": "The price of sharing",
+     "say": "Eight and sixteen. A unique pointer is a raw pointer's size, so no extra cost. A shared pointer carries two pointers: one to the object, one to a control block with the counts. Use unique by default.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    cout << sizeof(int*) << ' ';\n    cout << sizeof(unique_ptr<int>) << ' ';\n    cout << sizeof(shared_ptr<int>) << '\\n';\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A unique pointer is"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "A shared pointer carries"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "a control block"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "8 8 16",
+      "cue": "Eight and sixteen",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\n"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "title": "Counting owners",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "When does the Widget die?",
+     "statement": "Several owners share one object. Delete it exactly once, when the last owner lets go.",
+     "example": {
+      "input": "a, b = a, b dies, a.reset()",
+      "output": "count 1, 2, 1, 0: then delete"
+     },
+     "say": "Here is the problem. Several owners share one object. Who deletes it, and when? Exactly once, when the last owner lets go.",
+     "cues": {
+      "example": "Who deletes it",
+      "output": "Exactly once"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The last one out",
+     "say": "Think of people in a room with the lights on. Each person who enters adds one. Each person who leaves subtracts one. The last one out turns off the lights, and that is the delete.",
+     "items": [
+      {
+       "label": "enter",
+       "text": "+1",
+       "cue": "Each person who enters"
+      },
+      {
+       "label": "leave",
+       "text": "-1",
+       "tone": "warn",
+       "cue": "Each person who leaves"
+      },
+      {
+       "label": "count hits 0",
+       "text": "lights off",
+       "sub": "object deleted",
+       "tone": "good",
+       "cue": "The last one out"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Watch the count",
+     "say": "make shared builds the int and a counter, starting at one. Copying a into b adds one: two. When the block ends, b dies and the count drops to one. Then reset releases the last owner. The count hits zero, and the int is deleted.",
+     "items": [
+      {
+       "id": "n",
+       "x": 1050,
+       "y": 360,
+       "w": 300,
+       "h": 150,
+       "text": "1",
+       "cue": "builds the int",
+       "label": "use_count",
+       "tone": "blue",
+       "size": 64
+      },
+      {
+       "id": "o",
+       "x": 1450,
+       "y": 360,
+       "w": 300,
+       "h": 150,
+       "text": "7",
+       "cue": "builds the int",
+       "label": "int on the heap",
+       "tone": "warn",
+       "size": 64
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n",
+       "to": "o"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n",
+       "text": "2",
+       "cue": "adds one"
+      },
+      {
+       "id": "n",
+       "text": "1",
+       "cue": "b dies"
+      },
+      {
+       "id": "n",
+       "text": "0",
+       "tone": "bad",
+       "cue": "hits zero"
+      },
+      {
+       "id": "o",
+       "kill": true,
+       "cue": "is deleted"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "auto a = make_shared<int>(7);\n{\n    auto b = a;\n}\na.reset();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "builds the int"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Copying a into b"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "the block ends"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "reset releases"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "use_count in code",
+     "say": "Same thing in code. One owner prints one. Inside the block, b joins, and it prints two. After the block, back to one. After reset, a is empty, and the count prints zero.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    auto a = make_shared<int>(7);\n    cout << a.use_count() << ' ';\n    {   auto b = a;  cout << a.use_count() << ' '; }\n    cout << a.use_count() << ' ';\n    a.reset();  cout << a.use_count();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "One owner prints one"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "b joins"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "back to one"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "After reset"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "1 2 1 0",
+      "cue": "count prints zero",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now b takes a by move, not by copy. What does b's use count print? Pause and predict.",
+     "q": "`auto b = std::move(a);` What is b.use_count()?",
+     "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": "1"
+    },
+    {
+     "type": "code",
+     "head": "Move adds no owner",
+     "say": "One. A move transfers ownership, so nobody is added, and a becomes empty. A copy adds an owner. A move does not.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    auto a = make_shared<int>(7);\n    auto b = move(a);\n    cout << a.use_count() << ' ' << b.use_count();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "A move transfers"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "a becomes empty"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "0 1",
+      "cue": "A copy adds",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "code",
+     "head": "Counting is not free",
+     "say": "Counting costs something. A copy updates the count atomically, safe across threads but slower than a plain add. So do not pass shared pointers by value unless the function keeps one. Pass a reference, or better, the object. The counter is thread safe. The Widget is not.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "void byValue(shared_ptr<Widget> w);\nvoid byRef(const shared_ptr<Widget>& w);\nvoid best(const Widget& w);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "A copy updates"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "slower than a plain"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "do not pass shared"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Pass a reference"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "or better"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "The Widget is not"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "+1 on call",
+       "tone": "warn",
+       "cue": "A copy updates"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Cycles and weak_ptr",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Two nodes that own each other",
+     "statement": "A Parent owns its Child with a shared_ptr. The Child holds a shared_ptr back. Both variables go out of scope.",
+     "example": {
+      "input": "p->child = c; c->parent = p",
+      "output": "no delete: counts stay at 1"
+     },
+     "say": "Here is the problem. A Parent owns its Child with a shared pointer. The Child holds a shared pointer back to its Parent. Both go out of scope. Are they freed?",
+     "cues": {
+      "example": "The Child holds",
+      "output": "Are they freed"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Neither hangs up first",
+     "say": "Think of two people on the phone, each waiting for the other to hang up first. Nobody ever does. Parent and Child are the callers. Each keeps the other alive.",
+     "items": [
+      {
+       "label": "Parent",
+       "text": "keeps Child",
+       "cue": "two people on the phone"
+      },
+      {
+       "label": "Child",
+       "text": "keeps Parent",
+       "cue": "each waiting for the other"
+      },
+      {
+       "label": "result",
+       "text": "never zero",
+       "tone": "bad",
+       "cue": "Nobody ever does"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The cycle, with counts",
+     "say": "p makes a Parent, count one. The Parent makes a Child, count one. The Child points back, so the Parent's count is two. Now p dies. The Parent drops to one, not zero. Each keeps the other alive, so no destructor ever runs.",
+     "items": [
+      {
+       "id": "pa",
+       "x": 1050,
+       "y": 400,
+       "w": 300,
+       "h": 150,
+       "text": "1",
+       "cue": "p makes a Parent",
+       "label": "Parent: count",
+       "tone": "blue",
+       "size": 64
+      },
+      {
+       "id": "ch",
+       "x": 1450,
+       "y": 400,
+       "w": 300,
+       "h": 150,
+       "text": "1",
+       "cue": "makes a Child",
+       "label": "Child: count",
+       "tone": "blue",
+       "size": 64
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pa",
+       "to": "ch",
+       "cue": "makes a Child"
+      },
+      {
+       "from": "ch",
+       "to": "pa",
+       "bend": 90,
+       "cue": "points back"
+      }
+     ],
+     "changes": [
+      {
+       "id": "pa",
+       "text": "2",
+       "tone": "warn",
+       "cue": "points back"
+      },
+      {
+       "id": "pa",
+       "text": "1",
+       "cue": "p dies"
+      },
+      {
+       "id": "pa",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Each keeps"
+      },
+      {
+       "id": "ch",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Each keeps"
+      }
+     ],
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Child;\nstruct Parent {\n    shared_ptr<Child> child;\n};\nstruct Child {\n    shared_ptr<Parent> parent;\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "p makes a Parent"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "points back"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "No message: a leak",
+     "say": "Here is main. The counts are two and one. The scope ends, and nothing prints. No tilde Parent, no tilde Child. A leak, though we never wrote new.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    auto p = make_shared<Parent>();\n    p->child = make_shared<Child>();\n    p->child->parent = p;\n    cout << p.use_count() << ' '\n         << p->child.use_count();\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Here is main"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "counts are two"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "2 1",
+      "cue": "nothing prints",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\nstruct Child;\nstruct Parent { shared_ptr<Child> child; ~Parent() { cout << \"~Parent\\n\"; } };\nstruct Child { shared_ptr<Parent> parent; ~Child() { cout << \"~Child\\n\"; } };\n"
+      },
+      "tone": "warn"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The Child's back link becomes a weak pointer. When p dies, what happens? Pause and predict.",
+     "q": "Child holds `weak_ptr<Parent>`. When p dies...?",
+     "options": [
+      "leaks again",
+      "destroyed, then Child",
+      "Parent stays alive",
+      "double free"
+     ],
+     "answer": "destroyed, then Child"
+    },
+    {
+     "type": "code",
+     "head": "The fix: a weak back link",
+     "say": "Decide who owns whom. The Parent owns its Child with a shared pointer. The Child only observes, with a weak pointer that adds nothing to the count. When p dies, the Parent's count hits zero, its destructor runs, and its members go too. Both messages print.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct Parent {\n    shared_ptr<Child> child;\n    ~Parent() { puts(\"~Parent\"); }\n};\nstruct Child {\n    weak_ptr<Parent> parent;\n    ~Child() { puts(\"~Child\"); }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "The Parent owns"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "only observes"
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "hits zero"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "its destructor runs"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "observes only",
+       "tone": "good",
+       "cue": "adds nothing"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "~Parent\n~Child",
+      "cue": "Both messages print"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Using a weak_ptr: lock it",
+     "say": "A weak pointer cannot be used directly. Call lock. It gives a shared pointer if the object is alive, or an empty one if it is gone. Inside the block, lock works and prints forty two. After the last owner dies, lock fails, and we print expired.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int main() {\n    weak_ptr<int> w;\n    {\n        auto s = make_shared<int>(42); w = s;\n        if (auto p = w.lock()) cout << *p << '\\n';\n    }\n    if (auto p = w.lock()) cout << *p << '\\n';\n    else cout << \"expired\\n\";\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "A weak pointer"
+      },
+      {
+       "lines": [
+        5,
+        7
+       ],
+       "cue": "Call lock"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "if the object is alive"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "or an empty one"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "prints forty two"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "lock fails"
+      }
+     ],
+     "output": {
+      "cmd": "./app",
+      "text": "42\nexpired",
+      "cue": "we print expired",
+      "setup": {
+       "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\n"
+      }
+     }
+    },
+    {
+     "type": "compare",
+     "head": "The three, side by side",
+     "say": "Owners: one, many, or none. Copy: move only, adds an owner, adds an observer. Cost: as cheap as raw, a control block, shares that block. Freed when: the owner dies, the last owner dies, never. Use: the default, truly shared, caches and cycles.",
+     "heads": [
+      "unique_ptr",
+      "shared_ptr",
+      "weak_ptr"
+     ],
+     "rows": [
+      [
+       "sole owner",
+       "many owners",
+       "no ownership"
+      ],
+      [
+       "move only",
+       "copy adds an owner",
+       "copy adds an observer"
+      ],
+      [
+       "same as raw pointer",
+       "control block, atomic",
+       "shares the block"
+      ],
+      [
+       "its owner dies",
+       "last owner dies",
+       "never frees"
+      ],
+      [
+       "the default",
+       "truly shared",
+       "caches, back links"
+      ]
+     ],
+     "cues": [
+      "Owners:",
+      "Copy:",
+      "Cost:",
+      "Freed when",
+      "Use: the default"
+     ],
+     "rowHeads": [
+      "owners",
+      "copy",
+      "cost",
+      "freed",
+      "use"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is R A I I? Acquire in the constructor, release in the destructor. Why does it work? Destructors run on every exit: return, scope end, or exception. Examples? Unique pointer, lock guard, fstream.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is RAII?",
+       "acquire in constructor, release in destructor"
+      ],
+      [
+       "Why does it work?",
+       "destructors run on every exit, even a throw"
+      ],
+      [
+       "Examples?",
+       "`unique_ptr`, `lock_guard`, `fstream`"
+      ]
+     ],
+     "cues": [
+      "What is R A I I",
+      "Why does it work",
+      "Examples"
+     ],
+     "covers": [
+      "q28"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Why smart pointers? They own and delete, so no leaks and no double frees. Which first? Unique pointer, as cheap as a raw pointer, move only. When shared? Only for truly shared ownership.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Why smart pointers?",
+       "they own and delete: no leaks, no double frees"
+      ],
+      [
+       "Which one first?",
+       "`unique_ptr`: raw-pointer cost, move-only"
+      ],
+      [
+       "When `shared_ptr`?",
+       "only for truly shared ownership"
+      ]
+     ],
+     "cues": [
+      "Why smart pointers",
+      "Which first",
+      "When shared"
+     ],
+     "covers": [
+      "q29"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Unique, shared, weak? Unique: sole owner, move only. Shared: counted owners, freed with the last one. Weak: observes without owning. You lock it to use it.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`unique_ptr`?",
+       "sole owner; move only; the default"
+      ],
+      [
+       "`shared_ptr`?",
+       "counted owners; freed with the last"
+      ],
+      [
+       "`weak_ptr`?",
+       "observes; `lock()` to use; breaks cycles"
+      ]
+     ],
+     "cues": [
+      "Unique, shared, weak",
+      "Shared:",
+      "Weak:"
+     ],
+     "covers": [
+      "q30"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is reference counting? Count the owners, and delete at zero. The rules? A copy adds one, a destroy subtracts one, a move changes nothing. Cost and trap? A control block, atomic updates, and cycles that never reach zero.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "What is it?",
+       "count owners; zero means delete"
+      ],
+      [
+       "The rules?",
+       "copy +1, destroy -1; move: no change"
+      ],
+      [
+       "Cost and trap?",
+       "control block, atomics; cycles never hit 0"
+      ]
+     ],
+     "cues": [
+      "What is reference counting",
+      "The rules",
+      "Cost and trap"
+     ],
+     "covers": [
+      "q31"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Circular reference problem? Two shared pointers own each other. Counts never reach zero. Symptom? No crash. Destructors never run, and memory leaks silently. Fix? Make one direction weak. Ownership should form a tree.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Circular reference?",
+       "A owns B, B owns A: counts never hit 0"
+      ],
+      [
+       "Symptom?",
+       "no crash: destructors never run, a leak"
+      ],
+      [
+       "Fix?",
+       "weak back link; ownership is a tree"
+      ]
+     ],
+     "cues": [
+      "Circular reference problem",
+      "Symptom",
+      "Fix?"
+     ],
+     "covers": [
+      "q32"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode two twenty six, invert binary tree: each node owned by its parent. LeetCode seven oh seven, design linked list: own and free every node. LeetCode one forty six, L R U cache: a list and a map.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 226 · Invert Binary Tree",
+       "each node owned by its parent"
+      ],
+      [
+       "LeetCode 707 · Design Linked List",
+       "own and free every node"
+      ],
+      [
+       "LeetCode 146 · LRU Cache",
+       "list + map, one clear owner"
+      ]
+     ],
+     "cues": [
+      "LeetCode two twenty six",
+      "LeetCode seven oh seven",
+      "LeetCode one forty six"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. R A I I: the constructor acquires, the destructor releases, even on a throw. Use unique pointer by default, and shared pointer only for shared ownership. Make back links weak, so ownership forms a tree.",
+     "lines": [
+      "RAII: constructor acquires, destructor releases.",
+      "`unique_ptr` default; `shared_ptr` only if shared.",
+      "`weak_ptr` for back links: ownership is a tree."
+     ],
+     "cues": [
+      "R A I I",
+      "Use unique pointer",
+      "Make back links"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
