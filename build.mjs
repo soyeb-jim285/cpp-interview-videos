@@ -109,7 +109,7 @@ function notesHtml(sc, sid, panels, notes = [], sfx) {
       const g = panels[nt.panel || 0]._geo;
       const y = g.top + (nt.line - 1) * g.lh + g.lh / 2;
       style = nt.side === "left" ? `right:${1920 - g.x + 18}px;top:${y}px` : `left:${g.x + g.w + 18}px;top:${y}px`;
-      if (nt.inside) style = `right:${1920 - (g.x + g.w) + 24}px;top:${y}px`;
+      if (nt.inside) style = `right:${1920 - (g.x + g.w) + 36}px;top:${y}px`;
     } else style = `left:${nt.x}px;top:${nt.y}px`;
     const el = `<div class="note ${nt.tone || "info"}" id="${id}" style="${style}">${esc(nt.text)}</div>`;
     if (nt.line) html += el; else free += el;

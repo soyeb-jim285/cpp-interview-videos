@@ -393,6 +393,7 @@ go in a temp dir).
 | `[gap] no reveal for N words` | that scene has no cue phrases at all |
 | `[cue-order]` | reorder the list or pick a phrase that first occurs later |
 | `[say-length]` | `say` ≤ 90 words: split the scene |
+| `[region-title]` | a region's title sits on its top border: keep cells' top (and index labels) ≥ 80 px below the region top, or right of the title |
 | `[note-overlap]` | shorten that code line or the note text, or use a free-position note (`x`,`y`) |
 | `[font-floor]` | shorten code lines / box text, fewer lines, or widen the box |
 | `… cue "…" not found in say` | every cue (steps, notes, output, rows, items, arrows, changes, hook lines, bars, panels, `optCue`) must be an exact substring of that scene's `say`; order/gap checks wait until all are found |

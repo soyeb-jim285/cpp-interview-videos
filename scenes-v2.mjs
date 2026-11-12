@@ -69,7 +69,7 @@ export function sceneQuiz(sc, sid, sfx) {
 
 export function sceneChart(sc, sid, sfx) {
   const B = sc.bars, n = B.length, max = Math.max(...B.map((b) => b.value));
-  const slot = 1600 / n, bw = Math.min(220, slot * 0.62), base = 860, maxH = 520;
+  const slot = 1600 / n, bw = Math.min(220, slot * 0.62), base = 780, maxH = 460;
   const step = B.every((b) => Number.isInteger(b.value)) ? 1 : 0.1;
   let html = `<div class="cbase" style="left:140px;top:${base}px;width:1640px"></div>`;
   const tw = [`tl.fromTo("#${sid}-cbase",{scaleX:0},{scaleX:1,duration:0.6,ease:"power2.out"},${r3(sc.t0 + 0.15)});`];

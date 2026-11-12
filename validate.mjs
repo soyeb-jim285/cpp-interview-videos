@@ -64,7 +64,7 @@ function noteOverlap(at, sc, panels, n) {
     return;
   }
   const end = x + 90 + lines[n.line - 1].length * fs * 0.6;
-  if (x + pw - 24 - noteW < end + 12) err(at, `[note-overlap] note "${n.text}" covers code at line ${n.line}; shorten the line or the note, or use a free-position note`);
+  if (x + pw - 36 - noteW < end + 12) err(at, `[note-overlap] note "${n.text}" covers code at line ${n.line}; shorten the line or the note, or use a free-position note`);
 }
 
 function lessonRules(f, s) {
@@ -150,6 +150,10 @@ for (const f of process.argv.slice(2)) {
         if (/^a\d+$/.test(b.id)) err(at, `item id "${b.id}" clashes with arrow ids (a0, a1…)`);
         if (b.x < 100 || b.y < 190 || b.x + b.w > 1820 || b.y + b.h > 920) err(at, `item ${b.id} outside safe area (x 100-1820, y 190-920)`);
         if (panels.length && b.x < (120 + (sc.area?.w ?? 840) + 30)) err(at, `item ${b.id} overlaps code panel (x must be > ${120 + (sc.area?.w ?? 840) + 30})`);
+      }
+      if (s.chapters) for (const r of (sc.items || []).filter((b) => b.region)) { // region title straddles the top border
+        const tx1 = r.x + 22, tx2 = tx1 + (r.label || "").length * 26 + 24;
+        for (const b of sc.items) if (!b.region && b.x < tx2 && b.x + b.w > tx1 && b.y - (b.label ? 50 : 0) < r.y + 26 && b.y + b.h > r.y - 22) err(at, `[region-title] region "${r.label}" title collides with item ${b.id} or its label; move the cells down >= 80 px from the region top or shift them right of the title`);
       }
       (sc.arrows || []).forEach((a, j) => {
         if (!ids.has(a.from) || !ids.has(a.to)) err(at, `arrow ${j} from/to unknown id`);
