@@ -74,7 +74,7 @@
       "input": "n = 200,000",
       "output": "O(n log n) or better"
      },
-     "say": "One second, then the judge kills your program. Which algorithms survive? Say n is two hundred thousand. The survivors: n log n or better. Roughly a hundred million steps fit in that second.",
+     "say": "One second, then the judge kills your program. Which algorithms survive? Say n is two hundred thousand. Log n: halvings from n to one, about 18. The survivors: n log n or better. Roughly a hundred million steps fit in that second.",
      "cues": {
       "example": "Say n is",
       "output": "The survivors",
@@ -110,7 +110,7 @@
     {
      "type": "diagram",
      "head": "Worked example: n = 200,000",
-     "say": "Say n is two hundred thousand, against a budget of one hundred million. N squared needs forty billion steps, four hundred times too many. Too slow. N log n is n times about eighteen: three and a half million. Easy. Plain n needs two hundred thousand. The limit says: n log n or better.",
+     "say": "Say n is two hundred thousand, against a budget of one hundred million. Checking every pair is O of n squared: twenty billion pair checks. Too slow, two hundred times the budget. N log n is n times about eighteen: about 3.6 million. Easy. Plain n needs two hundred thousand. The limit says: n log n or better.",
      "items": [
       {
        "id": "n",
@@ -131,9 +131,9 @@
        "w": 560,
        "h": 130,
        "label": "O(n²)",
-       "text": "40,000,000,000",
+       "text": "20,000,000,000",
        "size": 42,
-       "cue": "N squared needs"
+       "cue": "Checking every pair"
       },
       {
        "id": "nl",
@@ -142,7 +142,7 @@
        "w": 560,
        "h": 130,
        "label": "O(n log n)",
-       "text": "about 3,500,000",
+       "text": "about 3,600,000",
        "size": 42,
        "cue": "N log n is"
       },
@@ -192,7 +192,7 @@
       {
        "from": "n",
        "to": "sq",
-       "cue": "N squared needs"
+       "cue": "Checking every pair"
       },
       {
        "from": "n",
@@ -298,7 +298,7 @@
        "text": "100 seconds",
        "size": 40,
        "tone": "bad",
-       "cue": "a hundred seconds"
+       "cue": "At a hundred million"
       }
      ]
     }
@@ -605,7 +605,7 @@
     {
      "type": "code",
      "head": "Brute force: two loops",
-     "say": "The brute force is two loops. It checks each pair once: twenty billion checks when n is two hundred thousand. That's still two hundred times the budget.",
+     "say": "The brute force is two loops. It checks each pair once: twenty billion pair checks, about two hundred seconds. That's two hundred times the budget.",
      "panels": [
       {
        "file": "sol.cpp",
@@ -637,7 +637,7 @@
       {
        "line": 5,
        "inside": true,
-       "text": "2e10 checks",
+       "text": "2e10 pair checks",
        "tone": "bad",
        "cue": "twenty billion"
       }
@@ -700,7 +700,7 @@
     {
      "type": "diagram",
      "head": "n = 200,000: two prices",
-     "say": "Steps for our pair counting problem, two ways. The brute force needs twenty billion checks, about two hundred seconds. The map needs two hundred thousand lookups. That's the whole lesson: the limit chose the algorithm.",
+     "say": "Steps for our pair counting problem, two ways. The brute force needs twenty billion pair checks, about two hundred seconds. The map needs two hundred thousand lookups. That's the whole lesson: the limit chose the algorithm.",
      "items": [
       {
        "id": "br",
@@ -708,7 +708,7 @@
        "y": 360,
        "w": 560,
        "h": 200,
-       "label": "brute force",
+       "label": "brute force: pair checks",
        "text": "20 billion",
        "size": 44,
        "tone": "bad",
@@ -878,7 +878,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What can you afford? About a hundred million steps a second. N of two hundred thousand? N log n or better. Brute force? Forty billion steps, two hundred seconds.",
+     "say": "What can you afford? About a hundred million steps a second. N of two hundred thousand? N log n or better. Brute force? Twenty billion pair checks, about two hundred seconds. Twenty items? Two to the n, about a million: try every subset.",
      "rows": [
       [
        "What can you afford?",
@@ -890,54 +890,18 @@
       ],
       [
        "Brute force?",
-       "n² is 40 billion steps: 200 seconds"
+       "20 billion pair checks: about 200 seconds"
+      ],
+      [
+       "Twenty items?",
+       "2ⁿ: about a million, try every subset"
       ]
      ],
      "cues": [
       "What can you afford",
       "N of two hundred",
-      "Brute force"
-     ]
-    },
-    {
-     "type": "compare",
-     "head": "Cheat sheet, one row each",
-     "covers": [
-      "cp01"
-     ],
-     "heads": [
-      "n up to",
-      "You can afford"
-     ],
-     "say": "Cheat sheet, one row each. Ten: n factorial, try every order. Twenty: two to the n, try every subset. Five hundred: n cubed. Five thousand: n squared. A million: n log n, or plain n.",
-     "rows": [
-      [
-       "10",
-       "n!: try every order"
-      ],
-      [
-       "20",
-       "2ⁿ: try every subset"
-      ],
-      [
-       "500",
-       "n³: three nested loops"
-      ],
-      [
-       "5,000",
-       "n²: two nested loops"
-      ],
-      [
-       "1,000,000",
-       "n log n, or n"
-      ]
-     ],
-     "cues": [
-      "Ten",
-      "Twenty",
-      "Five hundred",
-      "Five thousand",
-      "A million"
+      "Brute force",
+      "Twenty items"
      ]
     },
     {
