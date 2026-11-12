@@ -1434,11 +1434,11 @@
     {
      "type": "code",
      "head": "Shrink while the rule holds",
-     "say": "Interviewers love the twist: shortest run with a sum of at least seven. Same trick. R adds a number. While the sum is at least seven, record the length, then subtract the number at L. On our numbers it prints two.",
+     "say": "Interviewers love the twist: shortest run with a sum of at least seven. Same trick. R adds a number. While the sum is at least seven, record the length, then subtract the number at L. On two, three, one, two, four, three, the answer is two.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int shortest(const vector<int>& a, int t) {\n    int l = 0, sum = 0, best = INT_MAX;\n    for (int r = 0; r < (int)a.size(); r++) {\n        for (sum += a[r]; sum >= t; sum -= a[l++])\n            best = min(best, r - l + 1);\n    }\n    return best;\n}"
+       "code": "int shortest(const vector<int>& a, int t) {\n    int l = 0, sum = 0, best = INT_MAX;\n    for (int r = 0; r < (int)a.size(); r++) {\n        sum += a[r];\n        while (sum >= t) {\n            best = min(best, r - l + 1);\n            sum -= a[l++];\n        }\n    }\n    return best;\n}"
       }
      ],
      "steps": [
@@ -1456,31 +1456,33 @@
       },
       {
        "lines": [
-        4,
-        5
+        5,
+        6,
+        7
        ],
        "cue": "While the sum"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "subtract the number"
       }
      ],
      "notes": [
       {
-       "line": 5,
+       "line": 7,
        "inside": true,
        "text": "L shrinks the window",
        "tone": "good",
-       "cue": "subtract the number"
+       "cue": "On two, three"
       }
-     ],
-     "output": {
-      "cmd": "./sol  # {2,3,1,2,4,3}, t = 7",
-      "text": "2",
-      "cue": "it prints two"
-     }
+     ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same code, but the numbers are one, minus one, six, and the target is six. The six alone is a run of length one. What does it print? Pause and predict.",
-     "q": "shortest on [1, -1, 6] with t = 6 prints?",
+     "say": "Your turn. Same shrink rule, but the numbers are one, minus one, six, and the target is six. The six alone is a run of length one. What length does it find? Pause and predict.",
+     "q": "Shrink-while-sum-≥-6 on [1, -1, 6]: length found?",
      "options": [
       "1",
       "2",
@@ -1656,7 +1658,7 @@
       "They ask",
       "You say"
      ],
-     "say": "How does a sliding window work? Add what enters, subtract what leaves: O of n. When do you use it? A contiguous range asking longest, shortest or best. Fixed or variable? Variable grows right, shrinks left. Negatives? Shrinking breaks, so use prefix sums with a deque.",
+     "say": "How does a sliding window work? Add what enters, subtract what leaves: O of n. When do you use it? A contiguous range asking longest, shortest or best. Fixed or variable? Variable grows right, shrinks left. Negatives in a sum window? Shrinking breaks, so use prefix sums with a deque.",
      "rows": [
       [
        "How does a sliding window work?",
@@ -1671,7 +1673,7 @@
        "Variable: grow right, shrink left"
       ],
       [
-       "Negative numbers?",
+       "Negatives in a sum window?",
        "Shrinking breaks: prefix sums + deque"
       ]
      ],
