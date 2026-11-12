@@ -513,7 +513,8 @@
       "4"
      ],
      "answer": 0,
-     "pause": 6
+     "pause": 6,
+     "optCue": 0.6
     },
     {
      "type": "diagram",
@@ -603,10 +604,10 @@
       "input": "coins 1, 3, 4 · amount 6",
       "output": "2 coins (3 + 3)"
      },
-     "say": "New problem. Coins one, three, four. Make six with the fewest coins. The answer is two: three plus three.",
+     "say": "New problem. Coins one, three, four, and an amount, six. Fewest coins? Two: three plus three.",
      "cues": {
       "example": "Coins one",
-      "output": "two"
+      "output": "Two:"
      }
     },
     {
@@ -788,7 +789,8 @@
       "5"
      ],
      "answer": 1,
-     "pause": 6
+     "pause": 6,
+     "optCue": 0.6
     },
     {
      "type": "flow",
@@ -909,7 +911,7 @@
     {
      "type": "diagram",
      "head": "Plain recursion on 6",
-     "say": "Plain recursion on six. Six asks f of five. Five asks f of four. And f of two. And f of one. Then six asks f of three. Three asks f of two again. And f of zero. Last, six asks f of two, which asks f of one. Count the twos: three times. Same question, same answer.",
+     "say": "Plain recursion on six. Six asks f of five. Five asks f of four. And f of two. And f of one. Then six asks f of three. Three asks f of two again. And f of zero. Last, six asks f of two, which asks f of one. Count the twos: three times.",
      "items": [
       {
        "tree": {
@@ -1028,7 +1030,7 @@
     {
      "type": "diagram",
      "head": "Seven questions, one table",
-     "say": "Seven, one per amount from zero to six. The picture had ten boxes, but only seven different questions. Seven answers is the whole notebook: one line per amount.",
+     "say": "Seven, one per amount from zero to six. The picture had ten boxes, but only seven different questions. Seven answers fill the notebook.",
      "items": [
       {
        "array": {
@@ -1127,7 +1129,7 @@
     {
      "type": "flow",
      "head": "Two ways to keep a notebook",
-     "say": "Two ways to keep notes. Top down: start at six, write each answer once. That's memoization. Bottom up: fill the notebook from the smallest amount, no recursion. That's a table.",
+     "say": "Two ways to keep notes. Top down: start at six, write each answer once. That's memoization. Bottom up: fill the notebook from the smallest amount, no recursion. That's a table. Memo is easier to write. A table avoids deep recursion.",
      "items": [
       {
        "label": "top down",
@@ -1363,7 +1365,7 @@
     {
      "type": "code",
      "head": "The whole table in code",
-     "say": "The table in code. Start every cell at infinity, and dp of zero at zero. For each amount, try each coin that fits, and keep the best. Dp of six prints two. Memo is easier to write. A table avoids deep recursion.",
+     "say": "The table in code. Start every cell at infinity, and dp of zero at zero. For each amount, try each coin that fits, and keep the best. Dp of six prints two.",
      "panels": [
       {
        "file": "main.cpp",
@@ -1422,7 +1424,8 @@
       "4"
      ],
      "answer": 1,
-     "pause": 6
+     "pause": 6,
+     "optCue": 0.6
     },
     {
      "type": "diagram",
@@ -1651,7 +1654,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Greedy takes the best local choice, proved by an exchange argument. When a small case breaks it, say what dp of i means. Memo goes top down, a table bottom up.",
+     "say": "So say this. Greedy takes the best local choice, proved by exchange. When a small case breaks it, say what dp of i means. Memo goes top down, a table bottom up.",
      "lines": [
       "Greedy: best local choice, proved by exchange.",
       "Greedy breaks? Say what dp[i] means, then DP.",
