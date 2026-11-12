@@ -201,6 +201,12 @@
        "glow": true,
        "tone": "good",
        "cue": "three minutes"
+      },
+      {
+       "id": "a0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Call that relaxing"
       }
      ]
     },
@@ -240,7 +246,7 @@
     {
      "type": "diagram",
      "head": "Dijkstra on the map",
-     "say": "Start at A. Its time is zero, everything else infinity. The queue holds A. Settle A, and relax its roads. B becomes four. C becomes one. The queue now holds C at one, B at four. Pop C, the closest. Through C, B costs three. Better than four, so update it. Pop B at three. D becomes four. Now B's old entry, four, pops. Stale: skip it. D's four stays live. Last, D at four. All settled.",
+     "say": "Start at A. Its time is zero, everything else infinity. The queue holds A. Settle A, and relax its roads. B becomes four. C becomes one. The queue now holds C at one, B at four.",
      "items": [
       {
        "id": "nA",
@@ -316,17 +322,6 @@
        "cue": "everything else infinity"
       },
       {
-       "id": "dD",
-       "x": 1430,
-       "y": 600,
-       "w": 130,
-       "h": 80,
-       "text": "∞",
-       "size": 44,
-       "tone": "warn",
-       "cue": "everything else infinity"
-      },
-      {
        "id": "pq",
        "x": 150,
        "y": 790,
@@ -337,18 +332,6 @@
        "size": 40,
        "tone": "info",
        "cue": "The queue holds A"
-      },
-      {
-       "id": "pop",
-       "x": 1050,
-       "y": 790,
-       "w": 700,
-       "h": 90,
-       "label": "settled, in order",
-       "text": "–",
-       "size": 40,
-       "tone": "good",
-       "cue": "Settle A"
       }
      ],
      "arrows": [
@@ -386,11 +369,6 @@
        "cue": "Settle A"
       },
       {
-       "id": "pop",
-       "text": "A 0",
-       "cue": "Settle A"
-      },
-      {
        "id": "pq",
        "text": "–",
        "cue": "Settle A"
@@ -409,15 +387,122 @@
        "id": "pq",
        "text": "(1,C) (4,B)",
        "cue": "The queue now holds"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Pop the closest, skip stale",
+     "say": "Pop C, the closest. Through C, B costs three. Better than four, so update it. Pop B at three. D becomes four. Now B's old entry, four, pops. A stale entry is an old, worse copy. Skip it. D's four stays live. Last, D at four. All settled.",
+     "items": [
+      {
+       "id": "nA",
+       "x": 230,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "A",
+       "size": 52,
+       "tone": "good"
+      },
+      {
+       "id": "nB",
+       "x": 830,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "B",
+       "size": 52,
+       "tone": "blue"
       },
       {
        "id": "nC",
-       "tone": "good",
-       "cue": "Pop C"
+       "x": 830,
+       "y": 610,
+       "w": 130,
+       "h": 130,
+       "text": "C",
+       "size": 52,
+       "tone": "blue"
       },
       {
-       "id": "pop",
-       "text": "A 0, C 1",
+       "id": "nD",
+       "x": 1430,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "D",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "dB",
+       "x": 985,
+       "y": 400,
+       "w": 130,
+       "h": 80,
+       "text": "4",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dC",
+       "x": 830,
+       "y": 760,
+       "w": 130,
+       "h": 80,
+       "text": "1",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dD",
+       "x": 1430,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "pq",
+       "x": 150,
+       "y": 790,
+       "w": 560,
+       "h": 90,
+       "label": "priority queue",
+       "text": "(1,C) (4,B)",
+       "size": 40,
+       "tone": "info"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "nA",
+       "to": "nB",
+       "label": "4"
+      },
+      {
+       "from": "nA",
+       "to": "nC",
+       "label": "1"
+      },
+      {
+       "from": "nC",
+       "to": "nB",
+       "label": "2"
+      },
+      {
+       "from": "nB",
+       "to": "nD",
+       "label": "1"
+      }
+     ],
+     "changes": [
+      {
+       "id": "nC",
+       "tone": "good",
        "cue": "Pop C"
       },
       {
@@ -439,11 +524,6 @@
       {
        "id": "nB",
        "tone": "good",
-       "cue": "Pop B at three"
-      },
-      {
-       "id": "pop",
-       "text": "A 0, C 1, B 3",
        "cue": "Pop B at three"
       },
       {
@@ -479,18 +559,13 @@
        "cue": "Last, D at four"
       },
       {
-       "id": "pop",
-       "text": "A 0, C 1, B 3, D 4",
-       "cue": "Last, D at four"
-      },
-      {
        "id": "pq",
        "text": "–",
        "tone": "info",
        "cue": "Last, D at four"
       },
       {
-       "id": "pop",
+       "id": "nD",
        "glow": true,
        "tone": "good",
        "cue": "All settled"
@@ -512,7 +587,7 @@
     {
      "type": "diagram",
      "head": "Relax, but no improvement",
-     "say": "Four. Through C, B would cost one plus five, six. That's not less than four, so there's no update, and nothing new joins the queue. B stays four, and D becomes five. That answers our cheapest route problem.",
+     "say": "Four. Through C, B would cost one plus five, six. That's not less than four, so there's no update.",
      "items": [
       {
        "id": "nA",
@@ -555,16 +630,6 @@
        "tone": "blue"
       },
       {
-       "id": "dA",
-       "x": 230,
-       "y": 600,
-       "w": 130,
-       "h": 80,
-       "text": "0",
-       "size": 44,
-       "tone": "warn"
-      },
-      {
        "id": "dB",
        "x": 985,
        "y": 400,
@@ -605,18 +670,6 @@
        "size": 44,
        "tone": "info",
        "cue": "one plus five"
-      },
-      {
-       "id": "pq",
-       "x": 150,
-       "y": 790,
-       "w": 560,
-       "h": 90,
-       "label": "priority queue",
-       "text": "(4,B)",
-       "size": 40,
-       "tone": "info",
-       "cue": "nothing new joins the queue"
       }
      ],
      "arrows": [
@@ -658,7 +711,120 @@
        "glow": true,
        "tone": "warn",
        "cue": "not less than four"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "The answer: B four, D five",
+     "say": "And nothing new joins the queue. B stays four, and D becomes five. That answers our cheapest route problem.",
+     "items": [
+      {
+       "id": "nA",
+       "x": 230,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "A",
+       "size": 52,
+       "tone": "good"
       },
+      {
+       "id": "nB",
+       "x": 830,
+       "y": 250,
+       "w": 130,
+       "h": 130,
+       "text": "B",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "nC",
+       "x": 830,
+       "y": 610,
+       "w": 130,
+       "h": 130,
+       "text": "C",
+       "size": 52,
+       "tone": "good"
+      },
+      {
+       "id": "nD",
+       "x": 1430,
+       "y": 430,
+       "w": 130,
+       "h": 130,
+       "text": "D",
+       "size": 52,
+       "tone": "blue"
+      },
+      {
+       "id": "dB",
+       "x": 985,
+       "y": 400,
+       "w": 130,
+       "h": 80,
+       "text": "4",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dC",
+       "x": 830,
+       "y": 760,
+       "w": 130,
+       "h": 80,
+       "text": "1",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "dD",
+       "x": 1430,
+       "y": 600,
+       "w": 130,
+       "h": 80,
+       "text": "∞",
+       "size": 44,
+       "tone": "warn"
+      },
+      {
+       "id": "pq",
+       "x": 150,
+       "y": 790,
+       "w": 560,
+       "h": 90,
+       "label": "priority queue",
+       "text": "(4,B)",
+       "size": 40,
+       "tone": "info",
+       "cue": "nothing new joins the queue"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "nA",
+       "to": "nB",
+       "label": "4"
+      },
+      {
+       "from": "nA",
+       "to": "nC",
+       "label": "1"
+      },
+      {
+       "from": "nC",
+       "to": "nB",
+       "label": "5"
+      },
+      {
+       "from": "nB",
+       "to": "nD",
+       "label": "1"
+      }
+     ],
+     "changes": [
       {
        "id": "dB",
        "glow": true,
@@ -862,7 +1028,7 @@
     {
      "type": "compare",
      "head": "What they ask next",
-     "say": "Four follow ups. Negative weights? Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow. That is the code problem solved.",
+     "say": "Four questions always follow. Negative weights? Dijkstra breaks. Use Bellman Ford. Unweighted graph? Plain breadth first search. Complexity? O of E log V. Common mistakes: no stale check, int overflow. That is the code problem solved.",
      "heads": [
       "They ask",
       "You say"
@@ -1158,7 +1324,7 @@
        "from": "c2",
        "to": "c0",
        "tone": "good",
-       "bend": -120,
+       "bend": -170,
        "dy": 40,
        "cue": "straight at the president"
       }
@@ -1378,7 +1544,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Follow ups. How fast? Inverse Ackermann of n, under five: nearly constant. Can you split a group? No. Go offline, or use rollback. Why not B F S each time? Edges arrive online, and this answers instantly. Classic problems? Provinces, redundant connection, Kruskal's. Common mistake? Comparing parents, not roots. That answers who is connected.",
+     "say": "Expect the hard follow ups. How fast? Inverse Ackermann of n, under five: nearly constant. Can you split a group? No. Go offline, or use rollback. Why not B F S each time? Edges arrive online, and this answers instantly. Classic problems? Provinces, redundant connection, Kruskal's. Common mistake? Comparing parents instead of roots. That answers who is connected.",
      "heads": [
       "They ask",
       "You say"
@@ -1402,7 +1568,7 @@
       ],
       [
        "Common mistake",
-       "compare roots, not parents"
+       "comparing parents instead of roots"
       ]
      ],
      "cues": [
