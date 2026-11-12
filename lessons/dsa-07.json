@@ -43,18 +43,14 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "For each number, find the next bigger one to its right. Scanning a thousand costs half a million steps. You'll do it in one pass, and keep the top k of a billion with memory for k.",
+     "say": "Is this string of brackets balanced? You'll check it in one pass, with a stack. Then you'll find the top k of a billion numbers, with memory for k.",
      "lines": [
       {
-       "text": "Next bigger, to the right",
-       "cue": "For each number"
+       "text": "Are these brackets balanced?",
+       "cue": "Is this string"
       },
       {
-       "text": "1,000 items: ~500,000 steps",
-       "cue": "Scanning a thousand"
-      },
-      {
-       "text": "One pass.",
+       "text": "Check it in one pass.",
        "cue": "in one pass"
       },
       {
@@ -447,7 +443,7 @@
       "input": "[2, 1, 2, 4, 3]",
       "output": "[4, 2, 4, -1, -1]"
      },
-     "say": "Now the star problem. For every item, the next bigger value to its right. Two, one, two, four, three gives four, two, four, minus one, minus one. Stock apps ask this all day: when does the price next go higher?",
+     "say": "This is the next greater element problem. Each item's next bigger value, to its right. Two, one, two, four, three gives four, two, four, minus one, minus one. Stock apps ask this all day: when does the price next go higher?",
      "cues": {
       "example": "Two, one, two",
       "output": "gives four",
@@ -457,18 +453,18 @@
     },
     {
      "type": "chart",
-     "head": "Next bigger, n = 1,000: worst case",
-     "unit": "steps",
-     "say": "Why a stack? If the array only goes down, scanning right costs about five hundred thousand steps for a thousand items. A stack: at most two thousand pushes and pops.",
+     "head": "Next greater element, n = 1,000: worst case",
+     "unit": "operations",
+     "say": "Why a stack? If the array only goes down, scanning right costs about five hundred thousand comparisons for a thousand items. A stack: at most two thousand pushes and pops.",
      "bars": [
       {
-       "label": "Scan",
+       "label": "Scan comparisons",
        "value": 499500,
        "tone": "bad",
        "cue": "five hundred thousand"
       },
       {
-       "label": "Stack",
+       "label": "Stack pushes + pops",
        "value": 2000,
        "tone": "good",
        "cue": "two thousand"
@@ -506,7 +502,7 @@
     {
      "type": "diagram",
      "head": "Next greater of 2, 1, 2, 4, 3",
-     "say": "Same array. Like those people, keep a stack of items still waiting. Two arrives. Push it. One arrives. Smaller, so it waits too. Another two arrives. It beats one, so pop one: its answer is two. It doesn't beat the first two, so push.",
+     "say": "Same array. Like those people, keep a stack of positions still waiting. Two arrives. Push it. One arrives. Smaller, so it waits too. Another two arrives. It beats one, so pop one: its answer is two. It doesn't beat the first two, so push.",
      "items": [
       {
        "array": {
@@ -592,7 +588,7 @@
        "h": 90,
        "text": "–",
        "tone": "dim",
-       "cue": "stack of items"
+       "cue": "stack of positions"
       },
       {
        "id": "s1",
@@ -603,7 +599,7 @@
        "label": "stack",
        "text": "–",
        "tone": "dim",
-       "cue": "stack of items"
+       "cue": "stack of positions"
       },
       {
        "id": "tp",
@@ -620,7 +616,7 @@
      "changes": [
       {
        "id": "s0",
-       "text": "2",
+       "text": "idx 0",
        "tone": "info",
        "cue": "Push it"
       },
@@ -634,7 +630,7 @@
       },
       {
        "id": "s1",
-       "text": "1",
+       "text": "idx 1",
        "tone": "info",
        "cue": "waits too"
       },
@@ -676,7 +672,7 @@
       },
       {
        "id": "s1",
-       "text": "2",
+       "text": "idx 2",
        "tone": "info",
        "cue": "so push"
       },
@@ -770,7 +766,7 @@
        "y": 760,
        "w": 160,
        "h": 90,
-       "text": "2",
+       "text": "idx 0",
        "tone": "info"
       },
       {
@@ -780,7 +776,7 @@
        "w": 160,
        "h": 90,
        "label": "stack",
-       "text": "2",
+       "text": "idx 2",
        "tone": "info"
       },
       {
@@ -837,7 +833,7 @@
       },
       {
        "id": "s0",
-       "text": "4",
+       "text": "idx 3",
        "tone": "info",
        "cue": "Push four"
       },
@@ -851,7 +847,7 @@
       },
       {
        "id": "s1",
-       "text": "3",
+       "text": "idx 4",
        "tone": "info",
        "cue": "so it waits"
       },
@@ -1032,12 +1028,12 @@
       "input": "push 5, 12, 2, then pop",
       "output": "2 comes out first"
      },
-     "note": "peek O(1), push/pop O(log n)",
-     "say": "New problem. A scheduler grabs the most urgent job, millions of times. Push five, twelve, two, then pop: two comes out. Lowest number, most urgent. Peek must be instant.",
+     "note": "read smallest O(1), push/pop O(log n)",
+     "say": "New problem. A scheduler grabs the most urgent job, millions of times. Push five, twelve, two, then pop: two comes out. Lowest number, most urgent. Reading the smallest must be instant.",
      "cues": {
       "example": "Push five",
       "output": "two comes out",
-      "note": "Peek"
+      "note": "Reading the smallest"
      }
     },
     {
@@ -1208,7 +1204,7 @@
     {
      "type": "diagram",
      "head": "Pop the min: sift down",
-     "say": "Pop the smallest. It's the root: one. Remove it. Move the last item, five, up to the root. Now five sits above three, and the rule breaks. Swap with the smaller child, three. The rule holds again. That's sift down: also O of log n.",
+     "say": "Pop the smallest. It's the root: one. Remove it. Move the last item, five, up to the root. Now five sits above three, and the rule breaks. Swap with the smaller child, three. The rule holds again. That's sift down: also O of log n. C plus plus calls this a priority queue.",
      "items": [
       {
        "id": "r",
@@ -1269,6 +1265,13 @@
        "text": "5 > 3: rule broken",
        "tone": "bad",
        "cue": "the rule breaks"
+      },
+      {
+       "x": 1250,
+       "y": 440,
+       "text": "priority_queue",
+       "tone": "info",
+       "cue": "calls this"
       }
      ],
      "changes": [
@@ -1944,7 +1947,7 @@
     {
      "type": "chart",
      "head": "Merge cost in millions",
-     "unit": "M steps",
+     "unit": "M operations",
      "say": "Ten million. A million nodes, about ten heap steps each, since log of a thousand is ten. Sorting everything: about twenty each. The heap holds a thousand nodes. Problem answered.",
      "bars": [
       {
@@ -1973,7 +1976,7 @@
      "covers": [
       "cp07"
      ],
-     "say": "What is a stack? Last in, first out, every move O of one. Next greater element? A monotonic stack: pop what the newcomer beats. Why O of n? Each index is pushed once, popped once. Previous greater? Same loop, run from the right. Values or indices? Indices.",
+     "say": "What is a stack? Last in, first out. Next greater element? A monotonic stack. Scan left to right. Pop each smaller top. Its answer is the newcomer. Then push. Why O of n? Each index goes in once, out once. Previous greater? Same loop, from the right. Values or indices? Indices.",
      "heads": [
       "They ask",
       "You say"
@@ -1981,11 +1984,15 @@
      "rows": [
       [
        "What is a stack?",
-       "last in, first out; push, pop, top: O(1)"
+       "last in, first out"
       ],
       [
        "Next greater element?",
-       "monotonic stack: values decrease; pop what it beats"
+       "a monotonic stack"
+      ],
+      [
+       "How does it run?",
+       "one scan left to right: pop smaller tops, then push"
       ],
       [
        "Why `O(n)`?",
@@ -1993,12 +2000,13 @@
       ],
       [
        "Previous greater? Values or indices?",
-       "same loop, run from the right; indices"
+       "same loop from the right; indices"
       ]
      ],
      "cues": [
       "What is a stack",
       "Next greater element",
+      "Scan left to right",
       "Why O of n",
       "Previous greater"
      ]
@@ -2009,7 +2017,7 @@
      "covers": [
       "cp08"
      ],
-     "say": "What is a heap? A tree stored in an array, smallest on top. Costs? Top O of one, push and pop O of log n. Top k largest? A min heap of size k: its top is the weakest keeper. Why not sort? A heap is O of n log k and handles streams.",
+     "say": "What is a heap? A complete tree in an array. Each parent is no bigger than its children, so the smallest is on top. Costs? Top O of one, push and pop O of log n. Top k largest? A min heap of size k. Why not sort? O of n log k, and handles streams.",
      "heads": [
       "They ask",
       "You say"
@@ -2017,7 +2025,11 @@
      "rows": [
       [
        "What is a heap?",
-       "tree in an array, min on top"
+       "complete tree in an array"
+      ],
+      [
+       "The rule?",
+       "each parent ≤ its children"
       ],
       [
        "Costs?",
@@ -2034,6 +2046,7 @@
      ],
      "cues": [
       "What is a heap",
+      "Each parent",
       "Costs",
       "Top k largest",
       "Why not sort"
