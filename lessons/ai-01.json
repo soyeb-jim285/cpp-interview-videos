@@ -229,15 +229,15 @@
     },
     {
      "type": "take",
-     "say": "Each token first gets a raw score, before it becomes a probability. Temperature divides every score before the odds are rebuilt. At two, the big gap shrinks. Paris still leads, but by less.",
+     "say": "Each token has a raw score. Temperature divides every score by two. Now each probability becomes its square root, then we renormalize. Paris still leads, but the big gap shrinks.",
      "lines": [
-      "Temperature divides every score",
-      "At two, the big gap shrinks",
-      "Paris still leads, but by less"
+      "Temperature 2 divides every score by two.",
+      "Each probability becomes its square root.",
+      "Then renormalize. Paris still leads."
      ],
      "cues": [
       "Temperature divides",
-      "big gap shrinks",
+      "square root",
       "still leads"
      ]
     },
@@ -256,7 +256,7 @@
     {
      "type": "code",
      "head": "Temperature and sampling, for real",
-     "say": "About sixty. Flatter, but Paris still leads. Here is the setup. The scores are logs of the probabilities.",
+     "say": "About sixty. Flatter, but Paris still leads. Here is the setup. Each score is the log of its probability, so exp turns it back into a weight.",
      "panels": [
       {
        "file": "app.py",
@@ -275,18 +275,18 @@
        "lines": [
         3
        ],
-       "cue": "scores are logs"
+       "cue": "log of its probability"
       }
      ]
     },
     {
      "type": "code",
      "head": "Temperature, then sampling",
-     "say": "Divide the scores by temperature, then rebuild the odds. Temperature two gives point six three for Paris. Sample five times from the odds: Paris, Lyon, located, Paris, Paris. The seed is fixed, so these draws repeat on every run. A live model is unseeded, so its five answers differ. That is why you grade several runs. Temperature zero takes the top token: nearly fixed, not guaranteed.",
+     "say": "Divide the scores by temperature, then rebuild the odds. Temperature two gives point six three for Paris. Sample five times from the odds: Paris, Lyon, located, Paris, Paris. The seed is fixed, so these draws repeat on every run. A live model samples without a fixed seed, so its answers vary run to run. That is why you grade several runs.",
      "panels": [
       {
        "file": "app.py",
-       "code": "def probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1); print(random.choices(toks, probs(2), k=5))"
+       "code": "def probs(t):\n    e = [math.exp(l / t) for l in logits]\n    return [x / sum(e) for x in e]\nprint([round(x, 2) for x in probs(2)])\nrandom.seed(1)\nprint(random.choices(toks, probs(2), k=5))\n# a live model: no seed, so draws vary"
       }
      ],
      "steps": [
@@ -306,25 +306,27 @@
       },
       {
        "lines": [
-        5
+        5,
+        6
        ],
        "cue": "Sample five times"
       },
       {
-       "lines": [],
-       "cue": "The seed is fixed"
-      },
-      {
-       "lines": [],
+       "lines": [7],
        "cue": "A live model"
       },
       {
        "lines": [],
        "cue": "That is why you grade"
-      },
+      }
+     ],
+     "notes": [
       {
-       "lines": [],
-       "cue": "Temperature zero"
+       "line": 5,
+       "inside": true,
+       "text": "seeded: same draws",
+       "tone": "good",
+       "cue": "The seed is fixed"
       }
      ],
      "output": {
@@ -665,7 +667,7 @@
     {
      "type": "diagram",
      "head": "Check with a tool, not the model",
-     "say": "Compute it in code. Asking again gets another guess, and it may just agree with you. Run the sum. Python says four hundred eight. The answers differ, so reject the claim. A checkable fact needs a checker.",
+     "say": "Compute it in code. Asking again gets another guess, and it may just agree with you. Run the sum. Python says four hundred eight. The answers differ. Catch the bad one: check sources, compute, push back. So reject the claim. A checkable fact needs a checker.",
      "items": [
       {
        "id": "cl",
@@ -994,7 +996,7 @@
       "Failure",
       "Catch it by"
      ],
-     "say": "Five failures, five checks. Hallucination? Check a real source. A wrong sum? Compute it. An ignored rule? Check the output. Sycophancy? Push back on a correct answer. Reward hacking? Hidden inputs, and read the diff. Never trust the tone.",
+     "say": "Five failures, five checks. That answers the problem: each failure has its own check. Hallucination? Check a real source. A wrong sum? Compute it. An ignored rule? Check the output. Sycophancy? Push back on a correct answer. Reward hacking? Hidden inputs, and read the diff. Never trust the tone.",
      "rows": [
       [
        "hallucination: invented facts",
@@ -1041,7 +1043,7 @@
       "They ask",
       "You say"
      ],
-     "say": "How does an L L M work? It predicts the next token from odds it learned from huge text. What is a token? A word piece. Why does one prompt vary? It samples. Temperature zero? Nearly fixed, not guaranteed. What is a common mistake? Treating it as a database of facts.",
+     "say": "How does an L L M work? It predicts the next token from odds it learned from huge text. What is a token? A word piece, about four letters. Why does one prompt vary? It samples. Temperature zero? Nearly fixed, not guaranteed. What is a common mistake? Treating it as a database of facts.",
      "rows": [
       [
        "How does an LLM work?",
