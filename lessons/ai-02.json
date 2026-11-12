@@ -14,7 +14,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Two reviewers read the same model answer. One scores it a four. The other scores it a two. By the end, you'll grade so both agree, then judge an agent by its steps.",
+     "say": "Two reviewers, one model answer. One scores it a four. The other scores it a two. How do you grade so they agree? By the end, you'll grade so both agree. Judge an agent by its steps.",
      "lines": [
       {
        "text": "Same answer. Two reviewers.",
@@ -26,8 +26,12 @@
       },
       {
        "text": "Make them agree.",
-       "cue": "grade so both agree",
+       "cue": "How do you grade",
        "accent": true
+      },
+      {
+       "text": "Then judge an agent by its steps.",
+       "cue": "judge an agent by its steps"
       }
      ]
     },
@@ -57,8 +61,10 @@
      "say": "Here is the problem. Two graders read two answers to explain recursion, answers A and B. Make both graders land on the same scores: four for A, two for B.",
      "cues": {
       "example": "answers A and B",
-      "output": "Make both graders"
-     }
+      "output": "Make both graders",
+      "note": "four for A, two for B"
+     },
+     "note": "Scale: 0 to 5"
     },
     {
      "type": "flow",
@@ -169,7 +175,7 @@
      "panels": [
       {
        "file": "rubric.txt",
-       "code": "Correct   0-2: no false claim\nComplete  0-2: self-call and\n          base case named\nClear     0-1: easy to follow\n\nTotal: 0 to 5"
+       "code": "Correct   0-2: no false claim\nComplete  0-2: 2 = self-call\n          and base case;\n          1 = self-call only;\n          0 = neither\nClear     0-1: easy to follow\n\nTotal: 0 to 5"
       },
       {
        "file": "answers.txt",
@@ -187,14 +193,16 @@
       {
        "lines": [
         2,
-        3
+        3,
+        4,
+        5
        ],
        "panel": 0,
        "cue": "Complete, up to two"
       },
       {
        "lines": [
-        4
+        6
        ],
        "panel": 0,
        "cue": "Clear, one"
@@ -211,7 +219,9 @@
       {
        "lines": [
         2,
-        3
+        3,
+        4,
+        5
        ],
        "panel": 0,
        "cue": "never names a base"
@@ -377,7 +387,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A new answer says: recursion is a function calling itself on a smaller input until a base case stops it. Apply the rubric. What score? Pause and predict.",
+     "say": "Your turn. Apply the rubric to Answer C. What score? Pause and predict.",
      "q": "Answer C: 'A function calls itself on a smaller input until a base case stops it.'",
      "options": [
       "3",
@@ -385,7 +395,8 @@
       "5",
       "2"
      ],
-     "answer": "5"
+     "answer": "5",
+     "optCue": "What score?"
     },
     {
      "type": "compare",
@@ -428,12 +439,12 @@
       "input": "Response: three short sentences",
       "output": "Fail: it broke an explicit rule"
      },
-     "note": "Easy to miss when skimming",
-     "say": "A trap. The prompt wants exactly two sentences. The response reads well, but has three short ones. Does it pass? No, it broke a rule. A quick reader misses that.",
+     "note": "Same rubric, one yes or no per line",
+     "say": "A trap. The prompt wants exactly two sentences. The response reads well, but has three short ones. Does it pass? No, it broke a rule. A quick reader misses that. Same rubric, one yes or no per line.",
      "cues": {
       "example": "three short ones",
       "output": "it broke a rule",
-      "note": "A quick reader"
+      "note": "Same rubric"
      }
     },
     {
@@ -497,7 +508,7 @@
     },
     {
      "type": "diagram",
-     "head": "Four checks, pass or fail",
+     "head": "The rubric as yes or no checks",
      "say": "A rubric splits one vague question into small checks. Facts match the text: pass. Rules followed: fail, three sentences. Nothing invented: pass. Clear and short: pass. Each check is pass or fail, so graders have little room to disagree, and you can say exactly why points were lost.",
      "items": [
       {
@@ -569,15 +580,16 @@
     },
     {
      "type": "quiz",
-     "say": "Now change one number. Same two sentence summary, but the response says the bridge cost four hundred million. The text said forty. Which check fails? Pause and predict.",
+     "say": "Now change one number. The response says four hundred million. The text said forty. Which check fails? Pause and predict.",
      "q": "The text says 40 million; the response says 400 million. Which check fails?",
      "options": [
       "Facts match",
       "Rules followed",
       "Clear and short",
-      "Tone is friendly"
+      "Nothing invented"
      ],
-     "answer": "Facts match"
+     "answer": "Facts match",
+     "optCue": "Which check fails?"
     },
     {
      "type": "diagram",
@@ -861,7 +873,7 @@
     },
     {
      "type": "quiz",
-     "say": "Quick trace. Order A then B, and the grader picks A. Swap to B then A, and it picks B. What does that tell you? Decide before the answer.",
+     "say": "Quick trace. Order A then B, it picks A. Swap to B then A, it picks B. What does that tell you? Decide before the answer.",
      "q": "Order A,B picks A. Order B,A picks B. What happened?",
      "options": [
       "A is clearly better",
@@ -869,7 +881,8 @@
       "Position bias",
       "The rubric needs more points"
      ],
-     "answer": "Position bias"
+     "answer": "Position bias",
+     "optCue": "What does that tell you?"
     },
     {
      "type": "code",
@@ -878,38 +891,40 @@
      "panels": [
       {
        "file": "judge.py",
-       "code": "def judge(ask, a, b):\n    one, two = ask(a, b), ask(b, a)\n    if one == 1 and two == 2:\n        return \"A wins\"\n    if one == 2 and two == 1:\n        return \"B wins\"\n    return \"tie\"\nprint(judge(lambda x, y: 1, \"A\", \"B\"))"
+       "code": "def judge(ask, a, b):\n    # ask returns 1 if the first slot wins, 2 if the second\n    one, two = ask(a, b), ask(b, a)\n    if one == 1 and two == 2:\n        return \"A wins\"\n    if one == 2 and two == 1:\n        return \"B wins\"\n    return \"tie\"\nprint(judge(lambda x, y: 1, \"A\", \"B\"))"
       }
      ],
      "steps": [
       {
-       "lines": [],
+       "lines": [
+        2
+       ],
        "cue": "Position bias"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "This code asks"
       },
       {
        "lines": [
-        3,
         4,
         5,
-        6
+        6,
+        7
        ],
        "cue": "If the picks"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "it says tie"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "always says slot one"
       }
@@ -956,14 +971,14 @@
     {
      "type": "problem",
      "title": "Cheapest flight to Boston",
-     "statement": "An agent must book the cheapest flight to Boston on May 3. It makes five tool calls, then says: Booked!",
+     "statement": "An agent must book the cheapest flight to Boston on May 3. It makes four tool calls, then a reply: Booked!",
      "example": {
-      "input": "5 tool calls, then 'Booked the cheapest flight!'",
+      "input": "Four tool calls, then a reply: 'Booked!'",
       "output": "Score every step, not the message"
      },
-     "say": "The stakes are higher: the model acts. It must book the cheapest Boston flight. It makes five tool calls, then sends a cheerful message. We grade the whole run, not just that message.",
+     "say": "An agent is a model that calls tools to take actions. It makes four tool calls, then a reply: a cheerful message. We grade the whole run, not just that message.",
      "cues": {
-      "example": "makes five tool calls",
+      "example": "makes four tool calls",
       "output": "grade the whole run"
      }
     },
@@ -1049,7 +1064,7 @@
     },
     {
      "type": "flow",
-     "head": "The trajectory: five tool calls",
+     "head": "The trajectory: four tool calls and a reply",
      "say": "That run is the trajectory: every tool call, in order. Step one searches flights for May three. Step two sorts by price. Step three books a flight. Step four charges the card. Step five tells the user. Looks fine, until you read step three.",
      "items": [
       {
@@ -1241,14 +1256,15 @@
        "id": "r3",
        "text": "wrong flight",
        "tone": "warn",
-       "size": 30,
+       "size": 36,
        "cue": "Charging the card"
       },
       {
        "id": "r4",
        "text": "false claim",
        "tone": "warn",
-       "cue": "sounds right"
+       "cue": "sounds right",
+       "size": 36
       }
      ]
     },
@@ -1259,44 +1275,46 @@
      "panels": [
       {
        "file": "check.py",
-       "code": "def passed(db):\n    b = db.booking()\n    right_day = b.date == \"May 3\"\n    cheapest = b.price == db.cheapest(\"May 3\")\n    once = db.charges() == 1\n    return right_day and cheapest and once\n\nprint(passed(db))"
+       "code": "from types import SimpleNamespace as N\ndb = N(booking=lambda: N(date=\"May 4\", price=212),\n       cheapest=lambda d: 212, charges=lambda: 1)\ndef passed(db):\n    b = db.booking()\n    return (b.date == \"May 3\"\n            and b.price == db.cheapest(\"May 3\")\n            and db.charges() == 1)\nprint(passed(db))"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        5
        ],
        "cue": "reads the real booking"
       },
       {
        "lines": [
-        3
+        6
        ],
        "cue": "Right day"
       },
       {
        "lines": [
-        4
+        7
        ],
        "cue": "Cheapest price"
       },
       {
        "lines": [
-        5
+        8
        ],
        "cue": "Charged exactly once"
       },
       {
        "lines": [
-        6
+        6,
+        7,
+        8
        ],
        "cue": "All three must hold"
       }
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 5,
        "inside": true,
        "text": "state, not the message",
        "tone": "good",
@@ -1306,15 +1324,12 @@
      "output": {
       "cmd": "python check.py",
       "text": "False",
-      "cue": "prints False",
-      "setup": {
-       "check.py": "class B: pass\nclass DB:\n    def booking(s):\n        b = B(); b.date = \"May 4\"; b.price = 212; return b\n    def cheapest(s, d): return 212\n    def charges(s): return 1\ndb = DB()\n"
-      }
+      "cue": "prints False"
      }
     },
     {
      "type": "quiz",
-     "say": "Judge this run. Agent A and agent B both book the right flight, on the right day, at the cheapest price. But agent B also deleted the user's saved trips on the way. Who passes? Pause and predict.",
+     "say": "Judge this run. Agent A and agent B both book the right flight, at the cheapest price. But agent B also deleted saved trips. Who passes? Pause and predict.",
      "q": "A and B both book it right. B also deletes saved trips. Who passes?",
      "options": [
       "Both pass",
@@ -1322,7 +1337,8 @@
       "Only B passes",
       "Neither"
      ],
-     "answer": "Only A passes"
+     "answer": "Only A passes",
+     "optCue": "Who passes?"
     },
     {
      "type": "compare",
@@ -1392,7 +1408,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "How do you grade consistently? Use separate checks with anchored examples. No clean checklist? Compare A and B, write why. Judge twice with the order swapped, because graders favor whichever answer comes first. That is position bias. Graders disagree? Fix the rubric, then re-grade. A model as grader? Yes, but spot check against humans.",
+     "say": "How do you grade consistently? Use separate checks, anchored examples: answers with known scores. No clean checklist? Compare A and B, write why. Judge twice, swapping order, because graders favor whichever answer comes first. That is position bias. Graders disagree? Fix the rubric, then re-grade. A model as grader? Yes, spot check against humans, since it can be wrong.",
      "heads": [
       "They ask",
       "You say"
