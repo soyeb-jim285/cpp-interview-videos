@@ -152,7 +152,7 @@ function sceneCompare(sc, sid, sfx) {
     row.forEach((c, k) => (html += `<div class="cc r${i} k${k}"><span>${hlInline(c)}</span></div>`));
     const t = r3(cueTime(sc, sc.cues?.[i] ?? (i + 0.5) / (sc.rows.length + 0.5)));
     tw.push(`tl.fromTo("#${sid}-cmp .r${i}",{opacity:0,y:18},{opacity:1,y:0,duration:0.4,stagger:0.08,ease:"power3.out"},${t});`);
-    if (i > 0 && sc.rows.length > 2) tw.push(`tl.to("#${sid}-cmp .r${i - 1}",{opacity:0.42,duration:0.4},${t});`);
+    if (i > 0 && sc.rows.length > 2) tw.push(`tl.to("#${sid}-cmp .r${i - 1}",{opacity:0.6,duration:0.4},${t});`);
     if (i === sc.rows.length - 1 && sc.rows.length > 2) tw.push(`tl.to("#${sid}-cmp .cc,#${sid}-cmp .rh",{opacity:1,duration:0.5},${r3(t + Math.max(1.5, (sc.t0 + LEAD + sc.vo - t) * 0.6))});`);
     sfx.push({ t, file: "click-soft.mp3", vol: 0.25 });
   });

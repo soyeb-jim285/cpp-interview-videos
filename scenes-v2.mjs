@@ -17,7 +17,7 @@ export function sceneHook(sc, sid, sfx) {
   L.forEach((l, i) => {
     const t = r3(cueTime(sc, l.cue ?? i / L.length));
     tw.push(`tl.fromTo("#${sid}-h${i}",{opacity:0,y:90,scale:1.22,filter:"blur(14px)"},{opacity:1,y:0,scale:1,filter:"blur(0px)",duration:0.42,ease:"power4.out"},${t});`);
-    if (i) tw.push(`tl.to("#${sid}-h${i - 1}",{opacity:0.45,duration:0.3},${t});`);
+    if (i) tw.push(`tl.to("#${sid}-h${i - 1}",{opacity:0.6,duration:0.3},${t});`);
     sfx.push({ t, file: "pop.mp3", vol: 0.2 });
   });
   return { html, tw };
