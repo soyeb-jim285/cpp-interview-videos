@@ -42,7 +42,11 @@
       },
       {
        "text": "One program: 200 seconds. Fails.",
-       "cue": "two hundred seconds"
+       "cue": "One program runs"
+      },
+      {
+       "text": "Another finishes instantly.",
+       "cue": "Another finishes"
       },
       {
        "text": "Read the limits. Pick the right one.",
@@ -109,7 +113,7 @@
     },
     {
      "type": "diagram",
-     "head": "Worked example: n = 200,000",
+     "head": "Steps for n = 200,000 (budget 10^8)",
      "say": "Say n is two hundred thousand, against a budget of one hundred million. Checking every pair is O of n squared: twenty billion pair checks. Too slow, two hundred times the budget. N log n is n times about eighteen: about 3.6 million. Easy. Plain n needs two hundred thousand. The limit says: n log n or better.",
      "items": [
       {
@@ -118,7 +122,7 @@
        "y": 480,
        "w": 300,
        "h": 150,
-       "label": "input size",
+       "label": "input",
        "text": "n = 200,000",
        "size": 38,
        "tone": "blue",
@@ -141,7 +145,7 @@
        "y": 530,
        "w": 560,
        "h": 130,
-       "label": "O(n log n)",
+       "label": "n log n",
        "text": "about 3,600,000",
        "size": 42,
        "cue": "N log n is"
@@ -294,7 +298,7 @@
        "y": 700,
        "w": 440,
        "h": 150,
-       "label": "100 million a second",
+       "label": "budget 10^8",
        "text": "100 seconds",
        "size": 40,
        "tone": "bad",
@@ -386,7 +390,7 @@
       "n up to",
       "You can afford"
      ],
-     "say": "Keep going. Around five thousand, n squared: two nested loops. A million needs n log n, or plain n. A hundred million needs plain n, with a small constant. And ten to the eighteen? Only log n, or a formula.",
+     "say": "A small constant means each step is cheap, a few operations, not dozens. Keep going. Around five thousand, n squared: two nested loops. A million needs n log n, or plain n. A hundred million needs plain n, with a small constant. And ten to the eighteen? Only log n, or a formula.",
      "rows": [
       [
        "about 5,000",
@@ -524,8 +528,8 @@
        "y": 730,
        "w": 860,
        "h": 110,
-       "label": "notebook",
-       "text": "(empty)",
+       "label": "seen",
+       "text": "notebook: empty",
        "size": 40,
        "cue": "a notebook of"
       }
@@ -592,6 +596,11 @@
         1260,
         570
        ],
+       "cue": "Last, two"
+      },
+      {
+       "id": "seen",
+       "text": "2:2  -2:2  5:1",
        "cue": "Last, two"
       },
       {
@@ -708,8 +717,8 @@
        "y": 360,
        "w": 560,
        "h": 200,
-       "label": "brute force: pair checks",
-       "text": "20 billion",
+       "label": "brute force",
+       "text": "20 billion checks",
        "size": 44,
        "tone": "bad",
        "cue": "brute force needs"
@@ -720,7 +729,7 @@
        "y": 680,
        "w": 560,
        "h": 150,
-       "label": "100 million a second",
+       "label": "budget 10^8",
        "text": "about 200 seconds",
        "size": 36,
        "tone": "bad",
@@ -878,7 +887,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What can you afford? About a hundred million steps a second. N of two hundred thousand? N log n or better. Brute force? Twenty billion pair checks, about two hundred seconds. Twenty items? Two to the n, about a million: try every subset.",
+     "say": "What can you afford? About a hundred million steps a second. N of two hundred thousand? N log n or better. Brute force? O of n squared, twenty billion. Fix: a hash map, O of n. Twenty items? Two to the n, about a million: try every subset.",
      "rows": [
       [
        "What can you afford?",
@@ -890,7 +899,7 @@
       ],
       [
        "Brute force?",
-       "20 billion pair checks: about 200 seconds"
+       "O(n^2): 20 billion pair checks. Fix: a hash map, O(n)."
       ],
       [
        "Twenty items?",
