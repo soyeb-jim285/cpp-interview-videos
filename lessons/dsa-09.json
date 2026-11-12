@@ -75,9 +75,9 @@
      "cues": {
       "example": "five by five maze",
       "output": "Fewest steps",
-      "note": "Moves: up"
+      "note": "Never through a wall"
      },
-     "say": "You're standing top left in a five by five maze, and the exit is bottom right. Fewest steps? Moves: up, down, left, right. Never through a wall. Let's find out how."
+     "say": "You're standing top left in a five by five maze, and the exit is bottom right. Fewest steps? Moves: up, down, left, right. Never through a wall. A delivery robot needs this exact answer. Let's find out how."
     },
     {
      "type": "flow",
@@ -1028,6 +1028,15 @@
        "text": "8",
        "cue": "four across"
       }
+     ],
+     "notes": [
+      {
+       "x": 1000,
+       "y": 430,
+       "text": "never shorter",
+       "tone": "warn",
+       "cue": "It never shortens one"
+      }
      ]
     },
     {
@@ -1081,7 +1090,7 @@
       "output": "How many islands",
       "note": "Diagonal neighbors"
      },
-     "say": "Look at this grid of ones and zeros. How many islands? Touching ones form an island, meaning up, down, left, or right. Diagonal neighbors don't count. Image blobs and map regions use this same count."
+     "say": "Image blobs and map regions use this same count. Look at this grid of ones and zeros. How many islands? Touching ones form an island, meaning up, down, left, or right. Diagonal neighbors don't count."
     },
     {
      "type": "flow",
@@ -1847,7 +1856,7 @@
     {
      "type": "compare",
      "head": "BFS or DFS?",
-     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or can I reach it: depth first search. Very deep grid? Recursion can overflow, so use an explicit stack. Cost for both: O of V plus E, nodes plus edges. Sink-and-count fits any grid.",
+     "say": "Which one? Fewest steps: breadth first search, a queue. How many areas, or reachable? Depth first search. Sink-and-count fits any grid. Very deep grid? Recursion can overflow, so use a stack. Cost for both: O of V plus E, V counts nodes and E counts edges.",
      "heads": [
       "Question",
       "Use"
@@ -1930,7 +1939,7 @@
     },
     {
      "type": "diagram",
-     "head": "Kahn's algorithm: peel what's ready",
+     "head": "Peel off what's ready",
      "say": "Courses zero to three. An arrow means take this first. The box beside each course counts its unfinished prerequisites. Only a course with zero is ready. Zero is ready. Take it. Its two arrows vanish, so one and two drop to zero. Take one. Course three drops to one. Take two. Now three drops to zero. Take three.",
      "items": [
       {
@@ -2404,6 +2413,12 @@
        "cue": "Three comes last"
       },
       {
+       "id": "out",
+       "text": "1 0 2 3",
+       "tone": "bad",
+       "cue": "One, zero, two, three fails"
+      },
+      {
        "id": "n3",
        "glow": true,
        "tone": "bad",
@@ -2411,8 +2426,15 @@
       },
       {
        "id": "out",
-       "glow": true,
+       "text": "0 3 1 2",
+       "tone": "bad",
+       "cue": "breaks the rest"
+      },
+      {
+       "id": "out",
+       "text": "0 1 2 3",
        "tone": "good",
+       "glow": true,
        "cue": "Kahn's queue gives"
       }
      ]
@@ -2675,7 +2697,7 @@
     {
      "type": "compare",
      "head": "When they push further",
-     "say": "Follow ups. Alphabetically smallest order? Use a min heap, which pops the smallest first. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n. Same trick, any task list.",
+     "say": "Alphabetically smallest order? Use a min heap, which pops the smallest first. Another way? D F S: add a node after its children, then reverse. Classic problems: LeetCode two oh seven, two ten, and two sixty nine. Common mistake: never comparing the order size with n. Same trick, any task list.",
      "heads": [
       "They ask",
       "You say"
@@ -2758,7 +2780,7 @@
      "covers": [
       "cp16"
      ],
-     "say": "What is a topological sort? An order where every prerequisite comes first. How do you compute it? Kahn's method. Queue the zero-indegree courses, pop, and decrement. Detect a cycle? The order is shorter than n. Cost? O of V plus E.",
+     "say": "What is a topological sort? An order where every prerequisite comes first. How do you compute it? Kahn's method: queue the zero-indegree courses. Detect a cycle? The order is shorter than n. Cost? O of V plus E.",
      "heads": [
       "They ask",
       "You say"
