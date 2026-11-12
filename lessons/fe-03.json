@@ -83,10 +83,10 @@
       "input": "`key={i}`, add 'Pay rent' on top",
       "output": "'2 litres' ends on the wrong row"
      },
-     "say": "Here is the problem. For example, index keys, and a new todo added on top. We want to know why the text lands on Pay rent.",
+     "say": "A todo list uses each row's position, its index, as the key. You type into row one, then add a todo on top. Now the text sits on Pay rent. Why?",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "You type into row one",
+      "output": "the text sits on Pay rent"
      }
     },
     {
@@ -146,7 +146,7 @@
        "y": 230,
        "w": 520,
        "h": 120,
-       "text": "Buy milk",
+       "text": "Pay rent",
        "label": "after: key 0",
        "tone": "blue",
        "cue": "Pay rent is added"
@@ -192,11 +192,6 @@
        "text": "Buy milk [2 litres]",
        "tone": "warn",
        "cue": "type two litres"
-      },
-      {
-       "id": "n0",
-       "text": "Pay rent",
-       "cue": "takes key zero"
       },
       {
        "id": "n0",
@@ -277,7 +272,7 @@
       "React throws"
      ],
      "answer": "Remount, text lost",
-     "optCue": 0.5
+     "optCue": 0.3
     },
     {
      "type": "compare",
@@ -306,7 +301,7 @@
       ],
       [
        "`key={index}`",
-       "fine only if the list never reorders"
+       "fine only if the list never reorders or inserts"
       ]
      ],
      "cues": [
@@ -330,10 +325,10 @@
       "input": "count 0, three `setCount(count + 1)`",
       "output": "shows 1; the fix gives 3"
      },
-     "say": "Here is the problem. For example, count is zero, and one click calls set count three times. We want three, but the screen shows one.",
+     "say": "Next puzzle. Count starts at zero. One click calls set count of count plus one, three times. The screen shows one, not three. Why, and what is the fix?",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "One click calls",
+      "output": "The screen shows one"
      }
     },
     {
@@ -453,7 +448,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Count is zero. One click calls set count of count plus one, then set count with an updater, c becomes c plus one. What does the screen show? Pause and predict.",
+     "say": "Try this one. Count is zero. One click calls set count of count plus one, then set count with an updater, c becomes c plus one. What does the screen show? Pause and predict.",
      "q": "From 0: `setCount(count + 1); setCount(c => c + 1);` Result?",
      "options": [
       "1",
@@ -462,7 +457,7 @@
       "0"
      ],
      "answer": "2",
-     "optCue": 0.5
+     "optCue": 0.3
     },
     {
      "type": "diagram",
@@ -567,10 +562,10 @@
       "input": "`setInterval(() => setCount(count + 1))`",
       "output": "stuck at 1; fix: 1, 2, 3, 4, 5"
      },
-     "say": "Here is the problem. For example, an interval that calls set count of count plus one every second. We want one, two, three. We get one, forever.",
+     "say": "Last one. A counter starts an interval that adds one every second. It shows one, then never moves again. Why does the timer stick?",
      "cues": {
-      "example": "For example",
-      "output": "We want"
+      "example": "starts an interval",
+      "output": "It shows one"
      }
     },
     {
@@ -613,7 +608,7 @@
      "panels": [
       {
        "file": "Effects.tsx",
-       "code": "useEffect(() => {\n  document.title = `Count ${count}`;\n}, [count]);\nuseEffect(() => {\n  const id = setInterval(tick, 1000);\n  return () => clearInterval(id);\n}, []);"
+       "code": "useEffect(() => {\n  document.title = `Count ${count}`;\n}, [count]);\nuseEffect(() => {\n  const id = setInterval(() => console.log('tick'), 1000);\n  return () => clearInterval(id);\n}, []);"
       }
      ],
      "steps": [
@@ -664,8 +659,8 @@
     },
     {
      "type": "diagram",
-     "head": "Why the interval is stale",
-     "say": "Here is the bug. In render one, count is zero. The effect runs once, and its callback captures that zero. Every second the callback sets zero plus one. State becomes one. Render two has count one, but the effect never re-runs. The old callback still holds zero, so it sets one again.",
+     "head": "A stale closure, step by step",
+     "say": "Here is the bug. In render one, count is zero. The effect runs once, and its callback captures that zero. Every second the callback sets zero plus one. State becomes one. Render two has count one, but the effect never re-runs. The old callback still holds zero, so it sets one again. That is a stale closure: a callback holding an old value.",
      "items": [
       {
        "id": "r1",
@@ -698,7 +693,7 @@
        "label": "state",
        "text": "0",
        "size": 64,
-       "cue": "sets zero plus one"
+       "cue": "Every second"
       },
       {
        "id": "r2",
@@ -722,7 +717,7 @@
       {
        "from": "cb",
        "to": "st",
-       "cue": "Every second"
+       "cue": "sets zero plus one"
       }
      ],
      "changes": [
@@ -744,11 +739,20 @@
        "tone": "bad",
        "cue": "sets one again"
       }
+     ],
+     "notes": [
+      {
+       "x": 860,
+       "y": 720,
+       "text": "stale closure",
+       "tone": "warn",
+       "cue": "That is a stale closure"
+      }
      ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. Keep the empty list, but write the updater: set count of c becomes c plus one. The interval ticks once a second. What does the screen show after five seconds? Pause and predict.",
+     "say": "Last prediction. Keep the empty list, but write the updater: set count of c becomes c plus one. The interval ticks once a second. What does the screen show after five seconds? Pause and predict.",
      "q": "Interval uses `setCount(c => c + 1)`, deps `[]`. After 5 s?",
      "options": [
       "1",
@@ -757,7 +761,7 @@
       "6"
      ],
      "answer": "5",
-     "optCue": 0.5
+     "optCue": 0.3
     },
     {
      "type": "code",
@@ -872,19 +876,19 @@
      "covers": [
       "fe05"
      ],
-     "say": "What is the virtual D O M? A cheap tree React diffs, then patches. Why do keys matter? They give list items identity. Index as key? Only for static lists. Random keys? They remount every row. Common mistake: index keys with inputs.",
+     "say": "How does React decide what to update? It diffs by type and key, then patches. Why do keys matter? React matches items by key, so typed text follows the todo. Index or random keys? Index is for static lists, and random remounts every row. Common mistake? Index keys on rows that hold inputs.",
      "heads": [
       "They ask",
       "You say"
      ],
      "rows": [
       [
-       "What is the virtual DOM?",
-       "a cheap tree React diffs, then patches the page"
+       "How does React decide what to update?",
+       "diff by type and key, then patch the changes"
       ],
       [
        "Why do keys matter?",
-       "identity for list items: stable ids"
+       "matched by key, so state follows the item"
       ],
       [
        "Index or random key?",
@@ -896,9 +900,9 @@
       ]
      ],
      "cues": [
-      "What is the virtual D O M",
+      "How does React decide",
       "Why do keys",
-      "Index as key",
+      "Index or random",
       "Common mistake"
      ]
     },
@@ -908,7 +912,7 @@
      "covers": [
       "fe06"
      ],
-     "say": "How does use state work? Each render is a snapshot. What is a stale closure? A callback that captured an old value. Fix it with the updater or an honest dependency list. What does use effect do? It runs after paint, and re-runs when the list changes. And cleanup? It runs before the next run, and when the component leaves.",
+     "say": "How does use state work? It keeps a value across renders, plus a setter. What does a render see? A frozen snapshot, and the updater gets the latest. What is a stale closure? A callback holding a value from an old render. How do you fix it? Use the updater, or an honest dependency list.",
      "heads": [
       "They ask",
       "You say"
@@ -916,31 +920,53 @@
      "rows": [
       [
        "How does `useState` work?",
-       "each render is a snapshot; updater for old-to-new"
+       "returns value + setter, kept between renders"
+      ],
+      [
+       "What does a render see?",
+       "a frozen snapshot; the updater gets the latest"
       ],
       [
        "What is a stale closure?",
-       "a callback that captured an old value"
+       "a callback holding a value from an old render"
       ],
       [
        "How do you fix it?",
-       "updater, or an honest dependency list"
-      ],
-      [
-       "What does `useEffect` do?",
-       "runs after paint; re-runs when deps change"
-      ],
-      [
-       "And cleanup?",
-       "runs before the next run, and on unmount"
+       "the updater, or honest dependencies"
       ]
      ],
      "cues": [
       "How does use state",
-      "stale closure",
-      "Fix it with",
-      "What does use effect",
-      "And cleanup"
+      "What does a render see",
+      "What is a stale closure",
+      "How do you fix it"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "Say it: what useEffect does",
+     "covers": [
+      "fe06"
+     ],
+     "say": "What does use effect do? It runs after the screen paints. When a listed value changes, React first runs the cleanup, then the effect again. And when the component leaves, the cleanup runs one last time.",
+     "items": [
+      {
+       "label": "after paint",
+       "text": "Run effect",
+       "cue": "runs after the screen paints"
+      },
+      {
+       "label": "deps changed",
+       "text": "Cleanup, re-run",
+       "tone": "warn",
+       "cue": "When a listed value"
+      },
+      {
+       "label": "unmount",
+       "text": "Cleanup",
+       "tone": "good",
+       "cue": "when the component leaves"
+      }
      ]
     }
    ]
