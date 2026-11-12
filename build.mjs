@@ -320,12 +320,12 @@ function build(specPath) {
     if (i > 0) sfx.push({ t: r3(t), file: i % 2 ? "whoosh-short.mp3" : "whoosh.mp3", vol: 0.1 });
     // captions: sentence-level, timed by character position
     const sents = sc.say === undefined ? [] : (sc.say.match(/[^.!?]+[.!?]+["')]*\s*|[^.!?]+$/g) || [sc.say]).flatMap((s) => {
-      if (s.split(/\s+/).length <= 14) return [s];
+      if (s.split(/\s+/).length <= 11) return [s];
       const parts = s.match(/[^,;:]+[,;:]?\s*/g), out = [];
-      for (const p of parts) { if (out.length && (out.at(-1) + p).split(/\s+/).length <= 14) out[out.length - 1] += p; else out.push(p); }
+      for (const p of parts) { if (out.length && (out.at(-1) + p).split(/\s+/).length <= 11) out[out.length - 1] += p; else out.push(p); }
       return out;
     }).reduce((acc, p) => {
-      if (acc.length && (p.trim().split(/\s+/).length < 5 || acc.at(-1).trim().split(/\s+/).length < 4) && (acc.at(-1) + p).split(/\s+/).length <= 18) acc[acc.length - 1] += p; else acc.push(p);
+      if (acc.length && (p.trim().split(/\s+/).length < 5 || acc.at(-1).trim().split(/\s+/).length < 4) && (acc.at(-1) + p).split(/\s+/).length <= 12) acc[acc.length - 1] += p; else acc.push(p);
       return acc;
     }, []);
     let c = 0;
