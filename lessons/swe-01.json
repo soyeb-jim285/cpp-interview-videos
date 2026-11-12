@@ -315,7 +315,7 @@
     {
      "type": "compare",
      "head": "Add sequential, multiply nested",
-     "say": "O of n. Sequential loops add: n plus n is two n. Drop the two. Nested loops multiply: n times n. A loop that halves its range is O of log n.",
+     "say": "O of n. Sequential loops add: n plus n is two n. Drop the two. Nested loops multiply: n times n. A loop that halves its range is O of log n. That answers our problem.",
      "heads": [
       "Shape",
       "Cost"
@@ -456,7 +456,7 @@
      "type": "chart",
      "head": "One lookup, worst case",
      "unit": "comparisons",
-     "say": "Here we count comparisons for one lookup. The list scans from the front, all ten thousand, because the match is last. The set hashes and jumps to its bucket: one. Ten thousand times less work.",
+     "say": "Here we count comparisons for one lookup. The list scans from the front, all ten thousand, because the match is last. The set hashes to a slot and jumps there: one. Ten thousand times less.",
      "bars": [
       {
        "label": "list",
@@ -477,7 +477,7 @@
      "type": "chart",
      "head": "How fast each class blows up",
      "unit": "steps",
-     "say": "Here we count steps for each class, at a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That jump is why nested loops fail on big inputs.",
+     "say": "Here we count steps for each class, at a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That answers it: a hidden loop.",
      "bars": [
       {
        "label": "O(log n)",
@@ -502,7 +502,8 @@
        "tone": "bad",
        "cue": "Quadratic"
       }
-     ]
+     ],
+     "hold": 0
     }
    ]
   },
@@ -602,7 +603,8 @@
       }
      ],
      "output": {
-      "cmd": "python -m cProfile -s tottime app.py | grep -E 'hits|load'",
+      "cmd": "python -m cProfile -s tottime app.py | grep -E 'hits|load' | sed 's/^ *//'",
+      "approx": true,
       "text": "1    0.437    0.437    0.437    0.437 app.py:4(hits)\n1    0.000    0.000    0.000    0.000 app.py:1(load)",
       "cue": "The report says"
      }
@@ -662,6 +664,10 @@
      ],
      "output": {
       "cmd": "python bench.py",
+      "approx": true,
+      "setup": {
+       "bench.py": "import time\nids = list(range(10_000))\n\ndef hits_list(ids, seen):\n    return [x for x in ids if x in seen]\n\ndef hits_set(ids, seen):\n    seen = set(seen)\n    return [x for x in ids if x in seen]\n\nfor f in (hits_list, hits_set):\n    t = time.perf_counter()\n    f(ids, ids)\n    print(f.__name__, round(time.perf_counter() - t, 4), \"s\")\n"
+      },
       "text": "hits_list 0.5563 s\nhits_set 0.0017 s",
       "cue": "Half a second"
      }
@@ -751,27 +757,27 @@
       "They ask",
       "You say"
      ],
-     "say": "Big O of this code? I name n, count loops, multiply nested, keep the biggest. Best or worst case? Worst by default. Why drop constants? They don't change the scaling. Amortized? Average over many calls. Better? Trade space for time.",
+     "say": "Big O of this code? I name n, count loops, multiply nested, keep the biggest. Best or worst case? I say worst, and mention best. Why drop constants? They don't change the scaling. Amortized? An average over many calls. Better? I trade space for time, with a set.",
      "rows": [
       [
        "Big-O of this code?",
-       "name n, count loops, multiply nested, keep the biggest"
+       "I name n, count loops, keep the biggest."
       ],
       [
        "Best or worst case?",
-       "worst by default, mention best"
+       "I say worst, and mention best."
       ],
       [
        "Why drop constants?",
-       "they don't change how cost scales"
+       "They don't change the scaling."
       ],
       [
        "Amortized?",
-       "average over many calls"
+       "An average over many calls."
       ],
       [
        "Can you do better?",
-       "trade space for time: a set"
+       "I trade space for time, with a set."
       ]
      ],
      "cues": [
@@ -783,39 +789,38 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 25 seconds",
+     "type": "flow",
+     "head": "Optimize slow code, aloud",
      "covers": [
       "sw08"
      ],
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "say": "How do you optimize slow code? Measure first, with a profiler, on realistic input. Loop tweaks or algorithm? Algorithm first. Tweaks give maybe two times. After that? I O: fewer database calls, caching. Biggest mistake? Guessing, or tuning two percent of the runtime.",
-     "rows": [
-      [
-       "Where do you start?",
-       "profiler, realistic input"
-      ],
-      [
-       "Tweaks or algorithm?",
-       "algorithm first, tweaks ~2×"
-      ],
-      [
-       "After that?",
-       "I/O: fewer DB calls, caching"
-      ],
-      [
-       "Biggest mistake?",
-       "guessing; tuning a 2% part"
-      ]
-     ],
-     "cues": [
-      "How do you optimize",
-      "Loop tweaks",
-      "After that",
-      "Biggest mistake"
+     "say": "To optimize slow code, I measure first, with a profiler on realistic input. Then I fix the algorithm, because tweaks give maybe two times. After that I cut I O: fewer database calls, and caching. The classic mistake is guessing.",
+     "items": [
+      {
+       "label": "1",
+       "text": "measure",
+       "sub": "profiler, real input",
+       "cue": "I measure first"
+      },
+      {
+       "label": "2",
+       "text": "algorithm",
+       "sub": "tweaks give ~2×",
+       "cue": "fix the algorithm"
+      },
+      {
+       "label": "3",
+       "text": "cut I/O",
+       "sub": "fewer DB calls, cache",
+       "cue": "I cut I O"
+      },
+      {
+       "label": "mistake",
+       "text": "guessing",
+       "sub": "or tuning a 2% part",
+       "tone": "bad",
+       "cue": "classic mistake"
+      }
      ]
     }
    ]
