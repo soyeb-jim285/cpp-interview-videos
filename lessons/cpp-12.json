@@ -72,20 +72,24 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Two lines add a point to a vector. One builds it twice, the other once. By the end, you'll write the erase remove idiom from memory, and pick the right container and sort for any task.",
+     "say": "Two lines add a point to a vector. One builds then moves it, the other builds it once. By the end, you'll write the erase remove idiom from memory, and pick the right container and sort for any task.",
      "lines": [
       {
        "text": "push_back: build, then move",
-       "cue": "builds it twice"
+       "cue": "builds then moves it"
       },
       {
        "text": "emplace_back: build in place",
-       "cue": "the other once"
+       "cue": "the other builds it once"
       },
       {
        "text": "erase-remove, from memory",
        "cue": "erase remove idiom",
        "accent": true
+      },
+      {
+       "text": "Pick the right container and sort",
+       "cue": "pick the right container"
       }
      ]
     },
@@ -112,7 +116,7 @@
       "input": "push_back(P(1,2)) vs emplace_back(1,2)",
       "output": "ctor + move, against one ctor"
      },
-     "say": "Two lines add a point to a vector. For example, push back of a finished point, and emplace back of two numbers. Count the calls.",
+     "say": "For example, push back of a finished point, and emplace back of two numbers. Count the calls.",
      "cues": {
       "example": "For example",
       "output": "Count the calls"
@@ -121,7 +125,7 @@
     {
      "type": "flow",
      "head": "Cooking at the table",
-     "say": "Think of a restaurant. Push back cooks the dish in the kitchen, carries it over, and throws the pan away. Emplace back cooks it right at the table. Same dish, fewer steps.",
+     "say": "Think of a restaurant. Same dish either way. Push back cooks it in the kitchen, carries it over, and throws the pan away. Emplace back cooks it right at the table.",
      "items": [
       {
        "label": "push_back",
@@ -219,7 +223,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<string> v;\nstring s = \"hi\";\nv.push_back(s);\nv.emplace_back(s);\nv.emplace_back(\"hi\");\n\nvector<unique_ptr<int>> w;\nw.push_back(new int(1));\nw.emplace_back(new int(1));"
+       "code": "vector<string> v;\nstring s = \"hi\";\nv.push_back(s);\nv.emplace_back(s);\nv.push_back(\"hi\");\nv.emplace_back(\"hi\");\n\nvector<unique_ptr<int>> w;\nw.push_back(new int(1));\nw.emplace_back(new int(1));"
       }
      ],
      "steps": [
@@ -231,7 +235,7 @@
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "a literal"
       },
@@ -243,20 +247,20 @@
       },
       {
        "lines": [
-        7,
-        8
+        8,
+        9
        ],
        "cue": "explicit constructors"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "won't compile"
       },
       {
        "lines": [
-        9
+        10
        ],
        "cue": "can leak"
       }
@@ -270,14 +274,14 @@
        "cue": "existing object"
       },
       {
-       "line": 8,
+       "line": 9,
        "inside": true,
        "text": "error: explicit ctor",
        "tone": "bad",
        "cue": "won't compile"
       },
       {
-       "line": 9,
+       "line": 10,
        "inside": true,
        "text": "leaks if growth throws",
        "tone": "bad",
@@ -455,15 +459,53 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A queue: push at the back, pop at the front, a million times. Which container is the usual choice? Pause and predict.",
-     "q": "Queue: push back, pop front, a million times. Best?",
+     "say": "Your turn. A vector holds one, two, three. We erase its first element. How many elements move? Pause and predict.",
+     "q": "`vector<int> v = {1, 2, 3}; v.erase(v.begin());` How many elements move?",
      "options": [
-      "vector",
-      "deque",
-      "list",
-      "array"
+      "0",
+      "1",
+      "2",
+      "3"
      ],
-     "answer": "deque"
+     "answer": 2
+    },
+    {
+     "type": "diagram",
+     "head": "Erase the first: the rest shift",
+     "say": "Two. The first element leaves, so the rest slide left. Two moves into slot zero, and three moves into slot one. The last slot is freed. A deque avoids this shift at the front.",
+     "items": [
+      {
+       "array": {
+        "id": "c",
+        "values": [
+         1,
+         2,
+         3
+        ],
+        "y": 380,
+        "cue": "The first element leaves"
+       }
+      }
+     ],
+     "changes": [
+      {
+       "id": "c0",
+       "text": "2",
+       "tone": "good",
+       "cue": "Two moves into slot zero"
+      },
+      {
+       "id": "c1",
+       "text": "3",
+       "tone": "good",
+       "cue": "three moves into slot one"
+      },
+      {
+       "id": "c2",
+       "kill": true,
+       "cue": "The last slot is freed"
+      }
+     ]
     },
     {
      "type": "code",
@@ -504,6 +546,13 @@
      ],
      "notes": [
       {
+       "line": 2,
+       "inside": true,
+       "text": "queue and stack use it",
+       "tone": "info",
+       "cue": "behind queue and stack"
+      },
+      {
        "line": 6,
        "inside": true,
        "text": "moves nodes, copies nothing",
@@ -534,11 +583,11 @@
     {
      "type": "code",
      "head": "A comparator answers one question",
-     "say": "A comparator answers: should a come before b? Plain sort uses less than: ascending. Pass a lambda returning a greater than b, and it's descending. The library also ships greater. Any callable that takes two elements and returns bool works.",
+     "say": "A comparator answers one question: should a come before b? Plain sort uses less than: ascending. Pass a lambda returning a greater than b, and it's descending. The library also ships greater. Any callable that takes two elements and returns bool works. Printed, the list reads five, four, three, one, one.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<int> v = {3, 1, 4, 1, 5};\nsort(v.begin(), v.end());\nsort(v.begin(), v.end(),\n     [](int a, int b) { return a > b; });\nsort(v.begin(), v.end(), greater<int>());"
+       "code": "vector<int> v = {3, 1, 4, 1, 5};\nsort(v.begin(), v.end());\nsort(v.begin(), v.end(),\n     [](int a, int b) { return a > b; });\nsort(v.begin(), v.end(), greater<int>());\nfor (int x : v) cout << x << ' ';"
       }
      ],
      "steps": [
@@ -564,8 +613,8 @@
      ],
      "output": {
       "cmd": "./cmp",
-      "text": "1 1 3 4 5",
-      "cue": "ascending",
+      "text": "5 4 3 1 1",
+      "cue": "the list reads five",
       "tone": "good"
      }
     },
@@ -777,6 +826,12 @@
       }
      ],
      "changes": [
+      {
+       "id": "g0",
+       "glow": true,
+       "tone": "warn",
+       "cue": "original order"
+      },
       {
        "id": "c1",
        "text": "Cid",
@@ -1000,7 +1055,7 @@
       {
        "label": "index 0",
        "text": "8",
-       "cue": "index zero",
+       "cue": "Top is index zero",
        "sub": "top: O(1)",
        "tone": "good"
       },
@@ -1021,6 +1076,128 @@
        "text": "1",
        "cue": "Pop moves",
        "sub": "child of 1"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Pop: last one up, sift down",
+     "say": "Start from this heap: eight on top, three and five below, one under three. Pop removes the top. The last element, one, moves to the root. Its old slot empties. Now sift it down: compare it with its children. Five is bigger, so swap. One sinks to the right child. Five is the new top.",
+     "items": [
+      {
+       "id": "n0",
+       "x": 880,
+       "y": 230,
+       "w": 160,
+       "h": 110,
+       "text": "8",
+       "size": 44,
+       "tone": "blue",
+       "cue": "eight on top"
+      },
+      {
+       "id": "n1",
+       "x": 640,
+       "y": 430,
+       "w": 160,
+       "h": 110,
+       "text": "3",
+       "size": 44,
+       "tone": "blue",
+       "cue": "three and five below"
+      },
+      {
+       "id": "n2",
+       "x": 1120,
+       "y": 430,
+       "w": 160,
+       "h": 110,
+       "text": "5",
+       "size": 44,
+       "tone": "blue",
+       "cue": "three and five below"
+      },
+      {
+       "id": "n3",
+       "x": 500,
+       "y": 630,
+       "w": 160,
+       "h": 110,
+       "text": "1",
+       "size": 44,
+       "tone": "blue",
+       "cue": "one under three"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "n0",
+       "to": "n1",
+       "cue": "three and five below"
+      },
+      {
+       "from": "n0",
+       "to": "n2",
+       "cue": "three and five below"
+      },
+      {
+       "from": "n1",
+       "to": "n3",
+       "cue": "one under three"
+      }
+     ],
+     "changes": [
+      {
+       "id": "n0",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Pop removes the top"
+      },
+      {
+       "id": "n3",
+       "glow": true,
+       "tone": "warn",
+       "cue": "The last element"
+      },
+      {
+       "id": "n0",
+       "text": "1",
+       "tone": "warn",
+       "cue": "moves to the root"
+      },
+      {
+       "id": "n3",
+       "kill": true,
+       "cue": "Its old slot empties"
+      },
+      {
+       "id": "n1",
+       "glow": true,
+       "cue": "compare it with its children"
+      },
+      {
+       "id": "n2",
+       "glow": true,
+       "tone": "good",
+       "cue": "Five is bigger"
+      },
+      {
+       "id": "n0",
+       "text": "5",
+       "tone": "good",
+       "cue": "so swap"
+      },
+      {
+       "id": "n2",
+       "text": "1",
+       "tone": "warn",
+       "cue": "sinks to the right child"
+      },
+      {
+       "id": "n0",
+       "glow": true,
+       "tone": "good",
+       "cue": "Five is the new top"
       }
      ]
     },
@@ -1133,7 +1310,16 @@
       "text": "1 3 5 8",
       "cue": "One.",
       "tone": "good"
-     }
+     },
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "true: a has lower priority",
+       "tone": "info",
+       "cue": "lower priority than b"
+      }
+     ]
     }
    ]
   },
@@ -1430,40 +1616,50 @@
      ]
     },
     {
-     "type": "compare",
+     "type": "code",
      "head": "Say it in 20 seconds",
-     "say": "Custom comparator? A function answering: does a come before b? It must be strict: comparing x with itself gives false. Never less than or equal. In a set, it also defines equality.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Comparator?",
-       "answers: does `a` come before `b`?"
-      ],
-      [
-       "The rule?",
-       "strict weak ordering: `cmp(x, x)` is false"
-      ],
-      [
-       "In a set?",
-       "also defines which keys are equal"
-      ]
-     ],
-     "cues": [
-      "Custom comparator",
-      "It must be strict",
-      "In a set"
-     ],
      "covers": [
       "q81"
-     ]
+     ],
+     "say": "Custom comparator? It answers: does a come before b? It must be strict: comparing x with itself must give false. In a set, it also decides equality. Kiwi and pear tie at length four, so pear is dropped. Fig kiwi prints.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "struct ByLength {\n  bool operator()(const string& a, const string& b) const {\n    return a.size() < b.size();\n  }\n};\nset<string, ByLength> s = {\"kiwi\", \"fig\", \"pear\"};\nfor (auto& w : s) cout << w << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "does a come before b"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "must be strict"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "decides equality"
+      }
+     ],
+     "output": {
+      "cmd": "./set",
+      "text": "fig kiwi",
+      "cue": "Fig kiwi prints",
+      "tone": "good"
+     }
     },
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "Priority queue? A binary heap in a vector. Top is O of one. Push and pop are O of log n. Max heap by default. Greater gives a min heap.",
+     "say": "Priority queue? A binary heap in a vector. Max heap by default. Top is O of one. Push and pop are O of log n. Min heap? Spell the container: priority queue of int, vector of int, greater of int.",
      "heads": [
       "They ask",
       "You say"
@@ -1479,13 +1675,13 @@
       ],
       [
        "Min-heap?",
-       "pass `greater<int>`"
+       "`priority_queue<int, vector<int>, greater<int>>`"
       ]
      ],
      "cues": [
       "Priority queue",
       "Top is",
-      "Max heap by default"
+      "Min heap?"
      ],
      "covers": [
       "q82"
@@ -1514,7 +1710,7 @@
       ]
      ],
      "cues": [
-      "Sort versus",
+      "Stable sort keeps",
       "Both O of n log n",
       "Use stable"
      ],
@@ -1523,34 +1719,59 @@
      ]
     },
     {
-     "type": "compare",
+     "type": "code",
      "head": "Say it in 20 seconds",
-     "say": "Erase remove idiom? Remove only shifts keepers forward and returns the new end. Erase then cuts the leftovers. In C plus plus twenty, call erase or erase if.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What does `remove` do?",
-       "shifts keepers forward; returns new end"
-      ],
-      [
-       "Then?",
-       "`erase(it, v.end())` cuts the rest"
-      ],
-      [
-       "C++20?",
-       "`std::erase`, `std::erase_if`"
-      ]
-     ],
-     "cues": [
-      "Erase remove idiom",
-      "Erase then",
-      "In C plus plus twenty"
-     ],
      "covers": [
       "q84"
+     ],
+     "say": "Erase remove idiom? Remove shifts the keepers forward, and returns the new end. Erase then cuts the leftovers. Never leave out the end. In C plus plus twenty, erase with a value does both steps. Here it prints one, three, four.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v = {1, 2, 3, 2, 4};\nv.erase(remove(v.begin(), v.end(), 2),\n        v.end());\nfor (int x : v) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Erase remove idiom"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "returns the new end"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "cuts the leftovers"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Never leave out the end"
+      }
+     ],
+     "output": {
+      "cmd": "./erase",
+      "text": "1 3 4",
+      "cue": "Here it prints",
+      "tone": "good"
+     },
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "C++20: erase(v, 2)",
+       "tone": "info",
+       "cue": "erase with a value"
+      }
      ]
     },
     {
