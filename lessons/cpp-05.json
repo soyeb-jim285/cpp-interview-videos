@@ -43,7 +43,7 @@
      "kicker": "Today",
      "say": "Today you will do three things. Tie cleanup to a destructor, so exceptions cannot skip it. Pick between unique, shared and weak pointers. And break the cycle that leaks even smart pointers.",
      "lines": [
-      "Tie cleanup to a destructor (RAII)",
+      "RAII: acquire in constructor, free in destructor",
       "Pick unique, shared or weak",
       "Break the cycle that leaks shared_ptr"
      ],
@@ -245,17 +245,17 @@
      "changes": [
       {
        "id": "c",
-       "kill": true,
+       "fade": true,
        "cue": "in reverse"
       },
       {
        "id": "b",
-       "kill": true,
+       "fade": true,
        "cue": "c, then b"
       },
       {
        "id": "a",
-       "kill": true,
+       "fade": true,
        "cue": "then a"
       }
      ],
@@ -288,6 +288,13 @@
        "text": "uncaught: no unwinding promise",
        "tone": "warn",
        "cue": "One fine print"
+      },
+      {
+       "x": 1050,
+       "y": 880,
+       "text": "terminate() runs",
+       "tone": "warn",
+       "cue": "unwinding is not guaranteed"
       }
      ]
     },
@@ -337,7 +344,7 @@
       "input": "make_unique<Widget>(3)",
       "output": "freed once, automatically"
      },
-     "say": "Here is the problem. We need a Widget on the heap. No delete to forget, no leak, no double free. And we can hand it to someone else.",
+     "say": "Picture this. We need a Widget on the heap. No delete to forget, no leak, no double free. And we can hand it to someone else.",
      "cues": {
       "example": "No delete to forget",
       "output": "And we can hand"
@@ -425,7 +432,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A raw pointer is eight bytes on this machine. How big are a unique pointer and a shared pointer? Pause and predict.",
+     "say": "Quick one. A raw pointer is eight bytes on this machine. How big are a unique pointer and a shared pointer? Pause and predict.",
      "q": "sizeof of unique_ptr<int> and shared_ptr<int>, 64-bit?",
      "options": [
       "8 and 8",
@@ -438,7 +445,7 @@
     {
      "type": "code",
      "head": "The price of sharing",
-     "say": "Eight and sixteen. A unique pointer is a raw pointer's size, so no extra cost. A shared pointer carries two pointers: one to the object, one to a control block with the counts. Use unique by default.",
+     "say": "Eight and sixteen. A unique pointer is a raw pointer's size, so no extra cost. A shared pointer carries two pointers: one to the object, one to a control block, the shared counter beside it. Use unique by default.",
      "panels": [
       {
        "file": "main.cpp",
@@ -487,7 +494,7 @@
       "input": "a, b = a, b dies, a.reset()",
       "output": "count 1, 2, 1, 0: then delete"
      },
-     "say": "Here is the problem. Several owners share one object. Who deletes it, and when? Exactly once, when the last owner lets go.",
+     "say": "Three owners share one object. Who deletes it, and when? Exactly once, when the last owner lets go.",
      "cues": {
       "example": "Who deletes it",
       "output": "Exactly once"
@@ -657,7 +664,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Now b takes a by move, not by copy. What does b's use count print? Pause and predict.",
+     "say": "Twist time. Now b takes a by move, not by copy. What does b's use count print? Pause and predict.",
      "q": "`auto b = std::move(a);` What is b.use_count()?",
      "options": [
       "0",
@@ -703,17 +710,17 @@
     {
      "type": "code",
      "head": "Counting is not free",
-     "say": "Counting costs something. A copy updates the count atomically, safe across threads but slower than a plain add. So do not pass shared pointers by value unless the function keeps one. Pass a reference, or better, the object. The counter is thread safe. The Widget is not.",
+     "say": "Counting costs something. A copy updates the count in one indivisible step, called atomic. Safe across threads, but slower than a plain add. So do not pass shared pointers by value unless the function keeps one. Pass a reference, or better, the object. The counter is thread safe. The Widget is not.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "void byValue(shared_ptr<Widget> w);\nvoid byRef(const shared_ptr<Widget>& w);\nvoid best(const Widget& w);"
+       "code": "void byValue(shared_ptr<Widget> w);\nvoid byRef(const shared_ptr<Widget>& w);\nvoid best(const Widget& w);\nvoid caller() {\n    auto a = make_shared<Widget>();\n    byValue(a);\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        6
        ],
        "cue": "A copy updates"
       },
@@ -751,7 +758,7 @@
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 6,
        "inside": true,
        "text": "+1 on call",
        "tone": "warn",
@@ -798,6 +805,12 @@
        "text": "never zero",
        "tone": "bad",
        "cue": "Nobody ever does"
+      },
+      {
+       "label": "both",
+       "text": "nobody hangs up",
+       "tone": "warn",
+       "cue": "Each keeps the other alive"
       }
      ]
     },
@@ -926,19 +939,28 @@
        "main.cpp": "#include <cstdio>\n#include <iostream>\n#include <memory>\nusing namespace std;\nstruct Child;\nstruct Parent { shared_ptr<Child> child; ~Parent() { cout << \"~Parent\\n\"; } };\nstruct Child { shared_ptr<Parent> parent; ~Child() { cout << \"~Child\\n\"; } };\n"
       },
       "tone": "warn"
-     }
+     },
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "no ~Parent, no ~Child",
+       "tone": "bad",
+       "cue": "No tilde Parent"
+      }
+     ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. The Child's back link becomes a weak pointer. When p dies, what happens? Pause and predict.",
+     "say": "Try this one. The Child's back link becomes a weak pointer. When p dies, what happens? Pause and predict.",
      "q": "Child holds `weak_ptr<Parent>`. When p dies...?",
      "options": [
       "leaks again",
-      "destroyed, then Child",
+      "Parent, then its Child",
       "Parent stays alive",
       "double free"
      ],
-     "answer": "destroyed, then Child"
+     "answer": "Parent, then its Child"
     },
     {
      "type": "code",
@@ -1059,7 +1081,7 @@
     {
      "type": "compare",
      "head": "The three, side by side",
-     "say": "Owners: one, many, or none. Copy: move only, adds an owner, adds an observer. Cost: as cheap as raw, a control block, shares that block. Freed when: the owner dies, the last owner dies, never. Use: the default, truly shared, caches and cycles.",
+     "say": "Owners: one, many, or none. Copy: move only, adds an owner, adds an observer. Cost: as cheap as raw, a control block, shares that block.",
      "heads": [
       "unique_ptr",
       "shared_ptr",
@@ -1080,7 +1102,29 @@
        "same as raw pointer",
        "control block, atomic",
        "shares the block"
-      ],
+      ]
+     ],
+     "cues": [
+      "Owners:",
+      "Copy:",
+      "Cost:"
+     ],
+     "rowHeads": [
+      "owners",
+      "copy",
+      "cost"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "The three, side by side (cont.)",
+     "say": "Freed when: the owner dies, the last owner dies, never. Use: the default, truly shared, caches and cycles.",
+     "heads": [
+      "unique_ptr",
+      "shared_ptr",
+      "weak_ptr"
+     ],
+     "rows": [
       [
        "its owner dies",
        "last owner dies",
@@ -1093,16 +1137,10 @@
       ]
      ],
      "cues": [
-      "Owners:",
-      "Copy:",
-      "Cost:",
       "Freed when",
       "Use: the default"
      ],
      "rowHeads": [
-      "owners",
-      "copy",
-      "cost",
       "freed",
       "use"
      ]
@@ -1115,7 +1153,7 @@
     {
      "type": "compare",
      "head": "Say it in 20 seconds",
-     "say": "What is R A I I? Acquire in the constructor, release in the destructor. Why does it work? Destructors run on every exit: return, scope end, or exception. Examples? Unique pointer, lock guard, fstream.",
+     "say": "What is R A I I? Resource acquisition is initialization. Constructor acquires, destructor releases. Why does it work? Destructors run on every exit: return, scope end, or exception. Examples? Unique pointer, lock guard, fstream.",
      "heads": [
       "They ask",
       "You say"
@@ -1123,7 +1161,7 @@
      "rows": [
       [
        "What is RAII?",
-       "acquire in constructor, release in destructor"
+       "Resource Acquisition Is Initialization: acquire in the constructor, release in the destructor"
       ],
       [
        "Why does it work?",
@@ -1144,26 +1182,12 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
      "say": "Why smart pointers? They own and delete, so no leaks and no double frees. Which first? Unique pointer, as cheap as a raw pointer, move only. When shared? Only for truly shared ownership.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Why smart pointers?",
-       "they own and delete: no leaks, no double frees"
-      ],
-      [
-       "Which one first?",
-       "`unique_ptr`: raw-pointer cost, move-only"
-      ],
-      [
-       "When `shared_ptr`?",
-       "only for truly shared ownership"
-      ]
+     "lines": [
+      "They own and delete: no leaks, no double frees",
+      "`unique_ptr`: raw-pointer cost, move-only",
+      "only for truly shared ownership"
      ],
      "cues": [
       "Why smart pointers",
@@ -1206,26 +1230,12 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "take",
      "say": "What is reference counting? Count the owners, and delete at zero. The rules? A copy adds one, a destroy subtracts one, a move changes nothing. Cost and trap? A control block, atomic updates, and cycles that never reach zero.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "What is it?",
-       "count owners; zero means delete"
-      ],
-      [
-       "The rules?",
-       "copy +1, destroy -1; move: no change"
-      ],
-      [
-       "Cost and trap?",
-       "control block, atomics; cycles never hit 0"
-      ]
+     "lines": [
+      "count owners; zero means delete",
+      "copy +1, destroy -1; move: no change",
+      "control block, atomics; cycles never hit 0"
      ],
      "cues": [
       "What is reference counting",
@@ -1303,14 +1313,14 @@
     },
     {
      "type": "take",
-     "say": "So say this. R A I I: the constructor acquires, the destructor releases, even on a throw. Use unique pointer by default, and shared pointer only for shared ownership. Make back links weak, so ownership forms a tree.",
+     "say": "So say this. R A I I: constructor acquires, destructor releases, even on a throw. Use unique pointer by default, and shared pointer only for shared ownership. Make back links weak, so ownership forms a tree.",
      "lines": [
       "RAII: constructor acquires, destructor releases.",
       "`unique_ptr` default; `shared_ptr` only if shared.",
       "`weak_ptr` for back links: ownership is a tree."
      ],
      "cues": [
-      "R A I I",
+      "So say this",
       "Use unique pointer",
       "Make back links"
      ]
