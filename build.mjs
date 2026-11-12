@@ -261,7 +261,7 @@ function sceneTake(sc, sid, sfx) {
 
 function sceneProblem(sc, sid, sfx) {
   const ex = sc.example || {}, c = sc.cues || {};
-  const html = `<div class="prob" id="${sid}-pb"><div class="kicker" id="${sid}-pk">Problem</div><h1 id="${sid}-pt">${hlInline(sc.title)}</h1><p class="pst" id="${sid}-ps">${hlInline(sc.statement)}</p><div class="pio"><div class="pbox" id="${sid}-pi"><b>Input</b><code>${esc(ex.input)}</code></div><div class="pbox out" id="${sid}-po"><b>Output</b><code>${esc(ex.output)}</code></div></div>${sc.note ? `<div class="pnote" id="${sid}-pn">${hlInline(sc.note)}</div>` : ""}</div>`;
+  const html = `<div class="prob" id="${sid}-pb"><div class="kicker" id="${sid}-pk">Problem</div><h1 id="${sid}-pt">${hlInline(sc.title)}</h1><p class="pst" id="${sid}-ps">${hlInline(sc.statement)}</p><div class="pio"><div class="pbox" id="${sid}-pi"><b>Input</b><code>${esc(ex.input.replace(/`/g, ""))}</code></div><div class="pbox out" id="${sid}-po"><b>Output</b><code>${esc(ex.output.replace(/`/g, ""))}</code></div></div>${sc.note ? `<div class="pnote" id="${sid}-pn">${hlInline(sc.note)}</div>` : ""}</div>`;
   const tw = [`tl.fromTo("#${sid}-pk",{opacity:0,x:-20},{opacity:1,x:0,duration:0.5},${r3(sc.t0 + 0.2)});`,
     `tl.fromTo("#${sid}-pt",{opacity:0,y:30},{opacity:1,y:0,duration:0.6,ease:"power3.out"},${r3(sc.t0 + 0.3)});`,
     `tl.fromTo("#${sid}-ps",{opacity:0,y:20},{opacity:1,y:0,duration:0.6,ease:"power3.out"},${r3(sc.t0 + 0.7)});`];
