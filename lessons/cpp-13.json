@@ -55,11 +55,11 @@
       },
       {
        "text": "The counter can end short.",
-       "cue": "end short"
+       "cue": "It can end"
       },
       {
        "text": "Explain it. Fix it twice.",
-       "cue": "fix it two ways",
+       "cue": "explain why",
        "accent": true
       }
      ]
@@ -138,67 +138,67 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "auto i = 42;\nauto d = 3.14;\nauto s = \"hi\";\nmap<string, int> m;\nauto it = m.begin();\n// auto nothing;"
+       "code": "int main() {\n    auto i = 42;\n    auto d = 3.14;\n    auto s = \"hi\";\n    map<string, int> m;\n    auto it = m.begin();\n    // auto nothing;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "Forty two"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "Three point one four"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "const char pointer"
       },
       {
        "lines": [
-        4,
-        5
+        5,
+        6
        ],
        "cue": "map iterator"
       }
      ],
      "notes": [
       {
-       "line": 1,
+       "line": 2,
        "inside": true,
        "text": "int",
        "tone": "good",
        "cue": "Forty two"
       },
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "double",
        "tone": "good",
        "cue": "Three point one four"
       },
       {
-       "line": 3,
+       "line": 4,
        "inside": true,
        "text": "const char*, not string",
        "tone": "warn",
        "cue": "const char pointer"
       },
       {
-       "line": 5,
+       "line": 6,
        "inside": true,
        "text": "map<...>::iterator",
        "tone": "good",
        "cue": "writes itself"
       },
       {
-       "line": 6,
+       "line": 7,
        "inside": true,
        "text": "error: no initializer",
        "tone": "warn",
@@ -221,49 +221,55 @@
     {
      "type": "code",
      "head": "auto drops references",
-     "say": "Still one, two, three. Plain auto copies, and drops references and top level const, so you doubled copies. Write auto ampersand, and you double the elements themselves. Two, four, six.",
+     "say": "Still one, two, three. Plain auto copies. It drops references, and top level const. That's a const on the variable itself. You doubled copies. Write auto ampersand, and you double the elements themselves. Two, four, six.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<int> v{1, 2, 3};\nfor (auto e : v) e *= 2;\nfor (int x : v) cout << x << ' ';\nfor (auto& e : v) e *= 2;\nfor (int x : v) cout << x << ' ';"
+       "code": "int main() {\n    vector<int> v{1, 2, 3};\n    for (auto e : v) e *= 2;\n    for (int x : v) cout << x << ' ';\n    for (auto& e : v) e *= 2;\n    for (int x : v) cout << x << ' ';\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "Plain auto copies"
       },
       {
        "lines": [
-        2
+        3
+       ],
+       "cue": "top level const"
+      },
+      {
+       "lines": [
+        3
        ],
        "cue": "doubled copies"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "auto ampersand"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Two, four, six"
       }
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "copies: v unchanged",
        "tone": "bad",
        "cue": "doubled copies"
       },
       {
-       "line": 4,
+       "line": 5,
        "inside": true,
        "text": "reference: v changes",
        "tone": "good",
@@ -274,7 +280,10 @@
       "cmd": "./auto",
       "text": "1 2 3 2 4 6",
       "cue": "Two, four, six",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     }
    ]
@@ -299,36 +308,36 @@
     {
      "type": "code",
      "head": "A lambda, taken apart",
-     "say": "The square brackets are the capture list: outside variables it may use. Here, none. Then the parameters, like a normal function. Then the body. The result: fig, kiwi, apple, banana.",
+     "say": "The square brackets are the capture list: outside variables it may use. Here, none. Then the parameters, like a normal function. Then the body. The result, sorted by length: fig, kiwi, apple, banana.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "vector<string> w = {\"banana\", \"fig\",\n                    \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(),\n   [](const string& a, const string& b) {\n      return a.size() < b.size();\n   });\nfor (auto& s : w) cout << s << ' ';"
+       "code": "int main() {\n    vector<string> w = {\"banana\", \"fig\",\n                        \"apple\", \"kiwi\"};\n    sort(w.begin(), w.end(),\n       [](const string& a, const string& b) {\n          return a.size() < b.size();\n       });\n    for (auto& s : w) cout << s << ' ';\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        3,
-        4
+        4,
+        5
        ],
        "cue": "capture list"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "parameters"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "body"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "fig, kiwi"
       }
@@ -337,7 +346,10 @@
       "cmd": "./sortlen",
       "text": "fig kiwi apple banana",
       "cue": "The result",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -412,31 +424,31 @@
      "panels": [
       {
        "file": "cap.cpp",
-       "code": "int x = 1;\nauto byVal = [x]  { return x; };\nauto byRef = [&x] { return x; };\nx = 2;\ncout << byVal() << ' ' << byRef();"
+       "code": "int main() {\nint x = 1;\nauto byVal = [x]  { return x; };\nauto byRef = [&x] { return x; };\nx = 2;\ncout << byVal() << ' ' << byRef();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "copies x"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "keeps a link"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "x becomes two"
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "still says one"
       }
@@ -461,33 +473,33 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int c = 0;\nauto inc = [c]() mutable { return ++c; };\ninc();\ninc();\ncout << inc() << '\\n';\ncout << c;"
+       "code": "int main() {\n    int c = 0;\n    auto inc = [c]() mutable { return ++c; };\n    inc();\n    inc();\n    cout << inc() << '\\n';\n    cout << c;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2
+        3
        ],
        "cue": "change its own copy"
       },
       {
        "lines": [
-        3,
         4,
-        5
+        5,
+        6
        ],
        "cue": "three calls"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "outer c"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "read only"
       }
@@ -496,7 +508,10 @@
       "cmd": "./mut",
       "text": "3\n0",
       "cue": "never moved",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -506,7 +521,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "function<int()> make() {\n    int local = 42;\n    return [&local] { return local; };\n}\nauto f = make();\nf();\n// fix: return [local] { return local; };"
+       "code": "function<int()> make() {\n    int local = 42;\n    return [&local] { return local; };\n}\nint main() {\n    auto f = make();\n    f();\n    // fix: return [local] { return local; };\n}"
       }
      ],
      "steps": [
@@ -525,7 +540,7 @@
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "undefined"
       },
@@ -535,7 +550,7 @@
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "capture by value"
       }
@@ -549,7 +564,7 @@
        "cue": "local dies"
       },
       {
-       "line": 6,
+       "line": 7,
        "inside": true,
        "text": "UB",
        "tone": "bad",
@@ -583,7 +598,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "template <typename T>\nT maxOf(T a, T b) {\n    return a > b ? a : b;\n}\ncout << maxOf(3, 7) << ' ';\ncout << maxOf(2.5, 1.5) << ' ';\ncout << maxOf<string>(\"a\", \"b\");"
+       "code": "template <typename T>\nT maxOf(T a, T b) {\n    return a > b ? a : b;\n}\nint main() {\n    cout << maxOf(3, 7) << ' ';\n    cout << maxOf(2.5, 1.5) << ' ';\n    cout << maxOf<string>(\"a\", \"b\");\n}"
       }
      ],
      "steps": [
@@ -596,19 +611,19 @@
       },
       {
        "lines": [
-        5
+        6
        ],
        "cue": "Two ints"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "Two doubles"
       },
       {
        "lines": [
-        7
+        8
        ],
        "cue": "angle brackets"
       }
@@ -617,7 +632,10 @@
       "cmd": "./max",
       "text": "7 2.5 b",
       "cue": "string",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -671,35 +689,33 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "template <typename T>\nstruct TypeName {\n  static const char* get() { return \"unknown\"; } };\ntemplate <>\nstruct TypeName<int> {\n  static const char* get() { return \"int\"; } };\ncout << TypeName<int>::get() << '\\n';\ncout << TypeName<double>::get();"
+       "code": "template <typename T> struct TypeName {\n  static const char* get() { return \"unknown\"; } };\ntemplate <> struct TypeName<int> {\n  static const char* get() { return \"int\"; } };\nint main() {\n    cout << TypeName<int>::get() << '\\n';\n    cout << TypeName<double>::get();\n}"
       }
      ],
      "steps": [
       {
        "lines": [
         1,
-        2,
-        3
+        2
        ],
        "cue": "primary template"
       },
       {
        "lines": [
-        4,
-        5,
-        6
+        3,
+        4
        ],
        "cue": "empty angle brackets"
       },
       {
        "lines": [
-        7
+        6
        ],
        "cue": "prints int"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "falls back"
       }
@@ -708,7 +724,10 @@
       "cmd": "./tn",
       "text": "int\nunknown",
       "cue": "falls back",
-      "tone": "good"
+      "tone": "good",
+      "setup": {
+       "main.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      }
      }
     },
     {
@@ -861,7 +880,7 @@
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int counter = 0;\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;\n}\nthread a(work), b(work);\na.join(); b.join();\ncout << counter;",
+       "code": "int counter = 0;\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;\n}\nint main() {\n    thread a(work), b(work);\n    a.join(); b.join();\n    cout << counter;\n}",
        "label": "g++ -O0",
        "tone": "warn"
       }
@@ -887,21 +906,29 @@
       },
       {
        "lines": [
-        8
+        7,
+        8,
+        9
        ],
        "cue": "Run it a few times"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "the total can come up short"
       },
       {
        "lines": [
-        8
+        9
        ],
        "cue": "With optimization on"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "The bug is still there"
       }
      ],
      "notes": [
@@ -928,66 +955,44 @@
     },
     {
      "type": "code",
-     "head": "Two fixes: atomic or mutex",
-     "say": "Atomic is the right answer. volatile is not atomic, long still races, and sleep only changes timing. Atomic makes plus plus one indivisible step, with no lock. The fix is a mutex: lock, add, unlock. Both give two hundred thousand, every time. N is a hundred thousand.",
+     "head": "Fix one: an atomic counter",
+     "say": "Atomic is the right answer for one counter. Volatile is not atomic, and sleep only changes timing. Atomic makes plus plus one indivisible step, with no lock. Each thread adds its hundred thousand. The total is two hundred thousand, every time. A mutex also works, and the next scene shows how to lock it.",
      "panels": [
       {
        "file": "atomic.cpp",
-       "label": "atomic",
-       "tone": "good",
-       "code": "const int N = 100000;\natomic<int> n{0};\n\nvoid work() {\n  for (int i = 0; i < N; ++i)\n    ++n;\n}"
-      },
-      {
-       "file": "mutex.cpp",
-       "label": "mutex",
-       "tone": "good",
-       "code": "const int N = 100000;\nmutex m;\nint n = 0;\nvoid work() {\n  for (int i = 0; i < N; ++i) {\n    lock_guard<mutex> g(m);\n    ++n;\n  }\n}"
+       "code": "atomic<int> n{0};\nvoid work() {\n    for (int i = 0; i < 100000; ++i) ++n;\n}\nint main() {\n    thread a(work), b(work);\n    a.join(); b.join();\n    cout << n;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2,
-        3,
-        4,
-        5,
-        6
-       ],
-       "cue": "Atomic",
-       "panel": 0
-      },
-      {
-       "lines": [
         1
        ],
-       "cue": "not atomic",
-       "panel": 0
+       "cue": "Atomic is the right answer"
+      },
+      {
+       "lines": [],
+       "cue": "Volatile is not atomic"
       },
       {
        "lines": [
-        6
+        3
        ],
-       "cue": "indivisible step",
-       "panel": 0
+       "cue": "Atomic makes plus plus"
       },
       {
        "lines": [
-        1,
-        2,
-        3,
-        4,
-        5,
         6,
-        7,
-        8,
-        9
+        7
        ],
-       "cue": "mutex",
-       "panel": 1
+       "cue": "Each thread adds"
       }
      ],
      "output": {
-      "cmd": "./fixed",
+      "cmd": "g++ -std=c++17 -pthread -o fixed atomic.cpp && ./fixed",
+      "setup": {
+       "atomic.cpp": "#include <bits/stdc++.h>\nusing namespace std;"
+      },
       "text": "200000",
       "cue": "every time",
       "tone": "good"
@@ -1066,6 +1071,14 @@
        ],
        "cue": "resource acquisition",
        "panel": 1
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "panel": 1,
+       "cue": "releases the lock"
       }
      ]
     },
@@ -1124,52 +1137,52 @@
     {
      "type": "code",
      "head": "std::thread: you manage it",
-     "say": "S t d thread starts immediately. It has no return value, so we write into a shared variable. You must join or detach before the thread object dies. An exception escaping the thread function is terminate, too. It's a low level tool.",
+     "say": "S t d thread starts immediately. It has no return value, so we write into a shared variable. You must join or detach before the thread object dies. An exception escaping the thread function also aborts the program. It's a low level tool.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "int result = 0;\nthread t([&result] {\n    result = compute();\n});\n// main keeps working\nt.join();\ncout << result;"
+       "code": "int main() {\n    int result = 0;\n    thread t([&result] {\n        result = compute();\n    });\n    // main keeps working\n    t.join();\n    cout << result;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        2,
         3,
-        4
+        4,
+        5
        ],
        "cue": "no return value"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "shared variable"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "join or detach"
       },
       {
        "lines": [
-        3
+        4
        ],
        "cue": "escaping"
       },
       {
        "lines": [
-        6
+        7
        ],
        "cue": "low level"
       }
      ],
      "notes": [
       {
-       "line": 6,
+       "line": 7,
        "inside": true,
-       "text": "forgot join: terminate",
+       "text": "forgot join: it aborts",
        "tone": "warn",
        "cue": "join or detach"
       }
@@ -1181,52 +1194,52 @@
      "q": "A joinable `thread` is destroyed without `join()`. Result?",
      "options": [
       "it joins itself",
-      "program terminates",
+      "the program aborts",
       "it detaches",
       "nothing"
      ],
-     "answer": "program terminates"
+     "answer": "the program aborts"
     },
     {
      "type": "code",
      "head": "std::async: a task with a future",
-     "say": "Terminate. A joinable thread's destructor calls terminate, so the program aborts. That's why async exists. It runs the function and hands back a future. Get waits, then returns the value, or rethrows compute's exception, here, in your thread. With launch async it runs on a new thread. With the default policy, it may run lazily inside get.",
+     "say": "Program aborts. We call that terminate. A joinable thread's destructor does that. That's why async exists. It runs the function and hands back a future. Get waits, then returns the value, or rethrows compute's exception, here, in your thread. With launch async it runs on a new thread. With the default policy, it may run lazily inside get.",
      "panels": [
       {
        "file": "main.cpp",
-       "code": "future<int> f =\n    async(launch::async, compute);\n// main keeps working\nint r = f.get();   // value, or rethrow"
+       "code": "int main() {\n    future<int> f =\n        async(launch::async, compute);\n    // main keeps working\n    int r = f.get();   // value, or rethrow\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "cue": "That's why async"
       },
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "cue": "hands back a future"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "Get waits"
       },
       {
        "lines": [
-        4
+        5
        ],
        "cue": "rethrows"
       },
       {
        "lines": [
-        2
+        3
        ],
        "cue": "launch async"
       },
@@ -1343,7 +1356,7 @@
     },
     {
      "type": "take",
-     "say": "Remember the first pair. Auto deduces the type from the initializer, at compile time. It drops references, so write auto ampersand to avoid copies.",
+     "say": "Auto deduces the type from the initializer, at compile time. It drops references, so write auto ampersand to avoid copies.",
      "lines": [
       "Auto: type from the initializer",
       "Drops & and const: write auto& to copy less"
@@ -1421,7 +1434,7 @@
     },
     {
      "type": "take",
-     "say": "Remember the pair. A lambda is a class with a call operator. Capture by value copies. Capture by reference links. If it outlives the scope, capture by value.",
+     "say": "A lambda is a class with a call operator. Capture by value copies. Capture by reference links. If it outlives the scope, capture by value.",
      "lines": [
       "Lambda: a class with operator()",
       "By value copies; by reference links",
@@ -1501,7 +1514,7 @@
     },
     {
      "type": "take",
-     "say": "Remember the pair. A template is one recipe, stamped per type, at compile time. Specialization gives one type its own version.",
+     "say": "A template is one recipe, stamped per type, at compile time. Specialization gives one type its own version.",
      "lines": [
       "Template: one recipe, stamped per type",
       "Specialization: a custom version for one type"
@@ -1698,7 +1711,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Auto and lambdas copy by default. Write the ampersand on purpose. Plus plus is three steps, so two threads lose adds. Fix it with an atomic for one variable, or a lock guard for a block.",
+     "say": "So say this. Auto and lambdas copy by default. Plus plus is three steps, so two threads lose adds. Write the ampersand on purpose. Fix it with an atomic for one variable, or a lock guard for a block.",
      "lines": [
       "`auto` and lambdas copy; add `&` on purpose.",
       "`++counter` is three steps: threads lose adds.",
