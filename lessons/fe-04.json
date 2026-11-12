@@ -1,0 +1,1733 @@
+{
+ "id": "fe-04",
+ "track": "Frontend",
+ "num": 4,
+ "title": "React at Scale: Performance, State, TypeScript",
+ "covers": [
+  "fe07",
+  "fe08",
+  "fe09"
+ ],
+ "caps": [
+  [
+   "[Uu]se callback",
+   "useCallback"
+  ],
+  [
+   "[Uu]se memo",
+   "useMemo"
+  ],
+  [
+   "React dot memo",
+   "React.memo"
+  ],
+  [
+   "[Uu]se context",
+   "useContext"
+  ],
+  [
+   "Zoostand",
+   "Zustand"
+  ],
+  [
+   "Tan Stack",
+   "TanStack"
+  ],
+  [
+   "[Tt]ype script",
+   "TypeScript"
+  ],
+  [
+   "react window",
+   "react-window"
+  ],
+  [
+   "on pick",
+   "onPick"
+  ],
+  [
+   "to fixed",
+   "toFixed"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Stop wasted renders",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "You type one letter in a search box, and ten thousand rows redraw. A hundred twenty milliseconds, every keystroke. By the end you'll cut that to about two, and type your components so bugs fail at compile time.",
+     "lines": [
+      {
+       "text": "1 letter, 10,000 rows redrawn",
+       "cue": "one letter"
+      },
+      {
+       "text": "120 ms per keystroke",
+       "cue": "hundred twenty"
+      },
+      {
+       "text": "Make it 2 ms.",
+       "cue": "cut that",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Today you will do three things. Skip wasted renders, and draw only the rows on screen. Decide where shared state lives. And type your components so mistakes fail at compile time.",
+     "lines": [
+      "Skip wasted renders, draw only visible rows",
+      "Decide where shared state lives",
+      "Type components so bugs fail to compile"
+     ],
+     "cues": [
+      "Skip wasted",
+      "Decide where",
+      "type your components"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "Laggy search box",
+     "statement": "A search box sits above a list of 10,000 rows. Each key you type re-renders every row: 120 ms in the profiler.",
+     "example": {
+      "input": "type one letter, 10,000 rows",
+      "output": "update in about 2 ms"
+     },
+     "note": "profiler today: 120 ms",
+     "say": "Picture a search box above ten thousand rows. You type one letter, and the list stutters. The goal: about two milliseconds. Today the profiler says a hundred twenty.",
+     "cues": {
+      "example": "You type one letter",
+      "output": "about two milliseconds",
+      "note": "the profiler says"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The re-grading teacher",
+     "say": "Picture a teacher with thirty papers. One student changes an answer. A bad teacher re-grades all thirty. A good teacher re-grades only that one. Memo is the good one.",
+     "items": [
+      {
+       "label": "the class",
+       "text": "30 papers",
+       "sub": "= 10,000 rows",
+       "cue": "thirty papers"
+      },
+      {
+       "label": "one student",
+       "text": "1 changes",
+       "sub": "= a keystroke",
+       "tone": "warn",
+       "cue": "One student"
+      },
+      {
+       "label": "bad teacher",
+       "text": "regrade 30",
+       "sub": "= React default",
+       "tone": "bad",
+       "cue": "A bad teacher"
+      },
+      {
+       "label": "good teacher",
+       "text": "regrade 1",
+       "sub": "= React.memo",
+       "tone": "good",
+       "cue": "A good teacher"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Type a letter: every row renders",
+     "say": "Here is what happens. App holds the text you type. Under it sit ten thousand rows. You type a. App re-renders, and so do all the rows, though they did not change. The profiler says a hundred twenty milliseconds. Type b, and it happens again.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 450,
+       "w": 480,
+       "h": 150,
+       "label": "App",
+       "text": "q = ''",
+       "size": 44,
+       "tone": "blue",
+       "cue": "App holds"
+      },
+      {
+       "id": "rows",
+       "x": 860,
+       "y": 450,
+       "w": 480,
+       "h": 150,
+       "label": "Rows",
+       "text": "10,000 rows",
+       "size": 44,
+       "tone": "ghost",
+       "cue": "Under it sit"
+      },
+      {
+       "id": "ms",
+       "x": 1450,
+       "y": 450,
+       "w": 330,
+       "h": 150,
+       "label": "profiler",
+       "text": "0 ms",
+       "size": 56,
+       "tone": "warn",
+       "cue": "profiler"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "rows",
+       "label": "props",
+       "cue": "ten thousand rows"
+      }
+     ],
+     "notes": [
+      {
+       "x": 800,
+       "y": 660,
+       "text": "rows did not change",
+       "tone": "warn",
+       "cue": "did not change"
+      }
+     ],
+     "changes": [
+      {
+       "id": "app",
+       "text": "q = 'a'",
+       "cue": "You type a"
+      },
+      {
+       "id": "rows",
+       "text": "all rendered",
+       "tone": "bad",
+       "cue": "so do all"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        120
+       ],
+       "cue": "a hundred twenty"
+      },
+      {
+       "id": "app",
+       "text": "q = 'ab'",
+       "cue": "Type b"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        120
+       ],
+       "cue": "happens again"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix one: React.memo + useCallback",
+     "say": "Fix one: React dot memo wraps the list. It compares props, and skips the list if they match. Every key you type changes q, but the list props stay the same. The catch: a function written inside App is a new function every render. Use callback keeps one.",
+     "panels": [
+      {
+       "file": "App.tsx",
+       "code": "const Rows = React.memo(function Rows({ items, onPick }: Props) {\n  // renders 10,000 rows\n});\n\nfunction App() {\n  const [q, setQ] = useState('');\n  const pick = useCallback((id: number) => go(id), []);\n  return <>\n    <input value={q} onChange={(e) => setQ(e.target.value)} />\n    <Rows items={items} onPick={pick} />\n  </>;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "wraps the list"
+      },
+      {
+       "lines": [
+        9,
+        10
+       ],
+       "cue": "Every key you type"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "a function written"
+      }
+     ],
+     "notes": [
+      {
+       "line": 7,
+       "inside": true,
+       "text": "stable",
+       "tone": "good",
+       "cue": "Use callback keeps"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Rows is wrapped in memo, but now it gets an inline arrow function as on pick. You type a letter. Does React skip Rows? Pause and predict.",
+     "q": "`<Rows onPick={(id) => go(id)} />` in memo. Skipped on a keystroke?",
+     "options": [
+      "Yes, props look equal",
+      "No: a new function",
+      "Only on the first key",
+      "No, it throws"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Inline function: memo is bypassed",
+     "say": "No. An inline function is a new function on every render, so the props compare as changed, and all rows render again: a hundred twenty. Wrap it in use callback, and the props match. Rows is skipped, and the cost drops to zero.",
+     "items": [
+      {
+       "id": "app",
+       "x": 160,
+       "y": 450,
+       "w": 480,
+       "h": 150,
+       "label": "App",
+       "text": "q = 'ab'",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "rows",
+       "x": 860,
+       "y": 450,
+       "w": 480,
+       "h": 150,
+       "label": "Rows",
+       "text": "10,000 rows",
+       "size": 44,
+       "tone": "ghost"
+      },
+      {
+       "id": "ms",
+       "x": 1450,
+       "y": 450,
+       "w": 330,
+       "h": 150,
+       "label": "profiler",
+       "text": "0 ms",
+       "size": 56,
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "rows",
+       "label": "props"
+      }
+     ],
+     "notes": [
+      {
+       "x": 800,
+       "y": 660,
+       "text": "new function each render",
+       "tone": "bad",
+       "cue": "new function on every"
+      }
+     ],
+     "changes": [
+      {
+       "id": "rows",
+       "text": "all rendered",
+       "tone": "bad",
+       "cue": "render again"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        120
+       ],
+       "cue": "a hundred twenty"
+      },
+      {
+       "id": "rows",
+       "text": "skipped",
+       "tone": "good",
+       "cue": "Rows is skipped"
+      },
+      {
+       "id": "ms",
+       "text": "0 ms",
+       "cue": "drops to zero"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Render only what you see",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "10,000 rows that really change",
+     "statement": "The filter changes the list itself, so memo has nothing to skip. Rendering all 10,000 matches still costs 120 ms.",
+     "example": {
+      "input": "filter keeps 10,000 rows",
+      "output": "update in about 2 ms"
+     },
+     "say": "Memo has one weakness: it skips only when props match. So suppose the filter keeps ten thousand rows, and the list changes. Can we still hit about two milliseconds?",
+     "cues": {
+      "example": "the filter keeps",
+      "output": "about two milliseconds"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Virtualization: a window on the list",
+     "say": "Picture a scroll of paper seen through a small window. A list is the scroll, and your screen is the window. So why build ten thousand rows? Virtualization draws only the visible ones, plus a few spare. Scroll to the middle: rows four thousand on. The cost: two milliseconds.",
+     "items": [
+      {
+       "id": "all",
+       "x": 160,
+       "y": 330,
+       "w": 520,
+       "h": 480,
+       "label": "the scroll",
+       "text": "10,000 rows",
+       "size": 44,
+       "tone": "dim",
+       "cue": "A list is the scroll"
+      },
+      {
+       "id": "win",
+       "region": true,
+       "x": 800,
+       "y": 300,
+       "w": 540,
+       "h": 540,
+       "label": "your screen",
+       "tone": "good",
+       "cue": "your screen is the window"
+      },
+      {
+       "id": "vis",
+       "x": 840,
+       "y": 430,
+       "w": 460,
+       "h": 330,
+       "text": "rows 0 to 19",
+       "size": 44,
+       "tone": "good",
+       "cue": "draws only the visible"
+      },
+      {
+       "id": "ms",
+       "x": 1450,
+       "y": 480,
+       "w": 330,
+       "h": 150,
+       "label": "profiler",
+       "text": "120 ms",
+       "size": 56,
+       "tone": "warn",
+       "cue": "build ten thousand"
+      }
+     ],
+     "changes": [
+      {
+       "id": "vis",
+       "text": "rows 4000 to 4019",
+       "cue": "Scroll to the middle"
+      },
+      {
+       "id": "ms",
+       "count": [
+        120,
+        2
+       ],
+       "tone": "good",
+       "cue": "two milliseconds"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Libraries and useMemo",
+     "say": "You rarely write the swapping yourself. React window and Tan Stack Virtual do it. Use memo is a different tool. It caches a computed value, here the filtered list, and recomputes only when items or q change. Memo skips a render. Use memo skips a calculation.",
+     "panels": [
+      {
+       "file": "List.tsx",
+       "code": "// virtualize: a library draws ~20\n// rows and swaps them on scroll:\n// react-window, TanStack Virtual\n\nconst visible = useMemo(\n  () => items.filter((i) => i.name.includes(q)),\n  [items, q]\n);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "React window"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "It caches a computed"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "only when items"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "cached between renders",
+       "tone": "good",
+       "cue": "Use memo is a different"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Quick check. The filter sits in use memo, with items and q as its inputs. Now App re-renders, but only the theme changed. Does the filter run again? Pause and predict.",
+     "q": "Deps `[items, q]`. App re-renders after only `theme` changes. Filter reruns?",
+     "options": [
+      "Yes, every render",
+      "No: deps are unchanged",
+      "Only on first render",
+      "Only if q is empty"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Same inputs, cached answer",
+     "say": "No. The inputs are items and q, and neither changed, so React hands back the cached list. Theme is not an input. Now type a letter. Q changes, so the filter runs again, and the new list is cached.",
+     "items": [
+      {
+       "id": "th",
+       "x": 160,
+       "y": 290,
+       "w": 420,
+       "h": 130,
+       "label": "App state",
+       "text": "theme: light",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "dp",
+       "x": 160,
+       "y": 600,
+       "w": 420,
+       "h": 150,
+       "label": "inputs",
+       "text": "items, q",
+       "size": 44,
+       "tone": "blue"
+      },
+      {
+       "id": "fn",
+       "x": 760,
+       "y": 600,
+       "w": 380,
+       "h": 150,
+       "text": "filter()",
+       "size": 44
+      },
+      {
+       "id": "out",
+       "x": 1320,
+       "y": 600,
+       "w": 440,
+       "h": 150,
+       "label": "visible",
+       "text": "cached list",
+       "size": 44,
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "th",
+       "to": "dp",
+       "tone": "dim",
+       "label": "not an input"
+      },
+      {
+       "from": "dp",
+       "to": "fn"
+      },
+      {
+       "from": "fn",
+       "to": "out"
+      }
+     ],
+     "changes": [
+      {
+       "id": "th",
+       "text": "theme: dark",
+       "cue": "Theme is not"
+      },
+      {
+       "id": "dp",
+       "glow": true,
+       "tone": "good",
+       "cue": "neither changed"
+      },
+      {
+       "id": "out",
+       "glow": true,
+       "tone": "good",
+       "cue": "cached list"
+      },
+      {
+       "id": "dp",
+       "text": "items, q='s'",
+       "tone": "warn",
+       "cue": "Q changes"
+      },
+      {
+       "id": "out",
+       "text": "new list",
+       "cue": "new list is cached"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Mistakes interviewers listen for",
+     "heads": [
+      "Mistake",
+      "Do this instead"
+     ],
+     "say": "Memo on everything? Comparing props costs too, so profile first. Use callback on a child that is not in memo does nothing. State held too high re-renders the page, so move it down. Array index as a key mixes up reordered rows, so use a stable id. And load routes lazily, so the first download stays small.",
+     "rows": [
+      [
+       "memo on every component",
+       "profile first: props compare costs"
+      ],
+      [
+       "useCallback, child not in memo",
+       "wrap the child in memo"
+      ],
+      [
+       "state held too high",
+       "move it next to the input"
+      ],
+      [
+       "array index as the key",
+       "a stable id as the key"
+      ],
+      [
+       "every route loaded up front",
+       "lazy load routes"
+      ]
+     ],
+     "cues": [
+      "Memo on everything",
+      "child that is not",
+      "State held too",
+      "Array index",
+      "load routes lazily"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Where should state live?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "One cart, three components",
+     "statement": "A header badge, a product list and a cart page all show the same cart. Where should the cart live?",
+     "example": {
+      "input": "3 components, 1 cart",
+      "output": "one source of truth"
+     },
+     "say": "The header badge says two items. The cart page says three. Which one is right? Three components share one cart, and we want a single source of truth.",
+     "cues": {
+      "example": "Three components share",
+      "output": "single source of truth"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The list on the fridge door",
+     "say": "Think of a family shopping list. If it lives in one person's head, nobody else can use it. Stick it on the fridge door, and everyone can read it. The kid adds bread, and everyone sees bread. A parent component is the fridge door.",
+     "items": [
+      {
+       "label": "in one head",
+       "text": "Mum knows",
+       "sub": "= state in one child",
+       "tone": "bad",
+       "cue": "one person's head"
+      },
+      {
+       "label": "on the fridge",
+       "text": "Everyone reads",
+       "sub": "= state in the parent",
+       "tone": "good",
+       "cue": "fridge door, and"
+      },
+      {
+       "label": "kid adds bread",
+       "text": "All see bread",
+       "sub": "= every reader updates",
+       "tone": "blue",
+       "cue": "adds bread"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Step 1: lift state up",
+     "say": "Step one is the fridge door. The cart state moves up to Page, the closest common parent. Page passes the count down to Header. List gets an add function. Click add, and Page updates to one, and the badge shows one. Start here. Most apps need nothing more.",
+     "panels": [
+      {
+       "file": "Page.tsx",
+       "code": "function Page() {\n  const [n, setN] = useState(0);\n  const add = () => setN(n + 1);\n  return <>\n    <Header count={n} />\n    <List onAdd={add} />\n  </>;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "closest common parent"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "down to Header"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "add function"
+      }
+     ],
+     "items": [
+      {
+       "id": "pg",
+       "x": 1150,
+       "y": 270,
+       "w": 520,
+       "h": 130,
+       "label": "Page owns the cart",
+       "text": "n = 0",
+       "size": 48,
+       "tone": "good",
+       "cue": "moves up to Page"
+      },
+      {
+       "id": "hd",
+       "x": 1020,
+       "y": 640,
+       "w": 330,
+       "h": 130,
+       "label": "Header",
+       "text": "badge: 0",
+       "size": 38,
+       "tone": "blue",
+       "cue": "down to Header"
+      },
+      {
+       "id": "ls",
+       "x": 1450,
+       "y": 640,
+       "w": 330,
+       "h": 130,
+       "label": "List",
+       "text": "add button",
+       "size": 36,
+       "tone": "blue",
+       "cue": "add function"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "pg",
+       "to": "hd",
+       "label": "count",
+       "cue": "down to Header"
+      },
+      {
+       "from": "pg",
+       "to": "ls",
+       "label": "onAdd",
+       "cue": "add function"
+      }
+     ],
+     "changes": [
+      {
+       "id": "ls",
+       "glow": true,
+       "cue": "Click add"
+      },
+      {
+       "id": "pg",
+       "text": "n = 1",
+       "cue": "Page updates"
+      },
+      {
+       "id": "hd",
+       "text": "badge: 1",
+       "tone": "good",
+       "cue": "badge shows"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Step 2: prop drilling, then context",
+     "say": "Now the badge sits deep: Page, Layout, Sidebar, Toolbar, Header. Layout, Sidebar and Toolbar never use the count, yet each must pass it along. That is prop drilling. Context skips the middle. Anything under the provider reads the value directly.",
+     "items": [
+      {
+       "id": "p",
+       "x": 130,
+       "y": 470,
+       "w": 280,
+       "h": 130,
+       "text": "Page",
+       "size": 40,
+       "tone": "good",
+       "cue": "Page, Layout"
+      },
+      {
+       "id": "l",
+       "x": 470,
+       "y": 470,
+       "w": 280,
+       "h": 130,
+       "text": "Layout",
+       "size": 40,
+       "cue": "Layout, Sidebar"
+      },
+      {
+       "id": "s",
+       "x": 810,
+       "y": 470,
+       "w": 280,
+       "h": 130,
+       "text": "Sidebar",
+       "size": 40,
+       "cue": "Sidebar, Toolbar"
+      },
+      {
+       "id": "t",
+       "x": 1150,
+       "y": 470,
+       "w": 280,
+       "h": 130,
+       "text": "Toolbar",
+       "size": 40,
+       "cue": "Toolbar, Header"
+      },
+      {
+       "id": "h",
+       "x": 1490,
+       "y": 470,
+       "w": 280,
+       "h": 130,
+       "text": "Header",
+       "size": 40,
+       "tone": "blue",
+       "cue": "Toolbar, Header"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "p",
+       "to": "l",
+       "cue": "Layout, Sidebar"
+      },
+      {
+       "from": "l",
+       "to": "s",
+       "cue": "Sidebar, Toolbar"
+      },
+      {
+       "from": "s",
+       "to": "t",
+       "cue": "Toolbar, Header"
+      },
+      {
+       "from": "t",
+       "to": "h",
+       "cue": "Toolbar, Header"
+      },
+      {
+       "from": "p",
+       "to": "h",
+       "tone": "good",
+       "bend": -300,
+       "label": "context",
+       "cue": "Context skips"
+      }
+     ],
+     "changes": [
+      {
+       "id": "l",
+       "tone": "dim",
+       "cue": "never use the count"
+      },
+      {
+       "id": "s",
+       "tone": "dim",
+       "cue": "never use the count"
+      },
+      {
+       "id": "t",
+       "tone": "dim",
+       "cue": "never use the count"
+      },
+      {
+       "id": "h",
+       "glow": true,
+       "tone": "good",
+       "cue": "reads the value"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Step 3: context, or a store",
+     "say": "Wrap the tree in a provider, and Header reads the value with use context. But when the value changes, every consumer re-renders. Context suits slow values, like theme. For fast data, use an external store, like Zoostand or Redux. A component subscribes to just the slice it needs.",
+     "panels": [
+      {
+       "file": "cart.tsx",
+       "code": "const Ctx = createContext({ n: 0, theme: 'light' });\nfunction Header() {\n  const { n } = useContext(Ctx);\n  return <b>{n}</b>;\n}\n\ntype S = { n: number; add: () => void };\nconst useCart = create<S>()((set) => ({\n  n: 0,\n  add: () => set((s) => ({ n: s.n + 1 })),\n}));\nconst n = useCart((s) => s.n);"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Wrap the tree"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "reads the value"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "slow values"
+      },
+      {
+       "lines": [
+        7,
+        8,
+        9,
+        10,
+        11
+       ],
+       "cue": "external store"
+      },
+      {
+       "lines": [
+        12
+       ],
+       "cue": "just the slice"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "any change re-renders",
+       "tone": "warn",
+       "cue": "every consumer"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. One context holds the cart count and the theme. The theme flips. Header reads only the count. Does Header re-render? Pause and predict.",
+     "q": "Context value is `{ n, theme }`. Theme flips. Header reads only `n`.",
+     "options": [
+      "Yes: all consumers",
+      "No: only theme readers",
+      "No: if Header is memo",
+      "Only on first render"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "diagram",
+     "head": "Context vs a store slice",
+     "say": "Yes. Context re-renders every consumer when its value changes, even one reading a single field. Memo does not stop it. I counted: the context Header renders twice. With a store, Header reads only the count slice, so the theme flip skips it. One render.",
+     "items": [
+      {
+       "id": "fl",
+       "x": 160,
+       "y": 470,
+       "w": 380,
+       "h": 130,
+       "label": "event",
+       "text": "theme flips",
+       "size": 40,
+       "tone": "warn"
+      },
+      {
+       "id": "cx",
+       "x": 800,
+       "y": 300,
+       "w": 480,
+       "h": 150,
+       "label": "Header via context",
+       "text": "1 render",
+       "size": 44,
+       "tone": "blue",
+       "cue": "the context Header"
+      },
+      {
+       "id": "st",
+       "x": 800,
+       "y": 640,
+       "w": 480,
+       "h": 150,
+       "label": "Header via store slice",
+       "text": "1 render",
+       "size": 44,
+       "tone": "blue",
+       "cue": "With a store"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "fl",
+       "to": "cx",
+       "tone": "bad",
+       "cue": "Context re-renders every"
+      },
+      {
+       "from": "fl",
+       "to": "st",
+       "tone": "dim",
+       "cue": "skips it"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cx",
+       "glow": true,
+       "tone": "warn",
+       "cue": "single field"
+      },
+      {
+       "id": "cx",
+       "text": "2 renders",
+       "tone": "bad",
+       "cue": "renders twice"
+      },
+      {
+       "id": "st",
+       "glow": true,
+       "tone": "good",
+       "cue": "One render"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Where each kind of state lives",
+     "heads": [
+      "State",
+      "Lives in"
+     ],
+     "say": "Use this table. Form input stays local, never global. Siblings sharing a value use the closest common parent. Slow app wide values, like theme, go in context. Fast shared state, like the cart, goes in a store. Server data goes in a query cache, like Tan Stack Query.",
+     "rows": [
+      [
+       "form input",
+       "the input itself, never global"
+      ],
+      [
+       "siblings share a value",
+       "the closest common parent"
+      ],
+      [
+       "theme, logged-in user",
+       "context"
+      ],
+      [
+       "cart, filters",
+       "a store: Zustand or Redux"
+      ],
+      [
+       "products from the server",
+       "a query cache: TanStack Query"
+      ]
+     ],
+     "cues": [
+      "Form input",
+      "Siblings sharing",
+      "Slow app wide",
+      "Fast shared",
+      "Server data"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Types that fail to compile",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "A typo that reaches users",
+     "statement": "A page reads user.nmae by mistake. In plain JavaScript it ships, and customers see undefined.",
+     "example": {
+      "input": "user.nmae",
+      "output": "compile error, never ships"
+     },
+     "say": "It is Friday evening, and someone types user dot nmae. In plain JavaScript it ships, and customers see undefined. We want the compiler to stop it with an error.",
+     "cues": {
+      "example": "user dot nmae",
+      "output": "compiler to stop"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "The shipping label",
+     "say": "Think of a shipping label. It says fragile, two kilos. That label is the type. The warehouse checks every parcel against its label. That is the compiler. But the delivered box has no label. Types are erased, so nothing is checked at runtime.",
+     "items": [
+      {
+       "label": "the label",
+       "text": "Fragile, 2 kg",
+       "sub": "= the type",
+       "cue": "shipping label"
+      },
+      {
+       "label": "warehouse",
+       "text": "Checks labels",
+       "sub": "= the compiler",
+       "tone": "warn",
+       "cue": "The warehouse checks"
+      },
+      {
+       "label": "delivered",
+       "text": "Plain box",
+       "sub": "= types erased",
+       "tone": "good",
+       "cue": "delivered box"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Type or interface?",
+     "heads": [
+      "",
+      "`interface`",
+      "`type`"
+     ],
+     "say": "The classic question. For object shapes they are almost the same. To extend, an interface says extends. A type uses an ampersand. Only a type can name a union or a tuple. Only an interface supports declaration merging. Rule: interface for objects, type for the rest.",
+     "rows": [
+      [
+       "object shape",
+       "yes",
+       "yes"
+      ],
+      [
+       "extend",
+       "`extends`",
+       "`&` intersection"
+      ],
+      [
+       "union, tuple",
+       "no",
+       "yes"
+      ],
+      [
+       "declaration merging",
+       "yes",
+       "no"
+      ]
+     ],
+     "cues": [
+      "object shapes",
+      "To extend",
+      "name a union",
+      "declaration merging"
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Generics: a type placeholder",
+     "say": "A generic is a type placeholder. Item of T is a box holding a value of type T. Item of string holds a pen. Item of number holds forty. And first takes an array of T and returns a T. Pass numbers, T is number. Pass strings, T is string. One function, fully typed.",
+     "panels": [
+      {
+       "file": "app.ts",
+       "code": "type Item<T> = { id: number; value: T };\nconst a: Item<string> = { id: 1, value: 'pen' };\nconst b: Item<number> = { id: 2, value: 40 };\n\nfunction first<T>(xs: T[]): T | undefined {\n  return xs[0];\n}\nconsole.log(first([7, 8, 9]), first(['a']));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "type placeholder"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Item of string"
+      },
+      {
+       "lines": [
+        5,
+        6,
+        7
+       ],
+       "cue": "first takes"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "Pass numbers"
+      }
+     ],
+     "output": {
+      "cmd": "node app.ts",
+      "text": "7 a",
+      "cue": "fully typed"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Narrowing with typeof",
+     "say": "Narrowing means the compiler tracks what a value can be. Here x is a string or a number. Calling to fixed on it is an error. Check typeof first. Inside the if, x is a string. After the return, it must be a number. It prints five, then seven point zero.",
+     "panels": [
+      {
+       "file": "app.ts",
+       "code": "function show(x: string | number) {\n  if (typeof x === 'string') return x.length;\n  return x.toFixed(1);\n}\nconsole.log(show('hello'), show(7));"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Here x is"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Calling to fixed"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Check typeof first"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "After the return"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "x is a number here",
+       "tone": "good",
+       "cue": "must be a number"
+      }
+     ],
+     "output": {
+      "cmd": "node app.ts",
+      "text": "5 7.0",
+      "cue": "prints five"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Discriminated union",
+     "say": "Objects narrow too. Give each shape a kind field with a literal value. That is a discriminated union. Check the kind. Inside the if, TypeScript knows it is a circle, so r is available. After the return, it must be a square, so w is available.",
+     "panels": [
+      {
+       "file": "shape.ts",
+       "code": "type Shape =\n  | { kind: 'circle'; r: number }\n  | { kind: 'square'; w: number };\n\nfunction area(s: Shape) {\n  if (s.kind === 'circle')\n    return Math.PI * s.r ** 2;\n  return s.w ** 2;\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "literal value"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Check the kind"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "so r is available"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "so w is available"
+      }
+     ],
+     "items": [
+      {
+       "id": "s",
+       "x": 1150,
+       "y": 270,
+       "w": 520,
+       "h": 130,
+       "label": "s: Shape",
+       "text": "circle or square",
+       "size": 38,
+       "tone": "blue",
+       "cue": "Check the kind"
+      },
+      {
+       "id": "c",
+       "x": 1000,
+       "y": 640,
+       "w": 340,
+       "h": 140,
+       "text": "circle",
+       "sub": "r is readable",
+       "size": 40,
+       "cue": "knows it is a circle"
+      },
+      {
+       "id": "q",
+       "x": 1440,
+       "y": 640,
+       "w": 340,
+       "h": 140,
+       "text": "square",
+       "sub": "w is readable",
+       "size": 40,
+       "cue": "must be a square"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "s",
+       "to": "c",
+       "label": "if",
+       "cue": "knows it is a circle"
+      },
+      {
+       "from": "s",
+       "to": "q",
+       "label": "after return",
+       "cue": "must be a square"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c",
+       "glow": true,
+       "tone": "good",
+       "cue": "so r is available"
+      },
+      {
+       "id": "q",
+       "glow": true,
+       "tone": "good",
+       "cue": "so w is available"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. User has an id and a name. Pick of User and id keeps only the id. Which value has that type? Pause and predict.",
+     "q": "User is `{ id, name }`. Which value has type `Pick<User, 'id'>`?",
+     "options": [
+      "{ id: 3 }",
+      "{ id: 3, name: 'A' }",
+      "{ name: 'A' }",
+      "{}"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "diagram",
+     "head": "Utility types reshape a type",
+     "say": "Id three. Pick keeps only the id, so adding a name is an error. Utility types reshape a type for you. Partial makes every field optional, handy for an edit form. Pick keeps the fields you name. Omit drops them.",
+     "items": [
+      {
+       "id": "u",
+       "x": 160,
+       "y": 440,
+       "w": 520,
+       "h": 200,
+       "label": "User",
+       "text": "id, name, email?",
+       "size": 40,
+       "tone": "blue",
+       "cue": "reshape a type"
+      },
+      {
+       "id": "pa",
+       "x": 1000,
+       "y": 270,
+       "w": 760,
+       "h": 120,
+       "label": "Partial<User>",
+       "text": "id?, name?, email?",
+       "size": 38,
+       "tone": "good",
+       "cue": "Partial makes"
+      },
+      {
+       "id": "pi",
+       "x": 1000,
+       "y": 490,
+       "w": 760,
+       "h": 120,
+       "label": "Pick<User, 'id'>",
+       "text": "id",
+       "size": 38,
+       "tone": "good",
+       "cue": "Pick keeps the fields"
+      },
+      {
+       "id": "om",
+       "x": 1000,
+       "y": 710,
+       "w": 760,
+       "h": 120,
+       "label": "Omit<User, 'id'>",
+       "text": "name, email?",
+       "size": 38,
+       "tone": "good",
+       "cue": "Omit drops"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "u",
+       "to": "pa",
+       "cue": "Partial makes"
+      },
+      {
+       "from": "u",
+       "to": "pi",
+       "cue": "Pick keeps the fields"
+      },
+      {
+       "from": "u",
+       "to": "om",
+       "cue": "Omit drops"
+      }
+     ],
+     "changes": [
+      {
+       "id": "pi",
+       "glow": true,
+       "tone": "good",
+       "cue": "adding a name"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The trap: as silences the compiler",
+     "say": "The trap. As tells the compiler to trust you. Here the data has no name, but as User says it does. It compiles, then crashes, because types are erased. Fix it by validating at the boundary, with a library like zod. Or take unknown and narrow it. Never reach for any.",
+     "panels": [
+      {
+       "file": "app.ts",
+       "code": "interface User { id: number; name: string }\nconst u = JSON.parse('{\"id\":1}') as User;\ntry {\n  console.log(u.name.toUpperCase());\n} catch (e) {\n  console.log((e as Error).message);\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "As tells the compiler"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "then crashes"
+      },
+      {
+       "lines": [],
+       "cue": "validating at the boundary"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "take unknown"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "a promise, unchecked",
+       "tone": "bad",
+       "cue": "has no name"
+      }
+     ],
+     "output": {
+      "cmd": "node app.ts",
+      "text": "Cannot read properties of undefined (reading 'toUpperCase')",
+      "tone": "bad",
+      "cue": "types are erased"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe07"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you optimize React? Profile, then memo, and virtualize huge lists. Use memo versus memo? Use memo caches a value. Memo skips a render. Memo everything? No, comparing props costs too. Common mistake? Use callback on a child that is not in memo.",
+     "rows": [
+      [
+       "How do you optimize React?",
+       "profile, then memo; virtualize big lists"
+      ],
+      [
+       "useMemo vs memo?",
+       "useMemo caches a value; memo skips a render"
+      ],
+      [
+       "Memo everything?",
+       "no: comparing props costs too"
+      ],
+      [
+       "Common mistake?",
+       "useCallback on a non-memo child"
+      ]
+     ],
+     "cues": [
+      "How do you optimize",
+      "Use memo versus",
+      "Memo everything",
+      "Common mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe08"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How do you manage state? Keep it local, lift it when siblings share. Context for slow values, a store for fast ones. Do I need Redux? Rarely. Why does context re-render? Every consumer does when the value changes. Server data? A query cache.",
+     "rows": [
+      [
+       "How do you manage state?",
+       "local; lift to the common parent"
+      ],
+      [
+       "Context or store?",
+       "context: slow values; store: fast ones"
+      ],
+      [
+       "Do I need Redux?",
+       "rarely: local + context + small store"
+      ],
+      [
+       "Why does context re-render?",
+       "every consumer, on any value change"
+      ],
+      [
+       "Server data?",
+       "a query cache, not global state"
+      ]
+     ],
+     "cues": [
+      "How do you manage",
+      "Context for slow",
+      "Do I need",
+      "Why does context",
+      "Server data"
+     ]
+    },
+    {
+     "type": "quiz",
+     "covers": [
+      "fe09"
+     ],
+     "pause": 5,
+     "say": "Self-test. Out loud, in one sentence: what is the difference between any and unknown? Pause and answer.",
+     "q": "In one sentence: `any` versus `unknown`?",
+     "answer": "unknown forces a check first"
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe09"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Type or interface? Interface for object shapes, type for unions and tuples. Generics? A type placeholder, so one function stays fully typed. Narrowing? Check typeof, or a shared kind field, and the compiler follows. Utility types? Partial, Pick and Omit reshape a type.",
+     "rows": [
+      [
+       "type or interface?",
+       "interface: objects; type: unions, tuples"
+      ],
+      [
+       "Generics?",
+       "a type placeholder; one typed function"
+      ],
+      [
+       "Narrowing?",
+       "typeof or a shared kind field"
+      ],
+      [
+       "Utility types?",
+       "Partial, Pick, Omit reshape a type"
+      ]
+     ],
+     "cues": [
+      "Type or interface",
+      "Generics",
+      "Narrowing",
+      "Utility types"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "fe09"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Are types checked at runtime? No, they are erased, so validate external data, for example with zod. Any versus unknown? Unknown forces a check before use, any turns checking off. Common mistake? Using as to silence errors instead of narrowing.",
+     "rows": [
+      [
+       "Checked at runtime?",
+       "no, erased: validate data, e.g. zod"
+      ],
+      [
+       "any vs unknown?",
+       "unknown forces a check; any switches it off"
+      ],
+      [
+       "Common mistake?",
+       "as to silence errors, not narrowing"
+      ]
+     ],
+     "cues": [
+      "checked at runtime",
+      "Any versus unknown",
+      "Common mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Try these before your interview",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "say": "Three exercises. Render ten thousand rows in a list, profile it, then virtualize it. Move a cart count into a store, and read only that slice. And turn on strict mode in TypeScript, then replace one as with a real check.",
+     "rows": [
+      [
+       "Profile a 10,000-row list, then virtualize it",
+       "watch 120 ms fall to ~2 ms"
+      ],
+      [
+       "Move a cart count into a Zustand store slice",
+       "Header renders once, not twice"
+      ],
+      [
+       "Turn on `strict`, replace one `as` with a check",
+       "bugs fail at compile time"
+      ]
+     ],
+     "cues": [
+      "Render ten thousand",
+      "Move a cart",
+      "turn on strict"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Profile first, then skip renders and virtualize big lists. Keep state low, lift it for siblings, and store fast data. Types vanish at runtime, so validate data at the edge.",
+     "lines": [
+      "Profile first. Skip renders, virtualize lists.",
+      "Keep state low. Lift it, then context, then a store.",
+      "Types vanish at runtime. Validate at the edge."
+     ],
+     "cues": [
+      "Profile first",
+      "Keep state low",
+      "Types vanish"
+     ]
+    }
+   ]
+  }
+ ]
+}
