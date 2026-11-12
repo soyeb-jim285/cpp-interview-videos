@@ -1,0 +1,1583 @@
+{
+ "id": "cpp-13",
+ "track": "C++",
+ "num": 13,
+ "title": "Modern C++ & Doing Things at Once",
+ "covers": [
+  "q86",
+  "q87",
+  "q88",
+  "q89",
+  "q90",
+  "q91",
+  "q92",
+  "q93",
+  "q94",
+  "q95"
+ ],
+ "caps": [
+  [
+   "O of n",
+   "O(n)"
+  ],
+  [
+   "O of one",
+   "O(1)"
+  ],
+  [
+   "unique pointer",
+   "unique_ptr"
+  ],
+  [
+   "shared pointer",
+   "shared_ptr"
+  ],
+  [
+   "lock guard",
+   "lock_guard"
+  ],
+  [
+   "thread sanitizer",
+   "ThreadSanitizer"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "The C++11 toolbox",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "Two threads add one to a counter, two hundred thousand times in total. It ends short, every run. By the end, you'll explain why, fix it two ways, and read any modern C plus plus.",
+     "lines": [
+      {
+       "text": "2 threads, 200,000 adds",
+       "cue": "Two threads"
+      },
+      {
+       "text": "The counter ends short.",
+       "cue": "ends short"
+      },
+      {
+       "text": "Explain it. Fix it twice.",
+       "cue": "fix it two ways",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "take",
+     "kicker": "Today",
+     "say": "Interviewers expect modern C plus plus, and a counter that survives threads. Today you tour C plus plus eleven, then lambdas and templates. Then you break a counter with two threads, and fix it twice.",
+     "lines": [
+      "Tour C++11, auto, lambdas, templates",
+      "Break a counter with two threads",
+      "Fix it with a mutex and an atomic"
+     ],
+     "cues": [
+      "tour C plus plus eleven",
+      "break a counter",
+      "fix it twice"
+     ]
+    },
+    {
+     "type": "problem",
+     "title": "What type is auto?",
+     "statement": "One C plus plus eleven word replaces a long type name. Work out which type the compiler picks, and what it silently drops.",
+     "example": {
+      "input": "auto it = m.begin();",
+      "output": "map<string,int>::iterator"
+     },
+     "say": "Here is the problem. A map's begin returns a long iterator type. For example, auto it equals m dot begin. Which type does auto pick?",
+     "cues": {
+      "example": "For example",
+      "output": "Which type"
+     }
+    },
+    {
+     "type": "flow",
+     "head": "Three drawers of new tools",
+     "say": "Think of C plus plus eleven as a toolbox with three drawers. Drawer one makes code shorter: auto, range for, lambdas, null pointer, brace initialization. Drawer two is faster and safer: move semantics, smart pointers, constexpr. Drawer three is parallel: threads, mutexes, atomics.",
+     "items": [
+      {
+       "label": "1: shorter",
+       "text": "auto, lambdas",
+       "cue": "Drawer one",
+       "sub": "range-for, nullptr"
+      },
+      {
+       "label": "2: faster, safer",
+       "text": "move, smart ptr",
+       "cue": "Drawer two",
+       "sub": "constexpr"
+      },
+      {
+       "label": "3: parallel",
+       "text": "thread, atomic",
+       "cue": "Drawer three",
+       "sub": "memory model",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "auto reads the initializer",
+     "say": "Auto copies the type from the initializer. Forty two is an int. Three point one four is a double. A string literal is const char pointer, not string. And the map iterator type writes itself. With no initializer, there's nothing to deduce.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "auto i = 42;\nauto d = 3.14;\nauto s = \"hi\";\nmap<string, int> m;\nauto it = m.begin();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Forty two"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Three point one four"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "const char pointer"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "map iterator"
+      }
+     ],
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "int",
+       "tone": "good",
+       "cue": "Forty two"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "double",
+       "tone": "good",
+       "cue": "Three point one four"
+      },
+      {
+       "line": 3,
+       "inside": true,
+       "text": "const char*, not string",
+       "tone": "warn",
+       "cue": "const char pointer"
+      },
+      {
+       "line": 5,
+       "inside": true,
+       "text": "map<...>::iterator",
+       "tone": "good",
+       "cue": "writes itself"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A vector of one, two, three. We loop with auto e, and double e inside. What does the vector hold afterwards? Pause and predict.",
+     "q": "`vector<int> v{1,2,3}; for (auto e : v) e *= 2;` v holds?",
+     "options": [
+      "2 4 6",
+      "1 2 3",
+      "compile error",
+      "2 2 3"
+     ],
+     "answer": "1 2 3"
+    },
+    {
+     "type": "code",
+     "head": "auto drops references",
+     "say": "Still one, two, three. Plain auto copies, and drops references and top level const, so you doubled copies. Write auto ampersand, and you double the elements themselves. Two, four, six.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<int> v{1, 2, 3};\nfor (auto e : v) e *= 2;\nfor (int x : v) cout << x << ' ';\nfor (auto& e : v) e *= 2;\nfor (int x : v) cout << x << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "Plain auto copies"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "doubled copies"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "auto ampersand"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Two, four, six"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "copies: v unchanged",
+       "tone": "bad",
+       "cue": "doubled copies"
+      },
+      {
+       "line": 4,
+       "inside": true,
+       "text": "reference: v changes",
+       "tone": "good",
+       "cue": "auto ampersand"
+      }
+     ],
+     "output": {
+      "cmd": "./auto",
+      "text": "1 2 3 2 4 6",
+      "cue": "Two, four, six",
+      "tone": "good"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Lambdas: snapshot or link",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Sort words by length",
+     "statement": "Sort a list of words by length, with the comparison written right where you call sort.",
+     "example": {
+      "input": "banana, fig, apple, kiwi",
+      "output": "fig, kiwi, apple, banana"
+     },
+     "say": "Next problem. Four words. For example, banana, fig, apple, kiwi. Sort them by length, and write the rule inline.",
+     "cues": {
+      "example": "For example",
+      "output": "write the rule"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A lambda, taken apart",
+     "say": "The square brackets are the capture list: outside variables it may use. Here, none. Then the parameters, like a normal function. Then the body. The result: fig, kiwi, apple, banana.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "vector<string> w = {\"banana\", \"fig\",\n                    \"apple\", \"kiwi\"};\nsort(w.begin(), w.end(),\n   [](const string& a, const string& b) {\n      return a.size() < b.size();\n   });\nfor (auto& s : w) cout << s << ' ';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3,
+        4
+       ],
+       "cue": "capture list"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "parameters"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "body"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "fig, kiwi"
+      }
+     ],
+     "output": {
+      "cmd": "./sortlen",
+      "text": "fig kiwi apple banana",
+      "cue": "The result",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "Snapshot or live link?",
+     "say": "Now capture. We start with x equal to one. A by value capture copies x into the lambda, right now. A by reference capture keeps a link to x. Then x becomes two. The copy still says one. The link reads through, and sees two.",
+     "items": [
+      {
+       "id": "x",
+       "x": 1250,
+       "y": 250,
+       "w": 300,
+       "h": 120,
+       "text": "1",
+       "cue": "x equal to one",
+       "label": "x",
+       "tone": "info",
+       "size": 56
+      },
+      {
+       "id": "v",
+       "x": 1050,
+       "y": 560,
+       "w": 320,
+       "h": 120,
+       "text": "copy: 1",
+       "cue": "copies x into",
+       "label": "byVal [x]",
+       "tone": "blue",
+       "size": 44
+      },
+      {
+       "id": "r",
+       "x": 1450,
+       "y": 560,
+       "w": 320,
+       "h": 120,
+       "text": "link to x",
+       "cue": "keeps a link",
+       "label": "byRef [&x]",
+       "tone": "warn",
+       "size": 44
+      }
+     ],
+     "arrows": [
+      {
+       "from": "r",
+       "to": "x",
+       "tone": "warn",
+       "cue": "keeps a link"
+      }
+     ],
+     "changes": [
+      {
+       "id": "x",
+       "text": "2",
+       "tone": "good",
+       "cue": "x becomes two"
+      },
+      {
+       "id": "v",
+       "text": "still 1",
+       "cue": "still says one"
+      },
+      {
+       "id": "r",
+       "text": "sees 2",
+       "tone": "good",
+       "cue": "sees two"
+      }
+     ],
+     "panels": [
+      {
+       "file": "cap.cpp",
+       "code": "int x = 1;\nauto byVal = [x]  { return x; };\nauto byRef = [&x] { return x; };\nx = 2;\ncout << byVal() << ' ' << byRef();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "copies x"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "keeps a link"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "x becomes two"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "still says one"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A by value capture is read only. Add the word mutable, call the lambda three times. What is the outer c afterwards? Pause and predict.",
+     "q": "`auto inc = [c]() mutable { return ++c; };` After 3 calls, outer `c`?",
+     "options": [
+      "3",
+      "0",
+      "1",
+      "undefined"
+     ],
+     "answer": "0"
+    },
+    {
+     "type": "code",
+     "head": "mutable changes only the copy",
+     "say": "Zero. Mutable lets the lambda change its own copy, and it remembers that copy between calls. So three calls return three. But the outer c never moved. By value capture is read only without mutable, because the call operator is const.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int c = 0;\nauto inc = [c]() mutable { return ++c; };\ninc();\ninc();\ncout << inc() << '\\n';\ncout << c;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "change its own copy"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "three calls"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "outer c"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "read only"
+      }
+     ],
+     "output": {
+      "cmd": "./mut",
+      "text": "3\n0",
+      "cue": "never moved",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "The trap: a dangling capture",
+     "say": "The classic trap. This lambda captures a local by reference, and leaves the function. When make returns, local dies, and the lambda holds a dangling reference. Calling it is undefined. Under the hood, a lambda is just a hidden class, and captures are members. If it outlives the scope, capture by value.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "function<int()> make() {\n    int local = 42;\n    return [&local] { return local; };\n}\nauto f = make();\nf();\n// fix: return [local] { return local; };"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "captures a local"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "local dies"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "undefined"
+      },
+      {
+       "lines": [],
+       "cue": "hidden class"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "capture by value"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "dangling",
+       "tone": "bad",
+       "cue": "local dies"
+      },
+      {
+       "line": 6,
+       "inside": true,
+       "text": "UB",
+       "tone": "bad",
+       "cue": "undefined"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Templates and specialization",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "One max for every type",
+     "statement": "Write max once, so it works for int, double and string. Then make it right for C strings.",
+     "example": {
+      "input": "maxOf(3, 7), maxOf(2.5, 1.5)",
+      "output": "7 and 2.5"
+     },
+     "say": "Next problem. A max function for every type. For example, three and seven. Or two point five and one point five. Write it once.",
+     "cues": {
+      "example": "For example",
+      "output": "Write it once"
+     }
+    },
+    {
+     "type": "code",
+     "head": "T is a placeholder type",
+     "say": "Without templates, we'd write max for int, again for double, again for string. With one, T is a placeholder. Two ints: T is int. Two doubles: T is double. Or spell it in angle brackets, for string.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "template <typename T>\nT maxOf(T a, T b) {\n    return a > b ? a : b;\n}\ncout << maxOf(3, 7) << ' ';\ncout << maxOf(2.5, 1.5) << ' ';\ncout << maxOf<string>(\"a\", \"b\");"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "placeholder"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "Two ints"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "Two doubles"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "angle brackets"
+      }
+     ],
+     "output": {
+      "cmd": "./max",
+      "text": "7 2.5 b",
+      "cue": "string",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same maxOf. We call it with the int three and the double two point five. What happens? Pause and predict.",
+     "q": "`maxOf(3, 2.5)` with `template <typename T> T maxOf(T, T)`?",
+     "options": [
+      "returns 3",
+      "returns 2.5",
+      "compile error",
+      "returns 3.0"
+     ],
+     "answer": "compile error"
+    },
+    {
+     "type": "flow",
+     "head": "A recipe, stamped per type",
+     "say": "Compile error: T can't be both. A template is a recipe, not code. Each use makes the compiler stamp a real function, for int, for double. All at compile time, so no runtime cost, only longer builds.",
+     "items": [
+      {
+       "label": "template",
+       "text": "a recipe",
+       "cue": "a recipe",
+       "sub": "no code yet"
+      },
+      {
+       "label": "maxOf(3, 7)",
+       "text": "int version",
+       "cue": "for int",
+       "sub": "stamped"
+      },
+      {
+       "label": "maxOf(2.5, 1.5)",
+       "text": "double version",
+       "cue": "for double",
+       "sub": "stamped"
+      },
+      {
+       "label": "when?",
+       "text": "compile time",
+       "cue": "compile time",
+       "sub": "no runtime cost",
+       "tone": "good"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Full specialization",
+     "say": "Specialization swaps in a different version for specific types. First the primary template, which returns unknown. Then template, empty angle brackets, and the exact type: int. TypeName of int prints int. Double has no special version, so it falls back to unknown.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "template <typename T>\nstruct TypeName {\n  static const char* get() { return \"unknown\"; } };\ntemplate <>\nstruct TypeName<int> {\n  static const char* get() { return \"int\"; } };\ncout << TypeName<int>::get() << '\\n';\ncout << TypeName<double>::get();"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3
+       ],
+       "cue": "primary template"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "empty angle brackets"
+      },
+      {
+       "lines": [
+        7
+       ],
+       "cue": "prints int"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "falls back"
+      }
+     ],
+     "output": {
+      "cmd": "./tn",
+      "text": "int\nunknown",
+      "cue": "falls back",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Why: generic can be wrong",
+     "say": "Why bother? Generic equality uses double equals. For C strings, that compares addresses, not text. So specialize for const char pointer, and call strcmp. Partial specialization matches a whole family: T star is any pointer. Classes only. Functions overload instead.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "template <typename T>\nbool same(T a, T b) { return a == b; }\ntemplate <>\nbool same<const char*>(const char* a, const char* b) {\n    return strcmp(a, b) == 0;\n}\ntemplate <class T> struct IsPtr { enum { v = 0 }; };\ntemplate <class T> struct IsPtr<T*> { enum { v = 1 }; };"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "cue": "double equals"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
+       "cue": "specialize for const char pointer"
+      },
+      {
+       "lines": [
+        7,
+        8
+       ],
+       "cue": "Partial specialization"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "any pointer"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Two threads, one counter",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Why does the counter lose adds?",
+     "statement": "Two threads each add one to a shared counter, one hundred thousand times. We expect two hundred thousand.",
+     "example": {
+      "input": "2 threads × 100,000 ++counter",
+      "output": "expect 200000; one run: 125574"
+     },
+     "say": "Now the real problem. Two threads, one counter. For example, a hundred thousand adds each. We expect two hundred thousand. One run printed one hundred twenty five thousand.",
+     "cues": {
+      "example": "For example",
+      "output": "One run printed"
+     }
+    },
+    {
+     "type": "diagram",
+     "head": "One increment is three steps",
+     "say": "Plus plus looks like one step. It's three: read, add, write. Counter is five. Thread A reads five. Thread B reads five, too. A writes six. B writes six. Two adds, one result. One increment is lost.",
+     "items": [
+      {
+       "id": "cnt",
+       "x": 760,
+       "y": 250,
+       "w": 320,
+       "h": 130,
+       "text": "5",
+       "cue": "Counter is five",
+       "label": "counter",
+       "tone": "info",
+       "size": 64
+      },
+      {
+       "id": "A",
+       "x": 250,
+       "y": 560,
+       "w": 360,
+       "h": 120,
+       "text": "idle",
+       "cue": "Thread A reads",
+       "label": "thread A",
+       "tone": "blue",
+       "size": 40
+      },
+      {
+       "id": "B",
+       "x": 1310,
+       "y": 560,
+       "w": 360,
+       "h": 120,
+       "text": "idle",
+       "cue": "Thread B reads",
+       "label": "thread B",
+       "tone": "blue",
+       "size": 40
+      }
+     ],
+     "changes": [
+      {
+       "id": "A",
+       "text": "read 5",
+       "cue": "A reads five"
+      },
+      {
+       "id": "B",
+       "text": "read 5",
+       "tone": "warn",
+       "cue": "B reads five, too"
+      },
+      {
+       "id": "cnt",
+       "text": "6",
+       "tone": "good",
+       "cue": "A writes six"
+      },
+      {
+       "id": "B",
+       "text": "write 6",
+       "tone": "bad",
+       "cue": "B writes six"
+      },
+      {
+       "id": "cnt",
+       "glow": true,
+       "tone": "bad",
+       "cue": "One increment is lost"
+      }
+     ],
+     "notes": [
+      {
+       "x": 720,
+       "y": 590,
+       "text": "two adds, one result",
+       "tone": "bad",
+       "cue": "Two adds, one result"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "That is a data race",
+     "say": "This is the code. Both threads touch the same int, and one writes, with no lock. That's a data race, and in C plus plus it's undefined behavior. A race condition is broader: any timing bug, even with atomics. Run it, and the total is short, and differs every run.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int counter = 0;\nvoid work() {\n    for (int i = 0; i < 100000; ++i)\n        ++counter;\n}\nthread a(work), b(work);\na.join(); b.join();\ncout << counter;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "touch the same int"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "data race"
+      },
+      {
+       "lines": [],
+       "cue": "broader"
+      },
+      {
+       "lines": [
+        8
+       ],
+       "cue": "the total is short"
+      }
+     ],
+     "notes": [
+      {
+       "line": 4,
+       "inside": true,
+       "text": "data race: UB",
+       "tone": "bad",
+       "cue": "data race"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Four fixes, and only one actually works. Which one? Pause and predict.",
+     "q": "Which fix makes `++counter` safe across two threads?",
+     "options": [
+      "volatile int",
+      "atomic<int>",
+      "use long",
+      "sleep(1)"
+     ],
+     "answer": "atomic<int>"
+    },
+    {
+     "type": "code",
+     "head": "Two fixes: atomic or mutex",
+     "say": "Atomic. It makes plus plus one indivisible step, with no lock. The fix is a mutex: lock, add, unlock. Both give two hundred thousand, every time. N is a hundred thousand.",
+     "panels": [
+      {
+       "file": "atomic.cpp",
+       "label": "atomic",
+       "tone": "good",
+       "code": "atomic<int> n{0};\n\nvoid work() {\n  for (int i = 0; i < N; ++i)\n    ++n;\n}"
+      },
+      {
+       "file": "mutex.cpp",
+       "label": "mutex",
+       "tone": "good",
+       "code": "mutex m;\nint n = 0;\nvoid work() {\n  for (int i = 0; i < N; ++i) {\n    lock_guard<mutex> g(m);\n    ++n;\n  }\n}"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "cue": "Atomic",
+       "panel": 0
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "indivisible step",
+       "panel": 0
+      },
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+       ],
+       "cue": "mutex",
+       "panel": 1
+      }
+     ],
+     "output": {
+      "cmd": "./fixed",
+      "text": "200000",
+      "cue": "every time",
+      "tone": "good"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Why lock_guard, not lock()",
+     "say": "Why not call lock and unlock yourself? Every path out must unlock. An early return skips it. If process throws, it's skipped too, and the next thread hangs forever. Lock guard is tiny. Its constructor locks, its destructor unlocks, so every exit unlocks. That's R A I I.",
+     "panels": [
+      {
+       "file": "manual.cpp",
+       "label": "manual",
+       "tone": "bad",
+       "code": "void work() {\n  m.lock();\n  ++n;\n  if (n > limit)\n    return;\n  process();\n  m.unlock();\n}"
+      },
+      {
+       "file": "guard.cpp",
+       "label": "lock_guard",
+       "tone": "good",
+       "code": "template <class M>\nclass lock_guard {\n  M& m;\npublic:\n  lock_guard(M& x) : m(x)\n    { m.lock(); }\n  ~lock_guard()\n    { m.unlock(); }\n};"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "lock and unlock yourself",
+       "panel": 0
+      },
+      {
+       "lines": [
+        5,
+        6
+       ],
+       "cue": "early return",
+       "panel": 0
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "process throws",
+       "panel": 0
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Lock guard is tiny",
+       "panel": 1
+      },
+      {
+       "lines": [
+        6,
+        7
+       ],
+       "cue": "constructor locks",
+       "panel": 1
+      },
+      {
+       "lines": [
+        8,
+        9
+       ],
+       "cue": "destructor unlocks",
+       "panel": 1
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "atomic versus mutex",
+     "say": "An atomic protects one variable, usually with no lock. A mutex protects any block. Atomics use C P U instructions. Mutexes can block and sleep. Atomics are cheaper for simple updates. For counters and flags, atomic. For several values that change together, a mutex.",
+     "heads": [
+      "atomic",
+      "mutex"
+     ],
+     "rows": [
+      [
+       "one variable, one operation",
+       "any block, many variables"
+      ],
+      [
+       "C P U instruction, usually no lock",
+       "others block, may sleep"
+      ],
+      [
+       "cheap for simple updates",
+       "cost under contention"
+      ],
+      [
+       "counters, flags",
+       "values that must stay consistent"
+      ]
+     ],
+     "cues": [
+      "An atomic protects",
+      "Atomics use",
+      "Atomics are cheaper",
+      "For counters"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "thread or async?",
+   "scenes": [
+    {
+     "type": "problem",
+     "title": "Run it, and get the answer",
+     "statement": "Run compute on another thread, and get its result back, or its exception. Which tool fits?",
+     "example": {
+      "input": "compute() on a worker",
+      "output": "thread, or async + future"
+     },
+     "say": "Last problem. Run a function on another thread. For example, compute returns forty two. We want the answer back. Which tool?",
+     "cues": {
+      "example": "For example",
+      "output": "We want the answer"
+     }
+    },
+    {
+     "type": "code",
+     "head": "std::thread: you manage it",
+     "say": "S t d thread starts immediately. It has no return value, so we write into a shared variable. You must join or detach before the thread object dies. An exception escaping the thread function is terminate, too. It's a low level tool.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "int result = 0;\nthread t([&result] {\n    result = compute();\n});\n// main keeps working\nt.join();\ncout << result;"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "no return value"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "shared variable"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "join or detach"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "escaping"
+      },
+      {
+       "lines": [
+        6
+       ],
+       "cue": "low level"
+      }
+     ],
+     "notes": [
+      {
+       "line": 6,
+       "inside": true,
+       "text": "forgot join: terminate",
+       "tone": "warn",
+       "cue": "join or detach"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. We create a thread, and let the object go out of scope without join or detach. What happens? Pause and predict.",
+     "q": "A joinable `thread` is destroyed without `join()`. Result?",
+     "options": [
+      "it joins itself",
+      "program terminates",
+      "it detaches",
+      "nothing"
+     ],
+     "answer": "program terminates"
+    },
+    {
+     "type": "code",
+     "head": "std::async: a task with a future",
+     "say": "Terminate. That's why async exists. It runs the function and hands back a future. Get waits, then returns the value, or rethrows compute's exception, here, in your thread. With launch async it runs on a new thread. With the default policy, it may run lazily inside get.",
+     "panels": [
+      {
+       "file": "main.cpp",
+       "code": "future<int> f =\n    async(launch::async, compute);\n// main keeps working\nint r = f.get();   // value, or rethrow"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "hands back a future"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Get waits"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "rethrows"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "launch async"
+      },
+      {
+       "lines": [],
+       "cue": "default policy"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "thread versus async",
+     "say": "A thread is low level. Async is a task. Results: none, against a future. Exceptions: a thread terminates, async stores them for get. Cleanup: join or detach, against the future waiting. Start: immediately, against by launch policy. Long lived workers: thread. Just an answer: async.",
+     "heads": [
+      "std::thread",
+      "std::async"
+     ],
+     "rows": [
+      [
+       "low-level thread of execution",
+       "high-level task"
+      ],
+      [
+       "no result: shared state",
+       "`future<T>`, read by `get()`"
+      ],
+      [
+       "escaping exception: terminate",
+       "stored, rethrown by `get()`"
+      ],
+      [
+       "you must `join` or `detach`",
+       "future waits for the task"
+      ],
+      [
+       "long-lived workers",
+       "compute this, give me the answer"
+      ]
+     ],
+     "cues": [
+      "A thread is",
+      "Results:",
+      "Exceptions:",
+      "Cleanup:",
+      "Long lived"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What did C plus plus eleven add? Syntax: auto, lambdas, range for, null pointer. Performance and safety: move semantics, smart pointers, constexpr. And threads, mutexes and atomics.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Syntax?",
+       "`auto`, lambdas, range-for, `nullptr`"
+      ],
+      [
+       "Performance, safety?",
+       "move semantics, smart pointers, `constexpr`"
+      ],
+      [
+       "Concurrency?",
+       "`thread`, `mutex`, `atomic`"
+      ]
+     ],
+     "cues": [
+      "What did C plus plus",
+      "Performance and safety",
+      "And threads"
+     ],
+     "covers": [
+      "q86"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What does auto do? It deduces the type from the initializer, at compile time. It drops references and top level const, so write auto ampersand to avoid copies.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`auto`?",
+       "type deduced from the initializer, at compile time"
+      ],
+      [
+       "Trap?",
+       "drops `&` and top-level const: copies"
+      ]
+     ],
+     "cues": [
+      "What does auto",
+      "drops references"
+     ],
+     "covers": [
+      "q87"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What is a lambda? An unnamed function object written inline. The compiler makes a class with a call operator, and captures become members. Use it for algorithms, callbacks, threads.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Lambda?",
+       "unnamed function object, written inline"
+      ],
+      [
+       "Under the hood?",
+       "a class with `operator()`; captures are members"
+      ],
+      [
+       "Used for?",
+       "algorithms, callbacks, threads"
+      ]
+     ],
+     "cues": [
+      "What is a lambda",
+      "The compiler",
+      "Use it"
+     ],
+     "covers": [
+      "q88"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Capture by value versus reference? Value copies when the lambda is created. Reference links to the live variable. Value is read only unless mutable. If the lambda outlives the scope, capture by value.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "By value?",
+       "copy at creation; const unless `mutable`"
+      ],
+      [
+       "By reference?",
+       "live link; changes the original"
+      ],
+      [
+       "Danger?",
+       "reference dangles if it outlives the scope"
+      ]
+     ],
+     "cues": [
+      "Capture by value",
+      "Reference links",
+      "If the lambda outlives"
+     ],
+     "covers": [
+      "q89"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "What are templates? Code parameterized by type, written once. The compiler instantiates a version per type, at compile time. No runtime cost, but longer builds. Usually in headers.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Templates?",
+       "code parameterized by type, written once"
+      ],
+      [
+       "How?",
+       "one instantiation per type, at compile time"
+      ],
+      [
+       "Cost?",
+       "no runtime cost; longer builds"
+      ]
+     ],
+     "cues": [
+      "What are templates",
+      "The compiler",
+      "Cost"
+     ],
+     "covers": [
+      "q90"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Template specialization? A custom version for specific types. Full: template, empty brackets, one exact type. Partial: a pattern like T star, classes only. Used for type traits and when generic code is wrong.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Specialization?",
+       "a custom implementation for specific types"
+      ],
+      [
+       "Full or partial?",
+       "full: one exact type; partial: a pattern, classes only"
+      ],
+      [
+       "Why?",
+       "traits, or generic code is wrong, like `const char*`"
+      ]
+     ],
+     "cues": [
+      "Template specialization",
+      "Full:",
+      "Used for"
+     ],
+     "covers": [
+      "q91"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Thread versus async? A thread starts now, returns nothing, and must be joined. Async returns a future, and get brings the value or the exception. Use launch async to force a new thread.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`std::thread`?",
+       "starts now, no result, join or detach"
+      ],
+      [
+       "`std::async`?",
+       "runs a task, returns a future"
+      ],
+      [
+       "Force a new thread?",
+       "`std::launch::async`"
+      ]
+     ],
+     "cues": [
+      "Thread versus async",
+      "Async returns",
+      "Use launch async"
+     ],
+     "covers": [
+      "q92"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Race condition? The result depends on thread timing. A data race: unsynchronized shared access with a writer, undefined behavior. Fix with a mutex or atomic, and make check then act one step.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Race condition?",
+       "result depends on thread timing"
+      ],
+      [
+       "Data race?",
+       "unsynchronized shared access, one writer: UB"
+      ],
+      [
+       "Fix?",
+       "mutex or atomic; check-then-act in one step"
+      ]
+     ],
+     "cues": [
+      "Race condition",
+      "A data race",
+      "Fix with"
+     ],
+     "covers": [
+      "q93"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Mutex and lock guard? A mutex is a lock only one thread holds. Lock guard locks in its constructor, unlocks in its destructor. Returns and exceptions release it. Keep the locked scope small.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Mutex?",
+       "a lock only one thread can hold"
+      ],
+      [
+       "`lock_guard`?",
+       "RAII: lock in constructor, unlock in destructor"
+      ],
+      [
+       "Why not manual?",
+       "a return or throw skips unlock: deadlock"
+      ]
+     ],
+     "cues": [
+      "Mutex and lock guard",
+      "Lock guard locks",
+      "Keep the locked"
+     ],
+     "covers": [
+      "q94"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Atomic versus mutex? Atomic: one variable, one operation, usually lock free. Mutex: a whole region, others block. A counter or flag: atomic. Several values together: mutex.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "`atomic`?",
+       "one variable, one operation, lock-free"
+      ],
+      [
+       "`mutex`?",
+       "a whole region; others block"
+      ],
+      [
+       "Which when?",
+       "counter or flag: atomic; several values: mutex"
+      ]
+     ],
+     "cues": [
+      "Atomic versus mutex",
+      "Mutex:",
+      "A counter"
+     ],
+     "covers": [
+      "q95"
+     ]
+    }
+   ],
+   "kind": "drill"
+  },
+  {
+   "title": "Recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice before your interview",
+     "say": "Solve these next. LeetCode eleven fourteen, Print in Order, is thread ordering. LeetCode eleven fifteen, Print FooBar Alternately, makes two threads take turns. LeetCode eleven sixteen, Print Zero Even Odd, coordinates three threads.",
+     "heads": [
+      "Solve next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "LeetCode 1114 · Print in Order",
+       "order threads with a mutex or promise"
+      ],
+      [
+       "LeetCode 1115 · Print FooBar Alternately",
+       "two threads taking turns"
+      ],
+      [
+       "LeetCode 1116 · Print Zero Even Odd",
+       "three threads, one shared turn"
+      ]
+     ],
+     "cues": [
+      "LeetCode eleven fourteen",
+      "LeetCode eleven fifteen",
+      "LeetCode eleven sixteen"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Auto and lambdas copy by default, so write the ampersand when you mean it. Plus plus is three steps, so two threads lose adds. Fix it with an atomic for one variable, or a lock guard for a block.",
+     "lines": [
+      "`auto` and lambdas copy; add `&` on purpose.",
+      "`++counter` is three steps: threads lose adds.",
+      "Atomic for one variable. `lock_guard` for a block."
+     ],
+     "cues": [
+      "Auto and lambdas",
+      "Plus plus is",
+      "Fix it with"
+     ]
+    }
+   ],
+   "kind": "recap"
+  }
+ ]
+}
