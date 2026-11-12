@@ -524,7 +524,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A third rule: take the shortest meeting first. The requests are one to five, four to seven, and six to ten. How many meetings does that rule book? Pause and predict.",
+     "say": "Quick test. A third rule: take the shortest meeting first. The requests are one to five, four to seven, and six to ten. How many meetings does that rule book? Commit to a number.",
      "q": "Shortest first on [1,5], [4,7], [6,10]: meetings booked?",
      "options": [
       "1",
@@ -534,7 +534,7 @@
      ],
      "answer": 0,
      "pause": 6,
-     "optCue": 0.5
+     "optCue": 0.25
     },
     {
      "type": "diagram",
@@ -800,7 +800,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A new mint: coins of one, five and twelve. You're owed fifteen. What is the fewest coins that make fifteen? Pause and predict.",
+     "say": "Try this one. A new mint: coins of one, five and twelve. You're owed fifteen. What is the fewest coins that make fifteen? Lock in a number.",
      "q": "Coins 1, 5, 12. Fewest coins for 15?",
      "options": [
       "2",
@@ -1017,8 +1017,8 @@
     {
      "type": "chart",
      "head": "Amount 30: how much work",
-     "unit": "solves",
-     "say": "Now scale up. For amount thirty, plain recursion solves two million five hundred fifty thousand subproblems. But there are only thirty one different amounts. Solve each once.",
+     "unit": "calls",
+     "say": "Now scale up. For amount thirty, plain recursion makes two million five hundred fifty thousand calls. But there are only thirty one different amounts. Solve each once.",
      "bars": [
       {
        "label": "Plain",
@@ -1036,7 +1036,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Back to amount six. Ignore the repeats. How many different subproblems does it really have? Pause and predict.",
+     "say": "Back to amount six. Ignore the repeats. How many different subproblems does it really have? Make the call.",
      "q": "Distinct subproblems f(a) for amount 6?",
      "options": [
       "3",
@@ -1050,7 +1050,7 @@
     {
      "type": "diagram",
      "head": "Seven questions, one table",
-     "say": "Seven, one per amount from zero to six. The slice had ten boxes, but only seven different questions. Seven answers fill the notebook.",
+     "say": "Seven, one per amount from zero to six. The slice had ten boxes, but only seven different questions. Seven answers fill the notebook. Zero is zero, one is one, two is two. Three is one, four is one. Five is two, six is two.",
      "items": [
       {
        "array": {
@@ -1092,12 +1092,21 @@
        "tone": "good",
        "cue": "only seven"
       }
+     ],
+     "changes": [
+     {"id":"c0","text":"0","tone":"good","cue":"Seven answers fill the notebook"},
+     {"id":"c1","text":"1","tone":"good","cue":"One is one"},
+     {"id":"c2","text":"2","tone":"good","cue":"Two is two"},
+     {"id":"c3","text":"1","tone":"good","cue":"Three is one"},
+     {"id":"c4","text":"1","tone":"good","cue":"Four is one"},
+     {"id":"c5","text":"2","tone":"good","cue":"Five is two"},
+     {"id":"c6","text":"2","tone":"good","cue":"Six is two"}
      ]
     },
     {
      "type": "compare",
      "head": "How do you know it is DP?",
-     "say": "How do you spot D P? The same question gets asked again. The problem wants a fewest, most, count or yes or no. And greedy has a counterexample. Then say what dp of i means. That's our road to thirty. The last cell for thirty is eight.",
+     "say": "How do you spot D P? The same question gets asked again. The problem wants a fewest, most, count or yes or no. And greedy has a counterexample. Then say what f of a means. That's our road to thirty. The last cell for thirty is eight.",
      "heads": [
       "Sign",
       "What it means"
@@ -1117,7 +1126,7 @@
       ],
       [
        "First sentence you say",
-       "what dp[i] means"
+       "what f(a) means"
       ]
      ],
      "cues": [
@@ -1174,11 +1183,11 @@
     {
      "type": "code",
      "head": "Memo: check the notebook first",
-     "say": "Memo version. Zero coins make zero. If the notebook has the amount, return it. Otherwise try each coin, keep the best, and store it before returning. Each amount is solved once, so the cost is O of amount times coins.",
+     "say": "Memo version. Zero coins make zero. If the notebook has the amount, return it. Otherwise try each coin, keep the best, and store it before returning. Each amount is solved once, so the cost is O of amount times coins. Run f of thirty. Eight coins.",
      "panels": [
       {
        "file": "sol.cpp",
-       "code": "int memo[100];\nint f(int a) {\n    if (a == 0) return 0;\n    if (memo[a]) return memo[a];\n    int best = 1e9;\n    for (int c : {1, 3, 4})\n        if (a >= c) best = min(best, 1 + f(a - c));\n    return memo[a] = best;\n}"
+       "code": "int memo[100];\nint f(int a) {\n    if (a == 0) return 0;\n    if (memo[a]) return memo[a];\n    int best = 1e9;\n    for (int c : {1, 3, 4}) if (a >= c) best = min(best, 1 + f(a - c));\n    return memo[a] = best;\n}\nint main() { cout << f(30); }"
       }
      ],
      "steps": [
@@ -1197,14 +1206,13 @@
       {
        "lines": [
         5,
-        6,
-        7
+        6
        ],
        "cue": "try each coin"
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "store it"
       }
@@ -1218,13 +1226,14 @@
        "cue": "return it"
       },
       {
-       "line": 8,
+       "line": 7,
        "inside": true,
        "text": "O(amount × coins)",
        "tone": "warn",
        "cue": "so the cost"
       }
-     ]
+     ],
+     "output": {"cmd": "./sol", "text": "8", "cue": "Eight coins", "setup": {"sol.cpp": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <climits>\nusing namespace std;\n"}}
     },
     {
      "type": "diagram",
@@ -1450,7 +1459,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Extend the table one cell, amount seven, same coins. Dp zero to six is zero, one, two, one, one, two, two. What is dp of seven? Pause and predict.",
+     "say": "Extend the table one cell, amount seven, same coins. Dp zero to six is zero, one, two, one, one, two, two. What is dp of seven? Say it out loud first.",
      "q": "Coins 1, 3, 4. What is dp[7]?",
      "options": [
       "1",
@@ -1460,12 +1469,12 @@
      ],
      "answer": 1,
      "pause": 6,
-     "optCue": 0.5
+     "optCue": 0.25
     },
     {
      "type": "diagram",
      "head": "dp[7] = 2",
-     "say": "Two. A one coin leaves six, and that's three coins. A three leaves four: two coins. A four leaves three: also two. The best is two: three plus four.",
+     "say": "Two. A one coin leaves six, and that's three coins. A three leaves four: two coins. A four leaves three: also two. The best is two: three plus four. Not three: one coin. Not four, no three.",
      "items": [
       {
        "array": {
