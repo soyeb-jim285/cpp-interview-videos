@@ -62,7 +62,7 @@
      "say": "One line of JavaScript can freeze a whole page. You'll learn which line, and why. And you'll win any C S S argument about which rule applies.",
      "lines": [
       {
-       "text": "1 line of JavaScript",
+       "text": "1,000 reads and writes",
        "cue": "One line"
       },
       {
@@ -187,9 +187,9 @@
        "id": "lay",
        "x": 360,
        "y": 220,
-       "w": 300,
+       "w": 340,
        "h": 130,
-       "text": "Layout",
+       "text": "Layout: reflow",
        "tone": "warn",
        "cue": "re-runs the pipeline"
       },
@@ -197,9 +197,9 @@
        "id": "pnt",
        "x": 810,
        "y": 220,
-       "w": 300,
+       "w": 340,
        "h": 130,
-       "text": "Paint",
+       "text": "Paint: repaint",
        "tone": "good",
        "cue": "re-runs the pipeline"
       },
@@ -207,7 +207,7 @@
        "id": "cmp",
        "x": 1260,
        "y": 220,
-       "w": 300,
+       "w": 340,
        "h": 130,
        "text": "Composite",
        "cue": "re-runs the pipeline"
@@ -260,18 +260,16 @@
        "cue": "the graphics card composites"
       }
      ],
-     "notes": [
+     "changes": [
       {
-       "x": 345,
-       "y": 625,
-       "text": "reflow: layout runs again",
+       "id": "lay",
+       "glow": true,
        "tone": "warn",
        "cue": "That's a reflow"
       },
       {
-       "x": 805,
-       "y": 625,
-       "text": "repaint: pixels redrawn",
+       "id": "pnt",
+       "glow": true,
        "tone": "good",
        "cue": "Just a repaint"
       }
@@ -397,7 +395,7 @@
     {
      "type": "diagram",
      "head": "1,000 passes, 1,000 layouts",
-     "say": "In the browser the notebook is a flag: layout is stale. A write sets the flag, which is free. A read of offset height needs a true answer, so the browser runs layout now. Write, read, write, read: that's a thousand layouts. Read everything first, then write everything. Layout runs once.",
+     "say": "In the browser the notebook is a flag: layout is stale. A write sets the flag, which is free. A read, offset height on line four, needs a true answer, so the browser runs layout now. Write, read, write, read: that's a thousand layouts. Read everything first, then write everything. Layout runs once.",
      "items": [
       {
        "id": "loop",
@@ -405,27 +403,15 @@
        "y": 430,
        "w": 380,
        "h": 140,
-       "label": "your loop",
        "text": "write, read",
        "tone": "blue"
       },
       {
-       "id": "lay",
-       "x": 900,
+       "id": "cnt",
+       "x": 1000,
        "y": 430,
        "w": 340,
        "h": 140,
-       "label": "browser",
-       "text": "Layout",
-       "tone": "warn"
-      },
-      {
-       "id": "cnt",
-       "x": 1400,
-       "y": 430,
-       "w": 320,
-       "h": 140,
-       "label": "layouts run",
        "text": "0",
        "size": 64
       }
@@ -433,16 +419,16 @@
      "arrows": [
       {
        "from": "loop",
-       "to": "lay",
-       "label": "write: stale",
+       "to": "cnt",
+       "label": "stale",
        "tone": "dim",
        "bend": -110,
        "cue": "A write"
       },
       {
        "from": "loop",
-       "to": "lay",
-       "label": "read: now",
+       "to": "cnt",
+       "label": "now",
        "tone": "bad",
        "bend": 110,
        "cue": "A read"
@@ -450,7 +436,7 @@
      ],
      "changes": [
       {
-       "id": "lay",
+       "id": "cnt",
        "glow": true,
        "tone": "bad",
        "cue": "runs layout now"
@@ -627,7 +613,7 @@
       "input": "width 200, padding 20, border 2",
       "output": "244 px, not 200"
      },
-     "say": "Here is a quick one. For example, a card two hundred wide, with padding and border. On screen? Not two hundred.",
+     "say": "For example, a card two hundred wide, with padding and border. On screen? Not two hundred.",
      "cues": {
       "example": "For example",
       "output": "On screen"
@@ -903,7 +889,7 @@
       "input": "nav: logo + menu; gallery: 4 cards",
       "output": "nav: flex; gallery: grid"
      },
-     "say": "Two layouts to build. A nav bar and a card gallery. For example, a logo and a menu, and four cards. We want the right layout tool for each.",
+     "say": "A nav bar and a card gallery. For example, a logo and a menu, and four cards. We want the right layout tool for each.",
      "cues": {
       "example": "For example",
       "output": "We want"
@@ -1182,15 +1168,35 @@
     {
      "type": "code",
      "head": "Center anything",
-     "say": "And the classic interview ask: center a div. Make its parent flex. Justify content centers along the row. Align items centers across it. Both axes, three lines.",
+     "say": "The classic interview ask: center a child div. Its parent is the box around it. Make that parent flex. Justify content centers along the row. Align items centers across it. Both axes, three lines.",
      "panels": [
       {
+       "file": "index.html",
+       "code": "<div class=\"parent\">\n  <div class=\"child\">Hi</div>\n</div>"
+      },
+      {
        "file": "style.css",
-       "code": ".center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}"
+       "code": ".parent {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}"
       }
      ],
      "steps": [
       {
+       "panel": 0,
+       "lines": [
+        2
+       ],
+       "cue": "center a child div"
+      },
+      {
+       "panel": 0,
+       "lines": [
+        1,
+        3
+       ],
+       "cue": "parent is the box"
+      },
+      {
+       "panel": 1,
        "lines": [
         1,
         2
@@ -1198,18 +1204,21 @@
        "cue": "parent flex"
       },
       {
+       "panel": 1,
        "lines": [
         3
        ],
        "cue": "Justify content centers"
       },
       {
+       "panel": 1,
        "lines": [
         4
        ],
        "cue": "Align items centers"
       },
       {
+       "panel": 1,
        "lines": [],
        "cue": "Both axes"
       }
@@ -1226,7 +1235,7 @@
      "statement": "Two rules match the same heading. One uses an id. The other chains three classes. Which color shows?",
      "example": {
       "input": "#hero red vs .a.b.c blue",
-      "output": "red: (1,0,0) beats (0,3,0)"
+      "output": "an id beats three classes"
      },
      "say": "A classic fight. Two rules hit one heading. For example, an id says red, three chained classes say blue. The answer is red. Let's see why.",
      "cues": {
@@ -1268,10 +1277,9 @@
        "id": "ra",
        "x": 160,
        "y": 300,
-       "w": 400,
+       "w": 460,
        "h": 130,
-       "label": "rule A",
-       "text": "#hero",
+       "text": "#hero = (1,0,0)",
        "tone": "blue",
        "cue": "The id hero"
       },
@@ -1279,39 +1287,18 @@
        "id": "rb",
        "x": 160,
        "y": 560,
-       "w": 400,
+       "w": 460,
        "h": 130,
-       "label": "rule B",
-       "text": ".a.b.c",
+       "text": ".a.b.c = (0,3,0)",
        "tone": "blue",
        "cue": "chain of three classes"
       },
       {
-       "id": "sa",
-       "x": 760,
-       "y": 300,
-       "w": 340,
-       "h": 130,
-       "label": "(id, class, element)",
-       "text": "(1, 0, 0)",
-       "cue": "one, zero, zero"
-      },
-      {
-       "id": "sb",
-       "x": 760,
-       "y": 560,
-       "w": 340,
-       "h": 130,
-       "text": "(0, 3, 0)",
-       "cue": "zero, three, zero"
-      },
-      {
        "id": "win",
-       "x": 1360,
+       "x": 1000,
        "y": 430,
        "w": 340,
        "h": 130,
-       "label": "verdict",
        "text": "red wins",
        "tone": "good",
        "cue": "so the id wins"
@@ -1320,30 +1307,20 @@
      "arrows": [
       {
        "from": "ra",
-       "to": "sa",
-       "cue": "The id hero"
-      },
-      {
-       "from": "rb",
-       "to": "sb",
-       "cue": "chain of three classes"
-      },
-      {
-       "from": "sa",
        "to": "win",
        "tone": "good",
-       "cue": "so the id wins"
+       "cue": "Compare left to right"
       }
      ],
      "changes": [
       {
-       "id": "sa",
+       "id": "ra",
        "glow": true,
        "tone": "good",
        "cue": "one against zero"
       },
       {
-       "id": "sb",
+       "id": "rb",
        "tone": "dim",
        "cue": "never even count"
       }
@@ -1520,7 +1497,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Box model, in 20 seconds",
      "covers": [
       "fe10"
      ],
@@ -1560,39 +1537,33 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
+     "type": "flow",
+     "head": "Which rule wins, in 20 seconds",
      "covers": [
       "fe10"
      ],
-     "say": "Which rule wins? Count ids, then classes, then elements. One id beats three classes. Same score? The later rule wins. Inline style beats any selector, and important beats inline. A stubborn style? Lower the selector, avoid important.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Which rule wins?",
-       "ids, then classes, then elements: `#a` beats `.b.c.d`"
-      ],
-      [
-       "Same score?",
-       "the later rule wins"
-      ],
-      [
-       "Inline or `!important`?",
-       "inline beats selectors; `!important` beats inline"
-      ],
-      [
-       "Stubborn style?",
-       "lower the selector, avoid `!important`"
-      ]
-     ],
-     "cues": [
-      "Which rule wins",
-      "Same score",
-      "Inline style",
-      "stubborn style"
+     "say": "Which rule wins? Count ids, then classes, then elements. One id beats three classes. Same score? The later rule wins. Inline beats any selector. Important beats inline, so avoid it. Stubborn style? Lower the selector.",
+     "items": [
+      {
+       "text": "ids",
+       "cue": "Count ids"
+      },
+      {
+       "text": "classes",
+       "cue": "then classes"
+      },
+      {
+       "text": "elements",
+       "cue": "then elements"
+      },
+      {
+       "text": "tie: later",
+       "cue": "The later rule"
+      },
+      {
+       "text": "inline",
+       "cue": "Inline beats"
+      }
      ]
     }
    ]
