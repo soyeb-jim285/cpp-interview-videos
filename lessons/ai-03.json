@@ -682,11 +682,11 @@
    "scenes": [
     {
      "type": "problem",
-     "title": "Scrub emails before they leak",
-     "statement": "Support tickets hold names, emails and phone numbers. Before text is logged or sent to a model, remove the personal data.",
+     "title": "Scrub emails and phones before they leak",
+     "statement": "Support tickets hold emails and phone numbers. Before text is logged or sent to a model, remove them.",
      "example": {
-      "input": "Mail ann@example.com today",
-      "output": "Mail [EMAIL] today"
+      "input": "Mail ann@example.com or 555-0142",
+      "output": "Mail [EMAIL] or [PHONE]"
      },
      "say": "Third risk: private data. P I I means personal information about a person. For example, this sentence has an email address. We want a placeholder instead.",
      "cues": {
@@ -726,19 +726,25 @@
     {
      "type": "code",
      "head": "A first redaction function",
-     "say": "A pattern for email addresses. And a function that swaps every match for a placeholder. Run it on our sentence, and the address disappears.",
+     "say": "A pattern for email addresses, and a pattern for phone numbers. A function swaps every match for a placeholder. Run it on our sentence, and both disappear.",
      "panels": [
       {
        "file": "redact.py",
-       "code": "import re\n\nEMAIL = r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\"\n\ndef redact(text):\n    return re.sub(EMAIL, \"[EMAIL]\", text)\n\nprint(redact(\"Mail ann@example.com today\"))"
+       "code": "import re\nEMAIL = r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\"\nPHONE = r\"\\d{3}-\\d{4}\"\ndef redact(text):\n    text = re.sub(EMAIL, \"[EMAIL]\", text)\n    return re.sub(PHONE, \"[PHONE]\", text)\nprint(redact(\"Mail ann@example.com or 555-0142\"))"
       }
      ],
      "steps": [
       {
        "lines": [
-        3
+        2
        ],
        "cue": "pattern for email"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "pattern for phone"
       },
       {
        "lines": [
@@ -749,34 +755,34 @@
       },
       {
        "lines": [
-        8
+        7
        ],
        "cue": "Run it"
       }
      ],
      "output": {
       "cmd": "python redact.py",
-      "text": "Mail [EMAIL] today",
-      "cue": "address disappears"
+      "text": "Mail [EMAIL] or [PHONE]",
+      "cue": "both disappear"
      }
     },
     {
      "type": "quiz",
-     "say": "Your turn. A ticket asks us to call Ann, with her number and email. Our pattern knows only emails. What still leaks? Pause and predict.",
-     "q": "Ticket: Call Ann on 555-0142 or ann@example.com. Email-only redact leaks?",
+     "say": "Your turn. Our pattern now knows emails and phones. A ticket says: call Ann on 555-0142, or write ann@example.com. What still leaks? Pause and predict.",
+     "q": "Ticket: call Ann on 555-0142 or ann@example.com. What still leaks?",
      "options": [
       "ann@example.com",
-      "the phone and name",
-      "only the name",
+      "555-0142",
+      "the name Ann",
       "nothing"
      ],
-     "answer": "the phone and name",
-     "optCue": "Our pattern knows"
+     "answer": "the name Ann",
+     "optCue": "Our pattern now"
     },
     {
      "type": "code",
      "head": "What the pattern misses",
-     "say": "The phone number and the name. The pattern only knows emails, so both sail through. Patterns miss things. Redaction is a start, not a guarantee.",
+     "say": "Look at the input. The phone number is gone. The name is not. A pattern finds shapes, and a name has none, so it sails through. Patterns miss things. Redaction is a start, not a guarantee.",
      "panels": [
       {
        "file": "redact.py",
@@ -788,22 +794,28 @@
        "lines": [
         1
        ],
-       "cue": "The phone number"
+       "cue": "phone number is gone"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "cue": "name is not"
       },
       {
        "lines": [
         2
        ],
-       "cue": "sail through"
+       "cue": "sails through"
       }
      ],
      "output": {
       "cmd": "python redact.py",
-      "text": "Call Ann on 555-0142 or [EMAIL]",
+      "text": "Call Ann on [PHONE] or [EMAIL]",
       "tone": "bad",
       "cue": "Patterns miss things",
       "setup": {
-       "redact.py": "import re\nEMAIL = r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\"\ndef redact(text):\n    return re.sub(EMAIL, \"[EMAIL]\", text)\n"
+       "redact.py": "import re\nEMAIL = r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\"\nPHONE = r\"\\d{3}-\\d{4}\"\ndef redact(text):\n    text = re.sub(EMAIL, \"[EMAIL]\", text)\n    return re.sub(PHONE, \"[PHONE]\", text)\n"
       }
      }
     },
@@ -920,8 +932,8 @@
     },
     {
      "type": "diagram",
-     "head": "Ten votes, three wrong",
-     "say": "Here are the ten labelers, each holding a vote. Seven pick B, the right answer. But three pick A, the confident wrong one. The reward model trains on all ten votes. Those three teach it that sounding sure can win, and the tuned model chases that. Seven of ten agree: inter annotator agreement is seventy percent, how often labelers make the same call.",
+     "head": "Ten votes",
+     "say": "Here are the ten labelers, each holding a vote. Seven pick B, the right answer. But three pick A, the confident wrong one. So only seventy percent agree with the majority.",
      "items": [
       {
        "id": "l0",
@@ -1032,17 +1044,6 @@
        "cue": "the ten labelers",
        "size": 48,
        "tone": "blue"
-      },
-      {
-       "id": "rm",
-       "x": 760,
-       "y": 640,
-       "w": 400,
-       "h": 130,
-       "text": "training",
-       "cue": "The reward model trains",
-       "label": "reward model",
-       "size": 40
       }
      ],
      "changes": [
@@ -1105,35 +1106,95 @@
        "text": "A",
        "tone": "bad",
        "cue": "three pick A"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1000,
+       "y": 690,
+       "text": "Only 70% agree with majority",
+       "tone": "warn",
+       "cue": "Only seventy percent"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Reward model",
+     "say": "The reward model trains on all ten votes. Those three A votes teach it that sounding sure can win. And the tuned model chases that.",
+     "items": [
+      {
+       "id": "w0",
+       "x": 260,
+       "y": 380,
+       "w": 200,
+       "h": 130,
+       "text": "A",
+       "tone": "bad",
+       "cue": "Those three A votes"
       },
+      {
+       "id": "w1",
+       "x": 560,
+       "y": 380,
+       "w": 200,
+       "h": 130,
+       "text": "A",
+       "tone": "bad",
+       "cue": "Those three A votes"
+      },
+      {
+       "id": "w2",
+       "x": 860,
+       "y": 380,
+       "w": 200,
+       "h": 130,
+       "text": "A",
+       "tone": "bad",
+       "cue": "Those three A votes"
+      },
+      {
+       "id": "rm",
+       "x": 760,
+       "y": 640,
+       "w": 400,
+       "h": 130,
+       "text": "training",
+       "label": "reward model",
+       "size": 40,
+       "cue": "The reward model trains"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "w0",
+       "to": "rm",
+       "cue": "teach it"
+      },
+      {
+       "from": "w1",
+       "to": "rm",
+       "cue": "teach it"
+      },
+      {
+       "from": "w2",
+       "to": "rm",
+       "cue": "teach it"
+      }
+     ],
+     "changes": [
       {
        "id": "rm",
        "text": "sure can win",
        "tone": "bad",
        "cue": "sounding sure can win"
       }
-     ],
-     "notes": [
-      {
-       "x": 1220,
-       "y": 690,
-       "text": "Agreement: 7 of 10 = 70%",
-       "tone": "warn",
-       "cue": "inter annotator agreement"
-      },
-      {
-       "x": 1220,
-       "y": 780,
-       "text": "= how often they agree",
-       "tone": "info",
-       "cue": "how often labelers"
-      }
      ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. Labelers agree only seventy percent of the time on this pair. What is the best first fix? Pause and predict.",
-     "q": "Only 70% of labelers agree on this pair. Best first fix?",
+     "say": "Your turn. Only seventy percent of labelers agree with the majority on this pair. What is the best first fix? Pause and predict.",
+     "q": "Only 70% of labelers agree with the majority on this pair. Best first fix?",
      "options": [
       "Fire three labelers",
       "Clarify the guideline",
@@ -1145,7 +1206,7 @@
     {
      "type": "code",
      "head": "A guideline with a tie-breaker",
-     "say": "Clarify the guideline, not the people. This one ranks priorities: correct first, then instructions. Safety and clarity come next, so correctness beats style when they clash. It names a known trap: people favor longer answers. And it allows a tie, with a reason.",
+     "say": "Clarify the guideline, not the people. Two labelers read the same vague rule two ways, so their picks split. A sharper rule removes the split. This one ranks priorities. Safety and clarity come next, so correctness beats style when they clash. It names a known trap: people favor longer answers. And it allows a tie, with a reason.",
      "panels": [
       {
        "file": "guidelines.txt",
@@ -1153,6 +1214,14 @@
       }
      ],
      "steps": [
+      {
+       "lines": [],
+       "cue": "Two labelers read"
+      },
+      {
+       "lines": [],
+       "cue": "sharper rule removes"
+      },
       {
        "lines": [
         3,
