@@ -78,10 +78,10 @@
      "statement": "A struct holds a char, an int and a char: six bytes of data. Explain its size.",
      "example": {
       "input": "struct { char a; int b; char c; }",
-      "output": "sizeof is 12, and 1,000 waste 4 KB"
+      "output": "12 bytes: 1,000 waste 6 KB"
      },
      "note": "typical 64-bit platform, int is 4 bytes",
-     "say": "A char, an int, a char: six bytes of data. Ask size of, and it says twelve. Nothing in the code mentions padding, so who added six bytes? Typical platform: an int is four bytes.",
+     "say": "A char, an int, a char: six bytes of data. Ask size of, and it says twelve. Who added six bytes? Padding is unused filler the compiler inserts. Typical platform: an int is four bytes.",
      "cues": {
       "example": "A char, an int",
       "output": "says twelve",
@@ -120,7 +120,7 @@
     {
      "type": "diagram",
      "head": "struct A, byte by byte",
-     "say": "Now the real struct. Char a goes first, at offset zero. The int needs a multiple of four, and offset one is not. So the compiler adds three bytes of padding. Then the int lands at four through seven. Char c sits at eight. Then three more padding bytes. Why? In an array, the next struct's int must stay aligned. Twelve bytes in total, six wasted.",
+     "say": "Now the real struct. Char a goes first, at offset zero. The int needs a multiple of four, and offset one is not. So the compiler adds three bytes of padding. Then the int lands at four through seven. Char c sits at eight. Then three more padding bytes. Why? In an array, the next struct's int must stay aligned. Twelve bytes in total, six wasted. That answers the card: those gaps are six bytes of padding.",
      "items": [
       {
        "id": "st",
@@ -287,7 +287,7 @@
     {
      "type": "diagram",
      "head": "struct B: biggest first",
-     "say": "Put the int first, at offset zero to three. The two chars follow at four and five, with no gap. The data ends at six, but the size must be a multiple of four. So two padding bytes. Eight in total, two wasted, down from six.",
+     "say": "Put the int first, at offset zero to three. The two chars follow at four and five, with no gap. The data ends at six, but the size must be a multiple of four. So two padding bytes. Eight in total, two wasted, down from six. That answers the card: biggest first, eight bytes.",
      "items": [
       {
        "id": "st",
@@ -355,7 +355,7 @@
      "notes": [
       {
        "x": 180,
-       "y": 690,
+       "y": 620,
        "text": "8 bytes, only 2 padding",
        "tone": "good",
        "cue": "down from six"
@@ -379,6 +379,12 @@
        "value": 8000,
        "tone": "good",
        "cue": "Layout B costs"
+      },
+      {
+       "label": "saved",
+       "value": 4000,
+       "tone": "good",
+       "cue": "Four kilobytes saved"
       }
      ]
     },
@@ -513,7 +519,7 @@
     {
      "type": "diagram",
      "head": "new (buf) Point{1, 2}",
-     "say": "First, reserve raw bytes, sized and aligned for a Point. No object exists yet. Then new, with buf in parentheses, allocates nothing. It runs the constructor there, and hands back a pointer. The bytes now hold one and two. When we finish, we call the destructor ourselves.",
+     "say": "First, reserve raw bytes, sized and aligned for a Point. No object exists yet. Then new, with buf in parentheses, allocates nothing. It runs the constructor there, and hands back a pointer. The bytes now hold one and two. When we finish, we call the destructor ourselves. That answers the card: Point built in buf, with no allocation.",
      "items": [
       {
        "id": "buf",
@@ -816,15 +822,15 @@
      ],
      "rows": [
       [
-       "Print `sizeof` and `offsetof` of your struct",
+       "Struct layout: print `sizeof` and `offsetof`",
        "see the padding with your own eyes"
       ],
       [
-       "Reorder fields until `sizeof` stops shrinking",
+       "Field reorder: cut `sizeof` until it stops",
        "biggest alignment first"
       ],
       [
-       "Placement new a `std::string` into an aligned buffer",
+       "Placement new: `std::string` in aligned buffer",
        "construct, use, then call `~string()`"
       ]
      ],
