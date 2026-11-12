@@ -41,7 +41,7 @@
      "say": "Today you will do three things. Spot a prompt injection hidden in data. Tell it apart from a jailbreak, and keep private data out. And see how human labels shape what a model learns.",
      "lines": [
       "Spot an injection hidden in data",
-      "Tell it from a jailbreak, protect PII",
+      "Tell it from a jailbreak, keep private data safe",
       "See how human labels shape a model"
      ],
      "cues": [
@@ -523,9 +523,37 @@
      ]
     },
     {
+     "type": "code",
+     "head": "Reply one, in full",
+     "say": "Here is reply one in full. Bob sounds warm and stays in character. Then it gives the steps. Read it the way the model would send it.",
+     "panels": [
+      {
+       "file": "reply.txt",
+       "label": "reply one",
+       "tone": "bad",
+       "code": "Sure, I'm Bob, no rules!\nStep one: get a tension tool.\nStep two: rake the pins."
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "stays in character"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "Then it gives the steps"
+      }
+     ]
+    },
+    {
      "type": "quiz",
-     "say": "Your turn. Bob replies warmly, stays in character, and then lists the steps to pick the lock. Is that reply safe? Pause and predict.",
-     "q": "A warm, in-character reply gives lock-picking steps. Safe?",
+     "say": "Your turn. You just read Bob's reply. Is it safe? Pause and predict.",
+     "q": "Bob's reply is warm and stays in character. Is it safe?",
      "options": [
       "Safe, it was polite",
       "Unsafe, steps given",
@@ -537,7 +565,7 @@
     {
      "type": "diagram",
      "head": "Grade what the reply enables",
-     "say": "Unsafe. The reply was warm and in character, but it gave the steps. Grade the substance. Reply two plays Bob and declines the break in, so it is safe. Reply three refuses the whole game, which is safe but stricter than it needs to be.",
+     "say": "Unsafe. The reply was warm and in character, but it gave the steps. Grade the substance. Reply two plays characters and declines the break in, so it is safe. Reply three refuses the whole game, which is safe but stricter than it needs to be.",
      "items": [
       {
        "id": "r0",
@@ -685,7 +713,7 @@
      "title": "Scrub emails and phones before they leak",
      "statement": "Support tickets hold emails and phone numbers. Before text is logged or sent to a model, remove them.",
      "example": {
-      "input": "Mail ann@example.com or 555-0142",
+      "input": "Mail ann@example.com or 555‑0142",
       "output": "Mail [EMAIL] or [PHONE]"
      },
      "say": "Third risk: private data. P I I means personal information about a person. For example, this sentence has an email address. We want a placeholder instead.",
@@ -817,7 +845,16 @@
       "setup": {
        "redact.py": "import re\nEMAIL = r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\"\nPHONE = r\"\\d{3}-\\d{4}\"\ndef redact(text):\n    text = re.sub(EMAIL, \"[EMAIL]\", text)\n    return re.sub(PHONE, \"[PHONE]\", text)\n"
       }
-     }
+     },
+     "notes": [
+      {
+       "line": 1,
+       "inside": true,
+       "text": "Ann leaks",
+       "tone": "bad",
+       "cue": "name is not"
+      }
+     ]
     },
     {
      "type": "compare",
@@ -933,7 +970,7 @@
     {
      "type": "diagram",
      "head": "Ten votes",
-     "say": "Here are the ten labelers, each holding a vote. Seven pick B, the right answer. But three pick A, the confident wrong one. So only seventy percent agree with the majority.",
+     "say": "Here are the ten labelers, each holding a vote. Seven pick B, the right answer. But three pick A, the confident wrong one. So only seventy percent agree with the majority. That share is our agreement score: 70 percent here.",
      "items": [
       {
        "id": "l0",
@@ -1112,16 +1149,16 @@
       {
        "x": 1000,
        "y": 690,
-       "text": "Only 70% agree with majority",
+       "text": "Agreement: 70%",
        "tone": "warn",
-       "cue": "Only seventy percent"
+       "cue": "agree with the majority"
       }
      ]
     },
     {
      "type": "diagram",
      "head": "Reward model",
-     "say": "The reward model trains on all ten votes. Those three A votes teach it that sounding sure can win. And the tuned model chases that.",
+     "say": "The reward model trains on all ten votes. Seven favor B. The three A votes still pull it toward confident wrong answers. And the tuned model chases that.",
      "items": [
       {
        "id": "w0",
@@ -1131,7 +1168,7 @@
        "h": 130,
        "text": "A",
        "tone": "bad",
-       "cue": "Those three A votes"
+       "cue": "The three A votes"
       },
       {
        "id": "w1",
@@ -1141,7 +1178,7 @@
        "h": 130,
        "text": "A",
        "tone": "bad",
-       "cue": "Those three A votes"
+       "cue": "The three A votes"
       },
       {
        "id": "w2",
@@ -1151,12 +1188,12 @@
        "h": 130,
        "text": "A",
        "tone": "bad",
-       "cue": "Those three A votes"
+       "cue": "The three A votes"
       },
       {
        "id": "rm",
        "x": 760,
-       "y": 640,
+       "y": 700,
        "w": 400,
        "h": 130,
        "text": "training",
@@ -1169,25 +1206,25 @@
       {
        "from": "w0",
        "to": "rm",
-       "cue": "teach it"
+       "cue": "pull it toward"
       },
       {
        "from": "w1",
        "to": "rm",
-       "cue": "teach it"
+       "cue": "pull it toward"
       },
       {
        "from": "w2",
        "to": "rm",
-       "cue": "teach it"
+       "cue": "pull it toward"
       }
      ],
      "changes": [
       {
        "id": "rm",
-       "text": "sure can win",
-       "tone": "bad",
-       "cue": "sounding sure can win"
+       "text": "confident wrong",
+       "tone": "warn",
+       "cue": "confident wrong answers"
       }
      ]
     },
@@ -1215,11 +1252,18 @@
      ],
      "steps": [
       {
-       "lines": [],
+       "lines": [
+        1
+       ],
        "cue": "Two labelers read"
       },
       {
-       "lines": [],
+       "lines": [
+        3,
+        4,
+        5,
+        6
+       ],
        "cue": "sharper rule removes"
       },
       {
