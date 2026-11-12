@@ -19,7 +19,7 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "Your checkout is a forty line if chain, and a new payment method is due Monday. How do you add it without breaking the others? By the end, checkout takes it with zero edits, and you'll name the pattern.",
+     "say": "Your checkout is a forty line if chain, and a new payment method is due Monday. By the end, checkout takes it with zero edits, and you'll name the pattern. How do you add it without breaking the others?",
      "lines": [
       {
        "text": "40-line if / elif chain",
@@ -30,17 +30,17 @@
        "cue": "due Monday"
       },
       {
-       "text": "Add it. Break nothing.",
-       "cue": "without breaking",
-       "accent": "Break nothing"
-      },
-      {
        "text": "Zero edits to the old code",
        "cue": "zero edits"
       },
       {
        "text": "Name the pattern",
        "cue": "name the pattern"
+      },
+      {
+       "text": "Add it. Break nothing.",
+       "cue": "without breaking",
+       "accent": "Break nothing"
       }
      ]
     },
@@ -119,10 +119,10 @@
        "w": 400,
        "h": 140,
        "text": "Kettle",
-       "label": "tomorrow",
        "size": 44,
        "tone": "good",
-       "cue": "a kettle"
+       "cue": "a kettle",
+       "sub": "tomorrow"
       }
      ],
      "arrows": [
@@ -211,7 +211,7 @@
     {
      "type": "code",
      "head": "One class per rule",
-     "say": "That's our answer to the problem. Each rule is its own class. The base class is the socket. A B C marks it abstract: every subclass must supply pay, or Python refuses to build it. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
+     "say": "That's our answer to the problem. Each rule is its own class. The base class is the socket. The abstract base class marker says: every subclass must supply pay, or Python refuses to build it. Card keeps its rule. PayPal keeps its own. That's the strategy pattern.",
      "panels": [
       {
        "file": "app.py",
@@ -232,7 +232,7 @@
         1,
         3
        ],
-       "cue": "A B C marks"
+       "cue": "abstract base class marker"
       },
       {
        "lines": [
@@ -279,10 +279,10 @@
        "y": 420,
        "w": 380,
        "h": 140,
-       "label": "one function",
        "text": "checkout",
        "tone": "blue",
-       "cue": "Checkout takes"
+       "cue": "Checkout takes",
+       "sub": "one function"
       },
       {
        "id": "card",
@@ -308,11 +308,11 @@
        "y": 440,
        "w": 340,
        "h": 130,
-       "label": "result",
        "text": "...",
        "size": 44,
        "tone": "warn",
-       "cue": "calls pay"
+       "cue": "calls pay",
+       "sub": "result"
       }
      ],
      "arrows": [
@@ -374,9 +374,9 @@
        "y": 420,
        "w": 380,
        "h": 140,
-       "label": "untouched",
        "text": "checkout",
-       "tone": "blue"
+       "tone": "blue",
+       "sub": "untouched"
       },
       {
        "id": "card",
@@ -471,7 +471,7 @@
     {
      "type": "compare",
      "head": "SOLID on our checkout",
-     "say": "Five letters, each on our code. Single responsibility: a strategy only charges, and a separate mailer sends receipts. Open closed: add Crypto, never edit checkout. Liskov: any strategy works wherever the base does. Interface segregation: our base asks for pay and nothing else. Dependency inversion: checkout depends on the socket, never on Card.",
+     "say": "Five letters, each on our code. Single responsibility: a strategy charges, and checkout orchestrates. Open closed: add Crypto, never edit checkout. Liskov: any strategy works wherever the base does. Interface segregation: our base asks for pay and nothing else. Dependency inversion: checkout depends on the socket, never on Card.",
      "heads": [
       "Letter",
       "On our checkout"
@@ -479,7 +479,7 @@
      "rows": [
       [
        "S: Single responsibility",
-       "a strategy charges; a mailer sends receipts"
+       "a strategy charges; checkout orchestrates"
       ],
       [
        "O: Open/closed",
@@ -509,7 +509,7 @@
     {
      "type": "code",
      "head": "The Penguin problem",
-     "say": "Here's the habit candidates break. A Penguin is a Bird, so we subclass. But Penguin's fly raises an error. Migrate takes birds and calls fly on each. Pass it a penguin, and the program crashes.",
+     "say": "Here's the habit candidates break. A Penguin is a Bird, so we subclass. But Penguin's fly raises an error. Migrate takes birds and calls fly on each. Pass it a penguin, and the program crashes. Liskov: a subclass must work wherever its parent does.",
      "panels": [
       {
        "file": "app.py",
@@ -778,7 +778,7 @@
     {
      "type": "code",
      "head": "Factory: one place that picks",
-     "say": "A factory is a function that decides which object to build. Give it a name like paypal and it looks it up in a dict, then builds the strategy. Callers never know which concrete class they got. All the choosing lives in one place.",
+     "say": "Using the strategy classes from before, a factory is a function that decides which object to build. Give it a name like paypal and it looks it up in a dict, then builds the strategy. Callers never know which concrete class they got. All the choosing lives in one place.",
      "panels": [
       {
        "file": "app.py",
@@ -827,8 +827,8 @@
      "options": [
       "KeyError",
       "None",
-      "Card()",
-      "\"paypal 50\""
+      "ValueError",
+      "Card() as the default"
      ],
      "answer": 0,
      "pause": 5
@@ -836,7 +836,7 @@
     {
      "type": "code",
      "head": "Fail loudly",
-     "say": "A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, raise a friendlier ValueError. The table is the one place you edit for a new method. That is the price of the factory. That's who picks: the factory.",
+     "say": "Using the classes from before, watch the factory fail. A KeyError, and it names the missing key. Good: a typo in config stops the program, instead of charging the wrong method. In real code, raise a friendlier ValueError. The table is the one place you edit for a new method. That is the price of the factory. That's who picks: the factory.",
      "panels": [
       {
        "file": "app.py",
@@ -986,7 +986,7 @@
     {
      "type": "code",
      "head": "Observer in nine lines",
-     "say": "The order keeps a list. Subscribe adds a function to it. When the order is paid, it loops over the list and calls each one. Subscribe an email function, pay, and the email goes out.",
+     "say": "The order keeps a list. Subscribe adds a function to it. When the order is paid, it loops over the list and calls each one. Subscribe an email function, call paid, and the email goes out.",
      "panels": [
       {
        "file": "app.py",
@@ -1028,13 +1028,13 @@
     },
     {
      "type": "quiz",
-     "say": "Predict. Email and stock already subscribe. Marketing wants analytics too. Which existing code in Order changes?",
-     "q": "Add an analytics subscriber. What changes inside `Order`?",
+     "say": "Predict. Email and stock already hook in. Marketing wants analytics too. Which Order method does the new analytics code call?",
+     "q": "Add an analytics subscriber. Which `Order` method does it call?",
      "options": [
       "paid()",
-      "Nothing",
       "subscribe()",
-      "the email function"
+      "the email function",
+      "a new Order()"
      ],
      "answer": 1,
      "pause": 5
@@ -1042,7 +1042,7 @@
     {
      "type": "diagram",
      "head": "Add a listener, edit nothing",
-     "say": "Nothing. Analytics just subscribes, and the next paid call reaches it. The cost is hidden coupling: you can't see who reacts by reading Order. Forget to unsubscribe, and dead listeners keep getting calls.",
+     "say": "Subscribe. Analytics just passes in its function, and the next paid call reaches it. The cost is hidden coupling: you can't see who reacts by reading Order.",
      "items": [
       {
        "id": "ord",
@@ -1050,10 +1050,10 @@
        "y": 420,
        "w": 380,
        "h": 140,
-       "label": "unchanged",
        "text": "Order",
        "tone": "blue",
-       "cue": "Nothing"
+       "cue": "Subscribe",
+       "sub": "unchanged"
       },
       {
        "id": "em",
@@ -1113,11 +1113,6 @@
        "glow": true,
        "tone": "good",
        "cue": "reaches it"
-      },
-      {
-       "id": "em",
-       "tone": "bad",
-       "cue": "Forget to unsubscribe"
       }
      ]
     },
@@ -1128,29 +1123,22 @@
      "panels": [
       {
        "file": "app.py",
-       "code": "class Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\n\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\""
+       "code": "import time\nclass Checkout:\n    def __init__(self, gateway):\n        self.gateway = gateway\n    def run(self, amount):\n        return self.gateway.charge(amount)\nclass RealGateway:\n    def charge(self, amount):\n        time.sleep(0.5)\nclass FakeGateway:\n    def charge(self, amount):\n        return \"ok\""
       }
      ],
      "steps": [
       {
        "lines": [
-        1
+        2
        ],
        "cue": "a class receives"
       },
       {
        "lines": [
-        2,
-        3
+        3,
+        4
        ],
        "cue": "takes its gateway"
-      },
-      {
-       "lines": [
-        4,
-        5
-       ],
-       "cue": "pass the real"
       },
       {
        "lines": [
@@ -1158,12 +1146,20 @@
         8,
         9
        ],
+       "cue": "pass the real"
+      },
+      {
+       "lines": [
+        10,
+        11,
+        12
+       ],
        "cue": "a fake that answers"
       }
      ],
      "notes": [
       {
-       "line": 2,
+       "line": 3,
        "inside": true,
        "text": "passed in",
        "tone": "good",
@@ -1174,7 +1170,7 @@
     {
      "type": "code",
      "head": "Why inject? Speed and safety",
-     "say": "Run the same checkout twice. The real gateway sleeps half a second, standing in for a network call, and it would charge a real card. The fake answers in no time. Same code, fast and safe. That answers both problems.",
+     "say": "Run the same Checkout twice, the one from before. The real gateway sleeps half a second, standing in for a network call, and it would charge a real card. The fake answers in no time. Same code, fast and safe. That answers both problems.",
      "panels": [
       {
        "file": "app.py",
@@ -1264,11 +1260,11 @@
       "Letter",
       "You say"
      ],
-     "say": "Single responsibility: a strategy charges, and a mailer sends receipts. Open closed: I add Crypto without editing checkout. Liskov: any strategy works wherever the base does. Interface segregation: the base asks only for pay. Dependency inversion: checkout depends on the interface, not on Card.",
+     "say": "Single responsibility: a strategy charges, and checkout orchestrates. Open closed: I add Crypto without editing checkout. Liskov: any strategy works wherever the base does. Interface segregation: the base asks only for pay. Dependency inversion: checkout depends on the interface, not on Card.",
      "rows": [
       [
        "S: single responsibility",
-       "a strategy charges; a mailer sends receipts"
+       "a strategy charges; checkout orchestrates"
       ],
       [
        "O: open/closed",
@@ -1361,11 +1357,11 @@
     },
     {
      "type": "diagram",
-     "head": "Where I used them",
+     "head": "Where they fit in our checkout",
      "covers": [
       "sw04"
      ],
-     "say": "Which have you actually used? Name a real one. In our checkout, I used strategy for payment methods, so crypto was one new class plus one table entry. A factory built it from the config string. And I injected a fake gateway, so tests ran in milliseconds.",
+     "say": "Which have you actually used? Name one you built. Our checkout is a model: strategy for payment methods, so crypto was one class plus one table entry. A factory built it from the config string. A fake gateway kept tests in milliseconds.",
      "items": [
       {
        "id": "co",
@@ -1375,7 +1371,7 @@
        "h": 140,
        "text": "checkout",
        "tone": "blue",
-       "cue": "In our checkout"
+       "cue": "Our checkout is"
       },
       {
        "id": "st",
