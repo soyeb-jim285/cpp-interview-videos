@@ -151,7 +151,7 @@
      "say": "The fix is a class. The constructor opens the file. The destructor closes it. Copying is deleted, so two objects never close one file. Now work just makes a File and throws. Open, then close, then caught.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "file.cpp",
        "code": "class File {\n    FILE* f;\npublic:\n    File(const char* n) : f(fopen(n, \"w\")) { puts(\"open\"); }\n    ~File() { fclose(f); puts(\"close\"); }\n    File(const File&) = delete;\n};\nvoid work() { File log(\"log.txt\"); throw 1; }"
       }
      ],
@@ -182,9 +182,13 @@
       }
      ],
      "output": {
-      "cmd": "./app",
+      "cmd": "g++ t.cpp && ./a.out",
       "text": "open\nclose\ncaught",
-      "cue": "Open, then close"
+      "cue": "Open, then close",
+      "setup": {
+       "file.cpp": "#include <cstdio>\nusing namespace std;\n",
+       "t.cpp": "#include \"file.cpp\"\nint main() { try { work(); } catch (int) { puts(\"caught\"); } }\n"
+      }
      }
     },
     {
@@ -942,7 +946,7 @@
      "say": "Decide who owns whom. The Parent owns its Child with a shared pointer. The Child only observes, with a weak pointer that adds nothing to the count. When p dies, the Parent's count hits zero, its destructor runs, and its members go too. Both messages print.",
      "panels": [
       {
-       "file": "main.cpp",
+       "file": "pc.cpp",
        "code": "struct Parent {\n    shared_ptr<Child> child;\n    ~Parent() { puts(\"~Parent\"); }\n};\nstruct Child {\n    weak_ptr<Parent> parent;\n    ~Child() { puts(\"~Child\"); }\n};"
       }
      ],
@@ -985,9 +989,13 @@
       }
      ],
      "output": {
-      "cmd": "./app",
+      "cmd": "g++ t.cpp && ./a.out",
       "text": "~Parent\n~Child",
-      "cue": "Both messages print"
+      "cue": "Both messages print",
+      "setup": {
+       "pc.cpp": "#include <cstdio>\n#include <memory>\nusing namespace std;\nstruct Child;\n",
+       "t.cpp": "#include \"pc.cpp\"\nint main() {\n    auto p = make_shared<Parent>();\n    p->child = make_shared<Child>();\n    p->child->parent = p;\n}\n"
+      }
      }
     },
     {
