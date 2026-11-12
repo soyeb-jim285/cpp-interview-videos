@@ -1,0 +1,1429 @@
+{
+ "id": "swe-05",
+ "track": "SWE",
+ "num": 5,
+ "title": "Debugging, Git & Telling the Story",
+ "covers": [
+  "sw06",
+  "sw10",
+  "sw12"
+ ],
+ "caps": [
+  [
+   "F one prime",
+   "F1'"
+  ],
+  [
+   "F two prime",
+   "F2'"
+  ],
+  [
+   "F one",
+   "F1"
+  ],
+  [
+   "F two",
+   "F2"
+  ],
+  [
+   "M one",
+   "M1"
+  ],
+  [
+   "M two",
+   "M2"
+  ],
+  [
+   "M three",
+   "M3"
+  ],
+  [
+   "c one",
+   "c1"
+  ],
+  [
+   "c two",
+   "c2"
+  ],
+  [
+   "c three",
+   "c3"
+  ],
+  [
+   "c four",
+   "c4"
+  ],
+  [
+   "c five",
+   "c5"
+  ],
+  [
+   "c six",
+   "c6"
+  ],
+  [
+   "c seven",
+   "c7"
+  ],
+  [
+   "c eight",
+   "c8"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Halve the history",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "A build broke somewhere in the last hundred commits. By the end, you'll find the culprit in seven tries, then tell that hunt as a story that lands the offer.",
+     "lines": [
+      {
+       "text": "100 commits. One broke it.",
+       "cue": "hundred commits"
+      },
+      {
+       "text": "Found in 7 tries.",
+       "cue": "seven tries"
+      },
+      {
+       "text": "Then tell it well.",
+       "cue": "tell that hunt",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A detective, not a gambler",
+     "say": "Interviewers test your method, not your luck. A detective doesn't guess. First, reproduce: make it fail on demand. Second, minimize: shrink the failing input. Third, bisect: halve the history. Fourth, fix it, and add a test.",
+     "items": [
+      {
+       "label": "one",
+       "text": "Reproduce",
+       "sub": "fail on demand",
+       "cue": "First, reproduce"
+      },
+      {
+       "label": "two",
+       "text": "Minimize",
+       "sub": "shrink the input",
+       "cue": "Second, minimize"
+      },
+      {
+       "label": "three",
+       "text": "Bisect",
+       "sub": "halve the history",
+       "cue": "Third, bisect"
+      },
+      {
+       "label": "four",
+       "text": "Fix + test",
+       "sub": "lock it in",
+       "cue": "Fourth, fix"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Hunting through 100 commits",
+     "unit": "tests",
+     "say": "Say commit one worked, and commit one hundred is broken. Checking one by one could take ninety eight tests. Halving the range takes seven.",
+     "bars": [
+      {
+       "label": "One by one",
+       "value": 98,
+       "tone": "bad",
+       "cue": "one by one"
+      },
+      {
+       "label": "Halving",
+       "value": 7,
+       "tone": "good",
+       "cue": "Halving the range"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Bisect: 8 commits, 3 tests",
+     "say": "Eight commits. Commit one worked, commit eight is broken. Test the middle one, c four. Passes, so the bug is later. Test c six. Fails, so the culprit is c five or c six. Test c five. Fails again, so c five broke it. Three tests for eight commits.",
+     "items": [
+      {
+       "id": "c1",
+       "x": 200,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c1",
+       "cue": "Commit one worked",
+       "tone": "good",
+       "label": "good"
+      },
+      {
+       "id": "c2",
+       "x": 390,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c2",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c3",
+       "x": 580,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c3",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c4",
+       "x": 770,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c4",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c5",
+       "x": 960,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c5",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c6",
+       "x": 1150,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c6",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c7",
+       "x": 1340,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c7",
+       "cue": "Eight commits",
+       "tone": "blue"
+      },
+      {
+       "id": "c8",
+       "x": 1530,
+       "y": 380,
+       "w": 170,
+       "h": 150,
+       "text": "c8",
+       "cue": "commit eight is broken",
+       "tone": "bad",
+       "label": "bad"
+      },
+      {
+       "id": "cnt",
+       "x": 790,
+       "y": 700,
+       "w": 340,
+       "h": 130,
+       "text": "0",
+       "cue": "Test the middle",
+       "label": "tests run",
+       "size": 56,
+       "tone": "warn"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c4",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Test the middle"
+      },
+      {
+       "id": "cnt",
+       "text": "1",
+       "cue": "middle one"
+      },
+      {
+       "id": "c4",
+       "tone": "good",
+       "cue": "Passes, so"
+      },
+      {
+       "id": "c1",
+       "tone": "dim",
+       "cue": "bug is later"
+      },
+      {
+       "id": "c2",
+       "tone": "dim",
+       "cue": "bug is later"
+      },
+      {
+       "id": "c3",
+       "tone": "dim",
+       "cue": "bug is later"
+      },
+      {
+       "id": "c6",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Test c six"
+      },
+      {
+       "id": "cnt",
+       "text": "2",
+       "cue": "Test c six"
+      },
+      {
+       "id": "c6",
+       "tone": "bad",
+       "cue": "Fails, so"
+      },
+      {
+       "id": "c7",
+       "tone": "dim",
+       "cue": "c five or"
+      },
+      {
+       "id": "c8",
+       "tone": "dim",
+       "cue": "c five or"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "tone": "warn",
+       "cue": "Test c five"
+      },
+      {
+       "id": "cnt",
+       "text": "3",
+       "cue": "Test c five"
+      },
+      {
+       "id": "c5",
+       "glow": true,
+       "tone": "bad",
+       "cue": "Fails again"
+      },
+      {
+       "id": "cnt",
+       "tone": "good",
+       "cue": "Three tests"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Now a hundred commits, with only the first and last known. In the worst case, how many tests does bisect need? Pause and predict.",
+     "q": "100 commits, bug somewhere. Worst-case bisect tests?",
+     "options": [
+      "7",
+      "10",
+      "50",
+      "98"
+     ],
+     "answer": 0
+    },
+    {
+     "type": "code",
+     "head": "Let git do the halving",
+     "say": "Seven. Two to the seventh is one twenty eight, more than a hundred. Tell git the current commit is bad, and the one ninety nine back is good. Bisect run feeds it a test script. Exit zero means good. It ran seven tests, and names the culprit.",
+     "panels": [
+      {
+       "file": "run.sh",
+       "code": "git bisect start\ngit bisect bad HEAD\ngit bisect good HEAD~99\ngit bisect run ./test.sh | grep -c running\ngit log -1 --format=%s refs/bisect/bad\ngit bisect reset"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Tell git"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "current commit is bad"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "ninety nine back"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Bisect run"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "Exit zero"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "names the culprit"
+      }
+     ],
+     "output": {
+      "cmd": "sh run.sh",
+      "text": "7\norder id from seconds",
+      "cue": "It ran seven"
+     }
+    }
+   ]
+  },
+  {
+   "title": "Reproduce, then shrink",
+   "scenes": [
+    {
+     "type": "code",
+     "head": "Shrink the input by halves",
+     "say": "A job fails on a file with ten thousand rows. Don't read them all. Keep the first five thousand: still fails. The first three: passes. The first four: fails. So row four is the culprit, and you hold a tiny repro that becomes your regression test.",
+     "panels": [
+      {
+       "file": "shrink.py",
+       "code": "rows = [\"ok\"] * 10000\nrows[3] = \"\"\ndef fails(r):\n    return \"\" in r\nprint(fails(rows[:5000]), fails(rows[:3]), fails(rows[:4]))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "ten thousand rows"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "first five thousand"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "row four is the culprit"
+      },
+      {
+       "lines": [],
+       "cue": "regression test"
+      }
+     ],
+     "output": {
+      "cmd": "python3 shrink.py",
+      "text": "True False True",
+      "cue": "The first four"
+     }
+    },
+    {
+     "type": "code",
+     "head": "A flaky test: ids from the clock",
+     "say": "Now a flaky test. Orders get an id from the clock, in whole seconds. Two orders in the same second share an id. The second overwrites the first. The test passes only when the clock ticks between them. Don't wait for luck. Pass the time in, and it fails every run.",
+     "panels": [
+      {
+       "file": "orders.py",
+       "code": "orders = {}\ndef create(now):\n    orders[int(now)] = \"paid\"\ncreate(100.2)\ncreate(100.9)\ncreate(101.1)\nprint(len(orders))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        3
+       ],
+       "cue": "whole seconds"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "same second"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "overwrites the first"
+      },
+      {
+       "lines": [
+        4,
+        5,
+        6
+       ],
+       "cue": "clock ticks"
+      },
+      {
+       "lines": [
+        2,
+        4,
+        5,
+        6
+       ],
+       "cue": "Pass the time in"
+      }
+     ],
+     "notes": [
+      {
+       "line": 3,
+       "inside": true,
+       "text": "id = whole seconds",
+       "tone": "bad",
+       "cue": "from the clock"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Three orders arrive at one hundred point two, one hundred point nine, and one hundred one point one. How many orders does the program store? Pause and predict.",
+     "q": "After the three `create` calls, what does `len(orders)` print?",
+     "options": [
+      "1",
+      "2",
+      "3",
+      "0"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "diagram",
+     "head": "Two ids, not three",
+     "say": "Two. The first two orders both get id one hundred, so the second overwrites the first. The third gets one oh one. Three orders went in, and the program kept two.",
+     "items": [
+      {
+       "id": "o1",
+       "x": 160,
+       "y": 280,
+       "w": 330,
+       "h": 120,
+       "text": "100.2",
+       "cue": null,
+       "label": "order 1"
+      },
+      {
+       "id": "o2",
+       "x": 160,
+       "y": 490,
+       "w": 330,
+       "h": 120,
+       "text": "100.9",
+       "cue": null,
+       "label": "order 2"
+      },
+      {
+       "id": "o3",
+       "x": 160,
+       "y": 700,
+       "w": 330,
+       "h": 120,
+       "text": "101.1",
+       "cue": null,
+       "label": "order 3"
+      },
+      {
+       "id": "k100",
+       "x": 780,
+       "y": 385,
+       "w": 300,
+       "h": 130,
+       "text": "id 100",
+       "cue": "The first two",
+       "tone": "warn"
+      },
+      {
+       "id": "k101",
+       "x": 780,
+       "y": 700,
+       "w": 300,
+       "h": 130,
+       "text": "id 101",
+       "cue": "The third",
+       "tone": "good"
+      },
+      {
+       "id": "res",
+       "x": 1300,
+       "y": 500,
+       "w": 420,
+       "h": 150,
+       "text": "len = 2",
+       "cue": "kept two",
+       "label": "stored",
+       "size": 56,
+       "tone": "bad"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "o1",
+       "to": "k100",
+       "cue": "first two orders"
+      },
+      {
+       "from": "o2",
+       "to": "k100",
+       "cue": "second overwrites"
+      },
+      {
+       "from": "o3",
+       "to": "k101",
+       "cue": "The third"
+      }
+     ],
+     "changes": [
+      {
+       "id": "o1",
+       "kill": true,
+       "cue": "overwrites the first"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "Fix it, then pin it with a test",
+     "say": "The fix: stop using the clock as the identity. A counter gives every order its own id. Now three orders go in, every run, on every machine. Add a regression test.",
+     "panels": [
+      {
+       "file": "orders.py",
+       "code": "import itertools\nids = itertools.count(1)\norders = {}\ndef create(now):\n    orders[next(ids)] = \"paid\"\ncreate(100.2)\ncreate(100.9)\ncreate(101.1)\nprint(len(orders))"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "A counter"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "its own id"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "every run"
+      },
+      {
+       "lines": [],
+       "cue": "regression test"
+      }
+     ],
+     "output": {
+      "cmd": "python3 orders.py",
+      "text": "3",
+      "tone": "good",
+      "cue": "three orders go in"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups on debugging",
+     "say": "Follow ups. Can't reproduce it? Add logging, capture the real input. What does bisect need? A good commit and an automatic test. A flaky test? Fix it first, because bisect needs the same verdict each time. Not a commit at all? Check config, data, dependencies. Mistake: changing code before you can reproduce.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Can't reproduce it?",
+       "Add logging, capture the real input"
+      ],
+      [
+       "What does bisect need?",
+       "A good commit + an automatic test"
+      ],
+      [
+       "Flaky test while bisecting?",
+       "Fix it first: same verdict every run"
+      ],
+      [
+       "Bug isn't a commit?",
+       "Check config, data, dependencies"
+      ],
+      [
+       "Common mistake?",
+       "Changing code before reproducing"
+      ]
+     ],
+     "cues": [
+      "Can't reproduce",
+      "What does bisect",
+      "A flaky test",
+      "Not a commit",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Merge or rebase",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "Your branch and main",
+     "say": "Think of a shared recipe book. On Monday you photocopy it: that's M one. Meanwhile others add M two and M three to the book. You write two pages of your own, F one and F two. Each commit points back to its parent. Now your pages must go into the book.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 300,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M1",
+       "cue": "photocopy it",
+       "label": "main"
+      },
+      {
+       "id": "m2",
+       "x": 620,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M2",
+       "cue": "M two"
+      },
+      {
+       "id": "m3",
+       "x": 940,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M3",
+       "cue": "M three"
+      },
+      {
+       "id": "f1",
+       "x": 620,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F1",
+       "cue": "F one",
+       "label": "feature",
+       "tone": "warn"
+      },
+      {
+       "id": "f2",
+       "x": 940,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F2",
+       "cue": "F two",
+       "tone": "warn"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "m2",
+       "to": "m1",
+       "cue": "points back"
+      },
+      {
+       "from": "m3",
+       "to": "m2",
+       "cue": "parent"
+      },
+      {
+       "from": "f1",
+       "to": "m1",
+       "cue": "parent"
+      },
+      {
+       "from": "f2",
+       "to": "f1",
+       "cue": "parent"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "Merge: one commit, two parents",
+     "say": "Merge adds one new commit with two parents: the tip of main and the tip of your branch. Nothing old is touched. History shows the work really happened in parallel. The cost: extra merge commits, and a graph that can tangle.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 300,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M1",
+       "cue": null,
+       "label": "main"
+      },
+      {
+       "id": "m2",
+       "x": 620,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M2"
+      },
+      {
+       "id": "m3",
+       "x": 940,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M3"
+      },
+      {
+       "id": "f1",
+       "x": 620,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F1",
+       "cue": null,
+       "label": "feature",
+       "tone": "warn"
+      },
+      {
+       "id": "f2",
+       "x": 940,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F2",
+       "cue": null,
+       "tone": "warn"
+      },
+      {
+       "id": "mg",
+       "x": 1300,
+       "y": 460,
+       "w": 300,
+       "h": 130,
+       "text": "Merge",
+       "cue": "one new commit",
+       "sub": "two parents",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "m2",
+       "to": "m1"
+      },
+      {
+       "from": "m3",
+       "to": "m2"
+      },
+      {
+       "from": "f1",
+       "to": "m1"
+      },
+      {
+       "from": "f2",
+       "to": "f1"
+      },
+      {
+       "from": "mg",
+       "to": "m3",
+       "tone": "good",
+       "cue": "two parents"
+      },
+      {
+       "from": "mg",
+       "to": "f2",
+       "tone": "good",
+       "cue": "tip of your branch"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1300,
+       "y": 640,
+       "text": "cost: a tangled graph",
+       "tone": "warn",
+       "cue": "graph that can tangle"
+      }
+     ],
+     "changes": [
+      {
+       "id": "mg",
+       "glow": true,
+       "tone": "good",
+       "cue": "Nothing old"
+      },
+      {
+       "id": "f1",
+       "glow": true,
+       "tone": "warn",
+       "cue": "really happened in parallel"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "One conflict, resolved",
+     "say": "Both sides changed one line, so git stops and asks. Merging your branch into main, the top half is main's version. The bottom half is yours. Edit the file to the final result, here sixty, and delete the three marker lines. Then git add the file and commit. A rebase shows the same markers.",
+     "panels": [
+      {
+       "file": "config.py",
+       "label": "conflict",
+       "tone": "bad",
+       "code": "<<<<<<< HEAD\ntimeout = 30\n=======\ntimeout = 60\n>>>>>>> feature"
+      },
+      {
+       "file": "config.py",
+       "label": "resolved",
+       "tone": "good",
+       "code": "timeout = 60"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        2
+       ],
+       "panel": 0,
+       "cue": "top half"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "panel": 0,
+       "cue": "bottom half"
+      },
+      {
+       "lines": [
+        1
+       ],
+       "panel": 1,
+       "cue": "final result"
+      },
+      {
+       "lines": [
+        1,
+        3,
+        5
+       ],
+       "panel": 0,
+       "cue": "three marker lines"
+      },
+      {
+       "lines": [],
+       "panel": 0,
+       "cue": "git add"
+      }
+     ],
+     "output": {
+      "cmd": "git merge feature",
+      "text": "CONFLICT (content): Merge conflict in config.py\nAutomatic merge failed",
+      "tone": "bad",
+      "cue": "git stops"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Same branch, but now we rebase it onto M three instead. How many new commits does git create? Pause and predict.",
+     "q": "Rebase F1, F2 onto M3. New commits created?",
+     "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "diagram",
+     "head": "Rebase: replay on top",
+     "say": "Two. Rebase replays each of your commits as a copy on top of M three: F one prime and F two prime. The result is a straight line. But the copies have new hashes, and the old F one and F two are abandoned. You rewrote history, so never rebase commits other people already have.",
+     "items": [
+      {
+       "id": "m1",
+       "x": 300,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M1",
+       "cue": null,
+       "label": "main"
+      },
+      {
+       "id": "m2",
+       "x": 620,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M2"
+      },
+      {
+       "id": "m3",
+       "x": 940,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "M3"
+      },
+      {
+       "id": "f1",
+       "x": 620,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F1",
+       "cue": null,
+       "label": "feature",
+       "tone": "warn"
+      },
+      {
+       "id": "f2",
+       "x": 940,
+       "y": 620,
+       "w": 200,
+       "h": 120,
+       "text": "F2",
+       "cue": null,
+       "tone": "warn"
+      },
+      {
+       "id": "g1",
+       "x": 1260,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "F1'",
+       "cue": "F one prime",
+       "sub": "new hash",
+       "tone": "good"
+      },
+      {
+       "id": "g2",
+       "x": 1580,
+       "y": 300,
+       "w": 200,
+       "h": 120,
+       "text": "F2'",
+       "cue": "F two prime",
+       "sub": "new hash",
+       "tone": "good"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "m2",
+       "to": "m1"
+      },
+      {
+       "from": "m3",
+       "to": "m2"
+      },
+      {
+       "from": "f1",
+       "to": "m1"
+      },
+      {
+       "from": "f2",
+       "to": "f1"
+      },
+      {
+       "from": "g1",
+       "to": "m3",
+       "tone": "good",
+       "cue": "copy on top"
+      },
+      {
+       "from": "g2",
+       "to": "g1",
+       "tone": "good",
+       "cue": "straight line"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1200,
+       "y": 640,
+       "text": "never rebase shared commits",
+       "tone": "warn",
+       "cue": "never rebase"
+      }
+     ],
+     "changes": [
+      {
+       "id": "f1",
+       "kill": true,
+       "cue": "old F one"
+      },
+      {
+       "id": "f2",
+       "kill": true,
+       "cue": "old F one"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Follow-ups on merge and rebase",
+     "say": "Follow ups. Which do you use? Rebase mine, merge shared branches. Rebase went badly? Rebase abort puts you back. Pushing after a rebase? Force with lease, only on my own branch. Mistake: rebasing a branch others already pulled.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Which do you use?",
+       "Rebase my own branch; merge shared ones"
+      ],
+      [
+       "Rebase went badly?",
+       "`git rebase --abort` puts you back"
+      ],
+      [
+       "Pushing after a rebase?",
+       "`--force-with-lease`, my own branch only"
+      ],
+      [
+       "Common mistake?",
+       "Rebasing a branch others already pulled"
+      ]
+     ],
+     "cues": [
+      "Which do you",
+      "Rebase went",
+      "Pushing after",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Tell it in ninety seconds",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "S.T.A.R. for the bisect hunt",
+     "say": "Tell it with S T A R, using your own real story. Mine's made up. Situation: the checkout test failed after a hundred commits. Task: find the cause before release. Action: I froze the clock, then bisected in seven runs. Result: a counter fix, plus a test.",
+     "items": [
+      {
+       "label": "Situation",
+       "text": "Test failed",
+       "sub": "100 new commits",
+       "cue": "Situation"
+      },
+      {
+       "label": "Task",
+       "text": "Find the cause",
+       "sub": "before release",
+       "cue": "Task"
+      },
+      {
+       "label": "Action",
+       "text": "Froze the clock",
+       "sub": "bisected: 7 runs",
+       "cue": "Action"
+      },
+      {
+       "label": "Result",
+       "text": "Fixed + test",
+       "sub": "one commit, counter",
+       "tone": "good",
+       "cue": "Result"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Where the 90 seconds go",
+     "unit": "sec",
+     "say": "Ninety seconds is short. Situation, about fifteen. Task, ten. Action, forty five, because that's where you show how you think. Result, twenty, ending on a number.",
+     "bars": [
+      {
+       "label": "Situation",
+       "value": 15,
+       "cue": "Situation"
+      },
+      {
+       "label": "Task",
+       "value": 10,
+       "cue": "Task"
+      },
+      {
+       "label": "Action",
+       "value": 45,
+       "tone": "good",
+       "cue": "Action"
+      },
+      {
+       "label": "Result",
+       "value": 20,
+       "cue": "Result"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Four ways to say the action part. Which one lands the offer? Pause and predict.",
+     "q": "Which Action line lands the offer?",
+     "options": [
+      "We debugged it a lot",
+      "I bisected 100 commits",
+      "The team fixed it",
+      "It just went away"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "compare",
+     "head": "Weak line, strong line",
+     "say": "The second one. It says I, and names the method. Weak lines say we, and stay vague. Name the real cause: ids from whole seconds. End on a count: seven runs, plus a test.",
+     "heads": [
+      "Weak",
+      "Strong"
+     ],
+     "rows": [
+      [
+       "We looked into it",
+       "I froze the clock, then bisected"
+      ],
+      [
+       "It was a team effort",
+       "I wrote the fix and the test"
+      ],
+      [
+       "It got fixed",
+       "Root cause: ids from whole seconds"
+      ],
+      [
+       "No numbers",
+       "Found in 7 runs, test added"
+      ]
+     ],
+     "cues": [
+      "The second one",
+      "Weak lines",
+      "Name the real",
+      "End on a count"
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A second story shape",
+     "say": "A second shape. Symptom: a web app showed a wrong score, only sometimes. Reproduce: send requests in parallel. Root cause: both requests read the same score, and one write overwrote the other. Fix: one atomic update. Prevent: a concurrency test.",
+     "items": [
+      {
+       "label": "Symptom",
+       "text": "Wrong score",
+       "sub": "only sometimes",
+       "cue": "Symptom"
+      },
+      {
+       "label": "Reproduce",
+       "text": "Parallel",
+       "sub": "requests together",
+       "cue": "Reproduce"
+      },
+      {
+       "label": "Root cause",
+       "text": "Lost update",
+       "sub": "read, add, write",
+       "tone": "bad",
+       "cue": "Root cause"
+      },
+      {
+       "label": "Fix",
+       "text": "Atomic",
+       "sub": "one database update",
+       "tone": "good",
+       "cue": "Fix: one"
+      },
+      {
+       "label": "Prevent",
+       "text": "Test",
+       "sub": "concurrency test",
+       "cue": "Prevent"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw06"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "A bug that only happens sometimes? Reproduce, shrink, bisect, fix, add a test. Can't reproduce it? Add logging. What does bisect need? A good commit and an automatic test. Mistake: changing code first.",
+     "rows": [
+      [
+       "A bug that appears sometimes?",
+       "Reproduce, shrink, bisect, fix + test"
+      ],
+      [
+       "Can't reproduce it?",
+       "Add logging, capture the real input"
+      ],
+      [
+       "What does bisect need?",
+       "Good commit + automatic test"
+      ],
+      [
+       "Common mistake?",
+       "Changing code before reproducing"
+      ]
+     ],
+     "cues": [
+      "A bug that",
+      "Can't reproduce",
+      "What does bisect",
+      "Mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw10"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Merge versus rebase? Merge: two parents. Rebase: straight line, new hashes. Conflicts? Edit, delete markers, add, continue. Mistake: rebasing what others pulled.",
+     "rows": [
+      [
+       "Merge vs rebase?",
+       "Two-parent commit vs replayed straight line"
+      ],
+      [
+       "Resolve a conflict?",
+       "Edit, delete markers, add, continue"
+      ],
+      [
+       "Common mistake?",
+       "Rebasing what others already pulled"
+      ]
+     ],
+     "cues": [
+      "Merge versus",
+      "Conflicts",
+      "Mistake"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "sw12"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "A hard bug you fixed? Situation, task, action, result, about ninety seconds. Do differently? Add monitoring earlier. How did you know? A measurement and a test. Mistake: we, long background, no result.",
+     "rows": [
+      [
+       "A hard bug you fixed?",
+       "STAR, ~90 seconds, name the root cause"
+      ],
+      [
+       "Do differently?",
+       "Add monitoring earlier"
+      ],
+      [
+       "How did you know?",
+       "A before and after number, plus a test"
+      ],
+      [
+       "Common mistake?",
+       "Saying we, no result"
+      ]
+     ],
+     "cues": [
+      "A hard bug",
+      "Do differently",
+      "How did you",
+      "Mistake"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Practice this week",
+     "say": "Three exercises. Build a repo with a hundred commits and a planted bug, and bisect it. Cause a conflict, and resolve it by merge, then by rebase. And tell your own bug in S T A R, timed at ninety seconds.",
+     "heads": [
+      "Do next",
+      "Why"
+     ],
+     "rows": [
+      [
+       "Bisect a 100-commit repo with a planted bug",
+       "see it finish in 7 runs"
+      ],
+      [
+       "Resolve one conflict by merge, then by rebase",
+       "compare the two histories"
+      ],
+      [
+       "Tell one real bug in STAR form, timed",
+       "90 seconds, say I"
+      ]
+     ],
+     "cues": [
+      "Build a repo",
+      "Cause a conflict",
+      "your own bug"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. Reproduce, shrink, bisect: a hundred commits, seven tests. Merge keeps history, rebase straightens it, never on shared branches. In S T A R, name the cause, say I, end on a result.",
+     "lines": [
+      "Reproduce, shrink, bisect: 100 commits, 7 tests.",
+      "Merge keeps history. Rebase rewrites it, never shared.",
+      "STAR: real root cause, say I, end on a result."
+     ],
+     "cues": [
+      "Reproduce",
+      "Merge keeps",
+      "In S T A R"
+     ]
+    }
+   ]
+  }
+ ]
+}
