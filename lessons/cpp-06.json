@@ -439,7 +439,7 @@
     {
      "type": "compare",
      "head": "Why the hardware cares",
-     "say": "Why bother? A cache line is the 64-byte block the CPU fetches. Loads from aligned addresses are usually fastest. Misaligned ones can be slow or fault. In C plus plus, they are undefined. Align as sixty four gives a counter its own cache line. Pragma pack removes padding, at a cost in speed and safety.",
+     "say": "Why bother? A cache line is the 64-byte block the CPU fetches. Loads from aligned addresses are usually fastest. Misaligned ones can be slow or fault. In C plus plus, they are undefined. Align as sixty four gives a counter its own cache line. Two threads writing nearby counters slow each other down. That is false sharing. Pragma pack removes padding, at a cost in speed and safety.",
      "heads": [
       "Case",
       "Effect"
@@ -455,7 +455,11 @@
       ],
       [
        "`alignas(64)`",
-       "own 64-byte cache line, no false sharing"
+       "own 64-byte cache line"
+      ],
+      [
+       "false sharing",
+       "threads slow each other on one line"
       ],
       [
        "`#pragma pack(1)`",
@@ -466,6 +470,7 @@
       "Loads from aligned",
       "Misaligned ones",
       "Align as sixty four",
+      "Two threads",
       "Pragma pack removes"
      ]
     }
@@ -519,7 +524,7 @@
     {
      "type": "diagram",
      "head": "new (buf) Point{1, 2}",
-     "say": "First, reserve raw bytes, sized and aligned for a Point. No object exists yet. Then new, with buf in parentheses, allocates nothing. It runs the constructor there, and hands back a pointer. The bytes now hold one and two. When we finish, we call the destructor ourselves. That answers the card: Point built in buf, with no allocation.",
+     "say": "First, reserve raw bytes, sized and aligned with align as for a Point. No object exists yet. Then new, with buf in parentheses, allocates nothing. It runs the constructor there, and hands back a pointer. The bytes now hold one and two. When we finish, we call the destructor ourselves. That answers the card: Point built in buf, with no allocation.",
      "items": [
       {
        "id": "buf",
@@ -577,6 +582,11 @@
        "glow": true,
        "tone": "good",
        "cue": "one and two"
+      },
+      {
+       "id": "pp",
+       "tone": "dim",
+       "cue": "we call the destructor ourselves"
       },
       {
        "id": "buf",
@@ -644,7 +654,7 @@
       "ctor",
       "ctor, dtor",
       "dtor, ctor",
-      "a crash"
+      "nothing"
      ],
      "answer": "ctor"
     },
@@ -826,21 +836,21 @@
      "head": "Practice before your interview",
      "say": "Try these three. Print size of and offset of every field in a struct of your own. Reorder until the padding is as small as you can get it. Then placement new a string into an aligned buffer, and destroy it by hand.",
      "heads": [
-      "Do next",
+      "Exercise",
       "Why"
      ],
      "rows": [
       [
-       "Struct layout: print `sizeof` and `offsetof`",
+       "Layout lab · sizeof and offsetof",
        "see the padding with your own eyes"
       ],
       [
-       "Field reorder: cut `sizeof` until it stops",
+       "Field reorder · cut sizeof",
        "biggest alignment first"
       ],
       [
-       "Placement new: `std::string` in aligned buffer",
-       "construct, use, then call `~string()`"
+       "Placement new · std::string",
+       "construct, use, then call ~string()"
       ]
      ],
      "cues": [
