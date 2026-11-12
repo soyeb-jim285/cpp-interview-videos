@@ -20,10 +20,6 @@
   [
    "v table",
    "vtable"
-  ],
-  [
-   "unique pointer",
-   "unique_ptr"
   ]
  ],
  "chapters": [
@@ -32,14 +28,14 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "A base pointer, a missing keyword, and a thousand bytes gone for good. By the end, you'll draw the vtable behind a virtual call, and name the five special functions.",
+     "say": "A base pointer, a missing keyword, and 4,000 bytes gone for good. By the end, you'll draw the vtable behind a virtual call, and name the five special functions.",
      "lines": [
       {
        "text": "1 missing keyword",
        "cue": "missing keyword"
       },
       {
-       "text": "1,000 bytes gone for good",
+       "text": "4,000 bytes gone for good",
        "cue": "gone for good"
       },
       {
@@ -270,12 +266,12 @@
     {
      "type": "problem",
      "title": "Why a virtual destructor?",
-     "statement": "Delete a Derived object through a Base pointer. The Derived owns a 1 KB buffer. Does the buffer get freed?",
+     "statement": "Delete a Derived object through a Base pointer. The Derived owns an int[1000] buffer, 4,000 bytes. Does the buffer get freed?",
      "example": {
       "input": "Base* p = new Derived; delete p;",
-      "output": "without virtual: the 1 KB leaks"
+      "output": "without virtual: 4,000 bytes leak"
      },
-     "say": "Picture a Derived holding one kilobyte, deleted through a Base pointer. Is the buffer freed?",
+     "say": "Picture a Derived holding 4,000 bytes, deleted through a Base pointer. Is the buffer freed?",
      "cues": {
       "example": "Picture a Derived",
       "output": "Is the buffer freed"
@@ -284,7 +280,7 @@
     {
      "type": "diagram",
      "head": "delete through a base pointer",
-     "say": "P is a Base pointer to a Derived object. The Derived part owns a one kilobyte heap buffer. Delete p, with no virtual destructor. Only Base's destructor runs. Derived's never does, so the buffer leaks.",
+     "say": "P is a Base pointer to a Derived object. The Derived part owns a heap buffer, int[1000], 4,000 bytes. Delete p, with no virtual destructor. Only Base's destructor runs. Derived's never does, so the buffer leaks.",
      "items": [
       {
        "id": "p",
@@ -324,8 +320,8 @@
        "y": 500,
        "w": 380,
        "h": 120,
-       "label": "heap",
-       "text": "1 KB buffer",
+       "label": "heap: int[1000]",
+       "text": "4,000 bytes",
        "tone": "info",
        "cue": "heap buffer"
       }
@@ -357,7 +353,7 @@
       },
       {
        "id": "buf",
-       "text": "leaked 1 KB",
+       "text": "4,000 B leaked",
        "tone": "bad",
        "cue": "buffer leaks"
       }
@@ -378,7 +374,7 @@
     {
      "type": "code",
      "head": "The fix: one keyword",
-     "say": "Derived first, then Base. The destructor is virtual, so delete looks up the real type at runtime. Derived's destructor runs first, then Base's: the reverse of construction. A unique pointer to Base needs this too.",
+     "say": "Derived first, then Base. The destructor is virtual, so delete looks up the real type at runtime. Derived's destructor runs first, then Base's: the reverse of construction.",
      "panels": [
       {
        "file": "vdtor.cpp",
@@ -415,7 +411,7 @@
     {
      "type": "code",
      "head": "The rule, and two follow-ups",
-     "say": "The rule: a polymorphic base gets a public virtual destructor. Or make it protected and non virtual, so deleting through the base won't compile. A shared pointer remembers the real type, but don't rely on that.",
+     "say": "The rule: a polymorphic base gets a public virtual destructor. Or make it protected and non virtual, so deleting through the base won't compile. The shared pointer on line nine remembers the real type. Don't rely on that.",
      "panels": [
       {
        "file": "rule.cpp",
@@ -600,8 +596,8 @@
     },
     {
      "type": "compare",
-     "head": "Two more facts interviewers like",
-     "say": "Two more facts. A throwing constructor inside new frees the memory, and the pointer is never assigned. A function try block can catch, but it rethrows. And throwing reports failure.",
+     "head": "Three more facts",
+     "say": "Three more facts. A throwing constructor inside new frees the memory, and the pointer is never assigned. A function try block can catch, but it rethrows. And throwing reports failure.",
      "heads": [
       "Situation",
       "What happens"
@@ -696,7 +692,7 @@
      "output": {
       "cmd": "./copy",
       "text": "copy ctor\ncopy ctor\ncopy assign",
-      "cue": "Passing a named object"
+      "cue": "calls copy assignment"
      }
     },
     {
@@ -1134,6 +1130,21 @@
      }
     },
     {
+     "type": "take",
+     "kicker": "Analogy",
+     "say": "Picture a box of TV remotes, one model each. Every remote carries a tag pointing to its model's button sheet. You press volume up. The remote follows its tag and reads its sheet. The tag is the vptr, the sheet is the vtable.",
+     "lines": [
+      "A tag per remote points to its sheet.",
+      "Press volume up.",
+      "vptr is the tag. vtable is the sheet."
+     ],
+     "cues": [
+      "carries a tag",
+      "You press volume up",
+      "reads its sheet"
+     ]
+    },
+    {
      "type": "diagram",
      "head": "One hidden pointer, one table per class",
      "say": "Each class with virtual functions gets one v table: an array of function pointers, one slot per virtual function. Circle overrides area, so its slot holds Circle's area. Draw isn't overridden, so that slot still points to Shape's. Every Circle object carries a hidden v pointer to this table, set by its constructor.",
@@ -1236,7 +1247,7 @@
     {
      "type": "code",
      "head": "The costs",
-     "say": "Sixteen. Four bytes of int, an eight byte v pointer, and padding. Tables are shared, but every object carries a pointer. Each call is an extra hop, usually not inlined. In a base constructor, the v pointer still points to the base table.",
+     "say": "Sixteen. Four bytes of int, an eight byte v pointer, and padding. Tables are shared, but every object carries a pointer. Each call is an extra hop, usually not inlined.",
      "panels": [
       {
        "file": "cost.cpp",
@@ -1273,7 +1284,7 @@
      "output": {
       "cmd": "./cost",
       "text": "4 16",
-      "cue": "base constructor"
+      "cue": "usually not inlined"
      }
     }
    ]
@@ -1363,18 +1374,36 @@
      ]
     },
     {
-     "type": "take",
-     "kicker": "Answer",
-     "say": "Constructor versus assignment? New object versus existing. T b equals a is construction. Assignment frees old state, and survives self assignment. Rule of three, five, zero? Write none, if you can.",
-     "lines": [
-      "Ctor: a new object. Assign: an existing one.",
-      "Assignment frees old state; survives b = b.",
-      "Rule of 3: dtor, copy, assign. 5 adds moves."
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "say": "Constructor or assignment? New object versus existing. T b equals a is construction. Assignment frees old state, and survives self assignment. Rule of three? Write all three. Rule of five adds moves. Rule of zero: write none, if you can.",
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "rows": [
+      [
+       "Ctor or assign?",
+       "new object versus existing"
+      ],
+      [
+       "Assignment?",
+       "frees old state; survives b = b"
+      ],
+      [
+       "Rule of three?",
+       "write all three: dtor, copy, assign"
+      ],
+      [
+       "Rule of five, zero?",
+       "5 adds moves; 0 writes none"
+      ]
      ],
      "cues": [
-      "Constructor versus",
+      "Constructor or",
       "Assignment frees",
-      "Rule of three"
+      "Rule of three",
+      "Rule of five"
      ],
      "covers": [
       "q57",
