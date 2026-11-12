@@ -1,0 +1,1128 @@
+{
+ "id": "be-02",
+ "track": "Backend",
+ "num": 2,
+ "title": "Indexes, Query Plans & N+1",
+ "covers": [
+  "be03",
+  "be06"
+ ],
+ "caps": [
+  [
+   "N plus one",
+   "N+1"
+  ],
+  [
+   "B tree",
+   "B-tree"
+  ],
+  [
+   "Explain query plan",
+   "EXPLAIN QUERY PLAN"
+  ],
+  [
+   "Create index",
+   "CREATE INDEX"
+  ],
+  [
+   "select related",
+   "select_related"
+  ],
+  [
+   "Prefetch related",
+   "prefetch_related"
+  ],
+  [
+   "explain analyze",
+   "EXPLAIN ANALYZE"
+  ],
+  [
+   "run analyze",
+   "run ANALYZE"
+  ],
+  [
+   "Order by",
+   "ORDER BY"
+  ],
+  [
+   "a batched in query",
+   "a batched IN query"
+  ],
+  [
+   "one batched in query",
+   "one batched IN query"
+  ],
+  [
+   "an in query",
+   "an IN query"
+  ]
+ ],
+ "chapters": [
+  {
+   "title": "Scan a million rows or four?",
+   "scenes": [
+    {
+     "type": "hook",
+     "say": "One query reads a million rows to find one person. By the end, you'll make it read four, and spot the hidden fifty one queries behind a single blog page.",
+     "lines": [
+      {
+       "text": "Find 1 user in 1,000,000",
+       "cue": "One query"
+      },
+      {
+       "text": "Read 4 rows, not 1,000,000",
+       "cue": "By the end"
+      },
+      {
+       "text": "Spot the hidden 51 queries",
+       "cue": "fifty one",
+       "accent": true
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Same lookup, a million users",
+     "unit": "ms",
+     "say": "Same lookup, a million users, on my laptop. Scanning every row takes seventy milliseconds. With an index, three hundredths. Two thousand times faster, same answer.",
+     "bars": [
+      {
+       "label": "Scan",
+       "value": 72,
+       "tone": "bad",
+       "cue": "Scanning every row"
+      },
+      {
+       "label": "Index",
+       "value": 0.03,
+       "tone": "good",
+       "cue": "With an index"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A catalog for your table",
+     "say": "Picture a library with a million books and no catalog. To find one title, you walk every shelf. That's a full table scan. Now add a catalog: look up the title, read a shelf number, walk straight there. The catalog is the index.",
+     "items": [
+      {
+       "label": "your table",
+       "text": "1,000,000 rows",
+       "sub": "= the books",
+       "cue": "a million books"
+      },
+      {
+       "label": "no index",
+       "text": "check every row",
+       "sub": "full table scan",
+       "tone": "bad",
+       "cue": "walk every shelf"
+      },
+      {
+       "label": "index",
+       "text": "look up title",
+       "sub": "= the catalog",
+       "cue": "add a catalog"
+      },
+      {
+       "label": "then",
+       "text": "jump to shelf",
+       "sub": "a few steps",
+       "tone": "good",
+       "cue": "walk straight there"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "A B-tree finding user 50",
+     "say": "The catalog is usually a B tree: keys kept sorted. We want user fifty. The root page holds thirty and sixty. Below it sit three children, one for each range. Fifty is between thirty and sixty, so we take the middle one. It holds forty and fifty, plus a pointer to the row. Real pages hold hundreds of keys, so ten million rows need only three or four hops.",
+     "items": [
+      {
+       "id": "find",
+       "x": 140,
+       "y": 250,
+       "w": 400,
+       "h": 110,
+       "text": "find user 50",
+       "tone": "warn",
+       "cue": "We want user fifty"
+      },
+      {
+       "id": "root",
+       "x": 760,
+       "y": 250,
+       "w": 400,
+       "h": 110,
+       "label": "root page",
+       "text": "30 | 60",
+       "size": 40,
+       "tone": "blue",
+       "cue": "The root page"
+      },
+      {
+       "id": "l1",
+       "x": 260,
+       "y": 490,
+       "w": 360,
+       "h": 110,
+       "label": "under 30",
+       "text": "10 | 20",
+       "size": 36,
+       "cue": "three children"
+      },
+      {
+       "id": "l2",
+       "x": 780,
+       "y": 490,
+       "w": 360,
+       "h": 110,
+       "label": "30 to 60",
+       "text": "40 | 50",
+       "size": 36,
+       "cue": "three children"
+      },
+      {
+       "id": "l3",
+       "x": 1300,
+       "y": 490,
+       "w": 360,
+       "h": 110,
+       "label": "over 60",
+       "text": "70 | 80",
+       "size": 36,
+       "cue": "three children"
+      },
+      {
+       "id": "row",
+       "x": 760,
+       "y": 750,
+       "w": 400,
+       "h": 110,
+       "label": "table row",
+       "text": "user 50",
+       "size": 40,
+       "tone": "good",
+       "cue": "the row"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "root",
+       "to": "l2",
+       "tone": "warn",
+       "cue": "take the middle one"
+      },
+      {
+       "from": "l2",
+       "to": "row",
+       "tone": "good",
+       "cue": "plus a pointer"
+      }
+     ],
+     "notes": [
+      {
+       "x": 1240,
+       "y": 760,
+       "text": "10M rows: 3 or 4 hops",
+       "tone": "good",
+       "cue": "ten million rows"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "No index: scan",
+     "say": "I'm using SQLite. Ask it how it will run this lookup. Explain query plan prints the plan. No index exists, so it says scan users. Postgres calls that a Seq Scan.",
+     "panels": [
+      {
+       "file": "query.sql",
+       "code": "EXPLAIN QUERY PLAN\nSELECT * FROM users\nWHERE email = 'a@b.com';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "Explain query plan"
+      },
+      {
+       "lines": [
+        2,
+        3
+       ],
+       "cue": "No index exists"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 app.db",
+      "text": "QUERY PLAN\n`--SCAN users",
+      "tone": "bad",
+      "cue": "scan users"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Add the index: search",
+     "say": "Add one line. Create index builds the sorted tree on email. Same lookup again. Now the plan says search, using the index. Postgres calls that an Index Scan.",
+     "panels": [
+      {
+       "file": "query.sql",
+       "code": "CREATE INDEX idx_email\n  ON users(email);\nEXPLAIN QUERY PLAN\nSELECT * FROM users\nWHERE email = 'a@b.com';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "Create index"
+      },
+      {
+       "lines": [
+        3,
+        4,
+        5
+       ],
+       "cue": "Same lookup again"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 app.db",
+      "text": "QUERY PLAN\n`--SEARCH users USING INDEX idx_email (email=?)",
+      "tone": "good",
+      "cue": "search, using the index"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. The index is on email only. One of these filters cannot use it. Which one? Pause and predict.",
+     "q": "Index on `email`. Which filter can NOT use it?",
+     "options": [
+      "`email = 'a@b.com'`",
+      "`email > 'user5'`",
+      "`lower(email) = 'a'`"
+     ],
+     "answer": 2
+    },
+    {
+     "type": "compare",
+     "head": "Three lookups, three plans",
+     "say": "The lower one. A function hides the sorted order, so it scans. A leading wildcard scans too, since the tree is sorted from the first letter. A plain range is fine. The fix: an index on lower of email.",
+     "heads": [
+      "Filter",
+      "Plan",
+      "Why"
+     ],
+     "rows": [
+      [
+       "`lower(email) = 'a'`",
+       "SCAN",
+       "function hides the order"
+      ],
+      [
+       "`email LIKE '%77'`",
+       "SCAN",
+       "sorted from the first letter"
+      ],
+      [
+       "`email > 'user5'`",
+       "SEARCH",
+       "walk the sorted range"
+      ]
+     ],
+     "cues": [
+      "The lower one",
+      "leading wildcard",
+      "plain range"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "When an index backfires",
+   "scenes": [
+    {
+     "type": "diagram",
+     "head": "Every index is extra work",
+     "say": "Picture a team that indexes every column, to be safe. Now one insert arrives. The row goes into the table. It also goes into the email index. And into the name index. One insert, three writes. Every extra index repeats it, and costs disk too.",
+     "items": [
+      {
+       "id": "w",
+       "x": 140,
+       "y": 440,
+       "w": 320,
+       "h": 130,
+       "text": "1 INSERT",
+       "size": 42,
+       "tone": "blue",
+       "cue": "one insert arrives"
+      },
+      {
+       "id": "t",
+       "x": 760,
+       "y": 260,
+       "w": 360,
+       "h": 110,
+       "text": "table",
+       "size": 38,
+       "cue": "into the table"
+      },
+      {
+       "id": "i1",
+       "x": 760,
+       "y": 470,
+       "w": 360,
+       "h": 110,
+       "text": "index: email",
+       "size": 34,
+       "tone": "warn",
+       "cue": "email index"
+      },
+      {
+       "id": "i2",
+       "x": 760,
+       "y": 680,
+       "w": 360,
+       "h": 110,
+       "text": "index: name",
+       "size": 34,
+       "tone": "warn",
+       "cue": "name index"
+      },
+      {
+       "id": "c",
+       "x": 1380,
+       "y": 440,
+       "w": 400,
+       "h": 130,
+       "label": "writes",
+       "text": "1",
+       "size": 56,
+       "tone": "bad",
+       "cue": "One insert, three writes"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "w",
+       "to": "t",
+       "cue": "into the table"
+      },
+      {
+       "from": "w",
+       "to": "i1",
+       "cue": "email index"
+      },
+      {
+       "from": "w",
+       "to": "i2",
+       "cue": "name index"
+      }
+     ],
+     "changes": [
+      {
+       "id": "c",
+       "count": [
+        1,
+        3
+       ],
+       "dur": 1,
+       "cue": "three writes"
+      }
+     ]
+    },
+    {
+     "type": "chart",
+     "head": "Rows an index lookup must fetch",
+     "unit": "rows",
+     "say": "Filter by email: one row comes back. Filter by city, one of fifty: twenty thousand rows. Filter by country, two values: half a million. An index helps little there.",
+     "bars": [
+      {
+       "label": "email",
+       "value": 1,
+       "tone": "good",
+       "cue": "Filter by email"
+      },
+      {
+       "label": "city",
+       "value": 20000,
+       "tone": "warn",
+       "cue": "Filter by city"
+      },
+      {
+       "label": "country",
+       "value": 500000,
+       "tone": "bad",
+       "cue": "Filter by country"
+      }
+     ]
+    },
+    {
+     "type": "flow",
+     "head": "A phone book is a composite index",
+     "say": "A phone book is sorted by last name, then first name. Every Smith sits together, so that lookup is fast. Every John? Scattered across every surname: read it all. A composite index behaves the same: leftmost column first.",
+     "items": [
+      {
+       "label": "phone book",
+       "text": "last, first",
+       "sub": "= composite index",
+       "cue": "sorted by last name"
+      },
+      {
+       "label": "every Smith",
+       "text": "fast",
+       "sub": "last name given",
+       "tone": "good",
+       "cue": "Every Smith"
+      },
+      {
+       "label": "every John",
+       "text": "read it all",
+       "sub": "last name skipped",
+       "tone": "bad",
+       "cue": "Every John"
+      },
+      {
+       "label": "the rule",
+       "text": "leftmost first",
+       "sub": "start from the left",
+       "tone": "warn",
+       "cue": "A composite index"
+      }
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A composite index on country, then city. You filter only by city. Does the database use it? Pause and predict.",
+     "q": "Index on `(country, city)`. Query: `WHERE city = 'city7'`. Used?",
+     "options": [
+      "Yes, fast search",
+      "No: full table scan",
+      "Error"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "code",
+     "head": "Skip the leftmost column",
+     "say": "No: a full scan. The index starts with country, and this filter skips it. So put the column you always filter by first.",
+     "panels": [
+      {
+       "file": "query.sql",
+       "code": "CREATE INDEX idx_loc\n  ON users(country, city);\nEXPLAIN QUERY PLAN\nSELECT * FROM users\nWHERE city = 'city7';"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "The index starts"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "this filter skips it"
+      }
+     ],
+     "notes": [
+      {
+       "line": 5,
+       "inside": true,
+       "text": "no leftmost: no help",
+       "tone": "bad",
+       "cue": "this filter skips it"
+      }
+     ],
+     "output": {
+      "cmd": "sqlite3 app.db",
+      "text": "QUERY PLAN\n`--SCAN users",
+      "tone": "bad",
+      "cue": "a full scan"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Why a B-tree, not a hash?",
+     "say": "Why a B tree? Equality works in both. Ranges need sorted order, and a hash has none. Order by wants sorted output. So index what you filter, join or sort on.",
+     "heads": [
+      "Need",
+      "B-tree",
+      "Hash index"
+     ],
+     "rows": [
+      [
+       "equality `=`",
+       "fast",
+       "fast"
+      ],
+      [
+       "range `>`",
+       "fast",
+       "no help"
+      ],
+      [
+       "`ORDER BY`",
+       "already sorted",
+       "no order"
+      ]
+     ],
+     "cues": [
+      "Equality",
+      "Ranges",
+      "Order by"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "The hidden 51 queries",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "A shopping trip",
+     "say": "Your blog page shows fifty posts, each with an author name. Picture shopping for fifty items. Fifty trips, one item each? Or one trip with a list? Each trip costs the drive. A database query costs a round trip.",
+     "items": [
+      {
+       "label": "the page",
+       "text": "50 posts",
+       "sub": "each shows its author",
+       "cue": "fifty posts"
+      },
+      {
+       "label": "50 trips",
+       "text": "1 item each",
+       "sub": "= 50 author queries",
+       "tone": "bad",
+       "cue": "Fifty trips"
+      },
+      {
+       "label": "1 trip",
+       "text": "a list",
+       "sub": "= 1 batched query",
+       "tone": "good",
+       "cue": "one trip with a list"
+      },
+      {
+       "label": "fixed cost",
+       "text": "the drive",
+       "sub": "= a round trip",
+       "tone": "warn",
+       "cue": "round trip"
+      }
+     ]
+    },
+    {
+     "type": "diagram",
+     "head": "One blog page, many queries",
+     "say": "Here's what the page does. First, one query loads fifty posts. That's one. Then, for each post, it asks for the author. Post one, post two, all the way to fifty. That's fifty one queries. At two milliseconds a round trip, that's a hundred and two milliseconds.",
+     "items": [
+      {
+       "id": "app",
+       "x": 140,
+       "y": 440,
+       "w": 320,
+       "h": 140,
+       "text": "blog page",
+       "tone": "blue",
+       "cue": "the page does"
+      },
+      {
+       "id": "q1",
+       "x": 660,
+       "y": 280,
+       "w": 440,
+       "h": 120,
+       "text": "1 posts query",
+       "size": 38,
+       "cue": "one query loads"
+      },
+      {
+       "id": "q2",
+       "x": 660,
+       "y": 620,
+       "w": 440,
+       "h": 120,
+       "text": "50 author queries",
+       "size": 36,
+       "tone": "warn",
+       "cue": "for each post"
+      },
+      {
+       "id": "cnt",
+       "x": 1320,
+       "y": 280,
+       "w": 400,
+       "h": 130,
+       "label": "queries",
+       "text": "1",
+       "size": 56,
+       "tone": "bad",
+       "cue": "That's one"
+      },
+      {
+       "id": "ms",
+       "x": 1320,
+       "y": 620,
+       "w": 400,
+       "h": 130,
+       "label": "round trips (ms)",
+       "text": "0",
+       "size": 56,
+       "tone": "warn",
+       "cue": "At two milliseconds"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "app",
+       "to": "q1",
+       "cue": "one query loads"
+      },
+      {
+       "from": "app",
+       "to": "q2",
+       "cue": "for each post"
+      }
+     ],
+     "changes": [
+      {
+       "id": "cnt",
+       "count": [
+        1,
+        51
+       ],
+       "dur": 2,
+       "cue": "all the way"
+      },
+      {
+       "id": "cnt",
+       "glow": true,
+       "tone": "bad",
+       "cue": "fifty one queries"
+      },
+      {
+       "id": "ms",
+       "count": [
+        0,
+        102
+       ],
+       "dur": 1,
+       "cue": "hundred and two"
+      }
+     ]
+    },
+    {
+     "type": "code",
+     "head": "The bug, in code",
+     "say": "Here it is as code. One query loads the posts. Then a loop asks for each author, one at a time. That loop body runs fifty times. The print shows how many queries ran: fifty one.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "posts = query(\"SELECT * FROM posts LIMIT 50\")\nfor p in posts:\n    query(\"SELECT * FROM authors WHERE id = ?\",\n          p[\"author_id\"])\nprint(calls)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "One query loads"
+      },
+      {
+       "lines": [
+        2,
+        3,
+        4
+       ],
+       "cue": "a loop asks"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The print shows"
+      }
+     ],
+     "notes": [
+      {
+       "line": 2,
+       "inside": true,
+       "text": "runs 50 times",
+       "tone": "bad",
+       "cue": "runs fifty times"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "51",
+      "tone": "bad",
+      "cue": "queries ran"
+     }
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. Those fifty posts have only ten different authors. A batched in query fetches the authors all at once. How many queries now? Pause and predict.",
+     "q": "50 posts, 10 distinct authors. Batched `IN` fix: how many queries?",
+     "options": [
+      "1",
+      "2",
+      "11",
+      "51"
+     ],
+     "answer": "2"
+    },
+    {
+     "type": "code",
+     "head": "Fix one: batch with IN",
+     "say": "Two: the posts, then all ten authors in one go. First, collect the distinct ids. Then one placeholder per id builds the list. A single query fetches every author. The counter prints two.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "posts = query(\"SELECT * FROM posts LIMIT 50\")\nids = list({p[\"author_id\"] for p in posts})\nslots = \", \".join([\"?\"] * len(ids))\nquery(f\"SELECT * FROM authors WHERE id IN ({slots})\", *ids)\nprint(calls)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1
+       ],
+       "cue": "the posts"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "collect the distinct"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "one placeholder"
+      },
+      {
+       "lines": [
+        4
+       ],
+       "cue": "A single query"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "2",
+      "tone": "good",
+      "cue": "prints two"
+     }
+    },
+    {
+     "type": "code",
+     "head": "Fix two: let the database join",
+     "say": "Or let the database join them. A join glues each post to the author row with the matching id. One query. The counter prints one.",
+     "panels": [
+      {
+       "file": "app.py",
+       "code": "rows = query(\"\"\"SELECT p.title, a.name\n    FROM posts p\n    JOIN authors a ON a.id = p.author_id\n    LIMIT 50\"\"\")\nprint(calls)"
+      }
+     ],
+     "steps": [
+      {
+       "lines": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "cue": "let the database join"
+      },
+      {
+       "lines": [
+        1,
+        2
+       ],
+       "cue": "glues each post"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "the matching id"
+      },
+      {
+       "lines": [
+        5
+       ],
+       "cue": "The counter"
+      }
+     ],
+     "output": {
+      "cmd": "python3 app.py",
+      "text": "1",
+      "tone": "good",
+      "cue": "prints one"
+     }
+    },
+    {
+     "type": "compare",
+     "head": "Join or batch?",
+     "say": "Most frameworks do both for you. Django's select related is a join: one query, but the author repeats on every post row. Prefetch related is the in query: two queries, each row once. Rails includes picks between the two. Either way, never query inside a loop.",
+     "heads": [
+      "Fix",
+      "Queries",
+      "Catch"
+     ],
+     "rows": [
+      [
+       "JOIN / `select_related`",
+       "1",
+       "author repeats per post"
+      ],
+      [
+       "`IN` / `prefetch_related`",
+       "2",
+       "each row once"
+      ],
+      [
+       "Rails `includes`",
+       "1 or 2",
+       "picks between the two"
+      ]
+     ],
+     "cues": [
+      "select related",
+      "Prefetch related",
+      "Rails includes"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Catch it before users do",
+   "scenes": [
+    {
+     "type": "flow",
+     "head": "Slow page? Follow the order",
+     "say": "A teammate says the page is slow, so add an index. Wait. First, count the queries per request. Fifty identical ones means N plus one. Next, read the plan of the slowest query. Fix one thing. Then measure again.",
+     "items": [
+      {
+       "label": "1",
+       "text": "count queries",
+       "sub": "per request, in logs",
+       "cue": "count the queries"
+      },
+      {
+       "label": "2",
+       "text": "read the plan",
+       "sub": "explain",
+       "cue": "read the plan"
+      },
+      {
+       "label": "3",
+       "text": "fix one thing",
+       "sub": "index or JOIN",
+       "tone": "warn",
+       "cue": "Fix one thing"
+      },
+      {
+       "label": "4",
+       "text": "measure again",
+       "sub": "did it move?",
+       "tone": "good",
+       "cue": "measure again"
+      }
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Read the plan",
+     "say": "On Postgres, explain analyze runs the query and prints its plan. A Seq Scan on a big table with a filter is the red flag. An Index Scan means the tree is working. And estimated rows far from actual rows means stale statistics, so run analyze.",
+     "heads": [
+      "Plan says",
+      "It means"
+     ],
+     "rows": [
+      [
+       "`Seq Scan`, big table, filter",
+       "red flag: add an index"
+      ],
+      [
+       "`Index Scan`",
+       "the sorted tree is in use"
+      ],
+      [
+       "estimated rows far from actual",
+       "stale statistics: `ANALYZE`"
+      ]
+     ],
+     "cues": [
+      "A Seq Scan",
+      "An Index Scan",
+      "estimated rows"
+     ]
+    },
+    {
+     "type": "quiz",
+     "say": "Your turn. A table has twenty rows, and the plan shows a Seq Scan. Should you add an index? Pause and predict.",
+     "q": "20-row table, plan shows Seq Scan. Add an index?",
+     "options": [
+      "Yes, always",
+      "No: scanning is fine",
+      "Yes, on every column"
+     ],
+     "answer": 1
+    },
+    {
+     "type": "chart",
+     "head": "Pages read on a 20-row table",
+     "unit": "pages",
+     "say": "No. Twenty rows fit on one page, so a scan reads one. An index reads its own page, then the table page: at least two. Tiny tables don't need one. Measure first.",
+     "bars": [
+      {
+       "label": "Seq Scan",
+       "value": 1,
+       "tone": "good",
+       "cue": "a scan reads one"
+      },
+      {
+       "label": "Index",
+       "value": 2,
+       "tone": "warn",
+       "cue": "at least two"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Interview drill",
+   "kind": "drill",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be03"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "How does an index help? Sorted B tree: a few hops, not a scan. When do indexes hurt? Every write updates every index. Composite index? Leftmost column first. How do you check? Explain, before and after.",
+     "rows": [
+      [
+       "How does an index help?",
+       "Sorted B-tree: a few hops, no full scan"
+      ],
+      [
+       "When do indexes hurt?",
+       "Slower writes, more space"
+      ],
+      [
+       "Composite index?",
+       "Leftmost column first"
+      ],
+      [
+       "How do you check?",
+       "`EXPLAIN` before and after"
+      ]
+     ],
+     "cues": [
+      "How does an index",
+      "When do indexes hurt",
+      "Composite index",
+      "How do you check"
+     ]
+    },
+    {
+     "type": "compare",
+     "head": "Say it in 20 seconds",
+     "covers": [
+      "be06"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "What's N plus one? A query per row: fifty one for fifty posts. The fix? A join, or one batched in query. Spotting it? Count queries per request. Is Seq Scan always bad? No, not on tiny tables. Measure first.",
+     "rows": [
+      [
+       "What is N+1?",
+       "A query per row: 51 for 50 posts"
+      ],
+      [
+       "The fix?",
+       "JOIN, or one batched `IN` query"
+      ],
+      [
+       "How do you spot it?",
+       "Count queries per request"
+      ],
+      [
+       "Is Seq Scan always bad?",
+       "No: tiny tables. Measure first"
+      ]
+     ],
+     "cues": [
+      "What's N plus one",
+      "The fix",
+      "Spotting it",
+      "Is Seq Scan"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Recap",
+   "kind": "recap",
+   "scenes": [
+    {
+     "type": "compare",
+     "head": "Do this tonight",
+     "say": "Try three things. Add an index on email, and compare explain before and after. Then wrap the column in lower, and watch the index stop working. Finally, count the queries on one page of your own app, and fix the loop.",
+     "heads": [
+      "Exercise",
+      "What you'll see"
+     ],
+     "rows": [
+      [
+       "Index `users.email`",
+       "`EXPLAIN`: SCAN becomes SEARCH"
+      ],
+      [
+       "Filter on `lower(email)`",
+       "the index stops being used"
+      ],
+      [
+       "Count queries on one page",
+       "spot a loop, fix with `IN`"
+      ]
+     ],
+     "cues": [
+      "Add an index",
+      "wrap the column",
+      "count the queries"
+     ]
+    },
+    {
+     "type": "take",
+     "say": "So say this. An index is a sorted tree: a few hops instead of a scan. It costs writes, so index what you filter and sort on. And N plus one is a query in a loop: join, batch, measure.",
+     "lines": [
+      "An index is a sorted tree: few hops, no scan.",
+      "It costs writes: index what you filter and sort.",
+      "N+1 is a query in a loop: join, batch, measure."
+     ],
+     "cues": [
+      "An index is",
+      "It costs writes",
+      "N plus one is"
+     ]
+    }
+   ]
+  }
+ ]
+}
