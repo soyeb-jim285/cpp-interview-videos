@@ -43,11 +43,11 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "An interviewer shows you this loop: what's the Big O? Then a script takes half a second. By the end, you'll answer the first in ten seconds, and fix the second.",
+     "say": "An interviewer shows you this loop: what's the Big O? Same skill: why is this script slow? By the end, you'll answer the first in ten seconds, and fix the second.",
      "lines": [
       {
        "text": "for i in range(n): for j in range(i)",
-       "cue": "shows you this loop"
+       "cue": "An interviewer shows"
       },
       {
        "text": "Interviewer: Big-O?",
@@ -56,7 +56,7 @@
       },
       {
        "text": "0.5 s on 10,000 ids. Why?",
-       "cue": "half a second",
+       "cue": "why is this script slow",
        "accent": "0.5 s"
       },
       {
@@ -191,6 +191,12 @@
      ],
      "notes": [
       {
+       "x": 520,
+       "y": 600,
+       "text": "cell k runs k times",
+       "cue": "runs i times"
+      },
+      {
        "x": 1200,
        "y": 740,
        "text": "n(n-1)/2 = 10 steps",
@@ -202,16 +208,26 @@
       {
        "id": "c0",
        "text": "0",
-       "cue": "zero times"
+       "cue": "When i is zero"
       },
       {
        "id": "c1",
+       "text": "1",
+       "cue": "When i is one"
+      },
+      {
+       "id": "tot",
        "text": "1",
        "cue": "once"
       },
       {
        "id": "c2",
        "text": "2",
+       "cue": "Then twice"
+      },
+      {
+       "id": "tot",
+       "text": "3",
        "cue": "twice"
       },
       {
@@ -220,19 +236,20 @@
        "cue": "Then three"
       },
       {
+       "id": "tot",
+       "text": "6",
+       "cue": "three"
+      },
+      {
        "id": "c4",
        "text": "4",
        "cue": "Then four"
       },
       {
        "id": "tot",
-       "count": [
-        0,
-        10
-       ],
-       "dur": 1.5,
+       "text": "10",
        "tone": "good",
-       "cue": "Add them up"
+       "cue": "four"
       }
      ]
     },
@@ -321,7 +338,7 @@
     {
      "type": "compare",
      "head": "Add sequential, multiply nested",
-     "say": "O of n. Sequential loops add: n plus n is two n, and we drop the two. Nested ones multiply instead. A loop that halves its range is O of log n. That answers our problem.",
+     "say": "O of n. Sequential loops add: n plus n is two n, and we drop the two. Nested ones multiply instead. A loop that halves its range is O of log n. That is the whole method for loops.",
      "heads": [
       "Shape",
       "Cost"
@@ -462,7 +479,7 @@
      "type": "chart",
      "head": "One lookup, worst case",
      "unit": "comparisons",
-     "say": "Here we count comparisons for one lookup. The list scans from the front, all ten thousand, because the match is last. The set hashes to a slot and jumps there: one. Ten thousand times less.",
+     "say": "Here we count comparisons for one lookup. The list scans from the front, all ten thousand, because the match is last. The set computes where the value lives and jumps there: one. Ten thousand times less.",
      "bars": [
       {
        "label": "list",
@@ -474,7 +491,7 @@
        "label": "set",
        "value": 1,
        "tone": "good",
-       "cue": "The set hashes"
+       "cue": "The set computes"
       }
      ],
      "hold": 0
@@ -564,7 +581,7 @@
     {
      "type": "code",
      "head": "Ask the profiler",
-     "say": "Here is a script that takes half a second. Don't guess. Run it under c Profile, sorted by cumulative time, calls included. The report says hits owns about half a second. Load costs nothing. So hits is the only place worth touching.",
+     "say": "Here is a script that takes half a second. Don't guess. Run it under c Profile, sorted by time, biggest first. The report says hits owns about half a second. Load costs nothing. So hits is the only place worth touching.",
      "panels": [
       {
        "file": "app.py",
@@ -767,7 +784,7 @@
      "rows": [
       [
        "Big-O of this code?",
-       "I name n, count loops, keep the biggest."
+       "Name n, multiply nested, add sequential, keep the biggest, give worst case and space"
       ],
       [
        "Best or worst case?",
