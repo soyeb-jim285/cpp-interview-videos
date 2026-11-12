@@ -43,15 +43,21 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "What's the Big O of this loop? Why does this script take half a second? By the end: the first in ten seconds, the second fixed.",
+     "say": "An interviewer shows you this loop: what's the Big O? Then a script takes half a second. By the end, you'll answer the first in ten seconds, and fix the second.",
      "lines": [
       {
-       "text": "Big-O of this loop?",
-       "cue": "Big O of this loop"
+       "text": "for i in range(n): for j in range(i)",
+       "cue": "shows you this loop"
       },
       {
-       "text": "Why is this script so slow?",
-       "cue": "why does this script"
+       "text": "Interviewer: Big-O?",
+       "cue": "what's the Big O",
+       "accent": "Big-O?"
+      },
+      {
+       "text": "0.5 s on 10,000 ids. Why?",
+       "cue": "half a second",
+       "accent": "0.5 s"
       },
       {
        "text": "10 seconds. Then fixed.",
@@ -133,7 +139,7 @@
       ],
       [
        "2. Count loops",
-       "outer n times, inner up to n"
+       "inner runs i times, at most n"
       ],
       [
        "3. Nested: multiply",
@@ -306,16 +312,16 @@
      "options": [
       "O(n)",
       "O(n²)",
-      "O(2ⁿ)",
+      "O(n log n)",
       "O(log n)"
      ],
      "answer": 0,
-     "pause": 4
+     "pause": 6
     },
     {
      "type": "compare",
      "head": "Add sequential, multiply nested",
-     "say": "O of n. Sequential loops add: n plus n is two n. Drop the two. Nested loops multiply: n times n. A loop that halves its range is O of log n. That answers our problem.",
+     "say": "O of n. Sequential loops add: n plus n is two n, and we drop the two. Nested ones multiply instead. A loop that halves its range is O of log n. That answers our problem.",
      "heads": [
       "Shape",
       "Cost"
@@ -336,7 +342,7 @@
      ],
      "cues": [
       "Sequential loops add",
-      "Nested loops multiply",
+      "Nested ones multiply",
       "halves its range"
      ]
     }
@@ -351,10 +357,10 @@
      "statement": "This single loop looks linear, yet it crawls on big lists. Find the hidden second loop.",
      "example": {
       "input": "for x in items: if x in big_list",
-      "output": "O(n·m), not O(n)"
+      "output": "O(n·m) worst case, not O(n)"
      },
      "note": "items has n entries, big_list has m",
-     "say": "Here's the next problem. One loop, and it crawls. For example, for x in items, check x in a big list. The answer: O of n times m, not O of n. Items has n entries, the big list has m.",
+     "say": "Here's the next problem. One loop, and it crawls. For example, for x in items, check x in a big list. The answer: O of n times m in the worst case, not O of n. Items has n entries, the big list has m.",
      "cues": {
       "example": "For example",
       "output": "The answer",
@@ -409,7 +415,7 @@
     {
      "type": "compare",
      "head": "Hidden costs to know",
-     "say": "Learn these four by heart. Sorting costs O of n log n. Inserting at the front of a list shifts everything: O of n. Append is amortized O of one: rare resizes, averaged out. A set lookup is O of one on average.",
+     "say": "Four costs hide inside innocent lines. Sorting costs O of n log n. Inserting at the front of a list shifts everything: O of n. Append is amortized O of one: rare resizes, averaged out. A set lookup is O of one on average.",
      "heads": [
       "Call",
       "Cost"
@@ -477,28 +483,28 @@
      "type": "chart",
      "head": "How fast each class blows up",
      "unit": "steps",
-     "say": "Here we count steps for each class, at a thousand items. Logarithmic, like binary search: about ten. Linear: a thousand. Sorting, n log n: about ten thousand. Quadratic: a million. That answers it: a hidden loop.",
+     "say": "Here we count steps for each class, at a hundred items. Logarithmic, like binary search: about seven. Linear: a hundred. Sorting, n log n: about six hundred sixty. Quadratic: ten thousand. That answers it: a hidden loop.",
      "bars": [
       {
        "label": "O(log n)",
-       "value": 10,
+       "value": 7,
        "tone": "good",
        "cue": "Logarithmic"
       },
       {
        "label": "O(n)",
-       "value": 1000,
+       "value": 100,
        "cue": "Linear"
       },
       {
        "label": "n log n",
-       "value": 10000,
+       "value": 664,
        "tone": "warn",
        "cue": "Sorting"
       },
       {
        "label": "O(n²)",
-       "value": 1000000,
+       "value": 10000,
        "tone": "bad",
        "cue": "Quadratic"
       }
@@ -513,17 +519,17 @@
     {
      "type": "problem",
      "title": "Why is this script slow?",
-     "statement": "A script checks 10,000 ids against a list and takes half a second. Find the cost and cut it.",
+     "statement": "A script is slow and you don't know why. Find the cost before you touch anything.",
      "example": {
       "input": "10,000 ids, 0.5 seconds",
       "output": "under 5 ms"
      },
-     "note": "Without guessing",
-     "say": "Last problem. A script checks ten thousand ids against a list. For example, it takes half a second. The goal: under five milliseconds. No guessing.",
+     "note": "Which part is slow? Measure it.",
+     "say": "Last problem, and a different kind. A script checks ten thousand ids against a list. For example, it takes half a second. The goal: under five milliseconds. No guessing which part is slow.",
      "cues": {
       "example": "For example",
       "output": "The goal",
-      "note": "no guessing"
+      "note": "No guessing"
      }
     },
     {
@@ -558,7 +564,7 @@
     {
      "type": "code",
      "head": "Ask the profiler",
-     "say": "Here is a script that takes half a second. Don't guess. Run it under c Profile, sorted by time. The report says hits owns almost all of it. Load costs nothing. So hits is the only place worth touching.",
+     "say": "Here is a script that takes half a second. Don't guess. Run it under c Profile, sorted by cumulative time, calls included. The report says hits owns about half a second. Load costs nothing. So hits is the only place worth touching.",
      "panels": [
       {
        "file": "app.py",
@@ -603,9 +609,9 @@
       }
      ],
      "output": {
-      "cmd": "python -m cProfile -s tottime app.py | grep -E 'hits|load' | sed 's/^ *//'",
+      "cmd": "python -m cProfile -s cumtime app.py | awk '/hits|load/ {print $6, $4}'",
       "approx": true,
-      "text": "1    0.437    0.437    0.437    0.437 app.py:4(hits)\n1    0.000    0.000    0.000    0.000 app.py:1(load)",
+      "text": "app.py:4(hits) 0.556\napp.py:1(load) 0.001",
       "cue": "The report says"
      }
     },
@@ -689,13 +695,13 @@
      "type": "chart",
      "head": "Speed up the wrong part",
      "unit": "ms",
-     "say": "About the same. The chart times the script. Load was nothing, so ten times faster saves nothing. Fixing hits drops it to under two.",
+     "say": "About the same. The chart times the whole script, before any change. Load was nothing, so ten times faster saves nothing. Fixing hits drops it to under two.",
      "bars": [
       {
        "label": "before",
        "value": 556,
        "tone": "bad",
-       "cue": "About the same"
+       "cue": "before any change"
       },
       {
        "label": "load 10×",
@@ -757,7 +763,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Big O of this code? I name n, count loops, multiply nested, keep the biggest. Best or worst case? I say worst, and mention best. Why drop constants? They don't change the scaling. Amortized? An average over many calls. Better? I trade space for time, with a set.",
+     "say": "Big O of this code? I name n, count loops, and keep the biggest term. Best or worst? I give worst, then best. Why drop constants? They don't change scaling. Amortized? The average over many calls. Better? I trade space for time, with a set. Common mistake? Missing a hidden cost, or not stating space.",
      "rows": [
       [
        "Big-O of this code?",
@@ -765,7 +771,7 @@
       ],
       [
        "Best or worst case?",
-       "I say worst, and mention best."
+       "I give worst, then mention best."
       ],
       [
        "Why drop constants?",
@@ -773,11 +779,15 @@
       ],
       [
        "Amortized?",
-       "An average over many calls."
+       "It's the average over many calls."
       ],
       [
        "Can you do better?",
        "I trade space for time, with a set."
+      ],
+      [
+       "Common mistake?",
+       "People miss hidden costs and space."
       ]
      ],
      "cues": [
@@ -785,7 +795,8 @@
       "Best or worst",
       "Why drop",
       "Amortized",
-      "Better"
+      "Better",
+      "Common mistake"
      ]
     },
     {
@@ -794,7 +805,7 @@
      "covers": [
       "sw08"
      ],
-     "say": "To optimize slow code, I measure first, with a profiler on realistic input. Then I fix the algorithm, because tweaks give maybe two times. After that I cut I O: fewer database calls, and caching. The classic mistake is guessing.",
+     "say": "To optimize slow code, I measure first, with a profiler on realistic input. Then I fix the algorithm, because tweaks give maybe two times. Then I measure again, and only then cut I O, like database calls. The classic mistake is guessing.",
      "items": [
       {
        "label": "1",
@@ -810,9 +821,10 @@
       },
       {
        "label": "3",
-       "text": "cut I/O",
-       "sub": "fewer DB calls, cache",
-       "cue": "I cut I O"
+       "text": "measure again",
+       "sub": "then cut I/O",
+       "tone": "good",
+       "cue": "I measure again"
       },
       {
        "label": "mistake",
@@ -859,15 +871,15 @@
     },
     {
      "type": "take",
-     "say": "So say this. Name n, count loops, keep the biggest. State space too. Watch for hidden costs, like in on a list. Measure before you fix.",
+     "say": "So say this. Name n, count loops, keep the biggest. State space too, and watch hidden costs, like in on a list. Measure before you fix.",
      "lines": [
       "Name n, count loops, keep the biggest term.",
-      "Hidden costs: in on a list, sort, insert.",
+      "State space. Hidden costs: in on a list, sort.",
       "Measure first. Fix the biggest cost."
      ],
      "cues": [
       "Name n",
-      "hidden costs",
+      "State space",
       "Measure before"
      ]
     }
