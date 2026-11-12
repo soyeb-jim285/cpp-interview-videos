@@ -59,11 +59,11 @@
    "scenes": [
     {
      "type": "hook",
-     "say": "One line of JavaScript can freeze a whole page. You'll learn which line, and why. And you'll win any C S S argument about which rule applies.",
+     "say": "One read inside a loop can freeze a whole page. You'll learn which read, and why. And you'll win any C S S argument about which rule applies.",
      "lines": [
       {
        "text": "1,000 reads and writes",
-       "cue": "One line"
+       "cue": "One read inside a loop"
       },
       {
        "text": "Frozen page.",
@@ -141,7 +141,7 @@
     {
      "type": "flow",
      "head": "The real names",
-     "say": "Now the real names. H T M L becomes the D O M, the blueprint: a tree of nodes. C S S becomes the C S S O M, the swatches, a rule tree. Together: the render tree. Layout measures each box on it. Paint fills the pixels. Then a step no house has. Composite: the graphics card stacks painted layers.",
+     "say": "Now the real names. H T M L becomes the D O M, the blueprint: a tree of nodes. C S S becomes the C S S O M, the swatches, a rule tree. Together: the render tree. Layout measures each box on it. Paint fills the pixels. Composite: the graphics card stacks painted layers. So your red heading: DOM and CSSOM, a render tree, layout, paint, composite.",
      "items": [
       {
        "label": "blueprint",
@@ -174,7 +174,7 @@
        "text": "Composite",
        "sub": "layers stacked",
        "tone": "blue",
-       "cue": "Composite: the graphics"
+       "cue": "So your red heading"
       }
      ]
     },
@@ -277,7 +277,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. You animate a box's top from zero to a hundred pixels. Sixty frames a second. Which steps run on every frame? Pause and predict.",
+     "say": "Quick check. You animate a box's top from zero to a hundred pixels. Sixty frames a second. Which steps run on every frame? Pause and predict.",
      "q": "Animating top from 0 to 100px: what runs each frame?",
      "options": [
       "Composite only",
@@ -473,13 +473,13 @@
        "file": "slow.js",
        "label": "bad",
        "tone": "bad",
-       "code": "let total = 0;\nfor (const el of items) {\n  el.style.width = '50px';\n  total += el.offsetHeight;\n}"
+       "code": "const hs = [];\nfor (const el of items) {\n  el.style.width = '50px';\n  hs.push(el.offsetHeight);\n}"
       },
       {
        "file": "fast.js",
        "label": "good",
        "tone": "good",
-       "code": "const hs = items.map(el =>\n  el.offsetHeight);\nitems.forEach(el => {\n  el.style.width = '50px';\n});"
+       "code": "const hs = [];\nfor (const el of items) {\n  hs.push(el.offsetHeight);\n}\nitems.forEach(el => {\n  el.style.width = '50px';\n});"
       }
      ],
      "steps": [
@@ -505,7 +505,9 @@
         2,
         3,
         4,
-        5
+        5,
+        6,
+        7
        ],
        "cue": "On the right"
       },
@@ -513,16 +515,18 @@
        "panel": 1,
        "lines": [
         1,
-        2
+        2,
+        3,
+        4
        ],
        "cue": "Read every height"
       },
       {
        "panel": 1,
        "lines": [
-        3,
-        4,
-        5
+        5,
+        6,
+        7
        ],
        "cue": "write every width"
       }
@@ -530,7 +534,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. A loop sets width, then color, on a thousand items. It never reads anything. How many layouts run? Pause and predict.",
+     "say": "Stop and count. A loop sets width, then color, on a thousand items. It never reads anything. How many layouts run? Pause and predict.",
      "q": "Loop sets width and color on 1,000 items. No reads. Layouts?",
      "options": [
       "1,000",
@@ -572,7 +576,7 @@
      "head": "Reads that look harmless",
      "say": "Careful, many reads look harmless. Offset height forces layout. So does get bounding client rect. And scroll top. Plain style writes only mark things stale.",
      "heads": [
-      "You write",
+      "Your code",
       "Browser does"
      ],
      "rows": [
@@ -756,7 +760,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Default sizing. Width three hundred, padding ten on each side, border five on each side. How wide on screen? Pause and predict.",
+     "say": "Try this one. Default sizing. Width three hundred, padding ten on each side, border five on each side. How wide on screen? Pause and predict.",
      "q": "Default sizing: width 300px, padding 10px, border 5px. Screen width?",
      "options": [
       "300px",
@@ -847,9 +851,9 @@
     {
      "type": "compare",
      "head": "Two 50% columns that overflow",
-     "say": "Here's the bug this causes. Two columns, each fifty percent of a thousand pixels. Each has padding. Default sizing makes each five forty, so they spill over. Border box makes each five hundred, and they fit.",
+     "say": "Here's the bug this causes. Two columns, each fifty percent of a thousand pixels. Each has 20px padding per side. Default sizing makes each five forty, so they spill over. Border box makes each five hundred, and they fit.",
      "heads": [
-      "",
+      "Measure",
       "content-box",
       "border-box"
      ],
@@ -979,7 +983,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Now add justify content space between. First item at the left edge, last at the right edge. How wide is each gap between items? Pause and predict.",
+     "say": "Now you try. Add justify content space between. First item at the left edge, last at the right edge. How wide is each gap between items? Pause and predict.",
      "q": "1000px box, three 100px items, `space-between`. Gap size?",
      "options": [
       "100px",
@@ -1381,7 +1385,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Rule one: menu, then on, red. Rule two: list item with class on, blue. Which wins? Pause and predict.",
+     "say": "Hold on. Rule one: menu, then on, red. Rule two: list item with class on, blue. Which wins? Pause and predict.",
      "q": "Rule one: .menu .on, red. Rule two: ul li.on, blue. Which wins?",
      "options": [
       "Rule one, red",
@@ -1473,7 +1477,7 @@
      "rows": [
       [
        "How does a browser render?",
-       "DOM + CSSOM, render tree, layout, paint, composite"
+       "parse to DOM and CSSOM, combine into a render tree, then layout, paint, composite"
       ],
       [
        "Reflow vs repaint?",
@@ -1481,7 +1485,7 @@
       ],
       [
        "Why is `transform` cheap?",
-       "it only composites: no layout, no repaint"
+       "no layout, no paint: the compositor moves the layer on the GPU"
       ],
       [
        "Common mistake?",
@@ -1542,7 +1546,7 @@
      "covers": [
       "fe10"
      ],
-     "say": "Which rule wins? Count ids, then classes, then elements. One id beats three classes. Same score? The later rule wins. Inline beats any selector. Important beats inline, so avoid it. Stubborn style? Lower the selector.",
+     "say": "Which rule wins? Count ids, then classes, then elements. One id beats three classes. Same score? The later rule wins. Inline beats any selector. Important beats inline, so avoid it.",
      "items": [
       {
        "text": "ids",
