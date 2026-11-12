@@ -130,35 +130,72 @@
      ]
     },
     {
-     "type": "flow",
+     "type": "diagram",
      "head": "A catalog for your table",
      "say": "Picture a library with a million books and no catalog. To find one title, you walk every shelf. That's a full table scan. Now add a catalog: look up the title, read a shelf number, walk straight there. The catalog is the index.",
      "items": [
       {
+       "id": "table",
+       "x": 140,
+       "y": 420,
+       "w": 360,
+       "h": 140,
        "label": "your table",
        "text": "1,000,000 rows",
        "sub": "= the books",
        "cue": "a million books"
       },
       {
+       "id": "scan",
+       "x": 760,
+       "y": 260,
+       "w": 480,
+       "h": 140,
        "label": "no index",
-       "text": "check every row",
+       "text": "scan every row",
        "sub": "full table scan",
        "tone": "bad",
-       "cue": "walk every shelf"
+       "cue": "That's a full table scan"
       },
       {
+       "id": "idx",
+       "x": 760,
+       "y": 580,
+       "w": 480,
+       "h": 140,
        "label": "index",
        "text": "look up title",
        "sub": "= the catalog",
-       "cue": "add a catalog"
+       "cue": "look up the title"
       },
       {
+       "id": "shelf",
+       "x": 1340,
+       "y": 580,
+       "w": 400,
+       "h": 140,
        "label": "then",
        "text": "jump to shelf",
        "sub": "a few steps",
        "tone": "good",
        "cue": "walk straight there"
+      }
+     ],
+     "arrows": [
+      {
+       "from": "table",
+       "to": "scan",
+       "cue": "walk every shelf"
+      },
+      {
+       "from": "table",
+       "to": "idx",
+       "cue": "add a catalog"
+      },
+      {
+       "from": "idx",
+       "to": "shelf",
+       "cue": "read a shelf number"
       }
      ]
     },
@@ -384,7 +421,7 @@
     {
      "type": "compare",
      "head": "Three lookups, three plans",
-     "say": "The lower one. A function hides the sorted order, so it scans. A leading wildcard scans too, since the tree is sorted from the first letter. A plain range is fine. The fix: an index on lower of email.",
+     "say": "The lower one. A function hides the sorted order, so it scans. A pattern starting with a percent sign scans too. A plain range is fine. The fix: an index on lower of email.",
      "heads": [
       "Filter",
       "Plan",
@@ -409,7 +446,7 @@
      ],
      "cues": [
       "The lower one",
-      "leading wildcard",
+      "A pattern",
       "plain range"
      ]
     },
@@ -435,7 +472,7 @@
      "statement": "Indexes speed up reads, but every write pays for them. Which indexes earn their cost?",
      "example": {
       "input": "users table, 3 indexes, 1 insert",
-      "output": "index selective columns you filter, join, sort"
+      "output": "index the columns you filter, join, sort"
      },
      "say": "So should you index everything? Reads get faster, but every write pays. Take a users table with three indexes and one insert. Which indexes earn their cost?",
      "cues": {
@@ -557,7 +594,7 @@
     },
     {
      "type": "chart",
-     "head": "Rows an index lookup must fetch",
+     "head": "Rows fetched: 1 : 20,000 : 500,000",
      "unit": "rows",
      "say": "Filter by email: one row comes back. That's selective: few rows match. Filter by city, one of fifty: a million divided by fifty, twenty thousand rows. Filter by country, two values: half a million. An index barely helps.",
      "bars": [
@@ -1129,7 +1166,7 @@
      "options": [
       "Yes: Seq Scan is a bug",
       "No: one page is enough",
-      "Yes, index the id"
+      "Yes: even twenty rows benefit"
      ],
      "answer": 1
     },
@@ -1180,11 +1217,15 @@
       "They ask",
       "You say"
      ],
-     "say": "How does an index help? A sorted B tree: about four steps, not a scan. When do indexes hurt? Every write updates every index, and uses disk. A composite on country, city? It helps country, not city alone. How do you check? Run explain before and after.",
+     "say": "How does an index help? A sorted B tree: about four steps. Why not a hash? A hash only does equality. Ranges need the B tree. When do indexes hurt? Every write updates each index. A composite on country, city? Helps country, not city alone. How do you check? Run explain before and after.",
      "rows": [
       [
        "How does an index help?",
        "A sorted B-tree: about 4 steps, not a scan"
+      ],
+      [
+       "Why a B-tree, not a hash?",
+       "Hash: equality only. B-tree: ranges too"
       ],
       [
        "When do indexes hurt?",
@@ -1201,6 +1242,7 @@
      ],
      "cues": [
       "How does an index",
+      "Why not a hash",
       "When do indexes hurt",
       "A composite on",
       "How do you check"
