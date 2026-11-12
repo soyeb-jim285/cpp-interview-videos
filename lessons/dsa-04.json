@@ -301,6 +301,13 @@
        "text": "reversed: n²/2 moves",
        "tone": "warn",
        "cue": "Worst case"
+      },
+      {
+       "line": 2,
+       "inside": true,
+       "text": "O(n)",
+       "tone": "good",
+       "cue": "O of n means"
       }
      ]
     },
@@ -320,7 +327,7 @@
      "type": "chart",
      "head": "Slides to sort six cards",
      "unit": "slides",
-     "say": "Slides to sort six cards. Sorted input means no slides, so O of n. Six sorted cards: zero slides. Our shuffled six: nine. Reversed: fifteen. That's why insertion sort wins on tiny or nearly sorted arrays.",
+     "say": "Slides to sort six cards. Sorted input means no slides, so O of n. Six sorted cards: zero slides. Our shuffled six: nine. Reversed: fifteen.",
      "bars": [
       {
        "label": "sorted",
@@ -340,6 +347,16 @@
        "tone": "bad",
        "cue": "Reversed"
       }
+     ]
+    },
+    {
+     "type": "take",
+     "say": "That's why insertion sort wins on tiny or nearly sorted arrays.",
+     "lines": [
+      "Tiny or nearly sorted? Insertion wins."
+     ],
+     "cues": [
+      "That's why"
      ]
     }
    ]
@@ -460,6 +477,46 @@
        "text": "3",
        "size": 44,
        "cue": "Cut each half again"
+      },
+      {
+       "id": "l0a",
+       "x": 330,
+       "y": 790,
+       "w": 150,
+       "h": 100,
+       "text": "5",
+       "size": 44,
+       "cue": "Keep cutting"
+      },
+      {
+       "id": "l0b",
+       "x": 500,
+       "y": 790,
+       "w": 150,
+       "h": 100,
+       "text": "2",
+       "size": 44,
+       "cue": "Keep cutting"
+      },
+      {
+       "id": "l2a",
+       "x": 1060,
+       "y": 790,
+       "w": 150,
+       "h": 100,
+       "text": "6",
+       "size": 44,
+       "cue": "Keep cutting"
+      },
+      {
+       "id": "l2b",
+       "x": 1230,
+       "y": 790,
+       "w": 150,
+       "h": 100,
+       "text": "1",
+       "size": 44,
+       "cue": "Keep cutting"
       }
      ],
      "arrows": [
@@ -492,13 +549,33 @@
        "from": "m1",
        "to": "l3",
        "cue": "Cut each half again"
+      },
+      {
+       "from": "l0",
+       "to": "l0a",
+       "cue": "Keep cutting"
+      },
+      {
+       "from": "l0",
+       "to": "l0b",
+       "cue": "Keep cutting"
+      },
+      {
+       "from": "l2",
+       "to": "l2a",
+       "cue": "Keep cutting"
+      },
+      {
+       "from": "l2",
+       "to": "l2b",
+       "cue": "Keep cutting"
       }
      ],
      "notes": [
       {
-       "x": 560,
-       "y": 740,
-       "text": "cut until single cards: 3 cuts",
+       "x": 100,
+       "y": 230,
+       "text": "3 cuts to single cards",
        "tone": "warn",
        "cue": "three cuts"
       }
@@ -1242,7 +1319,7 @@
      "notes": [
       {
        "x": 520,
-       "y": 740,
+       "y": 870,
        "text": "n rounds × n work = O(n²)",
        "tone": "bad",
        "cue": "That's n rounds"
@@ -1284,8 +1361,10 @@
      "say": "What does s t d colon colon sort do? Can you set your own order? Say, words by length: fig, kiwi, apple, banana. It's an introsort: a mix of three sorts. A comparator says which item comes first.",
      "cues": {
       "example": "Say, words",
-      "output": "An introsort"
-     }
+      "output": "It's an introsort",
+      "note": "a mix of three sorts"
+     },
+     "note": "Mix of three sorts"
     },
     {
      "type": "flow",
@@ -1652,6 +1731,12 @@
       {
        "lines": [],
        "cue": "The cost is"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "cue": "just one hundred"
       }
      ],
      "notes": [
@@ -1661,13 +1746,6 @@
        "text": "k = 5 values here",
        "tone": "warn",
        "cue": "where k is"
-      },
-      {
-       "line": 4,
-       "inside": true,
-       "text": "k = 121 for ages",
-       "tone": "good",
-       "cue": "just one hundred"
       }
      ],
      "output": {
@@ -1731,7 +1809,11 @@
      "rows": [
       [
        "Insertion sort?",
-       "slide each card into place: O(n²); O(n) if already sorted"
+       "slide each card into place: O(n²)"
+      ],
+      [
+       "Already sorted input?",
+       "O(n) if sorted"
       ],
       [
        "Merge sort?",
@@ -1744,6 +1826,7 @@
      ],
      "cues": [
       "Insertion sort?",
+      "linear if already sorted",
       "Merge sort?",
       "Why n log n?"
      ]
@@ -1803,7 +1886,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Quicksort? Pick a pivot, partition smaller left and bigger right, recurse. Worst case? O of n squared with bad pivots, like a sorted array. Quick or merge? Quick is in place, merge is stable.",
+     "say": "Quicksort? Pick a pivot, partition smaller left and bigger right, recurse. Worst case? O of n squared with bad pivots, like a sorted array. Quick or merge? Quick is in place, merge is stable. Counting or sort? A billion counters is about four GB, so sort wins.",
      "rows": [
       [
        "How does quicksort work?",
@@ -1816,12 +1899,17 @@
       [
        "Quick or merge sort?",
        "quick: in place · merge: stable"
+      ],
+      [
+       "Counting or sort, 1M ints to 10⁹?",
+       "`std::sort`: a billion counters, about 4 GB"
       ]
      ],
      "cues": [
       "Quicksort?",
       "Worst case?",
-      "Quick or merge?"
+      "Quick or merge?",
+      "Counting or sort"
      ]
     },
     {
@@ -1834,15 +1922,15 @@
       "They ask",
       "You say"
      ],
-     "say": "What does s t d sort do? Introsort: n log n worst case, not stable. Comparator? Strict less, never less or equal. Counting sort? A small integer range k, in O of n plus k.",
+     "say": "What does s t d sort do? Introsort: n log n worst case, not stable. When a comparator? Custom order, like shorter first. Strict less, never less or equal. Counting sort? A small integer range k, in O of n plus k.",
      "rows": [
       [
        "What does `std::sort` do?",
        "introsort: O(n log n), not stable"
       ],
       [
-       "Comparator rules?",
-       "strict `<`; `<=` is undefined behavior"
+       "When a comparator?",
+       "custom order, e.g. shorter first; strict `<`"
       ],
       [
        "When counting sort?",
@@ -1851,7 +1939,7 @@
      ],
      "cues": [
       "What does s t d",
-      "Comparator?",
+      "When a comparator?",
       "Counting sort?"
      ]
     }
