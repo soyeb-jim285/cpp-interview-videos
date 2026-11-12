@@ -77,7 +77,7 @@
       "output": "The answer is eight",
       "note": "Moves: up"
      },
-     "say": "Here's the problem. A five by five maze. Fewest steps from top left to exit? The answer is eight. Moves: up, down, left, right. Never through a wall."
+     "say": "You're standing top left in a five by five maze, and the exit is bottom right. Fewest steps? The answer is eight. Moves: up, down, left, right. Never through a wall."
     },
     {
      "type": "flow",
@@ -1073,10 +1073,10 @@
      "note": "Diagonal neighbors do not touch.",
      "cues": {
       "example": "grid of ones",
-      "output": "the answer is three",
+      "output": "islands? Three",
       "note": "Touching means"
      },
-     "say": "Next problem. A grid of ones and zeros. Touching ones form an island. How many islands? Here, the answer is three. Touching means up, down, left, or right."
+     "say": "Look at this grid of ones and zeros. Touching ones form an island, so how many islands? Three. Touching means up, down, left, or right."
     },
     {
      "type": "flow",
@@ -1879,7 +1879,7 @@
       "output": "One valid order is",
       "note": "A loop"
      },
-     "say": "Last problem. Four courses. Zero before one and two, both before three. One valid order is zero, one, two, three. A loop makes it impossible."
+     "say": "Four courses with rules. Zero before one and two, both before three. One valid order is zero, one, two, three. A loop makes it impossible."
     },
     {
      "type": "flow",

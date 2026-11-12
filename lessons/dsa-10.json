@@ -87,7 +87,7 @@
       "output": "the answer is",
       "note": "Roads go both"
      },
-     "say": "Here's the problem. Four towns, roads with travel times. Least time from A to every town? On this map, the answer is A zero, C one, B three, D four. Roads go both ways."
+     "say": "Four towns, roads with travel times. What's the least time from A to every town? On this map, the answer is A zero, C one, B three, D four. Roads go both ways."
     },
     {
      "type": "diagram",
@@ -674,7 +674,7 @@
       "output": "returns the least",
       "note": "No negative weights"
      },
-     "say": "Now code it. A function takes a start town and the roads. Same map, start at A. It returns the least time to every town: zero, three, one, four. No negative weights."
+     "say": "Time to write it. The function takes a start town and the roads. Same map, start at A. It returns the least time to every town: zero, three, one, four. No negative weights."
     },
     {
      "type": "code",
@@ -899,10 +899,10 @@
      "note": "A friendship between people already connected changes nothing.",
      "cues": {
       "example": "Eight people",
-      "output": "Here, four",
+      "output": "groups? Four",
       "note": "already connected"
      },
-     "say": "Last problem. Eight people, four friendships arriving one at a time. How many groups? Here, four. A friendship inside a group changes nothing: they're already connected."
+     "say": "Eight people, and friendships arriving one at a time. After all four, how many groups? Four. A friendship inside a group changes nothing: they're already connected."
     },
     {
      "type": "flow",

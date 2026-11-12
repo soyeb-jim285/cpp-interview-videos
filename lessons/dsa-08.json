@@ -87,10 +87,10 @@
       "output": "1 3 6 8 10 14"
      },
      "cues": {
-      "example": "Visit every node",
+      "example": "visit every node",
       "output": "The answer is"
      },
-     "say": "Here's the problem. Visit every node of a tree: left, node, right. Our tree has eight on top. The answer is one, three, six, eight, ten, fourteen."
+     "say": "Quick question: how do you visit every node of a tree, left, node, right? Take eight on top. The answer is one, three, six, eight, ten, fourteen."
     },
     {
      "type": "flow",
@@ -750,9 +750,9 @@
      },
      "cues": {
       "example": "same tree",
-      "output": "The answer"
+      "output": "found in three steps"
      },
-     "say": "Next problem. Find a value in a tree without checking every node. Take the same tree, and look for six. The answer: found in three steps, eight, three, six."
+     "say": "Can you find six in that same tree without checking every node? Look: found in three steps, eight, three, six."
     },
     {
      "type": "flow",
@@ -1359,10 +1359,10 @@
       "output": "yes: car, cat, care"
      },
      "cues": {
-      "example": "Store words",
+      "example": "store words",
       "output": "Yes, all three"
      },
-     "say": "Last problem. Store words, then ask for a prefix. Store car, cat, care. Ask c a. Yes, all three match."
+     "say": "Autocomplete, at heart: store words, ask for a prefix. Try car, cat, care. Ask c a. Yes, all three match."
     },
     {
      "type": "flow",
