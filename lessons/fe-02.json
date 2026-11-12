@@ -1040,7 +1040,8 @@
      "output": {
       "cmd": "node app.mjs",
       "text": "serial 200\ntogether 100",
-      "cue": "Serial two hundred"
+      "cue": "Serial two hundred",
+      "approx": true
      }
     },
     {
