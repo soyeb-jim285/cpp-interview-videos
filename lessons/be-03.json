@@ -104,7 +104,7 @@
     {
      "type": "flow",
      "head": "Two steps, one promise",
-     "say": "Start smaller. Move one hundred dollars from Alice to Bob. That's two steps: take it from Alice, give it to Bob. Think of handing cash through a window: the whole handoff happens, or the cash goes back. A transaction is that promise.",
+     "say": "Start smaller. Move one hundred dollars from Alice to Bob. That's two steps: take it from Alice, give it to Bob. Think of handing cash through a window: all of it happens, or the cash goes back. A transaction is that promise.",
      "items": [
       {
        "label": "step 1",
@@ -116,7 +116,7 @@
        "label": "step 2",
        "text": "Bob +100",
        "sub": "credit",
-       "cue": "give it to Bob"
+       "cue": "That's two steps"
       },
       {
        "label": "cash window",
@@ -280,11 +280,11 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Begin starts a transaction, and commit saves it. Alice started at five hundred. What does she show after the restart? Pause and predict.",
+     "say": "Quick check. Same transfer, same crash after step one. But now both updates sit inside begin and commit. Begin starts a transaction, and commit saves it. Alice started at five hundred. What does she show after the restart? Pause and predict.",
      "q": "BEGIN; debit Alice 100; crash before COMMIT. Alice started at 500: now?",
      "options": [
       "400",
-      "450",
+      "300",
       "500",
       "500 only if COMMIT ran"
      ],
@@ -294,7 +294,7 @@
     {
      "type": "code",
      "head": "BEGIN ... COMMIT",
-     "say": "Five hundred. The database never saw a commit, so it undoes the half-done work. Begin opens the transaction. The update waits inside it. Only commit makes it permanent. A crash before commit acts like a rollback. After it, Alice shows five hundred and Bob two hundred.",
+     "say": "Five hundred. The database never saw a commit, so it undoes the half-done work. Begin opens the transaction. The update is held inside the transaction, not yet saved. Only commit makes it permanent. A crash before commit acts like a rollback. After it, Alice shows five hundred and Bob two hundred.",
      "panels": [
       {
        "file": "bank.sql",
@@ -321,7 +321,7 @@
        "lines": [
         2
        ],
-       "cue": "The update waits"
+       "cue": "The update is held"
       },
       {
        "lines": [
@@ -341,7 +341,7 @@
       "cmd": "sqlite3 bank.db",
       "text": "1|Alice|500\n2|Bob|200",
       "tone": "good",
-      "cue": "Alice shows five hundred",
+      "cue": "acts like a rollback",
       "setup": {
        "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, name TEXT, balance INT);\nINSERT INTO accounts VALUES (1,'Alice',500),(2,'Bob',200);"
       }
@@ -350,7 +350,7 @@
     {
      "type": "flow",
      "head": "ACID: four promises",
-     "say": "That's the A in ACID. Four promises. Atomic: all or nothing, like the transfer. Consistent: rules like balance never below zero still hold. Isolated: transactions running together don't see each other's half-done work. Durable: once committed, it survives a crash.",
+     "say": "That's the A in ACID. Four promises. Atomic: all or nothing, like the transfer. Consistent: rules like balance never below zero still hold. Isolated: each acts as if alone, though levels relax that. Durable: once committed, it survives a crash.",
      "items": [
       {
        "label": "A",
@@ -367,7 +367,7 @@
       {
        "label": "I",
        "text": "Isolated",
-       "sub": "no peeking",
+       "sub": "acts as if alone",
        "cue": "Isolated"
       },
       {
@@ -382,7 +382,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers our problem. A transaction makes the transfer all or nothing.",
+     "say": "So the transfer is safe now. A transaction makes it all or nothing.",
      "lines": [
       "Transaction: all or nothing"
      ],
@@ -603,7 +603,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Same replay, but now B writes first, then A. A takes thirty, B takes twenty, from one hundred. What's the final balance? Pause and predict.",
+     "say": "Now flip the order. Same replay, but now B writes first, then A. A takes thirty, B takes twenty, from one hundred. What's the final balance? Pause and predict.",
      "q": "Both read 100. B writes first, then A. Final balance?",
      "options": [
       "50",
@@ -671,7 +671,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. Two requests that read, then write, lose an update.",
+     "say": "That's the mechanism. Two requests that read, then write, lose an update.",
      "lines": [
       "Read, think, write loses updates"
      ],
@@ -692,7 +692,7 @@
       "input": "the same race: 30 and 20 from 100",
       "output": "50 every time, no lost update"
      },
-     "say": "Now the fix. Same race: thirty and twenty from one hundred. The goal is fifty, every single time, and there are three ways to get there.",
+     "say": "Now the fix. Same race: thirty and twenty from one hundred. The goal is fifty, every single time.",
      "cues": {
       "example": "Same race",
       "output": "The goal is fifty"
@@ -701,7 +701,7 @@
     {
      "type": "code",
      "head": "Fix one: one atomic statement",
-     "say": "Fix one: skip the read. Let the database subtract inside one statement. The extra condition blocks overdrafts. A takes thirty, B takes twenty. The balance prints fifty. If a statement changes zero rows, there wasn't enough money.",
+     "say": "Three ways to get there. Fix one: skip the read. Let the database subtract inside one statement. The extra condition blocks overdrafts. A takes thirty, B takes twenty. The balance prints fifty. If a statement changes zero rows, there wasn't enough money.",
      "panels": [
       {
        "file": "bank.sql",
@@ -755,7 +755,7 @@
       "cmd": "sqlite3 bank.db",
       "text": "50",
       "tone": "good",
-      "cue": "prints fifty",
+      "cue": "B takes twenty",
       "setup": {
        "seed.sql": "CREATE TABLE accounts(id INTEGER PRIMARY KEY, balance INT);\nINSERT INTO accounts VALUES (1,100);"
       }
@@ -961,7 +961,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. B lost, so it reads the row again: balance seventy, version eight. It writes fifty, and bumps the version to nine. How many rows change? Pause and predict.",
+     "say": "Your move. B lost, so it reads the row again: balance seventy, version eight. It writes fifty, and bumps the version to nine. How many rows change? Pause and predict.",
      "q": "B re-reads: balance 70, version 8. Writes 50 `WHERE version = 8`. Rows changed?",
      "options": [
       "0",
@@ -1072,9 +1072,9 @@
       "input": "T1 reads twice, T2 commits between",
       "output": "know what each level shows T1"
      },
-     "say": "Last question: what can you see? Say T1 reads twice, and T2 commits between. Does T1 notice? Each isolation level answers differently. And sometimes two transactions wait on each other forever.",
+     "say": "Last question: what can you see? Say transaction one, T1, reads twice, and transaction two, T2, commits between. Does T1 notice? Each isolation level answers differently. And sometimes two transactions wait on each other forever.",
      "cues": {
-      "example": "Say T1 reads",
+      "example": "Say transaction one",
       "output": "Does T1 notice",
       "note": "And sometimes"
      },
@@ -1295,7 +1295,7 @@
     {
      "type": "quiz",
      "pause": 5,
-     "say": "Your turn. Same story, but T1 runs at repeatable read. T2 still commits seventy between T1's two reads. What does T1's second read show? Pause and predict.",
+     "say": "Change one thing. Same story, but T1 runs at repeatable read. T2 still commits seventy between T1's two reads. What does T1's second read show? Pause and predict.",
      "q": "Repeatable read. T2 commits 70 between T1's reads. T1's 2nd read?",
      "options": [
       "100",
@@ -1308,7 +1308,7 @@
     {
      "type": "diagram",
      "head": "Repeatable read: a steady view",
-     "say": "One hundred. At repeatable read, T1 keeps the view from its first read. T2 still commits seventy to the row. But T1's second read keeps showing one hundred. That's why begin alone failed earlier: at read committed, a plain read takes no lock.",
+     "say": "One hundred. At repeatable read, T1 keeps the view from its first read. T2 still commits seventy to the row. But T1's second read keeps showing one hundred. Still, neither BEGIN alone nor any isolation level alone stops the lost update. At read committed, a plain read takes no lock. The fix is an atomic UPDATE or SELECT ... FOR UPDATE.",
      "items": [
       {
        "id": "t1",
@@ -1411,7 +1411,7 @@
        "y": 840,
        "text": "read committed: no read lock",
        "tone": "warn",
-       "cue": "why begin alone"
+       "cue": "takes no lock"
       }
      ],
      "changes": [
@@ -1419,6 +1419,21 @@
        "id": "r1",
        "text": "100",
        "cue": "One hundred"
+      },
+      {
+       "id": "row",
+       "tone": "warn",
+       "cue": "neither BEGIN alone"
+      },
+      {
+       "id": "row",
+       "tone": "bad",
+       "cue": "At read committed"
+      },
+      {
+       "id": "row",
+       "tone": "good",
+       "cue": "The fix is an atomic"
       },
       {
        "id": "row",
@@ -1555,7 +1570,7 @@
     {
      "type": "take",
      "kicker": "Solved",
-     "say": "That answers it. Isolation levels say what a transaction sees, and deadlocks get retried.",
+     "say": "Recap the hard part. Isolation levels say what a transaction sees, and deadlocks get retried.",
      "lines": [
       "Levels set what you can see",
       "Deadlock: abort one, retry"
@@ -1581,7 +1596,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's a transaction? Statements that all happen or none do, like a transfer. What does ACID mean? Atomic is all or nothing. Consistent means rules like no negative balance still hold. Isolated means nobody sees half-done work. Durable means a commit survives a crash.",
+     "say": "What's a transaction? Statements that all happen or none do, like a transfer. What does ACID mean? Atomic is all or nothing. Consistent means rules like no negative balance still hold. Isolated means no peeking, at serializable. Durable means a commit survives a crash.",
      "rows": [
       [
        "What is a transaction?",
@@ -1597,7 +1612,7 @@
       ],
       [
        "Isolated? Durable?",
-       "No peeking. Commits survive a crash"
+       "Serializable: no peeking. Commits survive a crash"
       ]
      ],
      "cues": [
@@ -1653,7 +1668,7 @@
       "They ask",
       "You say"
      ],
-     "say": "Give a lost update. Both read one hundred, write seventy and eighty, and thirty vanishes. What's a deadlock? Two transactions each wait for a row the other holds. Then what? The database aborts one, and you retry. How do you avoid it? Lock rows in one order, and keep transactions short.",
+     "say": "Give a lost update. Both read one hundred, and the last write wins. What's a deadlock? Two transactions each wait for a row the other holds. Then what? The database aborts one, and you retry. How do you avoid it? Lock rows in one order, and keep transactions short.",
      "rows": [
       [
        "Give a lost update",
@@ -1689,7 +1704,7 @@
       "They ask",
       "You say"
      ],
-     "say": "What's a race condition? Another request sneaks in between your read and write. What's the best fix? One atomic update, so there's no gap. And otherwise? Add a version column, and retry on zero rows. Or lock the row with select for update.",
+     "say": "What's a race condition? Someone sneaks in between read and write. Now the best fix: one atomic update, no gap. And otherwise? Add a version column, and retry on zero rows. Or lock the row with select for update.",
      "rows": [
       [
        "What is a race condition?",
@@ -1744,6 +1759,12 @@
         3
        ],
        "cue": "plain select"
+      },
+      {
+       "lines": [
+        3
+       ],
+       "cue": "Add for update"
       }
      ],
      "notes": [
@@ -1812,7 +1833,7 @@
        "final balance is wrong"
       ],
       [
-       "Use `SET balance = balance - 30`",
+       "Run both atomic updates (-30, then -20)",
        "the balance is 50"
       ],
       [
@@ -1828,7 +1849,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. A transaction is all or nothing, and ACID keeps it safe. Fix a lost update with one atomic update, a row lock, or a version column. Isolation levels say what a transaction can see, and a deadlock gets retried.",
+     "say": "So say this. A transaction is all or nothing, and ACID keeps it safe. Fix a lost update with one atomic update, a row lock, or a version column. Isolation levels say what a transaction can see. Deadlocks get retried.",
      "lines": [
       "A transaction: all or nothing. ACID keeps it safe.",
       "Lost update: atomic UPDATE, row lock, or version.",
