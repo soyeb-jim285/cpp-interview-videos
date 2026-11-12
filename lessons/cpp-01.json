@@ -112,41 +112,44 @@
        "file": "stack.c",
        "label": "C",
        "tone": "warn",
-       "code": "int* d = malloc(\n    10 * sizeof(int));\nd[0] = 42;\nfree(d);"
+       "code": "#include <stdlib.h>\nvoid demo() {\n    int* d = malloc(\n        10 * sizeof(int));\n    d[0] = 42;\n    free(d);\n}"
       },
       {
        "file": "stack.cpp",
        "label": "C++",
        "tone": "good",
-       "code": "std::vector<int> d(10);\nd[0] = 42;"
+       "code": "#include <vector>\nvoid demo() {\n    std::vector<int> d(10);\n    d[0] = 42;\n}"
       }
      ],
      "steps": [
       {
        "lines": [
-        1,
-        2
+        3,
+        4
        ],
        "panel": 0,
        "cue": "you call malloc"
       },
       {
        "lines": [
-        4
+        6
        ],
        "panel": 0,
        "cue": "remember free"
       },
       {
        "lines": [
-        1
+        3
        ],
        "panel": 1,
        "cue": "a vector frees"
       },
       {
-       "lines": [],
-       "cue": "closing brace"
+       "lines": [
+        5
+       ],
+       "cue": "closing brace",
+       "panel": 1
       },
       {
        "lines": [],
@@ -265,7 +268,7 @@
        "file": "fixed.cpp",
        "label": "C++",
        "tone": "good",
-       "code": "int* p = static_cast<int*>(\n    malloc(sizeof(int)));\nint klass = 5;"
+       "code": "#include <cstdlib>\nint* p = static_cast<int*>(\n    malloc(sizeof(int)));\nint klass = 5;"
       }
      ],
      "steps": [
@@ -278,8 +281,8 @@
       },
       {
        "lines": [
-        1,
-        2
+        2,
+        3
        ],
        "panel": 1,
        "cue": "add a cast"
@@ -293,7 +296,7 @@
       },
       {
        "lines": [
-        3
+        4
        ],
        "panel": 1,
        "cue": "rename that variable"
@@ -485,7 +488,7 @@
     {
      "type": "diagram",
      "head": "Run: the OS takes over",
-     "say": "When you run it, the operating system's loader creates a process. Machine code goes in the text part. Globals go in the data part. Then it adds a heap and a stack. Startup code runs, then main. When main returns zero, that is the exit code, and zero means success.",
+     "say": "When you run it, the operating system's loader creates a process. Machine code goes in the text part. Initialized globals go in data, zeroed ones in bss. Then it adds a heap and a stack. Startup code runs, then main. When main returns zero, that is the exit code, and zero means success.",
      "items": [
       {
        "id": "disk",
@@ -497,16 +500,6 @@
        "cue": "you run it",
        "label": "disk file",
        "tone": "blue"
-      },
-      {
-       "id": "pm",
-       "region": true,
-       "x": 560,
-       "y": 230,
-       "w": 700,
-       "h": 690,
-       "label": "process memory",
-       "cue": "creates a process"
       },
       {
        "id": "txt",
@@ -524,8 +517,8 @@
        "y": 470,
        "w": 540,
        "h": 110,
-       "text": "data: globals, statics",
-       "cue": "the data part",
+       "text": "data + bss: globals",
+       "cue": "Initialized globals",
        "size": 36
       },
       {
@@ -1226,7 +1219,7 @@
     {
      "type": "compare",
      "head": "Value, reference, pointer",
-     "say": "The call: only the pointer needs an ampersand. What is copied: the object, nothing, an address. Can it change n? Not by value. Can it be null? Only a pointer. Use value for small types, const T reference for big objects, pointers when optional.",
+     "say": "The call: only the pointer needs an ampersand. What is copied: the object, nothing, an address. Can it change n? Not by value. Can it be null? Only a pointer. Use value for small types. A const reference is a read-only alias: no copy, and no writes. Pointers when optional.",
      "heads": [
       "value",
       "reference",
@@ -1264,7 +1257,7 @@
       "What is copied",
       "Can it change",
       "Can it be",
-      "Use value"
+      "A const reference"
      ],
      "rowHeads": [
       "call",
@@ -1664,14 +1657,12 @@
      "panels": [
       {
        "file": "player.cpp",
-       "code": "static int helper() { return 1; }\n\nclass Player {\npublic:\n    static int count;\n    Player() { ++count; }\n};\nint Player::count = 0;\n\nPlayer a, b, c;"
+       "code": "#include <iostream>\nusing namespace std;\nclass Player {\npublic:\n    static int count;\n    Player() { ++count; }\n};\nint Player::count = 0;\nint main() { Player a, b, c; cout << Player::count; }"
       }
      ],
      "steps": [
       {
-       "lines": [
-        1
-       ],
+       "lines": [],
        "cue": "hides a function"
       },
       {
@@ -1692,11 +1683,17 @@
       },
       {
        "lines": [
-        10
+        9
        ],
        "cue": "three players"
       }
-     ]
+     ],
+     "output": {
+      "cmd": "./player",
+      "text": "3",
+      "tone": "good",
+      "cue": "make it three"
+     }
     },
     {
      "type": "quiz",
@@ -1704,11 +1701,11 @@
      "q": "n is read from cin. Which line fails to compile?",
      "options": [
       "const int a = n;",
-      "constexpr int b = n;",
+      "constexpr int b = n * 2;",
       "Both fail",
       "Neither fails"
      ],
-     "answer": "constexpr int b = n;",
+     "answer": "constexpr int b = n * 2;",
      "optCue": "Your turn"
     },
     {
@@ -2026,8 +2023,8 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Declaration versus definition? Names it, or creates it. How often? Declare many times, define once. Define twice? The linker reports multiple definition.",
+     "head": "Declaration or definition?",
+     "say": "Declaration versus definition? Names it, or creates it. How often? Declare many times, define once: the one definition rule, ODR. Define twice? The linker reports multiple definition.",
      "heads": [
       "They ask",
       "You say"
@@ -2057,7 +2054,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Stack or heap?",
      "say": "Stack versus heap? Stack: automatic, fast, small. Heap: yours, large. Lifetime? Scope end, against until freed. A huge local array? Stack overflow, so use a vector.",
      "heads": [
       "They ask",
@@ -2154,7 +2151,7 @@
     },
     {
      "type": "compare",
-     "head": "Say it in 20 seconds",
+     "head": "Pointer or reference?",
      "say": "Pointer versus reference? An object holding an address, or an alias. Null or re-point? Pointers can, references never. Which by default? Reference. Pointer for nothing, or re-pointing.",
      "heads": [
       "They ask",
@@ -2196,6 +2193,27 @@
      "answer": "t.v = 1 on Tag",
      "pause": 5,
      "optCue": "Your turn"
+    },
+    {
+     "type": "compare",
+     "head": "Struct versus class?",
+     "covers": [
+      "q08"
+     ],
+     "heads": [
+      "They ask",
+      "You say"
+     ],
+     "say": "Struct versus class? Only default access. Struct for plain data, class for invariants.",
+     "rows": [
+      [
+       "Struct vs class?",
+       "Default access only: struct public, class private; struct for plain data, class for invariants"
+      ]
+     ],
+     "cues": [
+      "Struct versus class"
+     ]
     },
     {
      "type": "code",
