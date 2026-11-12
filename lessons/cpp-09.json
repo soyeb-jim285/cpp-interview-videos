@@ -52,16 +52,16 @@
     {
      "type": "take",
      "kicker": "Today",
-     "say": "Today you will do three things. Tell overloading from overriding, and plug a leak. Know the rule of three, five, zero. And draw the vtable, and fix the diamond.",
+     "say": "Today you will do three things. Tell overloading from overriding, and why a virtual destructor matters. Then constructors that throw, and copy versus assign. Last, the rule of three, five, zero, the diamond, and the vtable.",
      "lines": [
-      "Overriding, overloading, virtual destructors",
-      "Know the rule of 3, 5, 0",
-      "Draw the vtable; fix the diamond"
+      "Overloading vs overriding; virtual destructors",
+      "Throwing constructors; copy vs assign",
+      "Rule of 3, 5, 0; the diamond; the vtable"
      ],
      "cues": [
       "Tell overloading",
-      "Know the rule",
-      "draw the vtable"
+      "constructors that throw",
+      "the rule of three, five, zero"
      ]
     },
     {
@@ -168,7 +168,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Base has f of int and f of double. Derived declares only f of int. We call d dot f with two point five. Which version runs? Pause and predict.",
+     "say": "Quick check. Base has f of int and f of double. Derived declares only f of int. We call d dot f with two point five. Which version runs? Pause and predict.",
      "q": "Derived declares only `f(int)`. What does `d.f(2.5)` call?",
      "options": [
       "Base::f(double)",
@@ -365,7 +365,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Now we make Base's destructor virtual. Both destructors print their name. What gets printed when we delete p? Pause and predict.",
+     "say": "Predict this one. Now we make Base's destructor virtual. Both destructors print their name. What gets printed when we delete p? Pause and predict.",
      "q": "With `virtual ~Base()`, `delete p;` prints...",
      "options": [
       "~Base only",
@@ -457,7 +457,7 @@
      "statement": "A Car builds an engine and wheels, then its constructor throws. Which destructors run, and in what order?",
      "example": {
       "input": "Part engine; Part wheels; throw",
-      "output": "destroy built members; no ~Car"
+      "output": "destructors that run, in order"
      },
      "say": "A Car builds its engine, then its wheels, then throws. Which destructors run?",
      "cues": {
@@ -467,7 +467,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Car has two Part members, and a destructor that prints ~Car. The constructor body throws. Does ~Car run? Pause and predict.",
+     "say": "Stop and think. Car has two Part members, and a destructor that prints ~Car. The constructor body throws. Does ~Car run? Pause and predict.",
      "q": "Constructor body throws. Does `~Car()` run?",
      "options": [
       "yes, first",
@@ -484,28 +484,41 @@
      "panels": [
       {
        "file": "car.cpp",
-       "code": "struct Car {\n    Part engine{\"engine\"};\n    Part wheels{\"wheels\"};\n    Car() { throw runtime_error(\"no fuel\"); }\n    ~Car() { cout << \"~Car \"; }\n};\ntry { Car c; } catch (...) { }"
+       "code": "#include <iostream>\n#include <stdexcept>\nusing namespace std;\nstruct Part { string n; Part(string s) : n(s) { cout << \"+\" << n << \" \"; }\n    ~Part() { cout << \"-\" << n << \" \"; } };\nstruct Car { Part engine{\"engine\"}, wheels{\"wheels\"};\n    Car() { throw runtime_error(\"no fuel\"); }\n    ~Car() { cout << \"~Car \"; } };\nint main() { try { Car c; } catch (...) { } }"
       }
      ],
      "steps": [
       {
        "lines": [
-        4
+        7
        ],
        "cue": "never finished"
       },
       {
        "lines": [
-        5
+        8
        ],
        "cue": "Nothing for"
       },
       {
        "lines": [
-        2,
-        3
+        6
        ],
        "cue": "already built"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "Each Part prints"
+      },
+      {
+       "lines": [
+        4,
+        5
+       ],
+       "cue": "minus when destroyed"
       }
      ],
      "output": {
@@ -517,7 +530,7 @@
     {
      "type": "code",
      "head": "The trap: raw resources leak",
-     "say": "Raw resources in constructors are dangerous. On the left, new allocates, then connect throws. The destructor never runs, so the buffer leaks. On the right, a vector member is fully built, so it is destroyed. That is R A I I.",
+     "say": "Raw resources in constructors are dangerous. On the left, new allocates, then connect throws. The destructor never runs, so the buffer leaks. On the right, a vector member is fully built, so it is destroyed. That is R A I I. Resource acquisition is initialization: a member cleans itself up.",
      "panels": [
       {
        "file": "raw.cpp",
@@ -561,13 +574,34 @@
        ],
        "panel": 1,
        "cue": "vector member"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "so it is destroyed"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "Resource acquisition"
+      },
+      {
+       "lines": [
+        2
+       ],
+       "panel": 1,
+       "cue": "cleans itself up"
       }
      ]
     },
     {
      "type": "compare",
      "head": "Two more facts interviewers like",
-     "say": "Two more facts. A throwing constructor inside new frees the memory, and the pointer is never assigned. A function try block can catch, but then rethrows. And throwing is how a constructor reports failure.",
+     "say": "Two more facts. A throwing constructor inside new frees the memory, and the pointer is never assigned. A function try block can catch, but it rethrows. And throwing reports failure.",
      "heads": [
       "Situation",
       "What happens"
@@ -579,7 +613,7 @@
       ],
       [
        "function try block",
-       "can catch; exception is rethrown"
+       "wraps the body; catches, then rethrows"
       ],
       [
        "constructor failure",
@@ -603,7 +637,7 @@
      "statement": "Three lines copy one T into another. Which of them call the copy constructor, and which call copy assignment?",
      "example": {
       "input": "T b = a;  T c(a);  c = b;",
-      "output": "ctor, ctor, assign"
+      "output": "ctor or assign, for each line"
      },
      "say": "Three lines: T b equals a, T c of a, and c equals b. Which one is assignment?",
      "cues": {
@@ -613,7 +647,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Ask one question: does the object on the left already exist? Now, T b equals a. Which function runs? Pause and predict.",
+     "say": "Your move. Now, T b equals a. Which function runs? Pause and predict.",
      "q": "`T b = a;` calls the...",
      "options": [
       "copy constructor",
@@ -626,7 +660,7 @@
     {
      "type": "code",
      "head": "Which one runs?",
-     "say": "The copy constructor. B is created right there, even with an equals sign. Same for c of a. Only c equals b, where c already exists, calls copy assignment. Passing or returning by value also uses the copy constructor.",
+     "say": "The copy constructor. B is created right there, even with an equals sign. Same for c of a. Only c equals b, where c already exists, calls copy assignment. Passing a named object by value also calls the copy constructor.",
      "panels": [
       {
        "file": "copy.cpp",
@@ -662,7 +696,7 @@
      "output": {
       "cmd": "./copy",
       "text": "copy ctor\ncopy ctor\ncopy assign",
-      "cue": "returning by value"
+      "cue": "Passing a named object"
      }
     },
     {
@@ -725,7 +759,7 @@
      },
      "say": "A Buffer owns an array and frees it in its destructor. We copy it, and at the end of main the program dies. Why?",
      "cues": {
-      "example": "A Buffer owns",
+      "example": "We copy it",
       "output": "at the end"
      }
     },
@@ -763,9 +797,10 @@
        "w": 420,
        "h": 140,
        "label": "heap",
-       "text": "int[3]",
+       "text": "",
        "tone": "info",
-       "cue": "Buffer a owns"
+       "cue": "Buffer a owns",
+       "sub": "int[3]"
       }
      ],
      "arrows": [
@@ -825,16 +860,21 @@
       },
       {
        "lines": [
-        8,
-        9
+        8
        ],
        "cue": "Rule of five"
+      },
+      {
+       "lines": [
+        9
+       ],
+       "cue": "steal the pointer"
       }
      ]
     },
     {
      "type": "quiz",
-     "say": "Your turn. A class declares a destructor and a copy constructor, but no move. We write S b equals move of a. Which function runs? Pause and predict.",
+     "say": "Quick one. A class declares a destructor and a copy constructor, but no move. We write S b equals move of a. Which function runs? Pause and predict.",
      "q": "`S` declares `~S()` and a copy ctor, no move. `S b = std::move(a);` runs...",
      "options": [
       "implicit move",
@@ -942,7 +982,7 @@
     {
      "type": "diagram",
      "head": "Inside a Bat",
-     "say": "With ordinary inheritance, each path brings its own base. Mammal holds an Animal. Bird holds another. So one Bat contains two Animals, each with its own id, and b dot id is ambiguous. Now inherit virtually. Both paths share one Animal, and b dot id just works.",
+     "say": "With ordinary inheritance, each path brings its own base. Mammal holds an Animal. Bird holds another. So one Bat has two Animals, and b dot id is ambiguous. Now inherit virtually. Both paths share one Animal, and b dot id works.",
      "items": [
       {
        "id": "mam",
@@ -1033,7 +1073,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Now the bases are virtual. Mammal passes id one to Animal. Bird passes two. Bat's own constructor passes three. What is b dot id? Pause and predict.",
+     "say": "Now the bases are virtual. Mammal passes id one to Animal. Bird passes two. Bat's own constructor passes three. What is b dot id? Pause and predict.",
      "q": "Virtual bases. Mammal passes 1, Bird 2, Bat 3. What is `b.id`?",
      "options": [
       "1",
@@ -1090,7 +1130,7 @@
      "say": "s points at a Circle, and we call area. The compiler can't see the type, yet the right function runs. How?",
      "cues": {
       "example": "s points",
-      "output": "yet the right"
+      "output": "The compiler can't see"
      }
     },
     {
@@ -1161,7 +1201,7 @@
     {
      "type": "flow",
      "head": "What s->area() compiles to",
-     "say": "What does s arrow area compile to? Three steps. First, load the v pointer from the object. Second, read slot zero, because area is always slot zero. Third, call through it. Whatever the type, its own table finds the override.",
+     "say": "What does s arrow area compile to? Three steps. First, load the v pointer from the object. Second, read slot zero, because area is declared first in Shape. Third, call through it. Whatever the type, its own table finds the override.",
      "items": [
       {
        "label": "step 1",
@@ -1183,7 +1223,7 @@
     },
     {
      "type": "quiz",
-     "say": "Your turn. Plain has one int. Virtual has one int and one virtual function. On a typical sixty four bit build, how many bytes is Virtual? Pause and predict.",
+     "say": "Size check. Plain has one int. Virtual has one int and one virtual function. On a typical sixty four bit build, how many bytes is Virtual? Pause and predict.",
      "q": "`struct Virtual { int x; virtual void f() {} };` `sizeof` on 64-bit?",
      "options": [
       "4",
@@ -1274,31 +1314,18 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Why a virtual destructor? Else the derived destructor is skipped. What goes wrong? Undefined behavior, and leaked resources. Rule? A public virtual destructor, or a protected one.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Why virtual dtor?",
-       "else derived dtor is skipped"
-      ],
-      [
-       "What goes wrong?",
-       "UB, leaked resources"
-      ],
-      [
-       "Rule?",
-       "public virtual, or protected non-virtual"
-      ]
+     "type": "take",
+     "kicker": "Answer",
+     "say": "Why a virtual destructor? Else the derived destructor is skipped. What goes wrong? Undefined behavior, and leaked resources. Rule? A public virtual destructor, or a protected non-virtual one.",
+     "lines": [
+      "Why? The derived destructor is skipped.",
+      "What goes wrong? Undefined behavior, and leaks.",
+      "Rule: public virtual, or protected non-virtual."
      ],
      "cues": [
       "Why a virtual",
       "What goes wrong",
-      "Rule"
+      "Rule?"
      ],
      "covers": [
       "q55"
@@ -1336,30 +1363,17 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Constructor versus assignment? New object versus existing. T b equals a is construction. Assignment must free old state, and survive self assignment. Rule of three, five, zero? Destructor, copy, assign. Add moves. Or write none.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "Ctor vs assign?",
-       "new object vs existing; `T b = a` is ctor"
-      ],
-      [
-       "Assignment must?",
-       "free old state, survive `b = b`"
-      ],
-      [
-       "Rule of 3, 5, 0?",
-       "dtor+copy+assign; +2 moves; or none"
-      ]
+     "type": "take",
+     "kicker": "Answer",
+     "say": "Constructor versus assignment? New object versus existing. T b equals a is construction. Assignment frees old state, and survives self assignment. Rule of three, five, zero? Write none, if you can.",
+     "lines": [
+      "Ctor: a new object. Assign: an existing one.",
+      "Assignment frees old state; survives b = b.",
+      "Rule of 3: dtor, copy, assign. 5 adds moves."
      ],
      "cues": [
       "Constructor versus",
-      "Assignment must",
+      "Assignment frees",
       "Rule of three"
      ],
      "covers": [
@@ -1399,31 +1413,18 @@
      ]
     },
     {
-     "type": "compare",
-     "head": "Say it in 20 seconds",
-     "say": "Vtables and vptrs? One table of function pointers per class, one hidden pointer per object. A virtual call? Load the vptr, pick a fixed slot, call. Cost? Eight bytes per object, one hop.",
-     "heads": [
-      "They ask",
-      "You say"
-     ],
-     "rows": [
-      [
-       "vtable and vptr?",
-       "per-class table; hidden pointer per object"
-      ],
-      [
-       "A virtual call?",
-       "load vptr, fixed slot, call"
-      ],
-      [
-       "Cost?",
-       "8 bytes per object, one hop"
-      ]
+     "type": "take",
+     "kicker": "Answer",
+     "say": "Vtables and vptrs? One table per class, one hidden pointer per object. A virtual call? Load the vptr, pick a fixed slot, call. Cost? Eight bytes per object, one hop.",
+     "lines": [
+      "Table per class; hidden vptr per object.",
+      "Virtual call: load vptr, fixed slot, call.",
+      "Cost: 8 bytes per object, one hop."
      ],
      "cues": [
       "Vtables and vptrs",
       "A virtual call",
-      "Cost"
+      "Cost?"
      ],
      "covers": [
       "q60"
@@ -1465,7 +1466,7 @@
     },
     {
      "type": "take",
-     "say": "So say this. Virtual calls go vptr to vtable to slot. A polymorphic base needs a virtual destructor. And a class that owns a resource needs the rule of five, or better, the rule of zero.",
+     "say": "So say this. Virtual calls go vptr to vtable to slot. A polymorphic base needs a virtual destructor. Owning a resource? Rule of five, or better, rule of zero.",
      "lines": [
       "vptr, vtable, slot: that is a virtual call.",
       "Polymorphic base: virtual destructor.",
@@ -1474,7 +1475,7 @@
      "cues": [
       "vptr to vtable",
       "polymorphic base",
-      "rule of five"
+      "Owning a resource"
      ]
     }
    ]
